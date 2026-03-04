@@ -1,0 +1,392 @@
+body {
+  margin: 0;
+  font-family: "Segoe UI", sans-serif;
+  scroll-behavior: smooth;
+  background: #f8f8f8;
+}
+
+/* NAVBAR */
+.navbar {
+  position: fixed;
+  width: 100%;
+  top: 0;
+  z-index: 1000;
+  padding: 20px 80px;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(12px);
+}
+
+.navbar-scrolled {
+  background: rgba(255, 255, 255, 0.95);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+}
+
+.nav-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.logo {
+  font-weight: bold;
+  font-size: 22px;
+  letter-spacing: 2px;
+}
+
+.nav-links {
+  display: flex;
+  gap: 40px;
+  list-style: none;
+}
+
+.nav-links li {
+  cursor: pointer;
+  position: relative;
+}
+
+.nav-links li::after {
+  content: "";
+  position: absolute;
+  width: 0%;
+  height: 2px;
+  left: 0;
+  bottom: -6px;
+  background: black;
+  transition: 0.3s;
+}
+
+.nav-links li:hover::after {
+  width: 100%;
+}
+
+.nav-btn {
+  padding: 10px 20px;
+  border: none;
+  background: black;
+  color: white;
+  cursor: pointer;
+}
+.nav-item {
+  position: relative;
+  cursor: pointer;
+}
+
+/* DROPDOWN BOX */
+.dropdown-menu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: 260px;
+  background: #f3f3f3;
+  padding: 0;
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.08);
+  opacity: 0;
+  transform: translateY(10px);
+  pointer-events: none;
+  transition: 0.25s ease;
+}
+
+/* SHOW ON HOVER */
+.dropdown:hover .dropdown-menu {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+/* ITEM STYLE */
+.dropdown-menu a {
+  display: block;
+  padding: 16px 20px;
+  text-decoration: none;
+  color: #333;
+  background: #e9e9e9;
+  transition: 0.2s;
+}
+
+.dropdown-menu a:first-child {
+  background: #c89b3c;
+  color: white;
+}
+
+.dropdown-menu a:hover {
+  background: #ddd;
+}
+
+/* HERO */
+.hero {
+  height: 100vh;
+  background: url("https://images.unsplash.com/photo-1507089947368-19c1da9775ae?q=80&w=2000")
+    center/cover no-repeat;
+  display: flex;
+  align-items: center;
+  padding-left: 100px;
+  color: white;
+  position: relative;
+}
+
+.hero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+}
+
+.hero-content {
+  position: relative;
+  max-width: 600px;
+}
+
+.hero h1 {
+  font-size: 60px;
+  margin: 0;
+}
+
+.hero p {
+  margin-top: 20px;
+  font-size: 18px;
+}
+
+.hero button {
+  margin-top: 30px;
+  padding: 12px 30px;
+  border: none;
+  background: white;
+  cursor: pointer;
+}
+
+/* SECTIONS */
+.section {
+  padding: 120px 100px;
+  background: white;
+}
+
+.section.dark {
+  background: #111;
+  color: white;
+}
+
+.section h2 {
+  font-size: 40px;
+  margin-bottom: 40px;
+}
+
+/* PROJECT GRID */
+.project-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 30px;
+}
+
+.card {
+  background: #f4f4f4;
+  padding: 40px;
+  transition: 0.3s;
+  cursor: pointer;
+}
+
+.card:hover {
+  transform: translateY(-10px);
+  background: #eaeaea;
+}
+
+/* FOOTER */
+/* ===== FOOTER PREMIUM ===== */
+
+.footer {
+  padding: 100px 100px;
+  background: #111;
+  color: #aaa;
+  text-align: center;
+  margin-top: 120px;
+}
+
+.footer h2 {
+  color: white;
+  margin-bottom: 20px;
+  font-weight: 500;
+}
+
+.footer p {
+  margin-bottom: 30px;
+}
+
+.footer-links a {
+  margin: 0 20px;
+  color: #aaa;
+  text-decoration: none;
+  transition: 0.3s;
+}
+
+.footer-links a:hover {
+  color: white;
+}
+/* ===== MARKET HERO ===== */
+
+.market-hero {
+  height: 420px;
+  background: url("https://images.unsplash.com/photo-1560448075-bb4caa6a27b7")
+    center/cover no-repeat;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.market-hero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0.65),
+    rgba(0, 0, 0, 0.4)
+  );
+}
+
+.hero-overlay {
+  position: relative;
+  text-align: center;
+  color: white;
+}
+
+.hero-overlay h1 {
+  font-size: 48px;
+  font-weight: 600;
+}
+
+.hero-search {
+  margin-top: 30px;
+  display: flex;
+  justify-content: center;
+}
+
+.hero-search input {
+  padding: 14px 18px;
+  width: 340px;
+  border-radius: 8px 0 0 8px;
+  border: none;
+  outline: none;
+}
+
+.hero-search button {
+  padding: 14px 24px;
+  border: none;
+  background: #c89b3c;
+  color: white;
+  border-radius: 0 8px 8px 0;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.hero-search button:hover {
+  background: #a87f2f;
+}
+
+/* ===== TOOLBAR ===== */
+
+.property-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 60px 0 30px;
+}
+
+.property-toolbar select {
+  padding: 10px 14px;
+  border-radius: 6px;
+  border: 1px solid #ddd;
+}
+.property-grid.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 40px;
+}
+/* ===== PROPERTY CARD PREMIUM ===== */
+
+/* ===== PROPERTY CARD PREMIUM ===== */
+
+.property-card {
+  background: white;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.05);
+  transition:
+    transform 0.5s ease,
+    box-shadow 0.5s ease;
+  cursor: pointer;
+}
+
+.property-card:hover {
+  transform: translateY(-12px) scale(1.02);
+  box-shadow: 0 30px 70px rgba(0, 0, 0, 0.12);
+}
+
+.property-image {
+  overflow: hidden;
+  position: relative;
+}
+
+.property-image img {
+  width: 100%;
+  height: 240px;
+  object-fit: cover;
+  transition: transform 0.8s ease;
+}
+
+.property-card:hover img {
+  transform: scale(1.12);
+}
+
+.tag {
+  position: absolute;
+  top: 18px;
+  left: 18px;
+  background: #c89b3c;
+  color: white;
+  padding: 8px 14px;
+  font-size: 12px;
+  border-radius: 30px;
+  font-weight: 500;
+}
+
+.property-content {
+  padding: 28px;
+}
+
+.property-content h3 {
+  margin: 0 0 8px;
+  font-size: 20px;
+}
+
+.property-meta {
+  margin-top: 12px;
+  display: flex;
+  gap: 16px;
+  font-size: 14px;
+  color: #777;
+}
+
+.price {
+  margin-top: 18px;
+  font-size: 20px;
+  font-weight: 600;
+  color: #c89b3c;
+}
+/* ===== FADE UP ===== */
+
+.fade-up {
+  opacity: 0;
+  transform: translateY(30px);
+  animation: fadeUp 1s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.delay-1 {
+  animation-delay: 0.4s;
+}
+
+@keyframes fadeUp {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
