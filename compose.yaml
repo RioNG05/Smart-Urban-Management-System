@@ -1,0 +1,52 @@
+services:
+  frontend:
+    container_name: susm-frontend
+    build:
+      context: ./frontend
+      dockerfile: dockerfile
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    environment:
+      - VITE_API_URL=http://backend:8080
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+  backend:
+    container_name: susm-backend
+    build:
+      context: ./backend
+      dockerfile: dockerfile
+    ports:
+      - "8080:8080"
+    env_file:
+      - ./backend/.env
+    depends_on:
+      mssql:
+        condition: service_healthy
+    restart: unless-stopped
+
+  mssql:
+    container_name: mssql-dev
+    image: mcr.microsoft.com/mssql/server:2025-latest
+    environment:
+      SA_PASSWORD: ${DB_PASSWORD}
+      ACCEPT_EULA: "Y"
+    ports:
+      - "1433:1433"
+    volumes:
+      - mssqldata:/var/opt/mssql
+      - ./database/data.sql:/docker-entrypoint-initdb.d/data.sql
+    command: /bin/bash -c "/opt/mssql/bin/sqlservr & sleep 25 && /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P ${DB_PASSWORD} -i /docker-entrypoint-initdb.d/data.sql && wait"
+    healthcheck:
+      test: /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P ${DB_PASSWORD} -Q "SELECT 1"
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+volumes:
+  mssqldata:
