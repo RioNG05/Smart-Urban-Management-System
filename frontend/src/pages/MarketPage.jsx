@@ -1,6 +1,6 @@
 import { useState } from "react";
-import Navbar from "../components/layout/Navbar";
-import Footer from "../components/layout/Footer";
+import Navbar from "../components/layout/Navbar.jsx";
+import Footer from "../components/layout/Footer.jsx";
 
 import PropertyGrid from "../components/sections/listing/PropertyGrid.jsx";
 import PropertyToolbar from "../components/sections/listing/PropertyToolbar.jsx";
