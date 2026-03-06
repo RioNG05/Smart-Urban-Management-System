@@ -7,7 +7,7 @@ public class AccountUpdateRequest {
     private String email;
     private String username;
     private String password;
-    private Role role;
+    private Integer roleId;
     private Boolean isActive = true;
 
     public String getEmail() {
@@ -34,8 +34,8 @@ public class AccountUpdateRequest {
         this.password = password;
     }
 
-    public Role getRole() {
-        return role;
+    public Integer getRoleId() {
+        return roleId;
     }
 
     public Boolean getActive() {
