@@ -3,16 +3,16 @@ import { Link } from "react-router-dom";
 const Breadcrumb = () => {
   return (
     <div className="breadcrumb">
-      <Link to="/">Trang chủ</Link>
+      <Link to="/">Home</Link>
       <span className="separator">›</span>
 
-      <Link to="/market">Bán</Link>
+      <Link to="/market">Buy</Link>
       <span className="separator">›</span>
 
-      <Link to="/market?type=chung-cu">Căn hộ chung cư</Link>
+      <Link to="/market?type=chung-cu">Apartment</Link>
       <span className="separator">›</span>
 
-      <span className="current">Vinhomes Ocean Park Gia Lâm</span>
+      <span className="current">VinaHouse</span>
     </div>
   );
 };

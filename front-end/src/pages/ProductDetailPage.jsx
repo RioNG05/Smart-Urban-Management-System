@@ -32,7 +32,7 @@ const ProductDetailPage = () => {
             <Description />
             <Features />
             <LegalInfo />
-            {/* <MapSection /> */}
+            <MapSection />
             <SimilarProperties />
           </div>
 

@@ -4,30 +4,30 @@ const Description = () => {
   const [expanded, setExpanded] = useState(false);
 
   const content = `
-Cập nhật quỹ hàng giá tốt nhất tại Vinhomes Ocean Park Gia Lâm.
+Latest update of the best-priced apartment listings at Vinhomes Ocean Park, Gia Lam.
 
-- Căn hộ diện tích 75m² thiết kế 2 phòng ngủ, 2 phòng tắm.
-- Tầng trung, view nội khu thoáng mát.
-- Nội thất cơ bản bàn giao chủ đầu tư.
-- Pháp lý rõ ràng, sẵn sàng giao dịch.
+- Apartment area: 75m² with 2 bedrooms and 2 bathrooms.
+- Mid-floor unit with a clear internal view.
+- Basic interior provided by the developer.
+- Clear legal status, ready for transaction.
 
-Tiện ích nội khu đầy đủ: hồ điều hòa, công viên cây xanh, trung tâm thương mại, trường học quốc tế.
+Full internal amenities available: large lake, green parks, shopping malls, and international schools.
 
-Hỗ trợ vay ngân hàng lên tới 70% giá trị căn hộ.
-Cam kết thông tin chính xác, miễn phí môi giới.
+Bank loan support up to 70% of the apartment value.
+Accurate information guaranteed. No brokerage fee.
   `;
 
   const shortText = content.slice(0, 350);
 
   return (
     <div className="product-description">
-      <h2 className="section-title">Thông tin mô tả</h2>
+      <h2 className="section-title">Description</h2>
 
       <p className="description-content">{expanded ? content : shortText}</p>
 
       {content.length > 350 && (
         <button className="toggle-btn" onClick={() => setExpanded(!expanded)}>
-          {expanded ? "Thu gọn" : "Xem thêm"}
+          {expanded ? "Show less" : "Read more"}
         </button>
       )}
     </div>

@@ -1,7 +1,7 @@
 const MapSection = () => {
   return (
     <div className="product-map">
-      <h2 className="section-title">Vị trí trên bản đồ</h2>
+      <h2 className="section-title">Location</h2>
 
       <div className="map-container">
         <iframe

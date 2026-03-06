@@ -5,11 +5,11 @@ const ProductHeader = () => {
     <div className="product-header">
       <div className="header-left">
         <h1 className="product-title">
-          Cập nhật quỹ hàng rẻ nhất 2026 miễn phí môi giới, pháp lý rõ ràng tại
-          Vinhomes Ocean Park
+          Latest update: Best-priced apartments in 2026 with no brokerage fee
+          and clear legal status at Vinahouse Ocean Park
         </h1>
 
-        <p className="product-location">Xã Dương Xá, Gia Lâm, Hà Nội</p>
+        <p className="product-location">Duong Xa Commune, Gia Lam, Hanoi</p>
       </div>
 
       <div className="header-actions">
