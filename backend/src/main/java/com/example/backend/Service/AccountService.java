@@ -5,6 +5,8 @@ import com.example.backend.DTO.Request.AccountUpdateRequest;
 import com.example.backend.Entity.Account;
 import com.example.backend.Repository.AccountRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -25,10 +27,12 @@ public class AccountService {
 
     public Account create(AccountCreateRequest req) {
         Account account =new Account();
+        PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(10);
+
 
         account.setEmail(req.getEmail());
         account.setUsername(req.getUsername());
-        account.setPassword(req.getPassword());
+        account.setPassword(passwordEncoder.encode(req.getPassword()));
         account.setRole(req.getRole());
         account.setIsActive(req.getActive());
 
