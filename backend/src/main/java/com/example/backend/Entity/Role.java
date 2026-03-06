@@ -1,8 +1,6 @@
 package com.example.backend.Entity;
 import jakarta.persistence.*;
 import lombok.*;
-import java.time.*;
-import java.math.BigDecimal;
 
 @Entity
 @Table(name = "Roles")

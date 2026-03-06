@@ -16,7 +16,7 @@ public class AccountController {
     @Autowired
     private AccountService accountService;
 
-    @GetMapping("/")
+    @GetMapping
     List<Account> get(){
         return accountService.findAll();
     }
