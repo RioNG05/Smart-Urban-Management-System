@@ -1,5 +1,6 @@
 package com.example.backend.Exception;
 
+import com.example.backend.DTO.Request.ApiResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -9,27 +10,33 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(value = RuntimeException.class)
-    ResponseEntity<String> handleRuntimeException(RuntimeException ex){
-        return ResponseEntity.badRequest().body(ex.getMessage());
+    ResponseEntity<ApiResponse> handleRuntimeException(RuntimeException ex){
+
+        ApiResponse response = new ApiResponse();
+
+        response.setCode(500);
+        response.setMessage(ex.getMessage());
+
+        return ResponseEntity.badRequest().body(response);
     }
 
     @ExceptionHandler(value = MethodArgumentNotValidException.class)
-    ResponseEntity<?> handleValidation(MethodArgumentNotValidException ex){
-        Map<String, List<String>> errors = new HashMap<>();
+    ResponseEntity<ApiResponse> handleValidation(MethodArgumentNotValidException ex){
+        ApiResponse response = new ApiResponse();
+        String errors = ex.getBindingResult()
+                .getFieldErrors()
+                .stream()
+                .map(error ->  error.getDefaultMessage())
+                .collect(Collectors.joining(". "));
+        response.setCode(400);
+        response.setMessage(errors);
 
-        ex.getBindingResult().getFieldErrors().forEach(error -> {
-
-            String field = error.getField();
-            String message = error.getDefaultMessage();
-
-            errors.computeIfAbsent(field, k -> new ArrayList<>()).add(message);
-        });
-
-        return ResponseEntity.badRequest().body(errors);
+        return ResponseEntity.badRequest().body(response);
     }
 }
