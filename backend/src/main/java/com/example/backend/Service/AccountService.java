@@ -48,6 +48,7 @@ public class AccountService {
         account.setUsername(req.getUsername());
         account.setPassword(passwordEncoder.encode(req.getPassword()));
         Role role = roleService.findById(req.getRoleId());
+        account.setRole(role);
 
         return repository.save(account);
     }
