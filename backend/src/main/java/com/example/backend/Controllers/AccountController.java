@@ -4,7 +4,9 @@ import com.example.backend.DTO.Request.AccountCreateRequest;
 import com.example.backend.DTO.Request.AccountUpdateRequest;
 import com.example.backend.Entity.Account;
 import com.example.backend.Service.AccountService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -27,7 +29,7 @@ public class AccountController {
     }
 
     @PostMapping
-    Account create(@RequestBody AccountCreateRequest req){
+    Account create(@RequestBody @Valid AccountCreateRequest req){
         return accountService.create(req);
     }
 
