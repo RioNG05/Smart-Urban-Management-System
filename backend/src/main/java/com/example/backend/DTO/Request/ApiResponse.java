@@ -1,5 +1,6 @@
 package com.example.backend.DTO.Request;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -8,11 +9,10 @@ import lombok.experimental.FieldDefaults;
 @AllArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class AccountUpdateRequest {
+@JsonInclude(JsonInclude.Include.NON_NULL)
+public class ApiResponse<T> {
 
-    String email;
-    String username;
-    String password;
-    Integer roleId;
-    Boolean isActive = true;
+    int code;
+    String message;
+    T result;
 }
