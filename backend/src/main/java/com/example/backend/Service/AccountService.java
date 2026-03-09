@@ -72,8 +72,8 @@ public class AccountService {
             Role role = roleService.findById(req.getRoleId());
             account.setRole(role);
         }
-        if (req.getActive() != null) {
-            account.setIsActive(req.getActive());
+        if (req.getIsActive() != null) {
+            account.setIsActive(req.getIsActive());
         }
 
         return repository.save(account);
