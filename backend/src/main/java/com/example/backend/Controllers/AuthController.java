@@ -1,6 +1,6 @@
 package com.example.backend.Controllers;
 
-<<<<<<< HEAD
+
 import com.example.backend.DTO.Request.ApiResponse;
 import com.example.backend.DTO.Request.AuthenticationRequest;
 import com.example.backend.DTO.Request.IntrospectRequest;
@@ -11,19 +11,16 @@ import com.nimbusds.jose.JOSEException;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
-=======
 import com.example.backend.DTO.Request.LoginRequest;
 import com.example.backend.Entity.Account;
 import com.example.backend.Repository.AccountRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
->>>>>>> 7556d3b09e62fb6b078dcc54df4950da91a18a6c
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-<<<<<<< HEAD
 import java.text.ParseException;
 
 @RestController
@@ -34,14 +31,6 @@ public class AuthController {
 
     AuthenticationService authenticationService;
 
-=======
-import java.util.Map;
-
-@RestController
-@RequestMapping("/api/auth")
-public class AuthController {
-
->>>>>>> 7556d3b09e62fb6b078dcc54df4950da91a18a6c
 //    @Autowired
 //    private AccountRepository repository;
 //
@@ -61,10 +50,9 @@ public class AuthController {
 //
 //        return Map.of("token", token);
 //    }
-<<<<<<< HEAD
 
     @PostMapping("/token")
-    ApiResponse<AutheticationResponse> authenticate(@RequestBody AuthenticationRequest req){
+    ApiResponse<AutheticationResponse> authenticate(@RequestBody AuthenticationRequest req) {
 
         var result = authenticationService.authenticated(req);
 
@@ -82,6 +70,4 @@ public class AuthController {
                 .result(result)
                 .build();
     }
-=======
->>>>>>> 7556d3b09e62fb6b078dcc54df4950da91a18a6c
 }

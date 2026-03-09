@@ -14,9 +14,5 @@ public class AccountUpdateRequest {
     String username;
     String password;
     Integer roleId;
-<<<<<<< HEAD
     Boolean isActive;
-=======
-    Boolean isActive = true;
->>>>>>> 7556d3b09e62fb6b078dcc54df4950da91a18a6c
 }

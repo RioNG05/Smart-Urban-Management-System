@@ -12,11 +12,7 @@ import lombok.experimental.FieldDefaults;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class ApiResponse<T> {
 
-<<<<<<< HEAD
-    int code = 200;
-=======
     int code;
->>>>>>> 7556d3b09e62fb6b078dcc54df4950da91a18a6c
     String message;
     T result;
 }
