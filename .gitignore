@@ -1,1 +1,4 @@
 .env
+
+# Chặn file cấu hình riêng của NetBeans
+backend/nb-configuration.xml
