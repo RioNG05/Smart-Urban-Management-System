@@ -1,18 +1,22 @@
 package com.example.backend.Service;
 
 import com.example.backend.DTO.Request.ResidentCreateRequest;
+import com.example.backend.DTO.Request.ResidentUpdateRequest;
 import com.example.backend.Entity.Account;
 import com.example.backend.Entity.Apartment;
 import com.example.backend.Entity.Resident;
 import com.example.backend.Repository.AccountRepository;
 import com.example.backend.Repository.ApartmentRepository;
 import com.example.backend.Repository.ResidentRepository;
+import lombok.AccessLevel;
+import lombok.experimental.FieldDefaults;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class ResidentService {
     @Autowired
     ResidentRepository residentRepository;
@@ -42,21 +46,20 @@ public class ResidentService {
         return residentRepository.save(resident);
     }
 
-//    public Apartment update(Integer id, Apartment req) {
-//        Apartment apartment = findById(id);
-//
-//        apartment.setRoomNumber(req.getRoomNumber());
-//        apartment.setFloorNumber(req.getFloorNumber());
-//        apartment.setDirection(req.getDirection());
-//        apartment.setFurniture(req.getFurniture());
-//        apartment.setStatus(req.getStatus());
-//        apartment.setSpecificPriceForBuying(req.getSpecificPriceForBuying());
-//        apartment.setSpecificPriceForRenting(req.getSpecificPriceForRenting());
-//
-//        return repository.save(apartment);
-//    }
-//
-//    public void delete(Integer id) {
-//        repository.deleteById(id);
-//    }
+    public Resident update(Integer id, ResidentUpdateRequest req) {
+        Resident resident = findById(id);
+
+        resident = Resident.builder()
+                .fullName(req.getFullName())
+                .gender(req.getGender())
+                .dateOfBirth(req.getDateOfBirth())
+                .build();
+
+        return residentRepository.save(resident);
+    }
+
+    public void delete(Integer id) {
+        findById(id);
+        residentRepository.deleteById(id);
+    }
 }
