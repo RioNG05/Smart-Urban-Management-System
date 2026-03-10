@@ -20,6 +20,7 @@ public class AccountService {
     private AccountRepository repository;
     @Autowired
     private RoleService roleService;
+
     private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(10);
 
     public List<Account> findAll() {
