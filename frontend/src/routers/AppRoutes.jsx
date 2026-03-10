@@ -8,16 +8,22 @@ import Home from "../pages/Home";
 import NewsDetailPage from "../pages/NewsDetailPage";
 import Unauthorized from "../pages/Unauthorized";
 
+// Các thành phần bảo mật và giao diện Admin
 import PrivateRoute from "./PrivateRoute";
+import AdminLayout from "../pages/admin/AdminLayout";
+import AdminDashboard from "../pages/admin/AdminDashboard";
+import AdminRoleManager from "../pages/admin/AdminRoleManager";
 
 export default function AppRoutes() {
   return (
     <BrowserRouter>
       <Routes>
+        {/* --- PUBLIC ROUTES --- */}
         <Route path="/" element={<Home />} />
-
         <Route path="/auth" element={<AuthPage />} />
+        <Route path="/unauthorized" element={<Unauthorized />} />
 
+        {/* --- PROTECTED CLIENT ROUTES (Cần Login) --- */}
         <Route
           path="/market"
           element={
@@ -26,7 +32,6 @@ export default function AppRoutes() {
             </PrivateRoute>
           }
         />
-
         <Route
           path="/product"
           element={
@@ -35,7 +40,6 @@ export default function AppRoutes() {
             </PrivateRoute>
           }
         />
-
         <Route
           path="/news"
           element={
@@ -44,7 +48,6 @@ export default function AppRoutes() {
             </PrivateRoute>
           }
         />
-
         <Route
           path="/news/:id"
           element={
@@ -54,7 +57,18 @@ export default function AppRoutes() {
           }
         />
 
-        <Route path="/unauthorized" element={<Unauthorized />} />
+        {/* --- ADMIN ROUTES (Có Sidebar và cũng cần bảo mật) --- */}
+        <Route
+          path="/admin"
+          element={
+            <PrivateRoute>
+              <AdminLayout />
+            </PrivateRoute>
+          }
+        >
+          <Route index element={<AdminDashboard />} />
+          <Route path="roles" element={<AdminRoleManager />} />
+        </Route>
       </Routes>
     </BrowserRouter>
   );
