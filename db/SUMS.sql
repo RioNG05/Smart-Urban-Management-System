@@ -19,26 +19,33 @@ USE SmartCity_DB;
 GO
 
 -- bảng 1
+-- định chuyển sang URL luôn để bên back-end check mỗi khi có người truy cập ? - thay vì cần thêm 1 cái trung gian Để xác định cho mỗi URL 
+-- ví dụ URL là /api/create/invoice thì thay vì chuyển từ URL rồi lại check code trong DB bằng Join. nói chung là cũng cũng. 
+-- đại khái là đỡ bước 
+-- vì permission code và URL là 1-1 nên mapping luôn. cái này sẽ đỡ giúp 1 đoạn từ chuyển đổi URL sang permission Code -> permission id
+-- sang thành URL code -> permission Id
 CREATE TABLE Permissions (
     Id INT IDENTITY(1,1) PRIMARY KEY, -- Thay cho permission_id
-    PermissionCode VARCHAR(50) NOT NULL UNIQUE, -- Mã code để check trong Java (Vd: 'USER_CREATE')
-    Description NVARCHAR(255), -- permission description
+    APIPath VARCHAR(50) NOT NULL UNIQUE, -- xem cụ thể trong change 04.
+    Description NVARCHAR(255) -- permission description
 );
 
 --bảng 2
 CREATE TABLE Roles (
     Id INT IDENTITY(1,1) PRIMARY KEY, -- role id
-    RoleName NVARCHAR(50) NOT NULL UNIQUE -- role name (Vd: 'ADMIN', 'RESIDENT')
+    RoleName NVARCHAR(50) NOT NULL UNIQUE, -- role name (Vd: 'ADMIN', 'RESIDENT')
+	ContextPath NVARCHAR(20) NOT NULL UNIQUE -- context path của url khi đi tìm endpoint.
 );
 
-INSERT INTO Roles (RoleName) 
+-- Chèn dữ liệu cho bảng Roles (Bao gồm RoleName và ContextPath)
+INSERT INTO Roles (RoleName, ContextPath)
 VALUES 
-(N'ADMIN'),              -- Toàn quyền hệ thống
-(N'RESIDENT'),           -- Cư dân (Sử dụng App)
-(N'STAFF_APARTMENT'),    -- Nhân viên quản lý căn hộ, hợp đồng
-(N'STAFF_SERVICE'),      -- Nhân viên quản lý tiện ích, hóa đơn
-(N'STAFF_SECURITY');     -- Nhân viên an ninh, xử lý khiếu nại
-(N'USER');               -- Người dùng hiện ko còn là Resident
+(N'MANAGER',         N'admin'),      -- Toàn quyền hệ thống
+(N'RESIDENT',        N'resident'),   -- Cư dân (Sử dụng App)
+(N'STAFF_APARTMENT', N'apartment'),  -- Quản lý căn hộ, hợp đồng
+(N'STAFF_SERVICE',   N'service'),    -- Quản lý tiện ích, hóa đơn
+(N'STAFF_SECURITY',  N'security'),   -- An ninh, check-in khách, khiếu nại
+(N'USER',            N'user');       -- Người dùng vãng lai/hết hạn hợp đồng
 GO
 
 --bảng 3 
@@ -121,7 +128,21 @@ CREATE TABLE Complaints (
     -- Khóa ngoại nối tới bảng Accounts (người tạo khiếu nại)
     CONSTRAINT FK_Complaints_Accounts FOREIGN KEY (MadeByUserId) REFERENCES Accounts(Id)
 );
+
+-- Chèn 4 khiếu nại cho các Account ID: 2, 6, 7, 8
+INSERT INTO Complaints (Content, MadeByUserId, CreatedAt)
+VALUES 
+(N'Căn hộ tầng trên thường xuyên gây tiếng ồn lớn sau 11 giờ đêm, ảnh hưởng đến việc nghỉ ngơi.', 2, GETDATE()),
+
+(N'Khu vực hành lang tầng 7 chưa được dọn dẹp vệ sinh sạch sẽ trong 2 ngày qua.', 6, GETDATE()),
+
+(N'Thang máy tòa B có hiện tượng rung lắc mạnh khi di chuyển giữa tầng 10 và 15, cần kiểm tra kỹ thuật.', 7, GETDATE()),
+
+(N'Hệ thống đèn chiếu sáng tại khu vực bãi đỗ xe máy dưới hầm bị hỏng, gây khó khăn khi di chuyển vào buổi tối.', 8, GETDATE());
+GO
+
 -- 7 reply
+-- note: appartment staff lm cái naỳ
 CREATE TABLE Replies (
     Id INT IDENTITY(1,1) PRIMARY KEY,    -- reply_id (PK)
     Content NVARCHAR(MAX) NOT NULL,      -- content
@@ -135,8 +156,19 @@ CREATE TABLE Replies (
     -- Khóa ngoại nối tới bảng Accounts (ai là người phản hồi)
     CONSTRAINT FK_Replies_Accounts FOREIGN KEY (RepliedByUserId) REFERENCES Accounts(Id)
 );
+INSERT INTO Replies (Content, ComplaintId, RepliedByUserId, CreatedAt)
+VALUES 
+(N'Ban quản lý đã ghi nhận và sẽ làm việc trực tiếp với chủ căn hộ tầng trên về vấn đề tiếng ồn. Rất xin lỗi vì sự bất tiện này.', 1, 3, GETDATE()),
+
+(N'Đã chuyển thông tin tới đội vệ sinh để kiểm tra và xử lý ngay lập tức tại hành lang tầng 7. Cảm ơn cư dân đã phản hồi.', 2, 3, GETDATE()),
+
+(N'Kỹ thuật viên thang máy đã được điều động để kiểm tra hệ thống cáp và bộ giảm chấn của tòa B trong sáng nay.', 3, 3, GETDATE()),
+
+(N'Bộ phận bảo trì đã tiếp nhận thông tin và sẽ tiến hành thay thế các bóng đèn hỏng tại khu vực hầm gửi xe trong ngày hôm nay.', 4, 3, GETDATE());
+GO
 
 -- 8 news
+-- note: only add by admin
 CREATE TABLE News (
     Id INT IDENTITY(1,1) PRIMARY KEY,    -- news_id (PK)
     Title NVARCHAR(255) NOT NULL,        -- title
@@ -149,6 +181,25 @@ CREATE TABLE News (
     CONSTRAINT FK_News_Accounts FOREIGN KEY (CreatedByUserId) REFERENCES Accounts(Id)
 );
 
+INSERT INTO News (Title, Content, ImageUrl, CreatedByUserId)
+VALUES 
+(N'Thông báo bảo trì thang máy tòa S1', 
+N'Ban quản lý xin thông báo, ngày 15/03/2024 sẽ tiến hành bảo trì thang máy số 2 tòa S1 từ 00h00 đến 04h00 sáng. Xin lỗi quý cư dân vì sự bất tiện này.',
+'https://piconorm.vn/wp-content/uploads/2020/10/Th%E1%BA%AFng-Ph%C3%BAc-ng%E1%BB%93i-n%C3%B3c-%C4%91i-thang-l%C3%AAn.MP4.16_53_38_09.Still002.jpg', 1),
+
+(N'Lễ hội ẩm thực cuối tuần', 
+N'Kính mời toàn thể cư dân tham gia lễ hội ẩm thực tại khu vực nướng BBQ vào cuối tuần này.', 
+'https://nld.mediacdn.vn/291774122806476800/2022/8/25/le-hoi-am-thuc-anh-hoang-trieu22-16614300460151286487996.jpg', 1),
+
+(N'Kế hoạch phun thuốc diệt côn trùng định kỳ',
+N'Vào sáng thứ Bảy tuần này (14/03/2026), ban quản lý sẽ tiến hành phun thuốc diệt côn trùng tại các khu vực hành lang, tầng hầm và khuôn viên chung. Cư dân vui lòng đóng kín cửa sổ và hạn chế ra ngoài trong thời gian trên.', 
+ 'https://th.bing.com/th/id/R.8ce64a608b9ddfba419f579b41972c42?rik=cqTsV6Eq4cFSYg&pid=ImgRaw&r=0', 1),
+
+(N'Nâng cấp hệ thống chiếu sáng tầng hầm B1', 
+ N'Hệ thống đèn LED cảm biến mới sẽ được lắp đặt tại tầng hầm B1 từ ngày 16/03 đến 18/03. Việc thi công sẽ không làm ảnh hưởng đến khu vực đỗ xe, tuy nhiên quý cư dân lưu ý di chuyển cẩn thận qua các khu vực có biển báo.', 
+ 'https://th.bing.com/th/id/R.fcbdd54c679a0511fa44735e3728ff91?rik=FuErExljl0HfuA&pid=ImgRaw&r=0', 1);
+GO
+
 -- 9 services
 CREATE TABLE Services (
     Id INT IDENTITY(1,1) PRIMARY KEY,    -- service_id (PK)
@@ -156,7 +207,28 @@ CREATE TABLE Services (
     ServiceCode VARCHAR(50) UNIQUE,      -- e_code (Mã định danh dịch vụ)
     FeePerUnit DECIMAL(18, 2),           -- fee/unit (Giá tiền trên mỗi đơn vị)
     UnitType NVARCHAR(50),               -- fee unit (Vd: "Hour", "Times", "Person")
+	Description NVARCHAR(MAX)            -- Thêm trường mô tả chi tiết
 );
+
+INSERT INTO Services (ServiceName, ServiceCode, FeePerUnit, UnitType, Description)
+VALUES 
+-- 1. Dịch vụ thiết yếu (Tính theo chỉ số hàng tháng)
+(N'Điện sinh hoạt', 'ELEC_01', 2500.00, 'kWh', N'Hóa đơn điện tiêu thụ hàng tháng dựa trên chỉ số công tơ thực tế.'),
+(N'Nước sinh hoạt', 'WAT_01', 15000.00, 'm3', N'Hóa đơn nước tiêu thụ hàng tháng tính theo khối lượng sử dụng.'),
+
+-- 2. Dịch vụ tiện ích (Cần đặt trước và check quyền cư dân)
+(N'Bếp nướng BBQ', 'BBQ', 200000.00, N'Turn', N'Thuê khu vực nướng ngoài trời (tối đa 4 giờ). Bao gồm dụng cụ nướng và hỗ trợ nhóm than.'),
+(N'Sân Tennis', 'TENNIS', 150000.00, N'Hour', N'Thuê sân Tennis tiêu chuẩn. Giá đã bao gồm hệ thống chiếu sáng ban đêm.'),
+(N'Phòng Gym', 'GYM', 500000.00, N'Month', N'Thẻ hội viên Gym trọn gói trong tháng. Sử dụng không giới hạn thiết bị và phòng xông hơi.'),
+
+-- 3. Dịch vụ cộng thêm khác (Ví dụ thêm cho phong phú)
+(N'Vé bể bơi lượt', 'SWIM_01', 30000.00, N'Person', N'Vé lượt sử dụng hồ bơi tầng 5, chỉ áp dụng cho cư dân chính thức.');
+GO
+
+INSERT INTO Services (ServiceName, ServiceCode, FeePerUnit, UnitType, Description)
+VALUES 
+(N'Phí quản lý tòa nhà (Tháng)', 'MNG_FEE_MONTH', 500000.00, N'Tháng', N'Phí quản lý định kỳ hàng tháng, áp dụng đồng mức cho các căn hộ cùng phân khu.');
+GO
 
 -- 10 service resource
 CREATE TABLE ServiceResources (
@@ -169,6 +241,29 @@ CREATE TABLE ServiceResources (
     -- Khóa ngoại nối sang bảng Services
     CONSTRAINT FK_Resources_Services FOREIGN KEY (ServiceId) REFERENCES Services(Id)
 );
+
+-- trong nay có vài cái book được và vài cái không nhé, 
+-- vd: bookable: bbq, tenis
+-- ko cần book/ko book được: bể bơi và gym.
+INSERT INTO ServiceResources (ResourceCode, Location, ServiceId, IsAvailable)
+VALUES 
+-- 1. Tài nguyên cho Bếp nướng BBQ (Có 3 khu vực nướng riêng biệt)
+('BBQ_ZONE_A', N'Khu vực sân vườn phía Tây - Trạm A', 3, 1),
+('BBQ_ZONE_B', N'Khu vực sân vườn phía Tây - Trạm B', 3, 1),
+('BBQ_ZONE_C', N'Khu vực sân vườn phía Tây - Trạm C', 3, 1),
+
+-- 2. Tài nguyên cho Sân Tennis (Có 2 sân)
+('TENNIS_COURT_01', N'Tầng thượng Tòa A', 4, 1),
+('TENNIS_COURT_02', N'Tầng thượng Tòa A', 4, 1),
+
+-- 3. Tài nguyên cho Phòng Gym (Phân theo khu vực tập)
+('GYM_MAIN_AREA', N'Tầng 2 - Tòa B', 5, 1),
+
+-- 4. Tài nguyên cho Vé bể bơi (Chia làm 2 bể như bồ yêu cầu)
+('POOL_ADULT', N'Bể bơi vô cực - Tầng 5 (Dành cho người lớn)', 6, 1),
+('POOL_KID', N'Bể bơi trẻ em - Tầng G (Khu vui chơi)', 6, 1);
+GO
+
 
 -- 11 service booking
 CREATE TABLE BookingServices (
@@ -209,30 +304,53 @@ CREATE TABLE ApartmentTypes (
     Overview NVARCHAR(MAX),                  -- overview (Mô tả chi tiết căn hộ)
     CommonPriceForBuying DECIMAL(18, 2),     -- common_price_for_buying (Giá bán tham khảo)
     CommonPriceForRent DECIMAL(18, 2),       -- common_price_for_rent (Giá thuê tham khảo)
-    CreatedAt DATETIME DEFAULT GETDATE()
+    CreatedAt DATETIME DEFAULT GETDATE(),
+	Furniture INT DEFAULT 0                 -- Furniture: 0: Không nội thất, 1: Cơ bản, 2: Đầy đủ, 3: Cao cấp  
 );
 
--- 14 apartment
+-- Chèn dữ liệu mẫu cho 4 loại căn hộ kèm theo thông tin nội thất (Furniture)
+INSERT INTO ApartmentTypes (Name, DesignSqrt, NumberOfBedroom, NumberOfBathroom, Overview, CommonPriceForBuying, CommonPriceForRent, Furniture)
+VALUES 
+-- 1. Căn hộ Studio - Nội thất Cơ bản (1)
+(N'Căn hộ Studio - The Sakura', 32.50, 1, 1, 
+N'Thiết kế tối ưu công năng trên một mặt sàn, không gian mở hoàn toàn giữa phòng ngủ và phòng khách. Phù hợp cho người độc thân hoặc chuyên gia nước ngoài.', 
+2500000000, 10000000, 1),
+
+-- 2. Căn hộ 1 Phòng Ngủ - Không nội thất (0)
+(N'Căn hộ 1 Phòng Ngủ - The Sakura', 54.80, 1, 1, 
+N'Phân khu The Sakura là thành quả hợp tác giữa Samty (Nhật Bản) và Vinhomes. Căn hộ 1PN mang phong cách tối giản nhưng tinh tế, tối ưu hóa ánh sáng tự nhiên.', 
+3800000000, 15000000, 0),
+
+-- 3. Căn hộ 2 Phòng Ngủ - Đầy đủ nội thất (2)
+(N'Căn hộ 2 Phòng Ngủ - 2WC Premium', 75.00, 2, 2, 
+N'Lựa chọn lý tưởng cho gia đình trẻ. Căn hộ gồm 2 phòng ngủ riêng biệt, phòng khách rộng rãi và ban công thoáng đãng, tận hưởng trọn vẹn tiện ích nội khu.', 
+5200000000, 22000000, 2),
+
+-- 4. Căn hộ 3 Phòng Ngủ - Nội thất Cao cấp (3)
+(N'Căn hộ 3 Phòng Ngủ - Family Suite', 105.20, 3, 2, 
+N'Căn góc với tầm nhìn panorama đẳng cấp. Diện tích lớn phù hợp cho gia đình nhiều thế hệ, mang lại không gian sống sang trọng và đầy đủ tiện nghi.', 
+8500000000, 35000000, 3);
+GO
+
+-- tách ra và thêm bảng chỗ furniture. 
 CREATE TABLE Apartments (
     Id INT IDENTITY(1,1) PRIMARY KEY,        -- apartment_id (PK)
     RoomNumber VARCHAR(20) NOT NULL,         -- room_number
     FloorNumber INT NOT NULL,                -- floor_number
     Direction NVARCHAR(50),                  -- hướng
-    
-    -- Furniture: 0: Không nội thất, 1: Cơ bản, 2: Đầy đủ, 3: Cao cấp
-    Furniture INT DEFAULT 0,                 
-    
     Status INT DEFAULT 0,                    -- status (0: Trống, 1: Có người)
-    SpecificPriceForBuying DECIMAL(18, 2),   
-    SpecificPriceForRenting DECIMAL(18, 2),  
     ApartmentTypeId INT NOT NULL,            -- apartment_type_id (FK)
 
     -- Ràng buộc khóa ngoại
     CONSTRAINT FK_Apartments_Types FOREIGN KEY (ApartmentTypeId) REFERENCES ApartmentTypes(Id)
 );
 
+
+
 -- 15 apartment utilities invoice
--- cái này lấy luôn cả tiền nhà nếu có nhé, bên back-end check contract (hợp đòng)rồi xem có phải thuê ko, có thì lấy giá tiền trong đấy ra. 
+-- cái này lấy luôn cả tiền nhà nếu có nhé - lấy ở chỗ contract ý. 
+-- bên back-end check contract (hợp đòng)rồi xem có phải thuê ko, có thì lấy giá tiền trong đấy ra. 
+-- gồm tiền điện, nước   tiền thuê nhà/tháng   tiền quản lý (dịch v).
 CREATE TABLE UtilitiesInvoices (
     Id INT IDENTITY(1,1) PRIMARY KEY,        -- utilities_invoice_id (PK)
     ApartmentId INT NOT NULL,                -- apartment_id (FK)
@@ -285,118 +403,36 @@ CREATE TABLE StayAtHistory (
 USE SmartCity_DB;
 GO
 
--- =========================================================================
--- 1. PHÂN QUYỀN (Permissions & Authorities)
--- =========================================================================
-INSERT INTO Permissions (PermissionCode, Description)
-VALUES 
-('USER_READ', N'Xem danh sách người dùng'),
-('APARTMENT_MANAGE', N'Quản lý thông tin căn hộ, hợp đồng'),
-('SERVICE_MANAGE', N'Quản lý tiện ích và hóa đơn dịch vụ'),
-('COMPLAINT_RESOLVE', N'Xử lý khiếu nại an ninh'),
-('BOOKING_CREATE', N'Tạo lịch đặt tiện ích (dành cho cư dân)');
+-- 18 staff information. 
+--lưu mấy cái giống hệt Resident để cho admin quản lý nhân sự. 
+-- 18 staff information
+CREATE TABLE StaffInfo (
+    Id INT IDENTITY(1,1) PRIMARY KEY,     -- staff_id (PK)
+    FullName NVARCHAR(255) NOT NULL,      -- Họ và tên nhân viên
+    Gender NVARCHAR(10),                  -- Giới tính
+    DateOfBirth DATE,                     -- Ngày sinh
+    IdentityId VARCHAR(20) UNIQUE,        -- Số CCCD/CMND (Duy nhất)
+    AccountId INT NOT NULL,               -- FK nối tới bảng Accounts
 
--- Gán quyền cho Roles (Dựa theo RoleId đã insert trước đó)
--- 1: ADMIN, 2: RESIDENT, 3: STAFF_APARTMENT, 4: STAFF_SERVICE, 5: STAFF_SECURITY
-INSERT INTO Authorities (RoleId, PermissionId)
-VALUES 
-(1, 1), (1, 2), (1, 3), (1, 4), (1, 5), -- Admin có toàn quyền
-(2, 1), (2, 5),                         -- Cư dân xem thông tin và book dịch vụ
-(3, 1), (3, 2),                         -- Quản lý căn hộ
-(4, 1), (4, 3),                         -- Quản lý dịch vụ & tài chính
-(5, 1), (5, 4);                         -- Quản lý an ninh
+    -- Khóa ngoại đảm bảo nhân viên phải có tài khoản trong hệ thống
+    CONSTRAINT FK_Staff_Accounts FOREIGN KEY (AccountId) REFERENCES Accounts(Id)
+);
 
--- =========================================================================
--- 2. HẠ TẦNG (ApartmentTypes & Apartments)
--- =========================================================================
-INSERT INTO ApartmentTypes (Name, DesignSqrt, NumberOfBedroom, NumberOfBathroom, Overview, CommonPriceForBuying, CommonPriceForRent)
-VALUES 
-(N'Căn hộ Studio', 35.5, 1, 1, N'Phù hợp người độc thân, thiết kế mở.', 1500000000, 6000000),
-(N'Căn hộ 2PN - 2WC', 70.0, 2, 2, N'Căn hộ tiêu chuẩn cho gia đình nhỏ, ban công thoáng.', 3000000000, 12000000),
-(N'Căn hộ 3PN - 2WC (Góc)', 95.5, 3, 2, N'Căn góc 2 mặt thoáng, view đẹp.', 4500000000, 18000000);
 
--- Thêm các căn hộ thực tế (Status: 1 là có người, 0 là trống)
-INSERT INTO Apartments (RoomNumber, FloorNumber, Direction, Furniture, Status, SpecificPriceForBuying, SpecificPriceForRenting, ApartmentTypeId)
-VALUES 
-('S1.05.01', 5, N'Đông Nam', 2, 1, NULL, 6000000, 1),      -- Đang cho thuê (Account 2)
-('S1.05.02', 5, N'Tây Bắc', 3, 1, 3100000000, NULL, 2),    -- Đã bán đứt (Account 6)
-('S1.10.05', 10, N'Đông Bắc', 1, 1, NULL, 11500000, 2),    -- Đang cho thuê (Account 7)
-('S1.12.08', 12, N'Nam', 0, 0, 4400000000, 17000000, 3);   -- Đang trống, chưa ai ở
+-- 19 visitor logs
+-- Note: Chức năng này chỉ dành cho Security (Bảo vệ) thực hiện
+CREATE TABLE VisitorLogs (
+    Id INT IDENTITY(1,1) PRIMARY KEY,       -- visitor_log_id (PK)
+    VisitorName NVARCHAR(255) NOT NULL,     -- Tên người vào
+    PhoneNumber VARCHAR(20) NOT NULL,       -- SĐT người vào
+    ApartmentId INT NOT NULL,               -- ID phòng khách ghé thăm (FK)
+    CreatedByStaffId INT NOT NULL,          -- ID bảo vệ thực hiện check-in (FK nối tới StaffInfo)
+    CheckInTime DATETIME DEFAULT GETDATE(), -- Thời điểm vào
+    Note NVARCHAR(MAX),                     -- Ghi chú thêm (Vd: Mang theo đồ cồng kềnh)
 
--- =========================================================================
--- 3. CƯ DÂN (Contracts & StayAtHistory)
--- =========================================================================
--- Hợp đồng cho các căn hộ có người ở
--- AccountId: 2 (Tuấn), 6 (Thảo), 7 (Hoàng)
-INSERT INTO Contracts (ApartmentId, AccountId, ContractType, StartDate, EndDate, MonthlyRent, Status)
-VALUES 
-(1, 2, N'Rent', '2023-01-01', '2025-01-01', 6000000, 1),  -- Tuấn thuê căn Studio
-(2, 6, N'Sale', '2022-05-15', NULL, NULL, 1),             -- Thảo mua đứt căn 2PN
-(3, 7, N'Rent', '2024-02-01', '2025-02-01', 11500000, 1); -- Hoàng thuê căn 2PN
+    -- Khóa ngoại nối tới bảng căn hộ
+    CONSTRAINT FK_Visitor_Apartments FOREIGN KEY (ApartmentId) REFERENCES Apartments(Id),
+    -- Khóa ngoại nối tới bảng nhân viên (để biết bảo vệ nào check-in)
+    CONSTRAINT FK_Visitor_Staff FOREIGN KEY (CreatedByStaffId) REFERENCES StaffInfo(Id)
+);
 
--- Lịch sử cư trú (ResidentId tương ứng 1, 2, 3)
-INSERT INTO StayAtHistory (ResidentId, ApartmentId, MoveIn, MoveOut)
-VALUES 
-(1, 1, '2023-01-05', NULL), -- Tuấn chuyển vào ở S1.05.01
-(2, 2, '2022-06-01', NULL), -- Thảo chuyển vào ở S1.05.02
-(3, 3, '2024-02-05', NULL); -- Hoàng chuyển vào ở S1.10.05
-
--- =========================================================================
--- 4. TÀI CHÍNH CĂN HỘ (UtilitiesInvoices)
--- =========================================================================
--- Hóa đơn điện nước tháng 2/2024. Tiền điện: 3.500đ/kwh, Nước: 15.000đ/khối
-INSERT INTO UtilitiesInvoices (ApartmentId, BillingMonth, BillingYear, TotalElectricUsed, TotalWaterUsed, TotalAmount, Status)
-VALUES 
-(1, 2, 2024, 150.5, 8.0, 6646750, 1), -- (150.5 * 3500) + (8 * 15000) + Tiền thuê nhà (6.000.000) = 6.646.750. Đã thanh toán
-(2, 2, 2024, 320.0, 15.5, 1352500, 0),-- (320 * 3500) + (15.5 * 15000) = 1.352.500 (Không cộng tiền thuê vì mua đứt). Chưa thanh toán
-(3, 2, 2024, 210.0, 12.0, 12415000, 0);-- (210 * 3500) + (12 * 15000) + Tiền thuê nhà (11.500.000) = 12.415.000. Chưa thanh toán
-
--- =========================================================================
--- 5. TIỆN ÍCH DỊCH VỤ (Services, Resources, Bookings & Invoices)
--- =========================================================================
-INSERT INTO Services (ServiceName, ServiceCode, FeePerUnit, UnitType)
-VALUES 
-(N'Bếp nướng BBQ', 'BBQ', 200000.00, N'Turn'),
-(N'Sân Tennis', 'TENNIS', 150000.00, N'Hour'),
-(N'Phòng Gym', 'GYM', 500000.00, N'Month');
-
-INSERT INTO ServiceResources (ResourceCode, Location, ServiceId, IsAvailable)
-VALUES 
-('BBQ-Z1-01', N'Khu BBQ Hồ Trung Tâm - Lò 01', 1, 1),
-('BBQ-Z1-02', N'Khu BBQ Hồ Trung Tâm - Lò 02', 1, 1),
-('TEN-A', N'Sân Tennis Thể thao A', 2, 1),
-('GYM-S1', N'Phòng Gym Tầng 2 tòa S1', 3, 1);
-
--- Đặt dịch vụ (Account 2 - Tuấn đặt BBQ, Account 6 - Thảo đặt Tennis)
-INSERT INTO BookingServices (ResourceId, AccountId, BookFrom, BookTo, Status, TotalAmount)
-VALUES 
-(1, 2, '2024-03-10 17:00:00', '2024-03-10 20:00:00', 1, 200000.00), -- Tuấn đặt 1 lượt BBQ
-(3, 6, '2024-03-11 06:00:00', '2024-03-11 08:00:00', 1, 300000.00); -- Thảo đặt 2 giờ Tennis (2 * 150k)
-
--- Xuất hóa đơn cho dịch vụ vừa đặt
-INSERT INTO ServiceInvoices (ServiceBookingId, Amount, Status, PaymentDate)
-VALUES 
-(1, 200000.00, 1, '2024-03-08 10:00:00'), -- Tuấn đã trả tiền trước
-(2, 300000.00, 0, NULL);                   -- Thảo chưa trả tiền
-
--- =========================================================================
--- 6. GIAO TIẾP (News, Complaints & Replies)
--- =========================================================================
--- Tin tức (Tạo bởi Admin - Account 1)
-INSERT INTO News (Title, Content, ImageUrl, CreatedByUserId)
-VALUES 
-(N'Thông báo bảo trì thang máy tòa S1', N'Ban quản lý xin thông báo, ngày 15/03/2024 sẽ tiến hành bảo trì thang máy số 2 tòa S1 từ 00h00 đến 04h00 sáng. Xin lỗi quý cư dân vì sự bất tiện này.', 'https://dummyimage.com/600x400/000/fff&text=Maintenance', 1),
-(N'Lễ hội ẩm thực cuối tuần', N'Kính mời toàn thể cư dân tham gia lễ hội ẩm thực tại khu vực nướng BBQ vào cuối tuần này.', 'https://dummyimage.com/600x400/000/fff&text=Event', 1);
-
--- Khiếu nại (Tạo bởi cư dân)
-INSERT INTO Complaints (Content, MadeByUserId)
-VALUES 
-(N'Căn hộ tầng trên thường xuyên hát karaoke sau 10h đêm gây ồn ào.', 2), -- Tuấn complain
-(N'Bóng đèn hành lang tầng 5 bị cháy, đề nghị ban quản lý thay thế.', 6);   -- Thảo complain
-
--- Phản hồi khiếu nại (Bởi Staff_Security - Account 5)
-INSERT INTO Replies (Content, ComplaintId, RepliedByUserId)
-VALUES 
-(N'Ban an ninh đã ghi nhận sự việc và sẽ cử bảo vệ lên nhắc nhở căn hộ tầng trên. Cảm ơn anh Tuấn đã báo cáo.', 1, 5),
-(N'Bộ phận kỹ thuật đã nhận được yêu cầu và sẽ tiến hành thay bóng đèn trong ngày hôm nay.', 2, 5);
-GO
