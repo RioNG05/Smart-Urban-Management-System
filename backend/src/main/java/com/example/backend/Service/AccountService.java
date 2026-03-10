@@ -32,23 +32,15 @@ public class AccountService {
     }
 
     public Account create(AccountCreateRequest req) {
+        Account account =new Account();
+        PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(10);
 
-        if (repository.existsByUsername(req.getUsername())) {
-            throw new RuntimeException("Tên người dùng đã được sử dụng");
-        }
-
-        if (repository.existsByEmail(req.getEmail())) {
-            throw new RuntimeException("Email đã được sử dụng");
-        }
-
-
-        Account account = new Account();
 
         account.setEmail(req.getEmail());
         account.setUsername(req.getUsername());
         account.setPassword(passwordEncoder.encode(req.getPassword()));
-        Role role = roleService.findById(req.getRoleId());
-        account.setRole(role);
+        account.setRole(req.getRole());
+        account.setIsActive(req.getActive());
 
         return repository.save(account);
     }

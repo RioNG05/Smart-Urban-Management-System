@@ -2,12 +2,10 @@ package com.example.backend.Controllers;
 
 import com.example.backend.DTO.Request.AccountCreateRequest;
 import com.example.backend.DTO.Request.AccountUpdateRequest;
-import com.example.backend.DTO.Request.ApiResponse;
 import com.example.backend.Entity.Account;
 import com.example.backend.Service.AccountService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -19,7 +17,7 @@ public class AccountController {
     @Autowired
     private AccountService accountService;
 
-    @GetMapping
+    @GetMapping("/")
     List<Account> get(){
         return accountService.findAll();
     }
@@ -39,6 +37,7 @@ public class AccountController {
         response.setResult(accountService.create(req));
         return response;
     }
+
 
     @PutMapping("/{accountID}")
     Account update(@PathVariable("accountID") Integer accountID, @RequestBody AccountUpdateRequest req){
