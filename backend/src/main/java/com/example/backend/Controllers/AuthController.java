@@ -1,27 +1,23 @@
 package com.example.backend.Controllers;
 
 
-import com.example.backend.DTO.Request.ApiResponse;
+import com.example.backend.DTO.Response.ApiResponse;
 import com.example.backend.DTO.Request.AuthenticationRequest;
 import com.example.backend.DTO.Request.IntrospectRequest;
 import com.example.backend.DTO.Response.AutheticationResponse;
 import com.example.backend.DTO.Response.IntrospectResponse;
+import com.example.backend.Entity.Account;
+import com.example.backend.Repository.AccountRepository;
 import com.example.backend.Service.AuthenticationService;
 import com.nimbusds.jose.JOSEException;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
-import com.example.backend.DTO.Request.LoginRequest;
-import com.example.backend.Entity.Account;
-import com.example.backend.Repository.AccountRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.*;
 
 import java.text.ParseException;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -30,6 +26,7 @@ import java.text.ParseException;
 public class AuthController {
 
     AuthenticationService authenticationService;
+    AccountRepository accountRepository;
 
 //    @Autowired
 //    private AccountRepository repository;
@@ -68,6 +65,16 @@ public class AuthController {
 
         return ApiResponse.<IntrospectResponse>builder()
                 .result(result)
+                .build();
+    }
+
+    @GetMapping("/me")
+    ApiResponse<Object> me(Authentication authentication){
+        String username = authentication.getName();
+        Optional<Account> account =  accountRepository.findByUsername(username);
+        
+        return ApiResponse.builder()
+                .result(account)
                 .build();
     }
 }

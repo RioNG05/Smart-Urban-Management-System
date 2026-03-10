@@ -2,12 +2,11 @@ package com.example.backend.Controllers;
 
 import com.example.backend.DTO.Request.AccountCreateRequest;
 import com.example.backend.DTO.Request.AccountUpdateRequest;
-import com.example.backend.DTO.Request.ApiResponse;
+import com.example.backend.DTO.Response.ApiResponse;
 import com.example.backend.Entity.Account;
 import com.example.backend.Service.AccountService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -33,7 +32,6 @@ public class AccountController {
     ApiResponse<Account> create(@RequestBody @Valid AccountCreateRequest req){
         ApiResponse<Account> response = new ApiResponse<>();
 
-
         response.setCode(200);
         response.setMessage("Tạo người dùng thành công!");
         response.setResult(accountService.create(req));
@@ -41,8 +39,14 @@ public class AccountController {
     }
 
     @PutMapping("/{accountID}")
-    Account update(@PathVariable("accountID") Integer accountID, @RequestBody AccountUpdateRequest req){
-        return accountService.update(accountID, req);
+    ApiResponse<Account> update(@PathVariable("accountID") Integer accountID, @RequestBody AccountUpdateRequest req){
+        ApiResponse<Account> response = new ApiResponse<>();
+
+        response.setCode(200);
+        response.setMessage("Cập nhật thông tin thành công");
+        response.setResult(accountService.update(accountID, req));
+        
+        return response;
     }
 
     @DeleteMapping("/{accountID}")
