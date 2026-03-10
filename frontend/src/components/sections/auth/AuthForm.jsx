@@ -27,7 +27,7 @@ function AuthForm() {
     e.preventDefault();
 
     try {
-      const res = await api.get("/accounts");
+      const res = await api.get("/account/auth");
 
       const users = res.data;
 
@@ -49,19 +49,32 @@ function AuthForm() {
     }
   };
   // REGISTER (demo)
-  const handleRegister = (e) => {
+  const handleRegister = async (e) => {
     e.preventDefault();
 
     if (registerData.password !== registerData.confirmPassword) {
       toast.warning("Password không khớp");
-
       return;
     }
 
-    toast.success("Account created successfully");
-    setIsLogin(true);
-  };
+    try {
+      const res = await api.post("/accounts", {
+        email: registerData.email,
+        username: registerData.name,
+        password: registerData.password,
+      });
 
+      toast.success(res.data.message || "Account created successfully");
+
+      setIsLogin(true);
+    } catch (err) {
+      if (err.response?.data?.message) {
+        toast.error(err.response.data.message);
+      } else {
+        toast.error("Register thất bại");
+      }
+    }
+  };
   return (
     <div className={`auth-box ${isLogin ? "login-mode" : "register-mode"}`}>
       <div className="auth-toggle">

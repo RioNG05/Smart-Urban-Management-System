@@ -7,13 +7,15 @@ import { useAuth } from "../../components/sections/auth/AuthContext";
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [openMenu, setOpenMenu] = useState(false);
+  const [loadingUser, setLoadingUser] = useState(true);
 
   const navigate = useNavigate();
   const menuRef = useRef();
 
-  // lấy user từ AuthContext
   const { user, logout } = useAuth();
-  const isLoggedIn = !!user;
+
+  const isLoggedIn = Boolean(user);
+  const role = user?.role?.roleName?.toLowerCase();
 
   const handleScroll = useCallback(() => {
     setScrolled(window.scrollY > 50);
@@ -21,18 +23,29 @@ export default function Navbar() {
 
   useScrollEffect(handleScroll);
 
-  // click ngoài dropdown -> đóng menu
+  // giả lập loading user
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setLoadingUser(false);
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, []);
+
+  // click outside
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (menuRef.current && !menuRef.current.contains(event.target)) {
+      if (!menuRef.current) return;
+
+      if (!menuRef.current.contains(event.target)) {
         setOpenMenu(false);
       }
     };
 
-    document.addEventListener("mousedown", handleClickOutside);
+    document.addEventListener("click", handleClickOutside, true);
 
     return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("click", handleClickOutside, true);
     };
   }, []);
 
@@ -64,25 +77,48 @@ export default function Navbar() {
 
         {/* ACTION */}
         <div className="nav-actions">
-          {/* USER */}
           <div className="user-menu" ref={menuRef}>
             <FaUserCircle
               className="user-icon"
-              onClick={() => setOpenMenu(!openMenu)}
+              onClick={() => setOpenMenu((prev) => !prev)}
             />
 
             {openMenu && (
-              <div className="dropdown">
-                {isLoggedIn ? (
+              <div className="dropdown fade-slide">
+                {loadingUser ? (
+                  <div className="dropdown-skeleton">
+                    <div className="skeleton-item"></div>
+                    <div className="skeleton-item"></div>
+                  </div>
+                ) : isLoggedIn ? (
                   <>
                     <div
-                      className="dropdown-item"
+                      className="dropdown-item username"
                       onClick={() => navigate("/profile")}
                     >
-                      {user.username || "Profile"}
+                      <span>{user.username || "Profile"}</span>
+
+                      {role && (
+                        <span className={`role-badge ${role}`}>
+                          {role.toUpperCase()}
+                        </span>
+                      )}
                     </div>
 
-                    <div className="dropdown-item" onClick={handleLogout}>
+                    {/* dashboard cho role khác resident */}
+                    {role && role !== "resident" && (
+                      <div
+                        className="dropdown-item"
+                        onClick={() => navigate("/dashboard")}
+                      >
+                        Dashboard
+                      </div>
+                    )}
+
+                    <div
+                      className="dropdown-item logout"
+                      onClick={handleLogout}
+                    >
                       Logout
                     </div>
                   </>
