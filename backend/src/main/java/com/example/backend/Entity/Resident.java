@@ -7,6 +7,7 @@ import java.math.BigDecimal;
 @Entity
 @Table(name = "Residents")
 @Getter @Setter @NoArgsConstructor @AllArgsConstructor
+@Builder
 public class Resident {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
