@@ -40,7 +40,7 @@ public class SecurityConfig {
                                 "/auth/**",
                                 "/oauth2/**",
                                 "/login/**").permitAll()
-                        .anyRequest().authenticated()
+                        .anyRequest().permitAll()
                 )
                 .oauth2Login(oauth -> oauth.successHandler(oAuth2SuccessHandler))
                 .formLogin(form -> form.disable())
