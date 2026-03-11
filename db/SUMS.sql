@@ -400,12 +400,8 @@ CREATE TABLE StayAtHistory (
     CONSTRAINT FK_StayHistory_Apartments FOREIGN KEY (ApartmentId) REFERENCES Apartments(Id)
 );
 
-USE SmartCity_DB;
-GO
-
 -- 18 staff information. 
 --lưu mấy cái giống hệt Resident để cho admin quản lý nhân sự. 
--- 18 staff information
 CREATE TABLE StaffInfo (
     Id INT IDENTITY(1,1) PRIMARY KEY,     -- staff_id (PK)
     FullName NVARCHAR(255) NOT NULL,      -- Họ và tên nhân viên
