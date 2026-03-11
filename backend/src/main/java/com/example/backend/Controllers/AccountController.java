@@ -51,8 +51,13 @@ public class AccountController {
     }
 
     @DeleteMapping("/{accountID}")
-    String delete(@PathVariable("accountID") Integer accountID){
+    ApiResponse<Account> delete(@PathVariable("accountID") Integer accountID){
+        ApiResponse<Account> response = new ApiResponse<>();
+
         accountService.delete(accountID);
-        return "Delete successfull!";
+        response.setCode(200);
+        response.setMessage("Xóa tài khoản người dùng thành công");
+
+        return response;
     }
 }

@@ -1,7 +1,10 @@
 ﻿--1. xem thk nào là resident  tức (role id = 2) để add resident cho nó.  
 select * from Accounts where roleid = 2 
 
+-- check xem có những role và id gì.
+select * from Roles
 -- check xem account nào ứng với resident nào 
+
 SELECT 
     A.Id AS AccountId,
     A.Email,
