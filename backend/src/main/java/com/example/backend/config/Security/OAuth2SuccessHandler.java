@@ -56,7 +56,7 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 
             String token = authenticationService.tokenGeneration(account1.getUsername());
             getRedirectStrategy().sendRedirect(
-                    req,res,"http://localhost:5173/home?token=" + token
+                    req,res,"http://localhost:5173/?token=" + token
             );
             return;
         }
@@ -64,7 +64,7 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 
         String token = authenticationService.tokenGeneration(account1.getUsername());
 
-        getRedirectStrategy().sendRedirect(req, res, "http://localhost:5173/home?token="+token);
+        getRedirectStrategy().sendRedirect(req, res, "http://localhost:5173/?token="+token);
     }
 
 }
