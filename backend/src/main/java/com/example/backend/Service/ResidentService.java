@@ -2,6 +2,7 @@ package com.example.backend.Service;
 
 import com.example.backend.DTO.Request.ResidentCreateRequest;
 import com.example.backend.DTO.Request.ResidentUpdateRequest;
+import com.example.backend.DTO.Response.AccountsResponse;
 import com.example.backend.Entity.Account;
 import com.example.backend.Entity.Apartment;
 import com.example.backend.Entity.Resident;
@@ -65,5 +66,9 @@ public class ResidentService {
     public void delete(Integer id) {
         findById(id);
         residentRepository.deleteById(id);
+    }
+
+    public Resident findByAccountId(Integer accountId){
+        return residentRepository.findByAccountId(accountId).orElseThrow(()->new RuntimeException("Không tìm thấy tài khoản người dân"));
     }
 }
