@@ -1,8 +1,11 @@
 package com.example.backend.Service;
 
+import com.example.backend.DTO.Request.ContractCreateRequest;
+import com.example.backend.DTO.Request.ContractUpdateRequest;
 import com.example.backend.DTO.Request.ResidentCreateRequest;
 import com.example.backend.DTO.Request.ResidentUpdateRequest;
 import com.example.backend.Entity.Account;
+import com.example.backend.Entity.Apartment;
 import com.example.backend.Entity.Contract;
 import com.example.backend.Entity.Resident;
 import com.example.backend.Repository.ContractRepository;
@@ -19,6 +22,10 @@ import java.util.List;
 public class ContractService {
     @Autowired
     ContractRepository repository;
+    @Autowired
+    AccountService accountService;
+    @Autowired
+    ApartmentService apartmentService;
 
     public List<Contract> findAll() {
         return repository.findAll();
@@ -29,34 +36,43 @@ public class ContractService {
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy hợp đồng với id: " + id));
     }
 
-//    public Contract create(Contract request) {
-//        Account account = accountService.findById(request.getAccountId());
-//
-//        Resident resident = Resident.builder()
-//                .fullName(request.getFullName())
-//                .gender(request.getGender())
-//                .dateOfBirth(request.getDateOfBirth())
-//                .identityId(request.getIdentityId())
-//                .account(account)
-//                .build();
-//
-//        return residentRepository.save(resident);
-//    }
+    public Contract create(ContractCreateRequest request) {
+        Account account = accountService.findById(request.getAccountId());
+        Apartment apartment = apartmentService.findById(request.getApartmentId());
 
-//    public Resident update(Integer id, ResidentUpdateRequest req) {
-//        Resident resident = findById(id);
-//
-//        resident = Resident.builder()
-//                .fullName(req.getFullName())
-//                .gender(req.getGender())
-//                .dateOfBirth(req.getDateOfBirth())
-//                .build();
-//
-//        return residentRepository.save(resident);
-//    }
-//
-//    public void delete(Integer id) {
-//        findById(id);
-//        residentRepository.deleteById(id);
-//    }
+        Contract contract = Contract.builder()
+                .apartment(apartment)
+                .account(account)
+                .startDate(request.getStartDate())
+                .endDate(request.getEndDate())
+                .status(request.getStatus())
+                .contractType(request.getContractType())
+                .monthlyRent(request.getMonthlyRent())
+                .build();
+
+        return repository.save(contract);
+    }
+
+    public Contract update(Integer id, ContractUpdateRequest request) {
+        Contract contract = findById(id);
+        Account account = accountService.findById(request.getAccountId());
+        Apartment apartment = apartmentService.findById(request.getApartmentId());
+
+        contract = Contract.builder()
+                .apartment(apartment)
+                .account(account)
+                .startDate(request.getStartDate())
+                .endDate(request.getEndDate())
+                .status(request.getStatus())
+                .contractType(request.getContractType())
+                .monthlyRent(request.getMonthlyRent())
+                .build();
+
+        return repository.save(contract);
+    }
+
+    public void delete(Integer id) {
+        findById(id);
+        repository.deleteById(id);
+    }
 }

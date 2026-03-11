@@ -37,7 +37,7 @@ VALUES
 (N'RESIDENT'),           -- Cư dân (Sử dụng App)
 (N'STAFF_APARTMENT'),    -- Nhân viên quản lý căn hộ, hợp đồng
 (N'STAFF_SERVICE'),      -- Nhân viên quản lý tiện ích, hóa đơn
-(N'STAFF_SECURITY');     -- Nhân viên an ninh, xử lý khiếu nại
+(N'STAFF_SECURITY'),      -- Nhân viên an ninh, xử lý khiếu nại
 (N'USER');               -- Người dùng hiện ko còn là Resident
 GO
 
