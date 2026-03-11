@@ -26,8 +26,6 @@ function AuthForm() {
   const handleLogin = async (e) => {
     e.preventDefault();
 
-    console.log("LOGIN DATA:", loginData);
-
     try {
       const res = await api.post("/auth/token", {
         username: loginData.username,
@@ -36,7 +34,16 @@ function AuthForm() {
 
       const token = res.data.result.token;
 
-      login(token);
+      const userRes = await api.get("/auth/me", {
+        headers: {
+          Authorization: "Bearer " + token,
+        },
+      });
+
+      const user = userRes.data.result;
+
+      // truyền token + user
+      login(token, user);
 
       toast.success("Login success!");
 

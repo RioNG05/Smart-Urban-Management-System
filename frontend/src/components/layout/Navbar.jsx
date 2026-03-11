@@ -94,7 +94,7 @@ export default function Navbar() {
                       )}
                     </div>
 
-                    {role && role !== "2" && (
+                    {role && role !== "RESIDENT" && (
                       <div
                         className="dropdown-item"
                         onClick={() => navigate("/dashboard")}
@@ -102,7 +102,12 @@ export default function Navbar() {
                         Dashboard
                       </div>
                     )}
-
+                    <div
+                      className="dropdown-item logout"
+                      onClick={() => navigate("/profile")}
+                    >
+                      Profile
+                    </div>
                     <div
                       className="dropdown-item logout"
                       onClick={handleLogout}
