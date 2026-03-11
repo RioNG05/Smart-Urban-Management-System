@@ -2,4 +2,5 @@
 
 # Chặn file cấu hình riêng của NetBeans
 backend/nb-configuration.xml
+backend/nbactions.xml
 Diagram/

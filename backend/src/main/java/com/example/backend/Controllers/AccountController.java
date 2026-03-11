@@ -18,7 +18,7 @@ public class AccountController {
     @Autowired
     private AccountService accountService;
 
-    @GetMapping
+    @GetMapping("/")
     List<Account> get(){
         return accountService.findAll();
     }
@@ -37,6 +37,7 @@ public class AccountController {
         response.setResult(accountService.create(req));
         return response;
     }
+
 
     @PutMapping("/{accountID}")
     ApiResponse<Account> update(@PathVariable("accountID") Integer accountID, @RequestBody AccountUpdateRequest req){

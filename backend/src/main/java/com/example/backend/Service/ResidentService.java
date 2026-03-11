@@ -47,13 +47,17 @@ public class ResidentService {
     }
 
     public Resident update(Integer id, ResidentUpdateRequest req) {
+
         Resident resident = findById(id);
 
-        resident = Resident.builder()
-                .fullName(req.getFullName())
-                .gender(req.getGender())
-                .dateOfBirth(req.getDateOfBirth())
-                .build();
+        if(req.getFullName() != null)
+            resident.setFullName(req.getFullName());
+
+        if(req.getGender() != null)
+            resident.setGender(req.getGender());
+
+        if(req.getDateOfBirth() != null)
+            resident.setDateOfBirth(req.getDateOfBirth());
 
         return residentRepository.save(resident);
     }
