@@ -55,18 +55,38 @@ public class ContractService {
 
     public Contract update(Integer id, ContractUpdateRequest request) {
         Contract contract = findById(id);
-        Account account = accountService.findById(request.getAccountId());
-        Apartment apartment = apartmentService.findById(request.getApartmentId());
 
-        contract = Contract.builder()
-                .apartment(apartment)
-                .account(account)
-                .startDate(request.getStartDate())
-                .endDate(request.getEndDate())
-                .status(request.getStatus())
-                .contractType(request.getContractType())
-                .monthlyRent(request.getMonthlyRent())
-                .build();
+
+
+        if(request.getApartmentId() != null){
+            Apartment apartment = apartmentService.findById(request.getApartmentId());
+            contract.setApartment(apartment);
+        }
+
+        if(request.getAccountId() != null){
+            Account account = accountService.findById(request.getAccountId());
+            contract.setAccount(account);
+        }
+
+        if(request.getContractType() != null){
+            contract.setContractType(request.getContractType());
+        }
+
+        if(request.getStartDate() != null){
+            contract.setStartDate(request.getStartDate());
+        }
+
+        if(request.getMonthlyRent() != null){
+            contract.setMonthlyRent(request.getMonthlyRent());
+        }
+
+        if(request.getStatus() != null){
+            contract.setStatus(request.getStatus());
+        }
+
+        if(request.getEndDate() != null){
+            contract.setEndDate(request.getEndDate());
+        }
 
         return repository.save(contract);
     }
