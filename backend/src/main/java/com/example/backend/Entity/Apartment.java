@@ -23,9 +23,6 @@ public class Apartment {
     @Column(name = "Direction", length = 50)
     private String direction;
 
-    @Column(name = "Furniture")
-    private Integer furniture = 0;
-
     @Column(name = "Status")
     private Integer status = 0;
 
