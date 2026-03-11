@@ -50,7 +50,12 @@ public class AuthenticationService {
         PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(10);
         boolean autheticated = passwordEncoder.matches(request.getPassword(), account.getPassword());
 
-        if(!autheticated) throw new RuntimeException("Không thể xác thực người dùng");
+//        if(!autheticated) throw new RuntimeException("Không thể xác thực người dùng");
+            if(!autheticated) {
+                return AutheticationResponse.builder()
+                        .authenticated(false)
+                        .build();
+            }
 
         var token = tokenGeneration(request.getUsername());
 
@@ -64,11 +69,14 @@ public class AuthenticationService {
     public String tokenGeneration(String username){
         JWSHeader jwsHeader = new JWSHeader(JWSAlgorithm.HS512);
 
+        var account = accountRepository.findByUsername(username).orElseThrow();
+
         JWTClaimsSet jwtClaimsSet = new JWTClaimsSet.Builder()
                 .subject(username)
                 .issuer("sums.vn")
                 .issueTime(new Date())
                 .expirationTime(new Date(Instant.now().plus(1, ChronoUnit.HOURS).toEpochMilli()))
+                .claim("roleId", account.getRole().getId())
                 .build();
 
         Payload payload = new Payload(jwtClaimsSet.toJSONObject());
@@ -81,6 +89,16 @@ public class AuthenticationService {
             System.err.println("Cannot create token: "+ e);
             throw new RuntimeException(e);
         }
+    }
+
+    public String extractUsername(String token) throws ParseException {
+        SignedJWT signedJWT = SignedJWT.parse(token);
+        return signedJWT.getJWTClaimsSet().getSubject();
+    }
+
+    public String extractRole(String token) throws ParseException {
+        SignedJWT signedJWT = SignedJWT.parse(token);
+        return signedJWT.getJWTClaimsSet().getStringClaim("role");
     }
 
 }

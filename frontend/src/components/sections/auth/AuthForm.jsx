@@ -115,7 +115,8 @@ function AuthForm() {
             <span>or continue with</span>
           </div>
 
-          <button type="button" className="google-btn">
+          <button type="button" className="google-btn"
+          onClick={()=>{window.location.href = "http://localhost:8080/oauth2/authorization/google"}}>
             <img
               src="https://www.svgrepo.com/show/475656/google-color.svg"
               alt="google"
