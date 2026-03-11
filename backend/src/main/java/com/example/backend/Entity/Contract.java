@@ -8,6 +8,7 @@ import java.math.BigDecimal;
 @Entity
 @Table(name = "Contracts")
 @Getter @Setter @NoArgsConstructor @AllArgsConstructor
+@Builder
 public class Contract {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
