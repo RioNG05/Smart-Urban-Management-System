@@ -26,12 +26,6 @@ public class Apartment {
     @Column(name = "Status")
     private Integer status = 0;
 
-    @Column(name = "SpecificPriceForBuying", precision = 18, scale = 2)
-    private BigDecimal specificPriceForBuying;
-
-    @Column(name = "SpecificPriceForRenting", precision = 18, scale = 2)
-    private BigDecimal specificPriceForRenting;
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "ApartmentTypeId", nullable = false)
     private ApartmentType apartmentType;
