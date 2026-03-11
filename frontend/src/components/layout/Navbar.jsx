@@ -3,6 +3,7 @@ import { FaUserCircle } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import useScrollEffect from "../../hooks/useScrollEffect";
 import { useAuth } from "../../components/sections/auth/AuthContext";
+import logoImg from "../../assets/logo.jpg";
 
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
@@ -53,8 +54,10 @@ export default function Navbar() {
   return (
     <nav className={`navbar ${scrolled ? "navbar-scrolled" : ""}`}>
       <div className="nav-container">
-        <div className="logo" onClick={() => navigate("/")}>
-          VINAHOUSES
+        {/* LOGO */}
+        <div className="nav-logo" onClick={() => navigate("/")}>
+          <img src={logoImg} alt="VINAHOUSES Logo" className="nav-logoImg" />
+          <span className="nav-logoText">VINAHOUSES</span>
         </div>
 
         <ul className="nav-links">

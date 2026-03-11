@@ -27,10 +27,24 @@ body {
   align-items: center;
 }
 
-.logo {
+.nav-logo {
   font-weight: bold;
   font-size: 22px;
   letter-spacing: 2px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.nav-logoImg{
+  height: 40px; 
+  width: auto;
+}
+
+.nav-logoText{
+  fontWeight: bold;
+  fontSize: 1.2rem;
 }
 
 .nav-links {

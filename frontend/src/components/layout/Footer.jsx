@@ -17,7 +17,7 @@ export default function Footer() {
       <div className="footer-container">
         {/* BRAND */}
         <div className="footer-col brand">
-          <h2 className="footer-logo">VINHOMES SMARTCITY</h2>
+          <h2 className="footer-logo">VINAHOUSE</h2>
 
           <p>
             We provide premium living spaces designed for modern lifestyles,
@@ -60,7 +60,7 @@ export default function Footer() {
           <h4>Contact Us</h4>
 
           <p>
-            <FiMapPin /> Smart City, Ha Noi, Viet Nam
+            <FiMapPin /> Vina City, Ha Noi, Viet Nam
           </p>
 
           <p>
@@ -75,7 +75,7 @@ export default function Footer() {
 
       {/* COPYRIGHT */}
       <div className="footer-bottom">
-        © 2026 Smart Urban Management System. All rights reserved.
+        © 2026 Smart Urban System. All rights reserved.
       </div>
 
       {/* SCROLL TOP BUTTON */}

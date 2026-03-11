@@ -69,11 +69,14 @@ public class AuthenticationService {
     public String tokenGeneration(String username){
         JWSHeader jwsHeader = new JWSHeader(JWSAlgorithm.HS512);
 
+        var account = accountRepository.findByUsername(username).orElseThrow();
+
         JWTClaimsSet jwtClaimsSet = new JWTClaimsSet.Builder()
                 .subject(username)
                 .issuer("sums.vn")
                 .issueTime(new Date())
                 .expirationTime(new Date(Instant.now().plus(1, ChronoUnit.HOURS).toEpochMilli()))
+                .claim("roleId", account.getRole().getId())
                 .build();
 
         Payload payload = new Payload(jwtClaimsSet.toJSONObject());
@@ -91,6 +94,11 @@ public class AuthenticationService {
     public String extractUsername(String token) throws ParseException {
         SignedJWT signedJWT = SignedJWT.parse(token);
         return signedJWT.getJWTClaimsSet().getSubject();
+    }
+
+    public String extractRole(String token) throws ParseException {
+        SignedJWT signedJWT = SignedJWT.parse(token);
+        return signedJWT.getJWTClaimsSet().getStringClaim("role");
     }
 
 }
