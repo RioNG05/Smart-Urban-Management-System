@@ -1,15 +1,11 @@
 package com.example.backend.Service;
 
-import com.example.backend.DTO.Request.ContractCreateRequest;
-import com.example.backend.DTO.Request.ContractUpdateRequest;
-import com.example.backend.DTO.Request.ResidentCreateRequest;
-import com.example.backend.DTO.Request.ResidentUpdateRequest;
+import com.example.backend.DTO.Request.contract.ContractCreateRequest;
+import com.example.backend.DTO.Request.contract.ContractUpdateRequest;
 import com.example.backend.Entity.Account;
 import com.example.backend.Entity.Apartment;
 import com.example.backend.Entity.Contract;
-import com.example.backend.Entity.Resident;
 import com.example.backend.Repository.ContractRepository;
-import com.example.backend.Repository.ResidentRepository;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
 import org.springframework.beans.factory.annotation.Autowired;

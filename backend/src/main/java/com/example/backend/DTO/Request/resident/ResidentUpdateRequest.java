@@ -1,4 +1,4 @@
-package com.example.backend.DTO.Request;
+package com.example.backend.DTO.Request.resident;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;

@@ -1,7 +1,7 @@
 package com.example.backend.Service;
 
-import com.example.backend.DTO.Request.AccountCreateRequest;
-import com.example.backend.DTO.Request.AccountUpdateRequest;
+import com.example.backend.DTO.Request.account.AccountCreateRequest;
+import com.example.backend.DTO.Request.account.AccountUpdateRequest;
 import com.example.backend.Entity.Account;
 import com.example.backend.Entity.Role;
 import com.example.backend.Repository.AccountRepository;
@@ -10,9 +10,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @Service
 public class AccountService {
