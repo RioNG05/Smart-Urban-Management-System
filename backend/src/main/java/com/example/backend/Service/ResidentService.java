@@ -1,13 +1,9 @@
 package com.example.backend.Service;
 
-import com.example.backend.DTO.Request.ResidentCreateRequest;
-import com.example.backend.DTO.Request.ResidentUpdateRequest;
-import com.example.backend.DTO.Response.AccountsResponse;
+import com.example.backend.DTO.Request.resident.ResidentCreateRequest;
+import com.example.backend.DTO.Request.resident.ResidentUpdateRequest;
 import com.example.backend.Entity.Account;
-import com.example.backend.Entity.Apartment;
 import com.example.backend.Entity.Resident;
-import com.example.backend.Repository.AccountRepository;
-import com.example.backend.Repository.ApartmentRepository;
 import com.example.backend.Repository.ResidentRepository;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;

@@ -2,12 +2,11 @@ package com.example.backend.Controllers;
 
 
 import com.example.backend.DTO.Response.*;
-import com.example.backend.DTO.Request.AuthenticationRequest;
-import com.example.backend.DTO.Request.IntrospectRequest;
+import com.example.backend.DTO.Request.auth.AuthenticationRequest;
+import com.example.backend.DTO.Request.auth.IntrospectRequest;
 import com.example.backend.Entity.Account;
 import com.example.backend.Entity.Resident;
 import com.example.backend.Repository.AccountRepository;
-import com.example.backend.Repository.ResidentRepository;
 import com.example.backend.Service.AuthenticationService;
 import com.example.backend.Service.ResidentService;
 import com.nimbusds.jose.JOSEException;

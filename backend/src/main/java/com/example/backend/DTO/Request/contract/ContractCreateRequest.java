@@ -1,17 +1,10 @@
-package com.example.backend.DTO.Request;
+package com.example.backend.DTO.Request.contract;
 
-import com.example.backend.Entity.Account;
-import com.example.backend.Entity.Apartment;
-import jakarta.persistence.Column;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 
 @Data
 @NoArgsConstructor
