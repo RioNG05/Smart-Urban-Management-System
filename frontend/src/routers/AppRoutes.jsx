@@ -7,6 +7,7 @@ import NewsPage from "../pages/NewsPage";
 import Home from "../pages/Home";
 import NewsDetailPage from "../pages/NewsDetailPage";
 import Unauthorized from "../pages/Unauthorized";
+import Profile from "../pages/ProfilePage";
 
 import PrivateRoute from "./PrivateRoute";
 
@@ -41,6 +42,14 @@ export default function AppRoutes() {
           element={
             <PrivateRoute>
               <NewsPage />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/profile"
+          element={
+            <PrivateRoute>
+              <Profile />
             </PrivateRoute>
           }
         />

@@ -7,7 +7,7 @@ import api from "../../../services/api";
 function AuthForm() {
   const { login } = useAuth();
   const [isLogin, setIsLogin] = useState(true);
-  const [loading, setLoading] = useState(false);
+
   const [loginData, setLoginData] = useState({
     username: "",
     password: "",
