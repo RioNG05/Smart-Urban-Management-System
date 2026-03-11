@@ -10,12 +10,9 @@ export default function Navbar() {
   const [loadingUser, setLoadingUser] = useState(true);
 
   const navigate = useNavigate();
-  const menuRef = useRef();
+  const menuRef = useRef(null);
 
-  const { user, logout } = useAuth();
-
-  const isLoggedIn = Boolean(user);
-  const role = user?.role?.roleName?.toLowerCase();
+  const { token, user, role, logout, isAuthenticated } = useAuth();
 
   const handleScroll = useCallback(() => {
     setScrolled(window.scrollY > 50);
@@ -23,7 +20,6 @@ export default function Navbar() {
 
   useScrollEffect(handleScroll);
 
-  // giả lập loading user
   useEffect(() => {
     const timer = setTimeout(() => {
       setLoadingUser(false);
@@ -32,7 +28,6 @@ export default function Navbar() {
     return () => clearTimeout(timer);
   }, []);
 
-  // click outside
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (!menuRef.current) return;
@@ -52,21 +47,16 @@ export default function Navbar() {
   const handleLogout = () => {
     logout();
     setOpenMenu(false);
-
-    setTimeout(() => {
-      window.location.href = "/";
-    }, 200);
+    navigate("/");
   };
 
   return (
     <nav className={`navbar ${scrolled ? "navbar-scrolled" : ""}`}>
       <div className="nav-container">
-        {/* LOGO */}
         <div className="logo" onClick={() => navigate("/")}>
           VINAHOUSES
         </div>
 
-        {/* MENU */}
         <ul className="nav-links">
           <li onClick={() => navigate("/")}>Home</li>
           <li onClick={() => navigate("/market")}>Projects</li>
@@ -75,7 +65,6 @@ export default function Navbar() {
           <li onClick={() => navigate("/contact")}>Contact</li>
         </ul>
 
-        {/* ACTION */}
         <div className="nav-actions">
           <div className="user-menu" ref={menuRef}>
             <FaUserCircle
@@ -90,13 +79,13 @@ export default function Navbar() {
                     <div className="skeleton-item"></div>
                     <div className="skeleton-item"></div>
                   </div>
-                ) : isLoggedIn ? (
+                ) : isAuthenticated ? (
                   <>
                     <div
                       className="dropdown-item username"
                       onClick={() => navigate("/profile")}
                     >
-                      <span>{user.username || "Profile"}</span>
+                      <span>{user?.username}</span>
 
                       {role && (
                         <span className={`role-badge ${role}`}>
@@ -105,8 +94,7 @@ export default function Navbar() {
                       )}
                     </div>
 
-                    {/* dashboard cho role khác resident */}
-                    {role && role !== "resident" && (
+                    {role && role !== "2" && (
                       <div
                         className="dropdown-item"
                         onClick={() => navigate("/dashboard")}

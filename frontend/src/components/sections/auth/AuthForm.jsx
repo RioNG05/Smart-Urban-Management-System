@@ -7,9 +7,9 @@ import api from "../../../services/api";
 function AuthForm() {
   const { login } = useAuth();
   const [isLogin, setIsLogin] = useState(true);
-
+  const [loading, setLoading] = useState(false);
   const [loginData, setLoginData] = useState({
-    email: "",
+    username: "",
     password: "",
   });
 
@@ -26,26 +26,29 @@ function AuthForm() {
   const handleLogin = async (e) => {
     e.preventDefault();
 
+    console.log("LOGIN DATA:", loginData);
+
     try {
-      const res = await api.get("/account/auth");
+      const res = await api.post("/auth/token", {
+        username: loginData.username,
+        password: loginData.password,
+      });
 
-      const users = res.data;
+      const token = res.data.result.token;
 
-      const user = users.find(
-        (u) => u.email === loginData.email && u.password === loginData.password,
-      );
+      login(token);
 
-      if (user) {
-        login({ user });
+      toast.success("Login success!");
 
-        toast.success(`Welcome back ${user.username}!`);
-
-        navigate("/");
-      } else {
-        toast.error("Email hoặc password không đúng");
-      }
+      navigate("/");
     } catch (err) {
-      toast.error("Không thể kết nối server");
+      console.log(err);
+
+      if (err.response) {
+        toast.error(err.response.data.message || "Login failed");
+      } else {
+        toast.error("Không thể kết nối server");
+      }
     }
   };
   // REGISTER (demo)
@@ -101,16 +104,18 @@ function AuthForm() {
           <h2>Welcome Back</h2>
 
           <input
-            type="email"
-            placeholder="Email"
+            type="text"
+            placeholder="Username"
+            value={loginData.username}
             onChange={(e) =>
-              setLoginData({ ...loginData, email: e.target.value })
+              setLoginData({ ...loginData, username: e.target.value })
             }
           />
 
           <input
             type="password"
             placeholder="Password"
+            value={loginData.password}
             onChange={(e) =>
               setLoginData({ ...loginData, password: e.target.value })
             }
