@@ -1,6 +1,7 @@
 package com.example.backend.Controllers;
 
 
+import com.example.backend.DTO.Response.AccountsResponse;
 import com.example.backend.DTO.Response.ApiResponse;
 import com.example.backend.DTO.Request.AuthenticationRequest;
 import com.example.backend.DTO.Request.IntrospectRequest;
@@ -69,12 +70,23 @@ public class AuthController {
     }
 
     @GetMapping("/me")
-    ApiResponse<Object> me(Authentication authentication){
+    ApiResponse<AccountsResponse> me(Authentication authentication){
+
         String username = authentication.getName();
-        Optional<Account> account =  accountRepository.findByUsername(username);
-        
-        return ApiResponse.builder()
-                .result(account)
+
+        Optional<Account> account = accountRepository.findByUsername(username);
+
+        Account acc = account.orElseThrow();
+
+        AccountsResponse response = AccountsResponse.builder()
+                .username(acc.getUsername())
+                .password(acc.getPassword())
+                .email(acc.getEmail())
+                .role(acc.getRole())
+                .build();
+
+        return ApiResponse.<AccountsResponse>builder()
+                .result(response)
                 .build();
     }
 }
