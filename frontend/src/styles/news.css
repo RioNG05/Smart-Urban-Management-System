@@ -1,6 +1,6 @@
 .news-hero {
-  height: 260px;
-  background: linear-gradient(135deg, #0f172a, #1e293b);
+  height: 300px;
+  background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url("https://imperia-smartcity.com.vn/wp-content/uploads/2020/10/isc-2-1024x512.jpg") center/cover no-repeat;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -63,7 +63,7 @@
 }
 
 .news-card:hover .news-title {
-  color: #d70018; /* màu đỏ giống site tin tức */
+  color: #c89b3c;
 }
 
 .news-card-image {
@@ -83,6 +83,7 @@
 .news-card:hover img {
   transform: scale(1.05);
 }
+
 .news-card-content {
   padding: 20px;
 }
