@@ -1,26 +1,20 @@
 package com.example.backend.DTO.Request.apartment;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
+import lombok.experimental.FieldDefaults;
+
 import java.math.BigDecimal;
 
-@Getter
-@Setter
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class ApartmentUpdateRequest {
 
-    private String roomNumber;
-
-    private Integer floorNumber;
-
-    private String direction;
-
-    private Integer furniture;
-
-    private Integer status;
-
-    private BigDecimal specificPriceForBuying;
-
-    private BigDecimal specificPriceForRenting;
-
-    private Integer apartmentTypeId;
+    Integer roomNumber;
+    Integer floorNumber;
+    String direction;
+    Integer status;
+    Integer apartmentTypeId;
 }

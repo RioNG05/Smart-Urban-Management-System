@@ -24,7 +24,7 @@ public class ContractController {
         ApiResponse<List<Contract>> response = new ApiResponse<>();
 
         response.setCode(200);
-        response.setMessage("Lấy danh sách người dùng thành công");
+        response.setMessage("Lấy danh sách hợp đồng thành công");
         response.setResult(service.findAll());
         return response;
     }

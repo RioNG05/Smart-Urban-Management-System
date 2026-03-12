@@ -12,7 +12,6 @@ import lombok.experimental.FieldDefaults;
 @Builder
 public class AccountsResponse {
     String username;
-    String password;
     Role role;
     String email;
 }
