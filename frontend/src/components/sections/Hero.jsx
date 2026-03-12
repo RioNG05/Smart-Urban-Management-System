@@ -1,4 +1,8 @@
+import { useNavigate } from "react-router-dom";
+
 export default function Hero() {
+  const navigate = useNavigate();
+
   return (
     <section className="hero">
       <div className="hero-content">
@@ -7,7 +11,7 @@ export default function Hero() {
           Discover world-class residential communities designed for modern
           lifestyles.
         </p>
-        <button>Discover Projects</button>
+        <button onClick={() => navigate("/market")}>Discover Projects</button>
       </div>
     </section>
   );
