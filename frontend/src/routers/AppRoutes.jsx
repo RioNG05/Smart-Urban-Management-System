@@ -6,6 +6,7 @@ import AuthPage from "../pages/Authpage";
 import Product from "../pages/ProductDetailPage";
 import NewsPage from "../pages/NewsPage";
 import Home from "../pages/Home";
+import AboutPage from "../pages/AboutPage";
 import NewsDetailPage from "../pages/NewsDetailPage";
 import Unauthorized from "../pages/Unauthorized";
 import Profile from "../pages/ProfilePage";
@@ -32,6 +33,7 @@ export default function AppRoutes() {
       <Routes>
         {/* --- ROUTES NGƯỜI DÙNG --- */}
         <Route path="/" element={<Home />} />
+        <Route path="/about" element={<AboutPage />} />
         <Route path="/auth" element={<AuthPage />} />
 
         <Route
