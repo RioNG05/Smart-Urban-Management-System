@@ -335,7 +335,7 @@ GO
 -- tách ra và thêm bảng chỗ furniture. 
 CREATE TABLE Apartments (
     Id INT IDENTITY(1,1) PRIMARY KEY,        -- apartment_id (PK)
-    RoomNumber VARCHAR(20) NOT NULL,         -- room_number
+    RoomNumber INT NOT NULL,                 -- room_number
     FloorNumber INT NOT NULL,                -- floor_number
     Direction NVARCHAR(50),                  -- hướng
     Status INT DEFAULT 0,                    -- status (0: Trống, 1: Có người)

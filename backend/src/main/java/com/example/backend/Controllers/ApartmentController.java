@@ -1,7 +1,16 @@
 package com.example.backend.Controllers;
 
+import com.example.backend.DTO.Request.apartment.ApartmentCreateRequest;
+import com.example.backend.DTO.Request.apartment.ApartmentUpdateRequest;
+import com.example.backend.DTO.Request.contract.ContractCreateRequest;
+import com.example.backend.DTO.Request.contract.ContractUpdateRequest;
+import com.example.backend.DTO.Response.ApiResponse;
 import com.example.backend.Entity.Apartment;
+import com.example.backend.Entity.Contract;
 import com.example.backend.Service.ApartmentService;
+import com.example.backend.Service.ContractService;
+import jakarta.validation.Valid;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -10,35 +19,58 @@ import java.util.List;
 @RequestMapping("/api/apartments")
 public class ApartmentController {
 
-    private final ApartmentService service;
-
-    public ApartmentController(ApartmentService service) {
-        this.service = service;
-    }
+    @Autowired
+    private ApartmentService service;
 
     @GetMapping
-    public List<Apartment> getAll() {
-        return service.findAll();
+    ApiResponse<List<Apartment>> get(){
+        ApiResponse<List<Apartment>> response = new ApiResponse<>();
+
+        response.setCode(200);
+        response.setMessage("Lấy danh sách căn hộ thành công");
+        response.setResult(service.findAll());
+        return response;
     }
 
     @GetMapping("/{id}")
-    public Apartment getById(@PathVariable Integer id) {
-        return service.findById(id);
+    ApiResponse<Apartment> getByID(@PathVariable("id") Integer id){
+        ApiResponse<Apartment> response = new ApiResponse<>();
+
+        response.setCode(200);
+        response.setMessage("Thông tin căn hộ id: " + id);
+        response.setResult(service.findById(id));
+        return response;
     }
 
     @PostMapping
-    public Apartment create(@RequestBody Apartment apartment) {
-        return service.create(apartment);
+    ApiResponse<Apartment> create(@RequestBody @Valid ApartmentCreateRequest req){
+        ApiResponse<Apartment> response = new ApiResponse<>();
+
+        response.setCode(200);
+        response.setMessage("Tạo căn hộ thành công!");
+        response.setResult(service.create(req));
+        return response;
     }
 
     @PutMapping("/{id}")
-    public Apartment update(@PathVariable Integer id,
-                            @RequestBody Apartment apartment) {
-        return service.update(id, apartment);
+    ApiResponse<Apartment> update(@PathVariable("id") Integer id, @RequestBody ApartmentUpdateRequest req){
+        ApiResponse<Apartment> response = new ApiResponse<>();
+
+        response.setCode(200);
+        response.setMessage("Cập nhật thông tin căn hộ thành công");
+        response.setResult(service.update(id, req));
+
+        return response;
     }
 
     @DeleteMapping("/{id}")
-    public void delete(@PathVariable Integer id) {
+    ApiResponse<Apartment> delete(@PathVariable("id") Integer id){
+        ApiResponse<Apartment> response = new ApiResponse<>();
+
         service.delete(id);
+        response.setCode(200);
+        response.setMessage("Xóa căn hộ thành công");
+
+        return response;
     }
 }
