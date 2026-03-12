@@ -1,6 +1,6 @@
 package com.example.backend.config.Security;
 
-import com.example.backend.DTO.Request.AccountCreateRequest;
+import com.example.backend.DTO.Request.account.AccountCreateRequest;
 import com.example.backend.Entity.Account;
 import com.example.backend.Repository.AccountRepository;
 import com.example.backend.Service.AccountService;
@@ -15,8 +15,6 @@ import org.springframework.security.web.authentication.SimpleUrlAuthenticationSu
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
 import java.util.Optional;
 
 @Component

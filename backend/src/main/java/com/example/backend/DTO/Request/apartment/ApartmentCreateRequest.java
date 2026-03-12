@@ -1,4 +1,4 @@
-package com.example.backend.DTO.Request;
+package com.example.backend.DTO.Request.apartment;
 
 import lombok.Getter;
 import lombok.Setter;

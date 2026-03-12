@@ -41,6 +41,7 @@ CREATE TABLE Roles (
 INSERT INTO Roles (RoleName, ContextPath)
 VALUES 
 <<<<<<< HEAD
+<<<<<<< HEAD
 (N'MANAGER',         N'admin'),      -- Toàn quyền hệ thống
 (N'RESIDENT',        N'resident'),   -- Cư dân (Sử dụng App)
 (N'STAFF_APARTMENT', N'apartment'),  -- Quản lý căn hộ, hợp đồng
@@ -48,13 +49,18 @@ VALUES
 (N'STAFF_SECURITY',  N'security'),   -- An ninh, check-in khách, khiếu nại
 (N'USER',            N'user');       -- Người dùng vãng lai/hết hạn hợp đồng
 =======
+=======
+>>>>>>> dev
 (N'ADMIN'),              -- Toàn quyền hệ thống
 (N'RESIDENT'),           -- Cư dân (Sử dụng App)
 (N'STAFF_APARTMENT'),    -- Nhân viên quản lý căn hộ, hợp đồng
 (N'STAFF_SERVICE'),      -- Nhân viên quản lý tiện ích, hóa đơn
 (N'STAFF_SECURITY'),      -- Nhân viên an ninh, xử lý khiếu nại
 (N'USER');               -- Người dùng hiện ko còn là Resident
+<<<<<<< HEAD
 >>>>>>> be-quanhanh
+=======
+>>>>>>> dev
 GO
 
 --bảng 3 

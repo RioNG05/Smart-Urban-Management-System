@@ -1,18 +1,14 @@
-package com.example.backend.DTO.Request;
+package com.example.backend.DTO.Request.auth;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 @Data
-@NoArgsConstructor
 @AllArgsConstructor
+@NoArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class AccountUpdateRequest {
-
-    String email;
+public class AuthenticationRequest {
     String username;
     String password;
-    Integer roleId;
-    Boolean isActive;
 }

@@ -1,7 +1,7 @@
 package com.example.backend.Controllers;
 
-import com.example.backend.DTO.Request.AccountCreateRequest;
-import com.example.backend.DTO.Request.AccountUpdateRequest;
+import com.example.backend.DTO.Request.account.AccountCreateRequest;
+import com.example.backend.DTO.Request.account.AccountUpdateRequest;
 import com.example.backend.DTO.Response.ApiResponse;
 import com.example.backend.Entity.Account;
 import com.example.backend.Service.AccountService;
@@ -18,14 +18,24 @@ public class AccountController {
     @Autowired
     private AccountService accountService;
 
-    @GetMapping("/")
-    List<Account> get(){
-        return accountService.findAll();
+    @GetMapping
+    ApiResponse<List<Account>> get(){
+        ApiResponse<List<Account>> response = new ApiResponse<>();
+
+        response.setCode(200);
+        response.setMessage("Lấy danh sách tài khoản thành công");
+        response.setResult(accountService.findAll());
+        return response;
     }
 
     @GetMapping("/{accountID}")
-    Account getByID(@PathVariable("accountID") Integer accountID){
-        return accountService.findById(accountID);
+    ApiResponse<Account> getByID(@PathVariable("accountID") Integer accountID){
+        ApiResponse<Account> response = new ApiResponse<>();
+
+        response.setCode(200);
+        response.setMessage("Thông tin tài khoản id: " + accountID);
+        response.setResult(accountService.findById(accountID));
+        return response;
     }
 
     @PostMapping
@@ -33,7 +43,7 @@ public class AccountController {
         ApiResponse<Account> response = new ApiResponse<>();
 
         response.setCode(200);
-        response.setMessage("Tạo người dùng thành công!");
+        response.setMessage("Tạo tài khoản thành công!");
         response.setResult(accountService.create(req));
         return response;
     }
