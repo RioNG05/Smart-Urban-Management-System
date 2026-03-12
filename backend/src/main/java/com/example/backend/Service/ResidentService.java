@@ -30,11 +30,15 @@ public class ResidentService {
 
     public Resident findById(Integer id) {
         return residentRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Apartment not found"));
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy thông tin dân cư với id: "+id));
     }
 
     public Resident create(ResidentCreateRequest request) {
-        Account account = accountService.findById(request.getAccountId());
+        Account account = null;
+
+        if(request.getAccountId() != null){
+            account = accountService.findById(request.getAccountId());
+        }
 
         Resident resident = Resident.builder()
                 .fullName(request.getFullName())
