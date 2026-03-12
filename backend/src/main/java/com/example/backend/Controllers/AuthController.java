@@ -80,7 +80,6 @@ public class AuthController {
 
         AccountsResponse response = AccountsResponse.builder()
                 .username(acc.getUsername())
-                .password(acc.getPassword())
                 .email(acc.getEmail())
                 .role(acc.getRole())
                 .build();
