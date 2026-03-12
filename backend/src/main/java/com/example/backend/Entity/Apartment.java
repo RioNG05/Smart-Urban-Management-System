@@ -8,6 +8,7 @@ import java.math.BigDecimal;
 @Entity
 @Table(name = "Apartments")
 @Getter @Setter @NoArgsConstructor @AllArgsConstructor
+@Builder
 public class Apartment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -15,7 +16,7 @@ public class Apartment {
     private Integer id;
 
     @Column(name = "RoomNumber", nullable = false, length = 20)
-    private String roomNumber;
+    private Integer roomNumber;
 
     @Column(name = "FloorNumber", nullable = false)
     private Integer floorNumber;
@@ -23,17 +24,8 @@ public class Apartment {
     @Column(name = "Direction", length = 50)
     private String direction;
 
-    @Column(name = "Furniture")
-    private Integer furniture = 0;
-
     @Column(name = "Status")
     private Integer status = 0;
-
-    @Column(name = "SpecificPriceForBuying", precision = 18, scale = 2)
-    private BigDecimal specificPriceForBuying;
-
-    @Column(name = "SpecificPriceForRenting", precision = 18, scale = 2)
-    private BigDecimal specificPriceForRenting;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "ApartmentTypeId", nullable = false)
