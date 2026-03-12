@@ -1,13 +1,10 @@
-package com.example.backend.DTO.Request;
+package com.example.backend.DTO.Request.utilitiesInvoice;
 
 import com.example.backend.Entity.Apartment;
-import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
 
 @Data
 @NoArgsConstructor

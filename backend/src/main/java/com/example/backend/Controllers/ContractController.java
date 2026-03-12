@@ -1,14 +1,11 @@
 package com.example.backend.Controllers;
 
-import com.example.backend.DTO.Request.ContractCreateRequest;
-import com.example.backend.DTO.Request.ContractUpdateRequest;
-import com.example.backend.DTO.Request.ResidentCreateRequest;
-import com.example.backend.DTO.Request.ResidentUpdateRequest;
+import com.example.backend.DTO.Request.contract.ContractCreateRequest;
+import com.example.backend.DTO.Request.contract.ContractUpdateRequest;
 import com.example.backend.DTO.Response.ApiResponse;
 import com.example.backend.Entity.Contract;
 import com.example.backend.Entity.Resident;
 import com.example.backend.Service.ContractService;
-import com.example.backend.Service.ResidentService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -23,13 +20,23 @@ public class ContractController {
     private ContractService service;
 
     @GetMapping
-    List<Contract> get(){
-        return service.findAll();
+    ApiResponse<List<Contract>> get(){
+        ApiResponse<List<Contract>> response = new ApiResponse<>();
+
+        response.setCode(200);
+        response.setMessage("Lấy danh sách người dùng thành công");
+        response.setResult(service.findAll());
+        return response;
     }
 
     @GetMapping("/{id}")
-    Contract getByID(@PathVariable("id") Integer id){
-        return service.findById(id);
+    ApiResponse<Contract> getByID(@PathVariable("id") Integer id){
+        ApiResponse<Contract> response = new ApiResponse<>();
+
+        response.setCode(200);
+        response.setMessage("Thông tin hợp đồng id: " + id);
+        response.setResult(service.findById(id));
+        return response;
     }
 
     @PostMapping

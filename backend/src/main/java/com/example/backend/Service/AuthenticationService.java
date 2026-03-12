@@ -1,7 +1,7 @@
 package com.example.backend.Service;
 
-import com.example.backend.DTO.Request.AuthenticationRequest;
-import com.example.backend.DTO.Request.IntrospectRequest;
+import com.example.backend.DTO.Request.auth.AuthenticationRequest;
+import com.example.backend.DTO.Request.auth.IntrospectRequest;
 import com.example.backend.DTO.Response.AutheticationResponse;
 import com.example.backend.DTO.Response.IntrospectResponse;
 import com.example.backend.Repository.AccountRepository;
