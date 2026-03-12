@@ -8,6 +8,7 @@ import java.math.BigDecimal;
 @Entity
 @Table(name = "Apartments")
 @Getter @Setter @NoArgsConstructor @AllArgsConstructor
+@Builder
 public class Apartment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -15,7 +16,7 @@ public class Apartment {
     private Integer id;
 
     @Column(name = "RoomNumber", nullable = false, length = 20)
-    private String roomNumber;
+    private Integer roomNumber;
 
     @Column(name = "FloorNumber", nullable = false)
     private Integer floorNumber;
