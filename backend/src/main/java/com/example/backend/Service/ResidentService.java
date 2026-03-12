@@ -1,5 +1,6 @@
 package com.example.backend.Service;
 
+import com.example.backend.DTO.Request.account.AccountUpdateRequest;
 import com.example.backend.DTO.Request.resident.ResidentCreateRequest;
 import com.example.backend.DTO.Request.resident.ResidentUpdateRequest;
 import com.example.backend.Entity.Account;
@@ -33,6 +34,7 @@ public class ResidentService {
         Account account = null;
 
         if(request.getAccountId() != null){
+            accountService.changeRole(request.getAccountId(), 2);
             account = accountService.findById(request.getAccountId());
         }
 
