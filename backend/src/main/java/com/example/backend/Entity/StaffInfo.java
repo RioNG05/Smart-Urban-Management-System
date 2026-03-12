@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Entity
 @Table(name = "StaffInfo")
@@ -33,4 +34,7 @@ public class StaffInfo {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "AccountId", nullable = false)
     private Account account;
+
+    @OneToMany(mappedBy = "createdByStaff")
+    private List<VisitorLog> visitorLogs;
 }

@@ -38,7 +38,4 @@ public class VisitorLog {
 
     @Column(name = "Note", columnDefinition = "NVARCHAR(MAX)")
     private String note;
-
-    @OneToMany(mappedBy = "createdByStaff")
-    private List<VisitorLog> visitorLogs;
 }
