@@ -37,4 +37,7 @@ public class ApartmentType {
 
     @Column(name = "CreatedAt", insertable = false, updatable = false)
     private LocalDateTime createdAt;
+
+    @Column(name = "Furniture")
+    private Integer furniture;
 }
