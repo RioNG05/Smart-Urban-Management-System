@@ -1,15 +1,14 @@
 package com.example.backend.Controllers;
 
 
-import com.example.backend.DTO.Response.AccountsResponse;
-import com.example.backend.DTO.Response.ApiResponse;
-import com.example.backend.DTO.Request.AuthenticationRequest;
-import com.example.backend.DTO.Request.IntrospectRequest;
-import com.example.backend.DTO.Response.AutheticationResponse;
-import com.example.backend.DTO.Response.IntrospectResponse;
+import com.example.backend.DTO.Response.*;
+import com.example.backend.DTO.Request.auth.AuthenticationRequest;
+import com.example.backend.DTO.Request.auth.IntrospectRequest;
 import com.example.backend.Entity.Account;
+import com.example.backend.Entity.Resident;
 import com.example.backend.Repository.AccountRepository;
 import com.example.backend.Service.AuthenticationService;
+import com.example.backend.Service.ResidentService;
 import com.nimbusds.jose.JOSEException;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -28,26 +27,7 @@ public class AuthController {
 
     AuthenticationService authenticationService;
     AccountRepository accountRepository;
-
-//    @Autowired
-//    private AccountRepository repository;
-//
-//    @PostMapping("/login")
-//    public Map<String, String> login(@RequestBody LoginRequest req){
-//
-//        Account account = repository.findByUsername(req.getUsername())
-//                .orElseThrow(() -> new RuntimeException("User not found"));
-//
-//        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
-//
-//        if(!encoder.matches(req.getPassword(), account.getPassword())){
-//            throw new RuntimeException("Wrong password");
-//        }
-//
-//        String token = JwtUtil.generateToken(account.getUsername());
-//
-//        return Map.of("token", token);
-//    }
+    ResidentService residentService;
 
     @PostMapping("/token")
     ApiResponse<AutheticationResponse> authenticate(@RequestBody AuthenticationRequest req) {
@@ -69,7 +49,7 @@ public class AuthController {
                 .build();
     }
 
-    @GetMapping("/me")
+    @GetMapping("/accounts/me")
     ApiResponse<AccountsResponse> me(Authentication authentication){
 
         String username = authentication.getName();
@@ -85,6 +65,36 @@ public class AuthController {
                 .build();
 
         return ApiResponse.<AccountsResponse>builder()
+                .result(response)
+                .build();
+    }
+
+    @GetMapping("/profile/me")
+    ApiResponse<ResidentsResponse> profile(Authentication authentication){
+
+        String username = authentication.getName();
+
+        Optional<Account> account = accountRepository.findByUsername(username);
+
+        Account acc = account.orElseThrow();
+
+        Resident resident = residentService.findByAccountId(acc.getId());
+
+        AccountsResponse accountsResponse = AccountsResponse.builder()
+                .username(acc.getUsername())
+                .email(acc.getEmail())
+                .role(acc.getRole())
+                .build();
+
+        ResidentsResponse response = ResidentsResponse.builder()
+                .fullName(resident.getFullName())
+                .account(accountsResponse)
+                .gender(resident.getGender())
+                .dateOfBirth(resident.getDateOfBirth())
+                .identityId(resident.getIdentityId())
+                .build();
+
+        return ApiResponse.<ResidentsResponse>builder()
                 .result(response)
                 .build();
     }

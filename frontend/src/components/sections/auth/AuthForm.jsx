@@ -9,7 +9,7 @@ function AuthForm() {
   const [isLogin, setIsLogin] = useState(true);
 
   const [loginData, setLoginData] = useState({
-    email: "",
+    username: "",
     password: "",
   });
 
@@ -27,41 +27,64 @@ function AuthForm() {
     e.preventDefault();
 
     try {
-      const res = await api.get("/accounts");
+      const res = await api.post("/auth/token", {
+        username: loginData.username,
+        password: loginData.password,
+      });
 
-      const users = res.data;
+      const token = res.data.result.token;
 
-      const user = users.find(
-        (u) => u.email === loginData.email && u.password === loginData.password,
-      );
+      const userRes = await api.get("/auth/me", {
+        headers: {
+          Authorization: "Bearer " + token,
+        },
+      });
 
-      if (user) {
-        login({ user });
+      const user = userRes.data.result;
 
-        toast.success(`Welcome back ${user.username}!`);
+      // truyền token + user
+      login(token, user);
 
-        navigate("/");
-      } else {
-        toast.error("Email hoặc password không đúng");
-      }
+      toast.success("Login success!");
+
+      navigate("/");
     } catch (err) {
-      toast.error("Không thể kết nối server");
+      console.log(err);
+
+      if (err.response) {
+        toast.error(err.response.data.message || "Login failed");
+      } else {
+        toast.error("Không thể kết nối server");
+      }
     }
   };
   // REGISTER (demo)
-  const handleRegister = (e) => {
+  const handleRegister = async (e) => {
     e.preventDefault();
 
     if (registerData.password !== registerData.confirmPassword) {
       toast.warning("Password không khớp");
-
       return;
     }
 
-    toast.success("Account created successfully");
-    setIsLogin(true);
-  };
+    try {
+      const res = await api.post("/accounts", {
+        email: registerData.email,
+        username: registerData.name,
+        password: registerData.password,
+      });
 
+      toast.success(res.data.message || "Account created successfully");
+
+      setIsLogin(true);
+    } catch (err) {
+      if (err.response?.data?.message) {
+        toast.error(err.response.data.message);
+      } else {
+        toast.error("Register thất bại");
+      }
+    }
+  };
   return (
     <div className={`auth-box ${isLogin ? "login-mode" : "register-mode"}`}>
       <div className="auth-toggle">
@@ -88,16 +111,18 @@ function AuthForm() {
           <h2>Welcome Back</h2>
 
           <input
-            type="email"
-            placeholder="Email"
+            type="text"
+            placeholder="Username"
+            value={loginData.username}
             onChange={(e) =>
-              setLoginData({ ...loginData, email: e.target.value })
+              setLoginData({ ...loginData, username: e.target.value })
             }
           />
 
           <input
             type="password"
             placeholder="Password"
+            value={loginData.password}
             onChange={(e) =>
               setLoginData({ ...loginData, password: e.target.value })
             }
