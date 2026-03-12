@@ -95,7 +95,7 @@ body {
 }
 
 .navbar-scrolled .nav-links li {
-  color: #444;
+  color: #000;
 }
 
 .nav-links li:hover,
@@ -711,7 +711,7 @@ body {
 }
 
 .navbar-scrolled .user-icon {
-  color: #444;
+  color: #000;
 }
 
 .user-icon:hover,

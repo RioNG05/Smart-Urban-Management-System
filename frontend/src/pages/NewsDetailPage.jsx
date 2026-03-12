@@ -85,7 +85,7 @@ export default function NewsDetailPage() {
 
   return (
     <>
-      <Navbar />
+      <Navbar solid={true} />
 
       <div className="news-detail-container" style={{ minHeight: '80vh' }}>
         <div className="news-detail-main">
