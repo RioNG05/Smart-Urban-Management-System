@@ -1,6 +1,6 @@
 package com.example.backend.Controllers;
 
-import com.example.backend.DTO.Request.ComplaintCreateRequest;
+import com.example.backend.DTO.Request.complaint.ComplaintCreateRequest;
 import com.example.backend.Entity.Complaint;
 import com.example.backend.Service.ComplaintService;
 import jakarta.validation.Valid;

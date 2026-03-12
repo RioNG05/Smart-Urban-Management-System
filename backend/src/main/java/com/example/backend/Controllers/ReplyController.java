@@ -1,6 +1,6 @@
 package com.example.backend.Controllers;
 
-import com.example.backend.DTO.Request.ReplyCreateRequest;
+import com.example.backend.DTO.Request.reply.ReplyCreateRequest;
 import com.example.backend.Entity.Reply;
 import com.example.backend.Service.ReplyService;
 import jakarta.validation.Valid;

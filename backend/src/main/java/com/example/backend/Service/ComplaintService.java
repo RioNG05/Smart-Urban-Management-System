@@ -1,6 +1,6 @@
 package com.example.backend.Service;
 
-import com.example.backend.DTO.Request.ComplaintCreateRequest;
+import com.example.backend.DTO.Request.complaint.ComplaintCreateRequest;
 import com.example.backend.Entity.Account;
 import com.example.backend.Entity.Complaint;
 import com.example.backend.Repository.AccountRepository;
