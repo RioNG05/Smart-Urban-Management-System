@@ -1,6 +1,8 @@
 package com.example.backend.config;
 
+import com.example.backend.DTO.Request.auth.IntrospectRequest;
 import com.example.backend.Service.AuthenticationService;
+import com.nimbusds.jose.JOSEException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -36,12 +38,22 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         String token = authHeader.substring(7);
 
+
         try {
+//            var result = authenticationService.introspect(
+//                    IntrospectRequest.builder()
+//                            .token(token)
+//                            .build()
+//            );
+//
+//            if(!result.isValid()){
+//                filterChain.doFilter(request,response);
+//                return;
+//            }
 
             String username = authenticationService.extractUsername(token);
-            String roleId = authenticationService.extractRole(token);
 
-            if(username != null && SecurityContextHolder.getContext().getAuthentication() == null){
+            if(username != null){
 
                 UsernamePasswordAuthenticationToken authentication =
                         new UsernamePasswordAuthenticationToken(
@@ -57,7 +69,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             }
 
-        } catch (ParseException e) {
+        } catch (ParseException ex) {
             System.out.println("JWT token parse error");
         }
 
