@@ -544,7 +544,6 @@ CREATE TABLE IoT_Sync_Logs (
     LastMomentAdd DATETIME NOT NULL, 
     
     -- Chỉ số cuối cùng (Để lần sau cộng dồn tiếp từ đây)
-    CONSTRAINT FK_IoT_Apartment FOREIGN KEY (ApartmentId) REFERENCES Apartments(Id),
     CONSTRAINT FK_IoT_Invoice FOREIGN KEY (UtilitiesInvoiceId) REFERENCES UtilitiesInvoices(Id)
 );
 
