@@ -57,13 +57,14 @@ export default function Navbar() {
         {/* LOGO */}
         <div className="nav-logo" onClick={() => navigate("/")}>
           <img src={logoImg} alt="VINAHOUSES Logo" className="nav-logoImg" />
-          <span className="nav-logoText">VINAHOUSES</span>
+          <span className="nav-logoText">VINAHOUSE</span>
         </div>
 
         <ul className="nav-links">
           <li onClick={() => navigate("/")}>Home</li>
-          <li onClick={() => navigate("/market")}>Projects</li>
           <li onClick={() => navigate("/about")}>About</li>
+          <li onClick={() => navigate("/market")}>Projects</li>
+          <li onClick={() => navigate("/services")}>Services</li>
           <li onClick={() => navigate("/news")}>News</li>
           <li onClick={() => navigate("/contact")}>Contact</li>
         </ul>

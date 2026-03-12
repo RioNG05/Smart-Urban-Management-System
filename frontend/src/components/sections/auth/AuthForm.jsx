@@ -34,7 +34,7 @@ function AuthForm() {
 
       const token = res.data.result.token;
 
-      const userRes = await api.get("/auth/me", {
+      const userRes = await api.get("/auth/accounts/me", {
         headers: {
           Authorization: "Bearer " + token,
         },

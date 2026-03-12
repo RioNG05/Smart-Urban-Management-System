@@ -20,7 +20,7 @@ export default function AboutSection() {
           <span className="section-label">Our Story</span>
           <h2>Elevating the Standard of Urban Living</h2>
           <p className="about-description">
-            At VINAHOUSES, we go beyond simply building properties; we craft
+            At VINAHOUSE, we go beyond simply building properties; we craft
             sustainable urban communities that redefine modern living architecture.
             Our commitment is deeply rooted in blending aesthetic luxury with
             innovative, eco-friendly infrastructure.
