@@ -31,7 +31,7 @@ public class AccountCreateRequest {
     Boolean isActive = true;
 
     public Integer getRoleId() {
-        return 2;
+        return 6;
     }
 
     public Boolean getActive() {

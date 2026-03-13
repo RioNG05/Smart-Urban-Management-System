@@ -11,30 +11,36 @@ export default function ProfileView({ account, resident, setEditMode }) {
         <p>
           <b>Email:</b> {account.email}
         </p>
+
         <p>
           <b>Username:</b> {account.username}
         </p>
+
         <p>
-          <b>Role:</b> {account.role.roleName}
+          <b>Role:</b> {account.role}
         </p>
       </div>
 
-      {account.role.roleName === "RESIDENT" && resident && (
+      {account.role === "RESIDENT" && resident && (
         <div className="profile-section">
           <h3>Personal Information</h3>
 
           <p>
             <b>Full Name:</b> {resident.fullName}
           </p>
+
           <p>
             <b>Gender:</b> {resident.gender}
           </p>
+
           <p>
             <b>Birthdate:</b> {resident.dateOfBirth}
           </p>
+
           <p>
             <b>Phone:</b> {resident.phone}
           </p>
+
           <p>
             <b>Identity ID:</b> {resident.identityId}
           </p>

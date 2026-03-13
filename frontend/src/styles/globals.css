@@ -12,16 +12,17 @@ body {
   top: 0;
   z-index: 1000;
   padding: 20px 80px;
-  transition: all 0.3s ease;
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  transition: padding 0.5s ease-in-out, background-color 0.5s ease-in-out, box-shadow 0.5s ease-in-out;
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
   box-sizing: border-box;
+  background-color: transparent;
 }
 
 .navbar-scrolled {
-  background: rgba(255, 255, 255, 0.95);
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
-  padding: 15px 80px;
+  background-color: rgba(255, 255, 255, 0.98);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+  padding: 12px 80px;
 }
 
 .nav-container {
@@ -66,6 +67,10 @@ body {
   transition: color 0.4s ease;
 }
 
+.navbar-scrolled .nav-logoText {
+  color: #111;
+}
+
 .nav-logo:hover .nav-logoText {
   color: #c89b3c;
 }
@@ -83,6 +88,19 @@ body {
 .nav-links li {
   cursor: pointer;
   position: relative;
+  font-weight: 600;
+  font-size: 15px;
+  color: white;
+  transition: color 0.3s ease;
+}
+
+.navbar-scrolled .nav-links li {
+  color: #000;
+}
+
+.nav-links li:hover,
+.navbar-scrolled .nav-links li:hover {
+  color: #c89b3c;
 }
 
 .nav-links li::after {
@@ -91,9 +109,14 @@ body {
   width: 0%;
   height: 2px;
   left: 0;
-  bottom: -6px;
-  background: black;
-  transition: 0.3s;
+  bottom: -4px;
+  background: white;
+  transition: width 0.3s ease, background-color 0.3s ease;
+  border-radius: 2px;
+}
+
+.navbar-scrolled .nav-links li::after {
+  background: #c89b3c;
 }
 
 .nav-links li:hover::after {
@@ -106,6 +129,15 @@ body {
   background: black;
   color: white;
   cursor: pointer;
+  font-weight: 600;
+  transition: all 0.4s ease;
+}
+
+.nav-btn:hover {
+  background: #c89b3c;
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(200, 155, 60, 0.3);
 }
 
 .nav-item {
@@ -189,10 +221,21 @@ body {
 
 .hero button {
   margin-top: 30px;
-  padding: 12px 30px;
+  padding: 14px 36px;
   border: none;
   background: white;
+  color: #111;
+  font-weight: 700;
+  font-size: 16px;
   cursor: pointer;
+  transition: all 0.4s ease;
+}
+
+.hero button:hover {
+  background: #c89b3c;
+  color: white;
+  transform: translateY(-3px);
+  box-shadow: 0 10px 25px rgba(200, 155, 60, 0.4);
 }
 
 /* SECTIONS */
@@ -211,103 +254,6 @@ body {
   margin-bottom: 40px;
 }
 
-/* ABOUT SECTION */
-.about-container {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 60px;
-  align-items: center;
-  max-width: 1300px;
-  margin: 0 auto;
-}
-
-.about-image {
-  position: relative;
-}
-
-.about-image .main-img {
-  width: 100%;
-  height: auto;
-  min-height: 500px;
-  object-fit: cover;
-  border-radius: 12px;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-}
-
-.experience-badge {
-  position: absolute;
-  bottom: -30px;
-  right: -30px;
-  background: white;
-  padding: 30px;
-  border-radius: 8px;
-  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
-  display: flex;
-  align-items: center;
-  gap: 15px;
-  z-index: 2;
-  border-left: 4px solid #c89b3c;
-}
-
-.experience-badge .years {
-  font-size: 48px;
-  font-weight: 800;
-  color: #c89b3c;
-  line-height: 1;
-}
-
-.experience-badge .text {
-  font-size: 14px;
-  color: #555;
-  font-weight: 600;
-  text-transform: uppercase;
-}
-
-.about-content .section-label {
-  display: inline-block;
-  color: #c89b3c;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 2px;
-  font-size: 14px;
-  margin-bottom: 12px;
-}
-
-.about-content h2 {
-  font-size: 46px;
-  line-height: 1.2;
-  margin-bottom: 24px;
-  color: #111;
-}
-
-.about-description {
-  font-size: 16px;
-  color: #666;
-  line-height: 1.8;
-  margin-bottom: 20px;
-}
-
-.about-stats {
-  display: flex;
-  justify-content: space-between;
-  margin-top: 40px;
-  padding-top: 40px;
-  border-top: 1px solid #eaeaea;
-}
-
-.stat-item h3 {
-  font-size: 36px;
-  color: #111;
-  margin: 0 0 5px;
-}
-
-.stat-item p {
-  color: #888;
-  font-size: 14px;
-  margin: 0;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-}
 
 /* PROJECT GRID */
 .project-grid {
@@ -329,8 +275,6 @@ body {
 }
 
 /* FOOTER */
-/* ===== PREMIUM FOOTER ===== */
-
 .footer {
   background: linear-gradient(180deg, #f5f5f5, #ededed);
   padding: 90px 100px 40px;
@@ -343,14 +287,18 @@ body {
   gap: 70px;
 }
 
-/* logo */
-
 .footer-logo {
   font-size: 26px;
   font-weight: 700;
   margin-bottom: 20px;
   color: #111;
   letter-spacing: 1px;
+  transition: color 0.4s ease;
+  cursor: pointer;
+}
+
+.footer-logo:hover {
+  color: #c89b3c;
 }
 
 .brand p {
@@ -359,15 +307,11 @@ body {
   max-width: 320px;
 }
 
-/* titles */
-
 .footer-col h4 {
   margin-bottom: 22px;
   font-size: 18px;
   color: #111;
 }
-
-/* links */
 
 .footer-col span {
   display: block;
@@ -397,8 +341,6 @@ body {
   width: 40%;
 }
 
-/* contact */
-
 .footer-col p {
   margin-bottom: 14px;
   color: #666;
@@ -406,8 +348,6 @@ body {
   gap: 10px;
   align-items: center;
 }
-
-/* social */
 
 .socials {
   display: flex;
@@ -535,10 +475,8 @@ body {
   transform: translateY(-3px);
 }
 
-/* bottom */
-
 .footer-bottom {
-  margin-top: 70px;
+  margin-top: 30px;
   padding-top: 20px;
   border-top: 1px solid #ddd;
   text-align: center;
@@ -546,7 +484,7 @@ body {
   color: #777;
 }
 
-/* scroll button */
+/* Scroll Button */
 
 .scroll-top {
   position: fixed;
@@ -568,7 +506,7 @@ body {
   transform: translateY(-4px);
 }
 
-/* responsive */
+/* Responsive */
 
 @media (max-width: 900px) {
   .footer-container {
@@ -581,25 +519,6 @@ body {
   }
 }
 
-/* ===== ABOUT HERO ===== */
-
-.about-hero {
-  height: 480px;
-  background: url("https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=2000") center/cover no-repeat;
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.about-hero::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(to bottom,
-      rgba(0, 0, 0, 0.5),
-      rgba(0, 0, 0, 0.7));
-}
 
 /* ===== MARKET HERO ===== */
 
@@ -680,8 +599,6 @@ body {
   grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
   gap: 40px;
 }
-
-/* ===== PROPERTY CARD PREMIUM ===== */
 
 /* ===== PROPERTY CARD PREMIUM ===== */
 
@@ -789,11 +706,16 @@ body {
 .user-icon {
   font-size: 32px;
   cursor: pointer;
-  color: #444;
+  color: white;
   transition: color 0.3s ease, transform 0.3s ease;
 }
 
-.user-icon:hover {
+.navbar-scrolled .user-icon {
+  color: #000;
+}
+
+.user-icon:hover,
+.navbar-scrolled .user-icon:hover {
   color: #c89b3c;
   transform: scale(1.05);
 }

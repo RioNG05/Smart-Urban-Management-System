@@ -6,9 +6,11 @@ import AuthPage from "../pages/Authpage";
 import Product from "../pages/ProductDetailPage";
 import NewsPage from "../pages/NewsPage";
 import Home from "../pages/Home";
+import AboutPage from "../pages/AboutPage";
 import NewsDetailPage from "../pages/NewsDetailPage";
 import Unauthorized from "../pages/Unauthorized";
 import Profile from "../pages/ProfilePage";
+import ServicePage from "../pages/ServicePage";
 import PrivateRoute from "./PrivateRoute";
 // --- IMPORT TỪ 4 FILE GỘP (GIỮ 100% CODE GỐC) ---
 // 1. Gộp Layout, Sidebar, Dashboard (Sử dụng Destructuring {})
@@ -32,7 +34,11 @@ export default function AppRoutes() {
       <Routes>
         {/* --- ROUTES NGƯỜI DÙNG --- */}
         <Route path="/" element={<Home />} />
+        <Route path="/about" element={<AboutPage />} />
         <Route path="/auth" element={<AuthPage />} />
+        <Route path="/services" element={<ServicePage />} />
+        <Route path="/news" element={<NewsPage />} />
+        <Route path="/news/:id" element={<NewsDetailPage />} />
 
         <Route
           path="/market"
@@ -53,27 +59,10 @@ export default function AppRoutes() {
         />
 
         <Route
-          path="/news"
-          element={
-            <PrivateRoute>
-              <NewsPage />
-            </PrivateRoute>
-          }
-        />
-        <Route
           path="/profile"
           element={
             <PrivateRoute>
               <Profile />
-            </PrivateRoute>
-          }
-        />
-
-        <Route
-          path="/news/:id"
-          element={
-            <PrivateRoute>
-              <NewsDetailPage />
             </PrivateRoute>
           }
         />

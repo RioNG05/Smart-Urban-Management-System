@@ -6,14 +6,15 @@ import Footer from "../components/layout/Footer";
 import ProfileView from "../components/sections/profile/ProfileView";
 import ProfileEdit from "../components/sections/profile/ProfileEdit";
 import UserHouses from "../components/sections/profile/UserHouses";
-
-import { getMyAccount } from "../services/profileService";
+import { getMyAccount, getMyProfile } from "../services/profileService";
 
 import "../styles/profile.css";
 
 export default function ProfilePage() {
   const [editMode, setEditMode] = useState(false);
   const [account, setAccount] = useState(null);
+
+  const [resident, setResident] = useState(null);
 
   const houses = [
     { id: 1, name: "Green Villa", totalCost: 120000, deadline: "2026-12-01" },
@@ -25,23 +26,25 @@ export default function ProfilePage() {
 
   const loadAccount = async () => {
     try {
-      const data = await getMyAccount();
+      const acc = await getMyAccount();
+      const profile = await getMyProfile();
+
+      if (!acc) return;
 
       setAccount({
-        id: data.id,
-        email: data.email,
-        username: data.username,
-        role: data.role.roleName,
-        isActive: data.isActive,
-
-        resident: data.resident || null,
+        email: acc.email || "",
+        username: acc.username || "",
+        role: acc?.role?.roleName || "USER",
       });
+
+      setResident(profile || null);
     } catch (err) {
       console.error(err);
     }
   };
 
-  if (!account) return <div>Loading...</div>;
+  if (!account)
+    return <div className="profile-loading">Loading profile...</div>;
 
   return (
     <>
@@ -51,7 +54,11 @@ export default function ProfilePage() {
         <div className="profile-layout">
           <div className="profile-left">
             {!editMode ? (
-              <ProfileView account={account} setEditMode={setEditMode} />
+              <ProfileView
+                account={account}
+                resident={resident}
+                setEditMode={setEditMode}
+              />
             ) : (
               <ProfileEdit
                 account={account}

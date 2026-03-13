@@ -6,8 +6,6 @@ import {
 
 export default function ProfileEdit({ account, resident, setEditMode }) {
   const [form, setForm] = useState({
-    username: account.username,
-
     password: "",
     confirmPassword: "",
 
@@ -15,7 +13,6 @@ export default function ProfileEdit({ account, resident, setEditMode }) {
     gender: resident?.gender || "",
     dateOfBirth: resident?.dateOfBirth || "",
     phone: resident?.phone || "",
-    identityId: resident?.identityId || "",
   });
 
   const handleChange = (e) => {
@@ -32,19 +29,17 @@ export default function ProfileEdit({ account, resident, setEditMode }) {
     }
 
     try {
-      /* UPDATE ACCOUNT */
-
       const accountPayload = {
+        username: account.username,
         email: account.email,
-        username: form.username,
-        password: form.password || null,
         roleId: account.role.id,
         isActive: true,
       };
 
+      if (form.password) {
+        accountPayload.password = form.password;
+      }
       await updateAccount(account.id, accountPayload);
-
-      /* UPDATE RESIDENT */
 
       if (account.role.roleName === "RESIDENT") {
         const residentPayload = {
@@ -77,7 +72,7 @@ export default function ProfileEdit({ account, resident, setEditMode }) {
         <input value={account.email} disabled />
 
         <label>Username</label>
-        <input name="username" value={form.username} onChange={handleChange} />
+        <input value={account.username} disabled />
 
         <label>New Password</label>
         <input type="password" name="password" onChange={handleChange} />

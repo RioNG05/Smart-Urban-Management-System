@@ -56,7 +56,7 @@ public class ContractController {
         response.setCode(200);
         response.setMessage("Cập nhật thông tin hợp đồng thành công");
         response.setResult(service.update(id, req));
-        
+
         return response;
     }
 

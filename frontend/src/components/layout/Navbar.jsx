@@ -5,7 +5,7 @@ import useScrollEffect from "../../hooks/useScrollEffect";
 import { useAuth } from "../../components/sections/auth/AuthContext";
 import logoImg from "../../assets/logo.jpg";
 
-export default function Navbar() {
+export default function Navbar({ solid = false }) {
   const [scrolled, setScrolled] = useState(false);
   const [openMenu, setOpenMenu] = useState(false);
   const [loadingUser, setLoadingUser] = useState(true);
@@ -52,18 +52,19 @@ export default function Navbar() {
   };
 
   return (
-    <nav className={`navbar ${scrolled ? "navbar-scrolled" : ""}`}>
+    <nav className={`navbar ${scrolled || solid ? "navbar-scrolled" : ""}`}>
       <div className="nav-container">
         {/* LOGO */}
         <div className="nav-logo" onClick={() => navigate("/")}>
           <img src={logoImg} alt="VINAHOUSES Logo" className="nav-logoImg" />
-          <span className="nav-logoText">VINAHOUSES</span>
+          <span className="nav-logoText">VINAHOUSE</span>
         </div>
 
         <ul className="nav-links">
           <li onClick={() => navigate("/")}>Home</li>
-          <li onClick={() => navigate("/market")}>Projects</li>
           <li onClick={() => navigate("/about")}>About</li>
+          <li onClick={() => navigate("/market")}>Projects</li>
+          <li onClick={() => navigate("/services")}>Services</li>
           <li onClick={() => navigate("/news")}>News</li>
           <li onClick={() => navigate("/contact")}>Contact</li>
         </ul>
