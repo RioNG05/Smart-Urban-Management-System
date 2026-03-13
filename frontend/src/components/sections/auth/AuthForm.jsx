@@ -34,7 +34,7 @@ function AuthForm() {
 
       const token = res.data.result.token;
 
-      const userRes = await api.get("/auth/me", {
+      const userRes = await api.get("/auth/accounts/me", {
         headers: {
           Authorization: "Bearer " + token,
         },
@@ -140,8 +140,14 @@ function AuthForm() {
             <span>or continue with</span>
           </div>
 
-          <button type="button" className="google-btn"
-          onClick={()=>{window.location.href = "http://localhost:8080/oauth2/authorization/google"}}>
+          <button
+            type="button"
+            className="google-btn"
+            onClick={() => {
+              window.location.href =
+                "http://localhost:8080/oauth2/authorization/google";
+            }}
+          >
             <img
               src="https://www.svgrepo.com/show/475656/google-color.svg"
               alt="google"
