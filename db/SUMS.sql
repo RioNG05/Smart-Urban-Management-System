@@ -30,6 +30,239 @@ CREATE TABLE Permissions (
     Description NVARCHAR(255) -- permission description
 );
 
+-- Table 1 Permission
+INSERT INTO Permissions (PermissionCode, Description)
+VALUES 
+    (N'Permissions_C_01', N'Create New Permission Definition'),
+    (N'Permissions_R_01', N'View All Permission Definitions'),
+    (N'Permissions_R_02', N'View My Permissions List'),
+    (N'Permissions_U_01', N'Update Existing Permission Information'),
+    (N'Permissions_D_01', N'Delete Permission Definition');
+GO
+
+-- Table 2 Roles
+INSERT INTO Permissions (PermissionCode, Description)
+VALUES 
+    (N'Roles_C_01', N'Create a new Role'),
+    (N'Roles_R_01', N'View all Roles in database'),
+    (N'Roles_R_02', N'View my Role Infor'),
+    (N'Roles_U_01', N'Update Role Infor'),
+    (N'Roles_D_01', N'Delete Role');
+GO
+
+-- Table 3 Authorities
+INSERT INTO Permissions (PermissionCode, Description)
+VALUES 
+	(N'Authorities_C_01', N'Assign Permission to Role'),
+	(N'Authorities_R_01', N'View All Role-Permission Mapping'),
+    (N'Authorities_U_01', N'Update Authorities'),
+	(N'Authorities_D_01', N'Remove Permission from Role');
+GO
+
+-- Permission liên quan đến Bảng 4 Account
+INSERT INTO Permissions (PermissionCode, Description)
+VALUES 
+    (N'Account_C_01', N'Create a new Account'),
+    (N'Account_R_01', N'View All Account Information'),
+    (N'Account_R_02', N'View My Account Information'),
+    (N'Account_U_01', N'Update Any Account Information'),
+    (N'Account_U_02', N'Update My Account Information'),
+    (N'Account_U_03', N'Update User Role'),
+    (N'Account_D_01', N'Delete A account');
+GO
+
+-- Permission liên quan đến Bảng 5 Resident 
+INSERT INTO Permissions (PermissionCode, Description)
+VALUES 
+    (N'Resident_C_01', N'Create a new Resident'),
+    (N'Resident_R_01', N'View All Resident'),
+    (N'Resident_R_02', N'View My Resident Information'),
+    (N'Resident_U_01', N'Update Any Resident Information'),
+    (N'Resident_U_02', N'Update My Resident Information'),
+    (N'Resident_D_01', N'Delete Resident');
+GO
+
+-- Permission liên quan đến bảng 6: Complaints
+INSERT INTO Permissions (PermissionCode, Description)
+VALUES 
+    (N'Complaints_C_01', N'Create/report a complaints'),
+    (N'Complaints_R_01', N'View All Complaints in database'),
+    (N'Complaints_R_02', N'View My Complaints'),
+    (N'Complaints_U_02', N'Update My Complaint'),
+    (N'Complaints_D_01', N'Delete My Complaint'),
+    (N'Complaints_D_02', N'Auto Delete Old & answered Complaints');
+GO
+
+-- Permission liên quan đến bảng 7: Replies 
+INSERT INTO Permissions (PermissionCode, Description)
+VALUES 
+    (N'Replies_C_01', N'Create a Replies'),
+    (N'Replies_R_01', N'View All Replies In database'),
+    (N'Replies_R_02', N'View Replies send to me'),
+    (N'Replies_U_01', N'Update any Replies'),
+    (N'Replies_D_01', N'Delete Replies');
+GO
+
+-- Permission liên quan đến bảng 8: News
+INSERT INTO Permissions (PermissionCode, Description)
+VALUES 
+    (N'News_C_01', N'Create News'),
+    (N'News_R_01', N'View All News'),
+    (N'News_U_01', N'Update Any News'),
+    (N'News_D_01', N'Delete News');
+GO
+
+-- Permission liên quan đến bảng 9: Services
+INSERT INTO Permissions (PermissionCode, Description)
+VALUES 
+    (N'Services_C_01', N'Create New Service'),
+    (N'Services_R_01', N'View All service'),
+    (N'Services_U_01', N'Update Service'),
+    (N'Services_D_01', N'Delete Service');
+GO
+
+-- Permission liên quan đến bảng 10: ServiceResources
+INSERT INTO Permissions (PermissionCode, Description)
+VALUES 
+    (N'ServiceResources_C_01', N'Create New ServiceResource'),
+    (N'ServiceResources_R_01', N'View all Service resource/location'),
+    (N'ServiceResources_U_01', N'Update ServiceResource'),
+    (N'ServiceResources_D_01', N'Delete ServiceResource');
+GO
+
+-- Permission liên quan đến bảng 11: BookingServices
+INSERT INTO Permissions (PermissionCode, Description)
+VALUES 
+    (N'BookingServices_C_01', N'Booking a service'),
+    (N'BookingServices_R_01', N'View All Booking Service'),
+    (N'BookingServices_R_02', N'View My Booking Service'),
+    (N'BookingServices_U_01', N'Update My Booking'),
+    (N'BookingServices_U_02', N'Accept/Reject Booking Request'),
+    (N'BookingServices_D_01', N'Delete Booking Request');
+GO
+
+-- Permission liên quan đến bảng 12: ServiceInvoices
+INSERT INTO Permissions (PermissionCode, Description)
+VALUES 
+    (N'ServiceInvoices_C_01', N'Create Invoice Manually'),
+    (N'ServiceInvoices_R_01', N'View All Invoice'),
+    (N'ServiceInvoices_R_02', N'View My Invoice'),
+    (N'ServiceInvoices_U_01', N'Update any Invoice'),
+    (N'ServiceInvoices_U_02', N'PayInvoice <=> Change Invoice Status'),
+    (N'ServiceInvoices_D_01', N'Delete Invoice');
+GO
+
+-- Permission liên quan đến bảng 13: ApartmentTypes
+INSERT INTO Permissions (PermissionCode, Description)
+VALUES 
+    (N'ApartmentTypes_C_01', N'Create Apartment Type'),
+    (N'ApartmentTypes_R_01', N'View All Apartment Type'),
+    (N'ApartmentTypes_U_01', N'Update Apartment Type'),
+    (N'ApartmentTypes_D_01', N'Delete Apartment Type');
+GO
+
+-- Permission liên quan đến bảng 14: Apartments
+INSERT INTO Permissions (PermissionCode, Description)
+VALUES 
+    (N'Apartments_C_01', N'Create Apartment'),
+    (N'Apartments_R_01', N'View All Apartment Information'),
+    (N'Apartments_R_02', N'View An Apartment able to Buy/Rent'),
+    (N'Apartments_R_03', N'View My Apartment Information'),
+    (N'Apartments_U_01', N'Update Apartment'),
+    (N'Apartments_D_01', N'Delete Apartment');
+GO
+
+-- Permission liên quan đến bảng 15: UtilitiesInvoices
+INSERT INTO Permissions (PermissionCode, Description)
+VALUES 
+    (N'UtilitiesInvoices_C_01', N'Create Utilities Invoice'),
+    (N'UtilitiesInvoices_R_01', N'View All Invoice'),
+    (N'UtilitiesInvoices_R_02', N'View My Invoice'),
+    (N'UtilitiesInvoices_U_01', N'Update Invoice Information'),
+    (N'UtilitiesInvoices_U_02', N'Pay Money <=> Update Invoice Status'),
+    (N'UtilitiesInvoices_D_01', N'Delete Utilities Invoice');
+GO
+
+-- Permission liên quan đến bảng 16: Contracts
+INSERT INTO Permissions (PermissionCode, Description)
+VALUES 
+    (N'Contracts_C_01', N'Create a new Contract'),
+    (N'Contracts_R_01', N'View All Contract'),
+    (N'Contracts_R_02', N'View My Contracts'),
+    (N'Contracts_U_01', N'Update Contract Information'),
+    (N'Contracts_D_01', N'Delete Contract');
+GO
+
+-- Permission liên quan đến bảng 17: StayAtHistory
+INSERT INTO Permissions (PermissionCode, Description)
+VALUES 
+    (N'StayAtHistory_C_01', N'Create Stay At History Record'),
+    (N'StayAtHistory_R_01', N'View All Stay At History'),
+    (N'StayAtHistory_R_02', N'View my Stay At History'),
+    (N'StayAtHistory_U_01', N'Update Stay At History Information'),
+    (N'StayAtHistory_D_01', N'Delete Stay At History Record');
+GO
+
+-- Permission liên quan đến bảng 18: StaffInfo
+INSERT INTO Permissions (PermissionCode, Description)
+VALUES 
+    (N'StaffInfo_C_01', N'Create New Staff Information'),
+    (N'StaffInfo_R_01', N'View All Staff Information'),
+    (N'StaffInfo_R_02', N'View My Staff Information'),
+    (N'StaffInfo_U_01', N'Update Any Staff Information'),
+    (N'StaffInfo_U_02', N'Update My Staff Information'),
+    (N'StaffInfo_D_01', N'Delete Staff Information');
+GO
+
+-- Permission liên quan đến bảng 19: VisitorLogs
+INSERT INTO Permissions (PermissionCode, Description)
+VALUES 
+    (N'VisitorLogs_C_01', N'Create Visitor Log (Check-in)'),
+    (N'VisitorLogs_R_01', N'View All Visitor Logs'),
+    (N'VisitorLogs_R_02', N'View Logs related to my apartment'),
+    (N'VisitorLogs_U_01', N'Update Visitor Log Information'),
+    (N'VisitorLogs_D_01', N'Delete Visitor Log');
+GO
+-- Permission liên quan đến bảng 20: Appointments
+INSERT INTO Permissions (PermissionCode, Description)
+VALUES 
+    (N'Appointments_C_01', N'Create a new Appointment'),
+    (N'Appointments_R_01', N'View All Appointment'),
+    (N'Appointments_R_02', N'View My Appointment'),
+    (N'Appointments_U_01', N'Update Appointment Information'),
+    (N'Appointments_U_02', N'Assign To Staff'),
+    (N'Appointments_D_01', N'Delete Appointment');
+GO
+
+-- Permission liên quan đến bảng 21: Notification
+INSERT INTO Permissions (PermissionCode, Description)
+VALUES 
+    (N'Notification_C_01', N'Create System Notification'),
+    (N'Notification_R_01', N'View all Notification of system'),
+    (N'Notification_R_02', N'View my Notification'),
+    (N'Notification_U_01', N'Read <=> Update Noti Status'),
+    (N'Notification_D_01', N'Delete Notification');
+GO
+
+-- Permission liên quan đến bảng 22: Expenses
+INSERT INTO Permissions (PermissionCode, Description)
+VALUES 
+    (N'Expenses_C_01', N'Create New Expense Record'),
+    (N'Expenses_R_01', N'View All Expense'),
+    (N'Expenses_R_02', N'View My Expense'),
+    (N'Expenses_U_01', N'Update Expense Information'),
+    (N'Expenses_U_02', N'Pay Expense <=> Update Expense Status'),
+    (N'Expenses_D_01', N'Delete Expense Record');
+GO
+
+-- Permission liên quan đến bảng 23: IoT_Sync_Logs
+INSERT INTO Permissions (PermissionCode, Description)
+VALUES 
+    (N'IoT_Sync_Logs_C_01', N'Create IoT Sync Log Entry'),
+    (N'IoT_Sync_Logs_R_01', N'View All IoT Sync Logs'),
+    (N'IoT_Sync_Logs_U_01', N'Update IoT Sync Log Information'),
+    (N'IoT_Sync_Logs_D_01', N'Delete IoT Sync Log Record');
+GO
 --bảng 2
 CREATE TABLE Roles (
     Id INT IDENTITY(1,1) PRIMARY KEY, -- role id
@@ -62,6 +295,17 @@ CREATE TABLE Authorities (
     -- Đảm bảo một Role không bị gán trùng một Permission nhiều lần
     CONSTRAINT UQ_Role_Permission UNIQUE (RoleId, PermissionId)
 );
+
+--Gán hết Authorities liên quan đến bảng 1 - permission
+INSERT INTO Authorities (RoleId, PermissionId)
+SELECT 1, Id 
+FROM Permissions 
+WHERE PermissionCode LIKE 'Permissions_%'
+AND NOT EXISTS (
+    SELECT 1 FROM Authorities 
+    WHERE RoleId = 1 AND PermissionId = Permissions.Id
+);
+GO
 
 -- bảng 4
 CREATE TABLE Accounts (
