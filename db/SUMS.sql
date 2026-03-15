@@ -218,7 +218,7 @@ VALUES
 (N'Nước sinh hoạt', 'WAT_01', 15000.00, 'm3', N'Hóa đơn nước tiêu thụ hàng tháng tính theo khối lượng sử dụng.'),
 
 -- 2. Dịch vụ tiện ích (Cần đặt trước và check quyền cư dân)
-(N'Bếp nướng BBQ', 'BBQ', 200000.00, N'Turn', N'Thuê khu vực nướng ngoài trời (tối đa 4 giờ). Bao gồm dụng cụ nướng và hỗ trợ nhóm than.'),
+(N'Bếp nướng BBQ', 'BBQ', 2000000.00, N'Turn', N'Thuê khu vực nướng ngoài trời (tối đa 4 giờ). Bao gồm dụng cụ nướng và hỗ trợ nhóm than.'),
 (N'Sân Tennis', 'TENNIS', 150000.00, N'Hour', N'Thuê sân Tennis tiêu chuẩn. Giá đã bao gồm hệ thống chiếu sáng ban đêm.'),
 (N'Phòng Gym', 'GYM', 500000.00, N'Month', N'Thẻ hội viên Gym trọn gói trong tháng. Sử dụng không giới hạn thiết bị và phòng xông hơi.'),
 
