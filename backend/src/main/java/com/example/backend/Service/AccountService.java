@@ -18,6 +18,7 @@ public class AccountService {
     private AccountRepository repository;
     @Autowired
     private RoleService roleService;
+
     private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(10);
 
     public List<Account> findAll() {
@@ -72,6 +73,12 @@ public class AccountService {
     public void delete(Integer id) {
         findById(id);
         repository.deleteById(id);
+    }
+
+    public void changeRole(Integer id, Integer roleId){
+        Account account = findById(id);
+        Role role = roleService.findById(roleId);
+        account.setRole(role);
     }
 
 }
