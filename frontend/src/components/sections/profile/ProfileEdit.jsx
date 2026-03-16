@@ -12,7 +12,8 @@ export default function ProfileEdit({ account, resident, setEditMode }) {
     fullName: resident?.fullName || "",
     gender: resident?.gender || "",
     dateOfBirth: resident?.dateOfBirth || "",
-    phone: resident?.phone || "",
+    identityId: resident?.identityId || "",
+    // phone: resident?.phone || "",
   });
 
   const handleChange = (e) => {
@@ -46,7 +47,7 @@ export default function ProfileEdit({ account, resident, setEditMode }) {
           fullName: form.fullName,
           gender: form.gender,
           dateOfBirth: form.dateOfBirth,
-          phone: form.phone,
+          // phone: form.phone,
         };
 
         await updateResident(resident.id, residentPayload);
