@@ -1,0 +1,131 @@
+.news-hero {
+  height: 500px;
+  background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url("https://imperia-smartcity.com.vn/wp-content/uploads/2020/10/isc-2-1024x512.jpg") center/cover no-repeat;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  text-align: center;
+}
+
+.news-hero h1 {
+  font-size: 36px;
+}
+
+.news-categories {
+  display: flex;
+  gap: 15px;
+  padding: 30px 20px;
+  flex-wrap: wrap;
+  max-width: 1200px;
+  width: 100%;
+  box-sizing: border-box;
+  margin: 0 auto;
+}
+
+.news-category {
+  padding: 8px 16px;
+  border: none;
+  background: #f1f1f1;
+  border-radius: 20px;
+  cursor: pointer;
+}
+
+.news-container {
+  display: grid;
+  grid-template-columns: 3fr 1fr;
+  gap: 40px;
+  padding: 40px 20px;
+  max-width: 1200px;
+  width: 100%;
+  box-sizing: border-box;
+  margin: 0 auto;
+}
+
+.news-main {
+  display: grid;
+  gap: 30px;
+}
+
+.news-card {
+  display: flex;
+  gap: 20px;
+  text-decoration: none;
+  color: inherit;
+  background: white;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+  transition: transform 0.2s ease;
+}
+
+.news-card:hover {
+  transform: translateY(-3px);
+}
+
+/* title */
+
+.news-title {
+  margin: 0 0 10px;
+  transition: color 0.2s;
+}
+
+.news-card:hover .news-title {
+  color: #c89b3c;
+}
+
+.news-card-image {
+  width: 220px;
+  height: 150px;
+  flex-shrink: 0;
+  overflow: hidden;
+}
+
+.news-card-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.4s ease;
+}
+
+.news-card:hover img {
+  transform: scale(1.05);
+}
+
+.news-card-content {
+  padding: 20px;
+}
+
+.news-card-content h3 {
+  margin: 0 0 10px;
+}
+
+.news-date {
+  font-size: 13px;
+  color: gray;
+}
+
+.news-sidebar {
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+  height: fit-content;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+}
+
+.news-sidebar ul {
+  padding-left: 16px;
+}
+
+.tag-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.tag-list span {
+  background: #eee;
+  padding: 5px 10px;
+  border-radius: 12px;
+  font-size: 12px;
+}
