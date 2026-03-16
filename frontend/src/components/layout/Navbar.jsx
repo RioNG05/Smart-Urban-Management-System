@@ -98,12 +98,20 @@ export default function Navbar({ solid = false }) {
                       )}
                     </div>
 
-                    {role && role !== "RESIDENT" && (
+                    {role && role === "RESIDENT" && (
                       <div
                         className="dropdown-item"
                         onClick={() => navigate("/dashboard")}
                       >
                         Dashboard
+                      </div>
+                    )}
+                    {role && role === "RESIDENT" && (
+                      <div
+                        className="dropdown-item"
+                        onClick={() => navigate("/billing")}
+                      >
+                        My Home
                       </div>
                     )}
                     <div

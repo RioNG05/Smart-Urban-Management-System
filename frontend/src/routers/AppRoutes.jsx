@@ -12,6 +12,7 @@ import Unauthorized from "../pages/Unauthorized";
 import Profile from "../pages/ProfilePage";
 import ServicePage from "../pages/ServicePage";
 import PrivateRoute from "./PrivateRoute";
+import BillingPage from "../pages/BillingPage";
 // --- IMPORT TỪ 4 FILE GỘP (GIỮ 100% CODE GỐC) ---
 // 1. Gộp Layout, Sidebar, Dashboard (Sử dụng Destructuring {})
 import { AdminLayout, AdminDashboard } from "../pages/admin/AdminCore";
@@ -39,6 +40,7 @@ export default function AppRoutes() {
         <Route path="/services" element={<ServicePage />} />
         <Route path="/news" element={<NewsPage />} />
         <Route path="/news/:id" element={<NewsDetailPage />} />
+        <Route path="/billing" element={<BillingPage />} />
 
         <Route
           path="/market"
