@@ -113,17 +113,22 @@ export const AdminLayout = () => {
                         <span className="header-brand-name">ADMIN: {adminName}</span>
                     </div>
 
-                    {/* TODO: Lấy dữ liệu account từ database ở đây trong tương lai */}
-                    <div className="topbar-profile">
-                        <div className="profile-info">
-                            <span className="profile-name">Admin Name</span>
-                            <span className="profile-role">Administrator</span>
+                    {/* Lấy dữ liệu account từ database ở đây trong tương lai */}
+                    <div className="topbar-right">
+                        <NavLink to="/" className="topbar-home-link">
+                            <FaHome /> <span>Home</span>
+                        </NavLink>
+                        <div className="topbar-profile">
+                            <div className="profile-info">
+                                <span className="profile-name">Admin Name</span>
+                                <span className="profile-role">Administrator</span>
+                            </div>
+                            <img
+                                src="https://ui-avatars.com/api/?name=Admin&background=0f172a&color=fff"
+                                alt="Admin Profile"
+                                className="profile-avatar"
+                            />
                         </div>
-                        <img
-                            src="https://ui-avatars.com/api/?name=Admin&background=0f172a&color=fff"
-                            alt="Admin Profile"
-                            className="profile-avatar"
-                        />
                     </div>
                 </div>
                 <div className="admin-content-area">

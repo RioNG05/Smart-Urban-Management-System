@@ -201,7 +201,10 @@
 .menu-item-title::before {
     content: '';
     position: absolute;
-    top: 0; left: 0; right: 0; bottom: 0;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
     background: linear-gradient(90deg, rgba(200, 155, 60, 0.1) 0%, transparent 100%);
     opacity: 0;
     transition: opacity 0.4s ease;
@@ -244,9 +247,7 @@
 /* Submenu */
 .submenu {
     background: rgba(0, 0, 0, 0.15);
-    /* Nền tối hơn cho submenu */
     padding-left: 55px;
-    /* Thụt vào */
     display: flex;
     flex-direction: column;
     animation: slideDown 0.3s ease-out forwards;
@@ -289,18 +290,20 @@
     transition: all 0.3s ease;
 }
 
-.submenu a:hover, .submenu a.active {
+.submenu a:hover,
+.submenu a.active {
     color: var(--admin-text-white) !important;
     transform: translateX(8px);
 }
 
-.submenu a:hover::before, .submenu a.active::before {
+.submenu a:hover::before,
+.submenu a.active::before {
     background: var(--admin-primary);
     box-shadow: 0 0 10px var(--admin-primary);
     transform: translateY(-50%) scale(1.5);
 }
 
-/* MAIN CONTENT BÊN PHẢI */
+/* MAIN CONTENT */
 .admin-main-container {
     flex: 1;
     height: 100vh;
@@ -310,7 +313,7 @@
     flex-direction: column;
 }
 
-/* Glassmorphism TOPBAR */
+/* TOPBAR */
 .admin-topbar {
     height: 76px;
     min-height: 76px;
@@ -361,6 +364,31 @@
 }
 
 /* TOPBAR PROFILE SECTION */
+.topbar-right {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.topbar-home-link {
+    color: var(--admin-text-white);
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    border-radius: var(--admin-radius-md);
+    background: rgba(255, 255, 255, 0.1);
+    transition: var(--admin-transition);
+}
+
+.topbar-home-link:hover {
+    background: rgba(255, 255, 255, 0.25);
+    transform: translateY(-2px);
+}
+
 .topbar-profile {
     display: flex;
     align-items: center;
@@ -399,7 +427,7 @@
     height: 42px;
     border-radius: 50%;
     object-fit: cover;
-    border: 2px solid rgba(255,255,255,0.4);
+    border: 2px solid rgba(255, 255, 255, 0.4);
     box-shadow: var(--admin-shadow-sm);
 }
 
@@ -1253,11 +1281,10 @@
     color: rgba(255, 255, 255, 0.6);
 }
 
-/* Update/Final button */
+/* Update button */
 .card-inner button,
 .btn-update-final {
     margin-top: auto;
-    /* Push to bottom */
 }
 
 @keyframes fadeIn {
