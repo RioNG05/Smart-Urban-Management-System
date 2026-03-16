@@ -1100,13 +1100,13 @@ GO
 
 -- bảng 4
 CREATE TABLE Accounts (
-	
-    Id INT IDENTITY(1,1) PRIMARY KEY, -- accountid PK
-    Email VARCHAR(100) NOT NULL UNIQUE, -- email 
-    Username varchar(50) NOT NULL UNIQUE, -- username
-    Password VARCHAR(255) NOT NULL,    -- password (nên lưu dưới dạng Hash như BCrypt)
-    RoleId INT NOT NULL,               -- role id (FK)
-    IsActive BIT DEFAULT 1,            -- Trạng thái tài khoản (1: Hoạt động, 0: Khóa)
+    Id INT IDENTITY(1,1) PRIMARY KEY,       -- accountid PK
+    Email VARCHAR(100) NOT NULL UNIQUE,     -- email 
+    Username VARCHAR(50) NOT NULL UNIQUE,   -- username
+    Password VARCHAR(255) NOT NULL,         -- password (nên lưu dưới dạng Hash như BCrypt)
+    PhoneNumber VARCHAR(15) NULL,           -- số điện thoại (cho phép null)
+    RoleId INT NOT NULL,                    -- role id (FK)
+    IsActive BIT DEFAULT 1,                 -- Trạng thái tài khoản (1: Hoạt động, 0: Khóa)
 
     -- Ràng buộc khóa ngoại nối sang bảng Roles
     CONSTRAINT FK_Accounts_Roles FOREIGN KEY (RoleId) REFERENCES Roles(Id)
