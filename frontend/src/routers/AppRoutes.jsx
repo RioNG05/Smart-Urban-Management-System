@@ -27,7 +27,7 @@ import AdminAccountLock from "../admin/AdminAccountLock";
 // --- IMPORT STAFF (Đường dẫn đã đưa ra ngoài pages) ---
 import StaffApartment from "../staff/StaffApartment";
 
-export default function AppRoutes() {
+function AppRoutes() {
   return (
     <BrowserRouter>
       <Routes>
@@ -73,3 +73,5 @@ export default function AppRoutes() {
     </BrowserRouter>
   );
 }
+
+export default AppRoutes;
