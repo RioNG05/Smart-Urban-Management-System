@@ -14,8 +14,6 @@ import ServicePage from "../pages/ServicePage";
 import PrivateRoute from "./PrivateRoute";
 import BillingPage from "../pages/BillingPage";
 // --- IMPORT TỪ 4 FILE GỘP (GIỮ 100% CODE GỐC) ---
-// 1. Gộp Layout, Sidebar, Dashboard (Sử dụng Destructuring {})
-import { AdminLayout, AdminDashboard } from "../pages/admin/AdminCore";
 
 // --- IMPORT ADMIN (Đường dẫn đã đưa ra ngoài pages) ---
 import { AdminLayout, AdminDashboard } from "../admin/AdminCore";
@@ -31,7 +29,7 @@ import AdminAccountLock from "../admin/AdminAccountLock";
 // --- IMPORT STAFF (Đường dẫn đã đưa ra ngoài pages) ---
 import StaffApartment from "../staff/StaffApartment";
 
-export default function AppRoutes() {
+function AppRoutes() {
   return (
     <BrowserRouter>
       <Routes>
@@ -113,3 +111,5 @@ export default function AppRoutes() {
     </BrowserRouter>
   );
 }
+
+export default AppRoutes;
