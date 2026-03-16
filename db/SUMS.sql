@@ -296,7 +296,8 @@ CREATE TABLE Authorities (
     CONSTRAINT UQ_Role_Permission UNIQUE (RoleId, PermissionId)
 );
 
---Gán hết Authorities liên quan đến bảng 1 - permission
+-- Bảng 1
+--1.1 Gán hết Authorities liên quan đến bảng 1 - permission cho admin
 INSERT INTO Authorities (RoleId, PermissionId)
 SELECT 1, Id 
 FROM Permissions 
@@ -307,8 +308,799 @@ AND NOT EXISTS (
 );
 GO
 
+-- Bảng 2
+-- 2.1. Gán các quyền vừa tạo cho Admin (RoleId = 1)
+INSERT INTO Authorities (RoleId, PermissionId)
+SELECT 1, Id 
+FROM Permissions 
+WHERE PermissionCode LIKE 'Roles_%'
+AND NOT EXISTS (
+    SELECT 1 FROM Authorities 
+    WHERE RoleId = 1 AND PermissionId = Permissions.Id
+);
+GO
+
+-- 2.2 Gán quyền Roles_R_02 cho mọi Role đang tồn tại trong bảng Roles
+INSERT INTO Authorities (RoleId, PermissionId)
+SELECT Roles.Id, Permissions.Id
+FROM Roles, Permissions -- Đây là phép Cross Join: lấy mọi Role kết hợp với Permission
+WHERE Permissions.PermissionCode = 'Roles_R_02'
+  AND NOT EXISTS (
+      -- Nếu cặp Role-Permission này đã tồn tại rồi thì bỏ qua
+      SELECT 1 FROM Authorities 
+      WHERE RoleId = Roles.Id AND PermissionId = Permissions.Id
+  );
+GO
+
+-- Bảng 3
+--3.1 Gán bộ quyền này cho ông Admin (RoleId = 1)
+INSERT INTO Authorities (RoleId, PermissionId)
+SELECT 1, Id 
+FROM Permissions 
+WHERE PermissionCode LIKE 'Authorities_%'
+AND NOT EXISTS (
+    -- Kiểm tra nếu Admin đã có quyền này rồi thì không add trùng
+    SELECT 1 FROM Authorities 
+    WHERE RoleId = 1 AND PermissionId = Permissions.Id
+);
+GO
+
+-- Bảng 4 Account
+-- 4.1. Gán bộ quyền này cho Admin (RoleId = 1)
+INSERT INTO Authorities (RoleId, PermissionId)
+SELECT 1, Id 
+FROM Permissions 
+WHERE PermissionCode LIKE 'Account_%'
+AND NOT EXISTS (
+    SELECT 1 FROM Authorities 
+    WHERE RoleId = 1 AND PermissionId = Permissions.Id
+);
+GO
+
+-- 4.2 Gán quyền xem chi tiết và đổi thông tin account cho Role User (RoleId = 2)
+INSERT INTO Authorities (RoleId, PermissionId)
+SELECT 2, Id 
+FROM Permissions 
+WHERE PermissionCode IN ('Account_R_02', 'Account_U_02')
+AND NOT EXISTS (
+    -- Kiểm tra chống trùng để tránh lỗi Unique
+    SELECT 1 FROM Authorities 
+    WHERE RoleId = 2 AND PermissionId = Permissions.Id
+);
+GO
+
+-- 4.3 Gán quyền Account cho RoleId = 3
+INSERT INTO Authorities (RoleId, PermissionId)
+SELECT 3, Id 
+FROM Permissions 
+WHERE PermissionCode IN (
+    'Account_C_01', 
+    'Account_R_01', 
+    'Account_R_02', 
+    'Account_U_01', 
+    'Account_U_02', 
+    'Account_D_01'
+)
+AND NOT EXISTS (
+    -- Kiểm tra để không chèn trùng dữ liệu
+    SELECT 1 FROM Authorities 
+    WHERE RoleId = 3 AND PermissionId = Permissions.Id
+);
+GO
+
+-- 4.4 Gán quyền xem chi tiết và đổi thông tin account cho Role 4, 5, 6
+INSERT INTO Authorities (RoleId, PermissionId)
+SELECT r.RoleId, p.Id
+FROM (
+    SELECT 4 AS RoleId UNION SELECT 5 UNION SELECT 6
+) AS r
+CROSS JOIN (
+    SELECT Id FROM Permissions WHERE PermissionCode IN ('Account_R_02', 'Account_U_02')
+) AS p
+WHERE NOT EXISTS (
+    -- Kiểm tra chống trùng để tránh lỗi Unique
+    SELECT 1 FROM Authorities 
+    WHERE RoleId = r.RoleId AND PermissionId = p.Id
+);
+GO
+
+--Bảng 5 Resident
+-- 5.1 & 5.3 Gán quyền Resident cho Admin (1) và Staff (3) giống nhau
+INSERT INTO Authorities (RoleId, PermissionId)
+SELECT r.RoleId, p.Id
+FROM (
+    SELECT 1 AS RoleId UNION SELECT 3 -- Gộp Admin và Staff
+) AS r
+CROSS JOIN (
+    SELECT Id FROM Permissions 
+    WHERE PermissionCode IN ('Resident_C_01', 'Resident_R_01', 'Resident_U_01', 'Resident_D_01')
+) AS p
+WHERE NOT EXISTS (
+    SELECT 1 FROM Authorities 
+    WHERE RoleId = r.RoleId AND PermissionId = p.Id
+);
+GO
+
+-- 5.2 Gán quyền hạn cho Resident (2)
+INSERT INTO Authorities (RoleId, PermissionId)
+SELECT 2, Id FROM Permissions 
+WHERE PermissionCode IN ('Resident_R_02')
+AND NOT EXISTS (
+    SELECT 1 FROM Authorities WHERE RoleId = 2 AND PermissionId = Permissions.Id
+);
+GO
+
+--Bảng 6 Complaints
+-- 6.1 Gán quyền cho Admin (RoleId = 1)
+-- Admin có quyền xem tất cả (R_01)
+INSERT INTO Authorities (RoleId, PermissionId)
+SELECT 1, Id FROM Permissions 
+WHERE PermissionCode IN ('Complaints_R_01')
+AND NOT EXISTS (SELECT 1 FROM Authorities WHERE RoleId = 1 AND PermissionId = Permissions.Id);
+GO
+
+-- 6.2 Gán quyền cho Resident (RoleId = 2)
+-- Cư dân có quyền: Tạo mới, Xem/Sửa/Xóa đơn của chính mình
+INSERT INTO Authorities (RoleId, PermissionId)
+SELECT 2, Id FROM Permissions 
+WHERE PermissionCode IN (
+    'Complaints_C_01', 
+    'Complaints_R_02', 
+    'Complaints_U_02', 
+    'Complaints_D_01'
+)
+AND NOT EXISTS (SELECT 1 FROM Authorities WHERE RoleId = 2 AND PermissionId = Permissions.Id);
+GO
+
+-- 6.3 Gán quyền cho Staff_Apartment (RoleId = 3)
+-- Nhân viên có quyền xem toàn bộ danh sách khiếu nại để xử lý
+INSERT INTO Authorities (RoleId, PermissionId)
+SELECT 3, Id FROM Permissions 
+WHERE PermissionCode IN ('Complaints_R_01')
+AND NOT EXISTS (SELECT 1 FROM Authorities WHERE RoleId = 3 AND PermissionId = Permissions.Id);
+GO
+
+-- Bảng 7 Replies
+-- 7.1 Gán quyền cho Admin (RoleId = 1)
+-- Sếp tổng có toàn quyền quản lý phản hồi
+INSERT INTO Authorities (RoleId, PermissionId)
+SELECT 1, Id FROM Permissions 
+WHERE PermissionCode IN (
+    'Replies_C_01', 
+    'Replies_R_01', 
+    'Replies_U_01', 
+    'Replies_D_01'
+)
+AND NOT EXISTS (
+    SELECT 1 FROM Authorities WHERE RoleId = 1 AND PermissionId = Permissions.Id
+);
+GO
+
+-- 7.2 Gán quyền cho Resident (RoleId = 2)
+-- Cư dân chỉ có quyền xem phản hồi gửi cho mình
+INSERT INTO Authorities (RoleId, PermissionId)
+SELECT 2, Id FROM Permissions 
+WHERE PermissionCode = 'Replies_R_02'
+AND NOT EXISTS (
+    SELECT 1 FROM Authorities WHERE RoleId = 2 AND PermissionId = Permissions.Id
+);
+GO
+
+-- 7.3 Gán quyền cho Staff_Apartment (RoleId = 3)
+-- Nhân viên trực tiếp xử lý và phản hồi khiếu nại
+INSERT INTO Authorities (RoleId, PermissionId)
+SELECT 3, Id FROM Permissions 
+WHERE PermissionCode IN (
+    'Replies_C_01', 
+    'Replies_R_01', 
+    'Replies_U_01', 
+    'Replies_D_01'
+)
+AND NOT EXISTS (
+    SELECT 1 FROM Authorities WHERE RoleId = 3 AND PermissionId = Permissions.Id
+);
+GO
+
+-- Bảng 8 News 
+-- 8.1 Gán quyền cho Admin (RoleId = 1)
+-- Sếp tổng có quyền đăng tin, sửa và xóa tin tức
+INSERT INTO Authorities (RoleId, PermissionId)
+SELECT 1, Id FROM Permissions 
+WHERE PermissionCode IN (
+    'News_C_01', 
+    'News_U_01', 
+    'News_D_01'
+)
+AND NOT EXISTS (
+    SELECT 1 FROM Authorities WHERE RoleId = 1 AND PermissionId = Permissions.Id
+);
+GO
+
+-- 8.2 Gán quyền cho Staff_Apartment (RoleId = 3)
+-- Nhân viên ban quản lý phụ trách đăng tin và cập nhật thông báo
+INSERT INTO Authorities (RoleId, PermissionId)
+SELECT 3, Id FROM Permissions 
+WHERE PermissionCode IN (
+    'News_C_01', 
+    'News_U_01', 
+    'News_D_01'
+)
+AND NOT EXISTS (
+    SELECT 1 FROM Authorities WHERE RoleId = 3 AND PermissionId = Permissions.Id
+);
+GO
+
+-- 8.3 thk nào cũng Read được hết nhé Ae bên BE owiiii 
+
+-- Bảng 9: Services
+-- 9.1 Gán quyền cho Admin (RoleId = 1)
+-- Sếp tổng có quyền quản lý danh mục dịch vụ
+INSERT INTO Authorities (RoleId, PermissionId)
+SELECT 1, Id FROM Permissions 
+WHERE PermissionCode IN (
+    'Services_C_01', 
+    'Services_U_01', 
+    'Services_D_01'
+)
+AND NOT EXISTS (
+    SELECT 1 FROM Authorities WHERE RoleId = 1 AND PermissionId = Permissions.Id
+);
+GO
+
+-- 9.2 Gán quyền cho Staff_service (RoleId = 4)
+-- Nhân viên phụ trách vận hành và cập nhật các gói dịch vụ
+INSERT INTO Authorities (RoleId, PermissionId)
+SELECT 4, Id FROM Permissions 
+WHERE PermissionCode IN (
+    'Services_C_01', 
+    'Services_U_01', 
+    'Services_D_01'
+)
+AND NOT EXISTS (
+    SELECT 1 FROM Authorities WHERE RoleId = 4 AND PermissionId = Permissions.Id
+);
+GO
+GO
+
+-- Read service Public nhé.
+
+-- Bảng 10 ServiceResources
+-- 10.1 Gán quyền cho Admin (RoleId = 1)
+-- Full quyền quản lý tài nguyên dịch vụ (Vị trí, trang thiết bị...)
+INSERT INTO Authorities (RoleId, PermissionId)
+SELECT 1, Id FROM Permissions 
+WHERE PermissionCode IN (
+    'ServiceResources_C_01', 
+    'ServiceResources_R_01', 
+    'ServiceResources_U_01', 
+    'ServiceResources_D_01'
+)
+AND NOT EXISTS (
+    SELECT 1 FROM Authorities WHERE RoleId = 1 AND PermissionId = Permissions.Id
+);
+GO
+
+-- 10.2 Gán quyền cho Resident (RoleId = 2)
+-- Cư dân có quyền xem danh sách tài nguyên/địa điểm để biết mà đặt lịch
+INSERT INTO Authorities (RoleId, PermissionId)
+SELECT 2, Id FROM Permissions 
+WHERE PermissionCode = 'ServiceResources_R_01'
+AND NOT EXISTS (
+    SELECT 1 FROM Authorities WHERE RoleId = 2 AND PermissionId = Permissions.Id
+);
+GO
+
+-- 10.3 Gán quyền cho Staff_service (RoleId = 4)
+-- Nhân viên quản lý và cập nhật trạng thái tài nguyên dịch vụ
+INSERT INTO Authorities (RoleId, PermissionId)
+SELECT 4, Id FROM Permissions 
+WHERE PermissionCode IN (
+    'ServiceResources_C_01', 
+    'ServiceResources_R_01', 
+    'ServiceResources_U_01', 
+    'ServiceResources_D_01'
+)
+AND NOT EXISTS (
+    SELECT 1 FROM Authorities WHERE RoleId = 4 AND PermissionId = Permissions.Id
+);
+GO
+
+-- Bảng 11 BookingServices
+-- 11.1 Gán quyền cho Admin (RoleId = 1)
+-- Admin có quyền xem tất cả và Phê duyệt/Từ chối yêu cầu đặt lịch
+INSERT INTO Authorities (RoleId, PermissionId)
+SELECT 1, Id FROM Permissions 
+WHERE PermissionCode IN (
+    'BookingServices_R_01', 
+    'BookingServices_U_02'
+)
+AND NOT EXISTS (
+    SELECT 1 FROM Authorities WHERE RoleId = 1 AND PermissionId = Permissions.Id
+);
+GO
+
+-- 11.2 Gán quyền cho Resident (RoleId = 2)
+-- Cư dân có quyền: Đặt lịch, Xem lịch cá nhân, Cập nhật và Hủy lịch của mình
+INSERT INTO Authorities (RoleId, PermissionId)
+SELECT 2, Id FROM Permissions 
+WHERE PermissionCode IN (
+    'BookingServices_C_01', 
+    'BookingServices_R_02', 
+    'BookingServices_U_01', 
+    'BookingServices_D_01'
+)
+AND NOT EXISTS (
+    SELECT 1 FROM Authorities WHERE RoleId = 2 AND PermissionId = Permissions.Id
+);
+GO
+
+-- 11.3 Gán quyền cho Staff_service (RoleId = 4)
+-- Nhân viên dịch vụ phụ trách xem và Phê duyệt/Từ chối yêu cầu đặt lịch
+INSERT INTO Authorities (RoleId, PermissionId)
+SELECT 4, Id FROM Permissions 
+WHERE PermissionCode IN (
+    'BookingServices_R_01', 
+    'BookingServices_U_02'
+)
+AND NOT EXISTS (
+    SELECT 1 FROM Authorities WHERE RoleId = 4 AND PermissionId = Permissions.Id
+);
+GO
+
+-- Bảng  12: ServiceInvoice
+-- 12.1 Gán quyền cho Admin (RoleId = 1)
+-- Admin nắm toàn quyền kiểm soát hóa đơn
+INSERT INTO Authorities (RoleId, PermissionId)
+SELECT 1, Id FROM Permissions 
+WHERE PermissionCode IN (
+    'ServiceInvoices_C_01', 
+    'ServiceInvoices_R_01', 
+    'ServiceInvoices_U_01', 
+    'ServiceInvoices_D_01'
+)
+AND NOT EXISTS (
+    SELECT 1 FROM Authorities WHERE RoleId = 1 AND PermissionId = Permissions.Id
+);
+GO
+
+-- 12.2 Gán quyền cho Resident (RoleId = 2)
+-- Cư dân xem hóa đơn cá nhân và thực hiện thanh toán
+INSERT INTO Authorities (RoleId, PermissionId)
+SELECT 2, Id FROM Permissions 
+WHERE PermissionCode IN (
+    'ServiceInvoices_R_02', 
+    'ServiceInvoices_U_02'
+)
+AND NOT EXISTS (
+    SELECT 1 FROM Authorities WHERE RoleId = 2 AND PermissionId = Permissions.Id
+);
+GO
+
+-- 12.3 Gán quyền cho Staff_service (RoleId = 4)
+-- Nhân viên dịch vụ quản lý hóa đơn (tương đương Admin)
+INSERT INTO Authorities (RoleId, PermissionId)
+SELECT 4, Id FROM Permissions 
+WHERE PermissionCode IN (
+    'ServiceInvoices_C_01', 
+    'ServiceInvoices_R_01', 
+    'ServiceInvoices_U_01', 
+    'ServiceInvoices_D_01'
+)
+AND NOT EXISTS (
+    SELECT 1 FROM Authorities WHERE RoleId = 4 AND PermissionId = Permissions.Id
+);
+GO
+
+-- Bảng 13: ApartmentType 
+-- 13.1 Gán quyền cho Admin (RoleId = 1)
+-- Quản lý danh mục loại căn hộ (Penthouse, Studio, 2BR...)
+INSERT INTO Authorities (RoleId, PermissionId)
+SELECT 1, Id FROM Permissions 
+WHERE PermissionCode IN (
+    'ApartmentTypes_C_01', 
+    'ApartmentTypes_U_01', 
+    'ApartmentTypes_D_01'
+)
+AND NOT EXISTS (
+    SELECT 1 FROM Authorities WHERE RoleId = 1 AND PermissionId = Permissions.Id
+);
+GO
+
+-- 13.2 Gán quyền cho Resident (RoleId = 2)
+-- View All Apartment Type là public nên không cần lưu trong Database
+GO
+
+-- 13.3 Gán quyền cho Staff_Apartment (RoleId = 3)
+-- Nhân viên quản lý căn hộ được quyền tạo, sửa, xóa loại căn hộ
+INSERT INTO Authorities (RoleId, PermissionId)
+SELECT 3, Id FROM Permissions 
+WHERE PermissionCode IN (
+    'ApartmentTypes_C_01', 
+    'ApartmentTypes_U_01', 
+    'ApartmentTypes_D_01'
+)
+AND NOT EXISTS (
+    SELECT 1 FROM Authorities WHERE RoleId = 3 AND PermissionId = Permissions.Id
+);
+GO
+
+-- Bảng 14: Apartment
+-- 14.1 Gán quyền cho Admin (RoleId = 1)
+-- Quản lý toàn bộ danh sách căn hộ trong tòa nhà
+INSERT INTO Authorities (RoleId, PermissionId)
+SELECT 1, Id FROM Permissions 
+WHERE PermissionCode IN (
+    'Apartments_C_01', 
+    'Apartments_R_01', 
+    'Apartments_U_01', 
+    'Apartments_D_01'
+)
+AND NOT EXISTS (
+    SELECT 1 FROM Authorities WHERE RoleId = 1 AND PermissionId = Permissions.Id
+);
+GO
+
+-- 14.2 Gán quyền cho Resident (RoleId = 2)
+-- Cư dân xem được thông tin chi tiết căn hộ mình đang sở hữu/thuê
+-- (Apartments_R_02 là public nên không cần add vào đây)
+INSERT INTO Authorities (RoleId, PermissionId)
+SELECT 2, Id FROM Permissions 
+WHERE PermissionCode = 'Apartments_R_03'
+AND NOT EXISTS (
+    SELECT 1 FROM Authorities WHERE RoleId = 2 AND PermissionId = Permissions.Id
+);
+GO
+
+-- 14.3 Gán quyền cho Staff_Apartment (RoleId = 3)
+-- Nhân viên quản lý căn hộ thực hiện cập nhật trạng thái phòng ốc
+INSERT INTO Authorities (RoleId, PermissionId)
+SELECT 3, Id FROM Permissions 
+WHERE PermissionCode IN (
+    'Apartments_C_01', 
+    'Apartments_R_01', 
+    'Apartments_U_01', 
+    'Apartments_D_01'
+)
+AND NOT EXISTS (
+    SELECT 1 FROM Authorities WHERE RoleId = 3 AND PermissionId = Permissions.Id
+);
+GO
+
+--Bảng 15
+-- 15.1 Admin (1)
+INSERT INTO Authorities (RoleId, PermissionId)
+SELECT 1, Id FROM Permissions WHERE PermissionCode IN ('UtilitiesInvoices_C_01', 'UtilitiesInvoices_R_01', 'UtilitiesInvoices_U_01', 'UtilitiesInvoices_D_01')
+AND NOT EXISTS (SELECT 1 FROM Authorities WHERE RoleId = 1 AND PermissionId = Permissions.Id);
+
+-- 15.2 Resident (2)
+INSERT INTO Authorities (RoleId, PermissionId)
+SELECT 2, Id FROM Permissions WHERE PermissionCode IN ('UtilitiesInvoices_R_02', 'UtilitiesInvoices_U_02')
+AND NOT EXISTS (SELECT 1 FROM Authorities WHERE RoleId = 2 AND PermissionId = Permissions.Id);
+
+-- 15.3 Staff_Apartment (3)
+INSERT INTO Authorities (RoleId, PermissionId)
+SELECT 3, Id FROM Permissions WHERE PermissionCode IN ('UtilitiesInvoices_C_01', 'UtilitiesInvoices_R_01', 'UtilitiesInvoices_U_01', 'UtilitiesInvoices_D_01')
+AND NOT EXISTS (SELECT 1 FROM Authorities WHERE RoleId = 3 AND PermissionId = Permissions.Id);
+GO
+
+-- Bảng 16 Contracts
+-- 16.1 Gán quyền cho Admin (RoleId = 1)
+-- Sếp tổng có quyền tạo, xem tất cả, chỉnh sửa và xóa hợp đồng
+INSERT INTO Authorities (RoleId, PermissionId)
+SELECT 1, Id FROM Permissions 
+WHERE PermissionCode IN (
+    'Contracts_C_01', 
+    'Contracts_R_01', 
+    'Contracts_U_01', 
+    'Contracts_D_01'
+)
+AND NOT EXISTS (
+    SELECT 1 FROM Authorities WHERE RoleId = 1 AND PermissionId = Permissions.Id
+);
+GO
+
+-- 16.2 Gán quyền cho Resident (RoleId = 2)
+-- Cư dân chỉ có quyền xem các hợp đồng mà họ đã ký
+INSERT INTO Authorities (RoleId, PermissionId)
+SELECT 2, Id FROM Permissions 
+WHERE PermissionCode = 'Contracts_R_02'
+AND NOT EXISTS (
+    SELECT 1 FROM Authorities WHERE RoleId = 2 AND PermissionId = Permissions.Id
+);
+GO
+
+-- 16.3 Gán quyền cho Staff_Apartment (RoleId = 3)
+-- Nhân viên quản lý căn hộ trực tiếp làm hợp đồng với cư dân
+INSERT INTO Authorities (RoleId, PermissionId)
+SELECT 3, Id FROM Permissions 
+WHERE PermissionCode IN (
+    'Contracts_C_01', 
+    'Contracts_R_01', 
+    'Contracts_U_01', 
+    'Contracts_D_01'
+)
+AND NOT EXISTS (
+    SELECT 1 FROM Authorities WHERE RoleId = 3 AND PermissionId = Permissions.Id
+);
+GO
+
+-- Bảng 17 StayAtHistory
+-- 17.1 Gán quyền cho Admin (RoleId = 1)
+-- Sếp tổng có quyền quản lý toàn bộ lịch sử lưu trú của tòa nhà
+INSERT INTO Authorities (RoleId, PermissionId)
+SELECT 1, Id FROM Permissions 
+WHERE PermissionCode IN (
+    'StayAtHistory_C_01', 
+    'StayAtHistory_R_01', 
+    'StayAtHistory_U_01', 
+    'StayAtHistory_D_01'
+)
+AND NOT EXISTS (
+    SELECT 1 FROM Authorities WHERE RoleId = 1 AND PermissionId = Permissions.Id
+);
+GO
+
+-- 17.2 Gán quyền cho Resident (RoleId = 2)
+-- Cư dân chỉ được xem lịch sử lưu trú của chính bản thân mình
+INSERT INTO Authorities (RoleId, PermissionId)
+SELECT 2, Id FROM Permissions 
+WHERE PermissionCode = 'StayAtHistory_R_02'
+AND NOT EXISTS (
+    SELECT 1 FROM Authorities WHERE RoleId = 2 AND PermissionId = Permissions.Id
+);
+GO
+
+-- 17.3 Gán quyền cho Staff_Apartment (RoleId = 3)
+-- Nhân viên quản lý căn hộ cập nhật thông tin khi cư dân chuyển đến hoặc đi
+INSERT INTO Authorities (RoleId, PermissionId)
+SELECT 3, Id FROM Permissions 
+WHERE PermissionCode IN (
+    'StayAtHistory_C_01', 
+    'StayAtHistory_R_01', 
+    'StayAtHistory_U_01', 
+    'StayAtHistory_D_01'
+)
+AND NOT EXISTS (
+    SELECT 1 FROM Authorities WHERE RoleId = 3 AND PermissionId = Permissions.Id
+);
+GO
+
+-- Bảng 18 Staffinfo
+-- 18.1 Gán quyền cho Admin (RoleId = 1)
+-- Admin quản lý toàn bộ danh sách và thông tin nhân viên hệ thống
+INSERT INTO Authorities (RoleId, PermissionId)
+SELECT 1, Id FROM Permissions 
+WHERE PermissionCode IN (
+    'StaffInfo_C_01', 
+    'StaffInfo_R_01', 
+    'StaffInfo_U_01', 
+    'StaffInfo_D_01'
+)
+AND NOT EXISTS (
+    SELECT 1 FROM Authorities WHERE RoleId = 1 AND PermissionId = Permissions.Id
+);
+GO
+
+-- 18.2 Gán quyền cho các Staff (RoleId 3, 4, 5)
+-- Staff_Apartment (3), Staff_service (4) và các Staff khác (5)
+-- Có quyền xem và tự cập nhật thông tin cá nhân của chính mình
+INSERT INTO Authorities (RoleId, PermissionId)
+SELECT r.RoleId, p.Id
+FROM (
+    SELECT 3 AS RoleId UNION SELECT 4 UNION SELECT 5
+) AS r
+CROSS JOIN (
+    SELECT Id FROM Permissions 
+    WHERE PermissionCode IN (
+        'StaffInfo_R_02', 
+        'StaffInfo_U_02'
+    )
+) AS p
+WHERE NOT EXISTS (
+    SELECT 1 FROM Authorities 
+    WHERE RoleId = r.RoleId AND PermissionId = p.Id
+);
+GO
+
+-- Bảng 19 VisitorLogs
+-- 19.1 Gán quyền cho Admin (RoleId = 1)
+-- Sếp tổng quản lý và kiểm soát toàn bộ nhật ký khách ra vào
+INSERT INTO Authorities (RoleId, PermissionId)
+SELECT 1, Id FROM Permissions 
+WHERE PermissionCode IN (
+    'VisitorLogs_C_01', 
+    'VisitorLogs_R_01', 
+    'VisitorLogs_U_01', 
+    'VisitorLogs_D_01'
+)
+AND NOT EXISTS (
+    SELECT 1 FROM Authorities WHERE RoleId = 1 AND PermissionId = Permissions.Id
+);
+GO
+
+-- 19.2 Gán quyền cho Resident (RoleId = 2)
+-- Cư dân xem nhật ký khách đến thăm căn hộ của mình
+INSERT INTO Authorities (RoleId, PermissionId)
+SELECT 2, Id FROM Permissions 
+WHERE PermissionCode = 'VisitorLogs_R_02'
+AND NOT EXISTS (
+    SELECT 1 FROM Authorities WHERE RoleId = 2 AND PermissionId = Permissions.Id
+);
+GO
+
+-- 19.3 Gán quyền cho Staff_Apartment (RoleId = 3) và Staff_Security (RoleId = 5)
+-- Nhân viên quản lý và Bảo vệ trực tiếp ghi nhận, cập nhật thông tin khách
+INSERT INTO Authorities (RoleId, PermissionId)
+SELECT r.RoleId, p.Id
+FROM (
+    SELECT 3 AS RoleId UNION SELECT 5
+) AS r
+CROSS JOIN (
+    SELECT Id FROM Permissions 
+    WHERE PermissionCode IN (
+        'VisitorLogs_C_01', 
+        'VisitorLogs_R_01', 
+        'VisitorLogs_U_01', 
+        'VisitorLogs_D_01'
+    )
+) AS p
+WHERE NOT EXISTS (
+    SELECT 1 FROM Authorities 
+    WHERE RoleId = r.RoleId AND PermissionId = p.Id
+);
+GO
+-- Bảng 20 Appointments
+-- 20.1 Gán quyền cho Admin (RoleId = 1)
+-- Sếp tổng có quyền quản lý toàn bộ lịch hẹn và phân công nhân sự
+INSERT INTO Authorities (RoleId, PermissionId)
+SELECT 1, Id FROM Permissions 
+WHERE PermissionCode IN (
+    'Appointments_C_01', 
+    'Appointments_R_01', 
+    'Appointments_U_01', 
+    'Appointments_U_02', 
+    'Appointments_D_01'
+)
+AND NOT EXISTS (
+    SELECT 1 FROM Authorities WHERE RoleId = 1 AND PermissionId = Permissions.Id
+);
+GO
+
+-- 20.2 Gán quyền cho Resident (RoleId = 2)
+-- Cư dân có quyền xem các lịch hẹn của mình
+INSERT INTO Authorities (RoleId, PermissionId)
+SELECT 2, Id FROM Permissions 
+WHERE PermissionCode IN (
+    'Appointments_R_02'
+)
+AND NOT EXISTS (
+    SELECT 1 FROM Authorities WHERE RoleId = 2 AND PermissionId = Permissions.Id
+);
+GO
+
+-- 20.3 Gán quyền cho Staff_Apartment (RoleId = 3)
+-- Nhân viên quản lý lịch hẹn và thực hiện các công việc được phân công
+INSERT INTO Authorities (RoleId, PermissionId)
+SELECT 3, Id FROM Permissions 
+WHERE PermissionCode IN (
+    'Appointments_C_01', 
+    'Appointments_R_01', 
+    'Appointments_U_01', 
+    'Appointments_D_01'
+)
+AND NOT EXISTS (
+    SELECT 1 FROM Authorities WHERE RoleId = 3 AND PermissionId = Permissions.Id
+);
+GO
+
+-- Bảng 21 Notification
+
+-- 21.1 Gán quyền cho Admin (RoleId = 1)
+-- Admin có quyền tạo thông báo mới, xem tất cả và xóa thông báo
+INSERT INTO Authorities (RoleId, PermissionId)
+SELECT 1, Id FROM Permissions 
+WHERE PermissionCode IN (
+    'Notification_R_01', 
+    'Notification_R_02', 
+    'Notification_U_01'
+)
+AND NOT EXISTS (
+    SELECT 1 FROM Authorities WHERE RoleId = 1 AND PermissionId = Permissions.Id
+);
+GO
+
+-- 21.2 Gán quyền cho toàn bộ User còn lại (RoleId 2, 3, 4, 5, 6)
+-- Bao gồm Cư dân và các loại Staff: Được xem thông báo cá nhân và cập nhật trạng thái "Đã đọc"
+INSERT INTO Authorities (RoleId, PermissionId)
+SELECT r.RoleId, p.Id
+FROM (
+    SELECT 2 AS RoleId UNION SELECT 3 UNION SELECT 4 UNION SELECT 5 UNION SELECT 6
+) AS r
+CROSS JOIN (
+    SELECT Id FROM Permissions 
+    WHERE PermissionCode IN (
+        'Notification_R_02', 
+        'Notification_U_01'
+    )
+) AS p
+WHERE NOT EXISTS (
+    SELECT 1 FROM Authorities 
+    WHERE RoleId = r.RoleId AND PermissionId = p.Id
+);
+GO
+
+-- Bảng 22 Expense
+-- 22.1 Gán quyền cho Admin (RoleId = 1)
+-- Quản lý toàn bộ thu chi của hệ thống
+INSERT INTO Authorities (RoleId, PermissionId)
+SELECT 1, Id FROM Permissions 
+WHERE PermissionCode IN (
+    'Expenses_C_01', 
+    'Expenses_R_01', 
+    'Expenses_U_01', 
+    'Expenses_D_01'
+)
+AND NOT EXISTS (SELECT 1 FROM Authorities WHERE RoleId = 1 AND PermissionId = Permissions.Id);
+
+-- 22.2 Gán quyền cho Resident (RoleId = 2)
+-- Cư dân xem và cập nhật trạng thái thanh toán các khoản chi phí cá nhân
+INSERT INTO Authorities (RoleId, PermissionId)
+SELECT 2, Id FROM Permissions 
+WHERE PermissionCode IN (
+    'Expenses_R_02', 
+    'Expenses_U_02'
+)
+AND NOT EXISTS (SELECT 1 FROM Authorities WHERE RoleId = 2 AND PermissionId = Permissions.Id);
+
+-- 22.3 Gán quyền cho Staff_Apartment (RoleId = 3)
+-- Nhân viên hỗ trợ quản lý hồ sơ chi phí và xem báo cáo thu chi
+INSERT INTO Authorities (RoleId, PermissionId)
+SELECT 3, Id FROM Permissions 
+WHERE PermissionCode IN (
+    'Expenses_C_01', 
+    'Expenses_R_01', 
+    'Expenses_U_01', 
+    'Expenses_D_01'
+)
+AND NOT EXISTS (SELECT 1 FROM Authorities WHERE RoleId = 3 AND PermissionId = Permissions.Id);
+GO
+
+-- Bảng 23 IoT_Sync_Logs
+
+-- 23.1 Gán quyền cho Admin (RoleId = 1)
+-- Sếp tổng nắm toàn quyền kiểm soát nhật ký đồng bộ IoT
+INSERT INTO Authorities (RoleId, PermissionId)
+SELECT 1, Id FROM Permissions 
+WHERE PermissionCode IN (
+    'IoT_Sync_Logs_C_01', 
+    'IoT_Sync_Logs_R_01', 
+    'IoT_Sync_Logs_U_01', 
+    'IoT_Sync_Logs_D_01'
+)
+AND NOT EXISTS (
+    SELECT 1 FROM Authorities WHERE RoleId = 1 AND PermissionId = Permissions.Id
+);
+GO
+
+-- 23.2 Gán quyền cho Staff_Apartment (RoleId = 3)
+-- Nhân viên quản lý căn hộ cũng có toàn quyền để xử lý sự cố thiết bị cho cư dân
+INSERT INTO Authorities (RoleId, PermissionId)
+SELECT 3, Id FROM Permissions 
+WHERE PermissionCode IN (
+    'IoT_Sync_Logs_C_01', 
+    'IoT_Sync_Logs_R_01', 
+    'IoT_Sync_Logs_U_01', 
+    'IoT_Sync_Logs_D_01'
+)
+AND NOT EXISTS (
+    SELECT 1 FROM Authorities WHERE RoleId = 3 AND PermissionId = Permissions.Id
+);
+GO
+
+
 -- bảng 4
 CREATE TABLE Accounts (
+	
     Id INT IDENTITY(1,1) PRIMARY KEY, -- accountid PK
     Email VARCHAR(100) NOT NULL UNIQUE, -- email 
     Username varchar(50) NOT NULL UNIQUE, -- username
