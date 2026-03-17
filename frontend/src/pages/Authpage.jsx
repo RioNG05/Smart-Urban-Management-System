@@ -7,8 +7,21 @@ import "../styles/auth.css";
 function AuthPage() {
   const { user } = useAuth();
 
+  const roleDashboard = {
+    ADMIN: "/admin/dashboard",
+    RESIDENT: "/resident/dashboard",
+    STAFF_APARTMENT: "/staff/apartment/dashboard",
+    STAFF_SERVICE: "/staff/service/dashboard",
+    STAFF_SECURITY: "/staff/security/dashboard"
+  };
+
+  //Check role
   if (user) {
-    return <Navigate to="/" />;
+    const role = user.role;
+
+    const redirectPath = roleDashboard[role] || "/";
+
+    return <Navigate to={redirectPath} replace />;
   }
 
   return (
