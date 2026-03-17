@@ -13,9 +13,7 @@ import Profile from "../pages/ProfilePage";
 import ServicePage from "../pages/ServicePage";
 import PrivateRoute from "./PrivateRoute";
 import BillingPage from "../pages/BillingPage";
-// --- IMPORT TỪ 4 FILE GỘP (GIỮ 100% CODE GỐC) ---
 
-// --- IMPORT ADMIN (Đường dẫn đã đưa ra ngoài pages) ---
 import { AdminLayout, AdminDashboard } from "../admin/AdminCore";
 import {
   AdminRoleManager,
@@ -26,7 +24,6 @@ import {
 import AdminReports from "../admin/AdminReports";
 import AdminAccountLock from "../admin/AdminAccountLock";
 
-// --- IMPORT STAFF (Đường dẫn đã đưa ra ngoài pages) ---
 import StaffApartment from "../staff/StaffApartment";
 
 function AppRoutes() {
@@ -75,7 +72,6 @@ function AppRoutes() {
           <Route path="roles" element={<AdminRoleManager />} />
           <Route path="lock-resident" element={<AdminLockResident />} />
 
-          {/* Các tính năng mở rộng của Hùng */}
           <Route path="contracts/create" element={<AdminCreateContract />} />
           <Route path="contracts/view" element={<AdminPropertyManager />} />
 
