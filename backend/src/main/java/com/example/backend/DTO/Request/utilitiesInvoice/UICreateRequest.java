@@ -15,8 +15,8 @@ public class UICreateRequest {
     Apartment apartment;
     Integer billingMonth;
     Integer billingYear;
-    BigDecimal totalElectricUsed;
-    BigDecimal totalWaterUsed;
+    Integer totalElectricUsed;
+    Integer totalWaterUsed;
     Integer status = 0;
 
 

@@ -59,6 +59,7 @@ public class AuthController {
         Account acc = account.orElseThrow();
 
         AccountsResponse response = AccountsResponse.builder()
+                .id(acc.getId())
                 .username(acc.getUsername())
                 .email(acc.getEmail())
                 .role(acc.getRole())
@@ -81,12 +82,14 @@ public class AuthController {
         Resident resident = residentService.findByAccountId(acc.getId());
 
         AccountsResponse accountsResponse = AccountsResponse.builder()
+                .id(acc.getId())
                 .username(acc.getUsername())
                 .email(acc.getEmail())
                 .role(acc.getRole())
                 .build();
 
         ResidentsResponse response = ResidentsResponse.builder()
+                .id(resident.getId())
                 .fullName(resident.getFullName())
                 .account(accountsResponse)
                 .gender(resident.getGender())

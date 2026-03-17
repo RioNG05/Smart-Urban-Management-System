@@ -75,4 +75,10 @@ public class AccountService {
         repository.deleteById(id);
     }
 
+    public void changeRole(Integer id, Integer roleId){
+        Account account = findById(id);
+        Role role = roleService.findById(roleId);
+        account.setRole(role);
+    }
+
 }

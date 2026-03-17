@@ -5,7 +5,7 @@ import useScrollEffect from "../../hooks/useScrollEffect";
 import { useAuth } from "../../components/sections/auth/AuthContext";
 import logoImg from "../../assets/logo.jpg";
 
-export default function Navbar() {
+export default function Navbar({ solid = false }) {
   const [scrolled, setScrolled] = useState(false);
   const [openMenu, setOpenMenu] = useState(false);
   const [loadingUser, setLoadingUser] = useState(true);
@@ -52,7 +52,7 @@ export default function Navbar() {
   };
 
   return (
-    <nav className={`navbar ${scrolled ? "navbar-scrolled" : ""}`}>
+    <nav className={`navbar ${scrolled || solid ? "navbar-scrolled" : ""}`}>
       <div className="nav-container">
         {/* LOGO */}
         <div className="nav-logo" onClick={() => navigate("/")}>
@@ -98,12 +98,20 @@ export default function Navbar() {
                       )}
                     </div>
 
-                    {role && role !== "RESIDENT" && (
+                    {role && role === "RESIDENT" && (
                       <div
                         className="dropdown-item"
                         onClick={() => navigate("/dashboard")}
                       >
                         Dashboard
+                      </div>
+                    )}
+                    {role && role === "RESIDENT" && (
+                      <div
+                        className="dropdown-item"
+                        onClick={() => navigate("/billing")}
+                      >
+                        My Home
                       </div>
                     )}
                     <div

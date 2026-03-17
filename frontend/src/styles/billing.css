@@ -1,0 +1,308 @@
+.billing-page {
+  min-height: calc(100vh - 70px);
+  padding-top: 90px;
+  background: #f6f8f7;
+}
+
+.billing-container {
+  max-width: 1200px;
+  margin: auto;
+  display: grid;
+  grid-template-columns: 240px 1fr;
+  gap: 28px;
+  padding: 24px;
+}
+
+.billing-content {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.billing-title {
+  font-size: 24px;
+  font-weight: 600;
+}
+
+.summary-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 18px;
+}
+
+.summary-box {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  padding: 16px;
+  transition: all 0.25s ease;
+}
+
+.summary-box:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+}
+
+.summary-label {
+  font-size: 13px;
+  color: #6b7280;
+}
+
+.summary-value {
+  font-size: 22px;
+  font-weight: 600;
+}
+
+.bill-table {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  padding: 20px;
+}
+
+.bill-table table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.bill-table th {
+  text-align: left;
+  font-size: 13px;
+  color: #6b7280;
+  padding-bottom: 10px;
+}
+
+.bill-table td {
+  padding: 12px 0;
+  border-top: 1px solid #f1f1f1;
+}
+
+.bill-table tr:hover {
+  background: #f9fafb;
+}
+
+.status {
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 12px;
+}
+
+.status.paid {
+  background: #e6f4ea;
+  color: #2e7d32;
+}
+
+.status.unpaid {
+  background: #fdecea;
+  color: #d32f2f;
+}
+
+.property-sidebar {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 16px;
+  height: fit-content;
+}
+
+.property-title {
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+
+.property-item {
+  padding: 8px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.property-item:hover {
+  background: #f3f4f6;
+}
+
+.payment-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.total-price {
+  font-weight: 600;
+}
+
+.pay-button {
+  background: #2e7d32;
+  color: white;
+  border: none;
+  padding: 10px 18px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.pay-button:hover {
+  background: #256b29;
+}
+
+.expense-chart {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  padding: 20px;
+}
+
+.section-title {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+.billing-filters {
+  display: flex;
+  gap: 20px;
+}
+
+.billing-filters label {
+  font-size: 12px;
+  color: #6b7280;
+  display: block;
+  margin-bottom: 4px;
+}
+
+.billing-filters select {
+  padding: 8px 12px;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  background: white;
+}
+
+.payment-history {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  padding: 20px;
+}
+
+.payment-history table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.payment-history th {
+  text-align: left;
+  font-size: 13px;
+  color: #6b7280;
+  padding-bottom: 10px;
+}
+
+.payment-history td {
+  padding: 12px 0;
+  border-top: 1px solid #f1f1f1;
+}
+
+.payment-history tr:hover {
+  background: #f9fafb;
+}
+.report-button {
+  background: #2e7d32;
+  color: white;
+  border: none;
+  padding: 10px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  margin-bottom: 10px;
+}
+
+.report-button:hover {
+  background: #256b29;
+}
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.4);
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  z-index: 999;
+}
+
+.modal-box {
+  width: 400px;
+  background: white;
+  border-radius: 10px;
+  padding: 24px;
+}
+
+.modal-box textarea {
+  width: 100%;
+  height: 120px;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  padding: 10px;
+  margin-top: 10px;
+}
+
+.modal-actions {
+  margin-top: 16px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.cancel-btn {
+  background: #eee;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 6px;
+}
+
+.submit-btn {
+  background: #2e7d32;
+  color: white;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 6px;
+}
+.complaint-list {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  padding: 20px;
+}
+
+.complaint-item {
+  padding: 10px;
+  border-bottom: 1px solid #eee;
+  cursor: pointer;
+}
+
+.complaint-item:hover {
+  background: #f9fafb;
+}
+
+.complaint-detail {
+  margin-top: 20px;
+  padding: 16px;
+  background: #f7f7f7;
+  border-radius: 8px;
+}
+
+.complaint-message {
+  padding: 10px 14px;
+  border-radius: 8px;
+  margin-top: 10px;
+  max-width: 70%;
+}
+
+.complaint-message.user {
+  background: #e8f5e9;
+}
+
+.complaint-message.admin {
+  background: white;
+  border: 1px solid #e5e7eb;
+}

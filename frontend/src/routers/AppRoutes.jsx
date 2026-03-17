@@ -1,6 +1,6 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
-// --- CÁC TRANG USER (GIỮ NGUYÊN) ---
+// --- CÁC TRANG USER (Folder pages) ---
 import MarketPage from "../pages/MarketPage";
 import AuthPage from "../pages/Authpage";
 import Product from "../pages/ProductDetailPage";
@@ -10,24 +10,26 @@ import AboutPage from "../pages/AboutPage";
 import NewsDetailPage from "../pages/NewsDetailPage";
 import Unauthorized from "../pages/Unauthorized";
 import Profile from "../pages/ProfilePage";
+import ServicePage from "../pages/ServicePage";
 import PrivateRoute from "./PrivateRoute";
+import BillingPage from "../pages/BillingPage";
 // --- IMPORT TỪ 4 FILE GỘP (GIỮ 100% CODE GỐC) ---
-// 1. Gộp Layout, Sidebar, Dashboard (Sử dụng Destructuring {})
-import { AdminLayout, AdminDashboard } from "../pages/admin/AdminCore";
 
-// 2. Gộp Role Manager và Lock Resident (Sử dụng Destructuring {})
+// --- IMPORT ADMIN (Đường dẫn đã đưa ra ngoài pages) ---
+import { AdminLayout, AdminDashboard } from "../admin/AdminCore";
 import {
   AdminRoleManager,
   AdminLockResident,
-} from "../pages/admin/AdminManagement";
+  AdminCreateContract,
+  AdminPropertyManager,
+} from "../admin/AdminManagement";
+import AdminReports from "../admin/AdminReports";
+import AdminAccountLock from "../admin/AdminAccountLock";
 
-// 3. File Báo cáo (Default Import)
-import AdminReports from "../pages/admin/AdminReports";
+// --- IMPORT STAFF (Đường dẫn đã đưa ra ngoài pages) ---
+import StaffApartment from "../staff/StaffApartment";
 
-// 4. File Khóa tài khoản lẻ (Default Import)
-import AdminAccountLock from "../pages/admin/AdminAccountLock";
-
-export default function AppRoutes() {
+function AppRoutes() {
   return (
     <BrowserRouter>
       <Routes>
@@ -35,7 +37,12 @@ export default function AppRoutes() {
         <Route path="/" element={<Home />} />
         <Route path="/about" element={<AboutPage />} />
         <Route path="/auth" element={<AuthPage />} />
+        <Route path="/services" element={<ServicePage />} />
+        <Route path="/news" element={<NewsPage />} />
+        <Route path="/news/:id" element={<NewsDetailPage />} />
+        <Route path="/billing" element={<BillingPage />} />
 
+        {/* CÁC TRANG CÓ BẢO MẬT */}
         <Route
           path="/market"
           element={
@@ -44,21 +51,11 @@ export default function AppRoutes() {
             </PrivateRoute>
           }
         />
-
         <Route
           path="/product"
           element={
             <PrivateRoute>
               <Product />
-            </PrivateRoute>
-          }
-        />
-
-        <Route
-          path="/news"
-          element={
-            <PrivateRoute>
-              <NewsPage />
             </PrivateRoute>
           }
         />
@@ -70,42 +67,49 @@ export default function AppRoutes() {
             </PrivateRoute>
           }
         />
-
-        <Route
-          path="/news/:id"
-          element={
-            <PrivateRoute>
-              <NewsDetailPage />
-            </PrivateRoute>
-          }
-        />
-
         <Route path="/unauthorized" element={<Unauthorized />} />
 
-        {/* --- HỆ THỐNG ADMIN (GHÉP CHUẨN TỪ CÁC FILE GỘP) --- */}
+        {/* --- HỆ THỐNG ADMIN --- */}
         <Route path="/admin" element={<AdminLayout />}>
-          {/* Trang chủ quản trị (Ảnh nhà cửa, Overview) */}
           <Route index element={<AdminDashboard />} />
-
-          {/* Quản lý quyền (Bảng Permissions Matrix) */}
           <Route path="roles" element={<AdminRoleManager />} />
-
-          {/* Quản lý cư dân (Banner tím, Form nhập) */}
           <Route path="lock-resident" element={<AdminLockResident />} />
 
-          {/* Các trang báo cáo và thống kê (Sử dụng chung AdminReports) */}
+          {/* Các tính năng mở rộng của Hùng */}
+          <Route path="contracts/create" element={<AdminCreateContract />} />
+          <Route path="contracts/view" element={<AdminPropertyManager />} />
+
           <Route path="reports/revenue" element={<AdminReports />} />
           <Route path="reports/residents" element={<AdminReports />} />
           <Route path="reports/payments" element={<AdminReports />} />
           <Route path="reports/services" element={<AdminReports />} />
-
-          {/* Trang khóa tài khoản chung */}
           <Route
             path="account-lock"
             element={<AdminAccountLock title="General Accounts" />}
+          />
+        </Route>
+
+        {/* --- HỆ THỐNG STAFF --- */}
+        <Route path="/staff">
+          <Route path="apartment" element={<StaffApartment />} />
+          <Route
+            path="service"
+            element={
+              <div style={{ padding: "50px" }}>Staff Service - Coming Soon</div>
+            }
+          />
+          <Route
+            path="security"
+            element={
+              <div style={{ padding: "50px" }}>
+                Staff Security - Coming Soon
+              </div>
+            }
           />
         </Route>
       </Routes>
     </BrowserRouter>
   );
 }
+
+export default AppRoutes;

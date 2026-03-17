@@ -1,10 +1,19 @@
 import { useState } from "react";
+import {
+  updateAccount,
+  updateResident,
+} from "../../../services/profileService";
 
-export default function ProfileEdit({ user, setEditMode }) {
+export default function ProfileEdit({ account, resident, setEditMode }) {
   const [form, setForm] = useState({
-    ...user,
     password: "",
     confirmPassword: "",
+
+    fullName: resident?.fullName || "",
+    gender: resident?.gender || "",
+    dateOfBirth: resident?.dateOfBirth || "",
+    identityId: resident?.identityId || "",
+    // phone: resident?.phone || "",
   });
 
   const handleChange = (e) => {
@@ -14,15 +23,43 @@ export default function ProfileEdit({ user, setEditMode }) {
     });
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (form.password !== form.confirmPassword) {
-      alert("Password confirmation does not match!");
+      alert("Password confirmation does not match");
       return;
     }
 
-    console.log("SAVE PROFILE:", form);
+    try {
+      const accountPayload = {
+        username: account.username,
+        email: account.email,
+        roleId: account.role.id,
+        isActive: true,
+      };
 
-    setEditMode(false);
+      if (form.password) {
+        accountPayload.password = form.password;
+      }
+      await updateAccount(account.id, accountPayload);
+
+      if (account.role.roleName === "RESIDENT") {
+        const residentPayload = {
+          fullName: form.fullName,
+          gender: form.gender,
+          dateOfBirth: form.dateOfBirth,
+          // phone: form.phone,
+        };
+
+        await updateResident(resident.id, residentPayload);
+      }
+
+      alert("Profile updated successfully");
+
+      setEditMode(false);
+    } catch (err) {
+      console.error(err);
+      alert("Update failed");
+    }
   };
 
   return (
@@ -32,55 +69,55 @@ export default function ProfileEdit({ user, setEditMode }) {
       <div className="profile-section">
         <h3>Account Information</h3>
 
-        <input value={form.email} disabled />
-        <input value={form.identifyId} disabled />
-        <input value={form.username} disabled />
+        <label>Email</label>
+        <input value={account.email} disabled />
+
+        <label>Username</label>
+        <input value={account.username} disabled />
+
+        <label>New Password</label>
+        <input type="password" name="password" onChange={handleChange} />
+
+        <label>Confirm Password</label>
+        <input type="password" name="confirmPassword" onChange={handleChange} />
       </div>
 
-      <div className="profile-section">
-        <h3>Personal Information</h3>
+      {account.role.roleName === "RESIDENT" && (
+        <div className="profile-section">
+          <h3>Personal Information</h3>
 
-        <input
-          name="fullName"
-          value={form.fullName}
-          onChange={handleChange}
-          placeholder="Full Name"
-        />
+          <label>Full Name</label>
+          <input
+            name="fullName"
+            value={form.fullName}
+            onChange={handleChange}
+          />
 
-        <input
-          type="date"
-          name="birthdate"
-          value={form.birthdate}
-          onChange={handleChange}
-        />
+          <label>Gender</label>
+          <select name="gender" value={form.gender} onChange={handleChange}>
+            <option>Male</option>
+            <option>Female</option>
+          </select>
 
-        <select name="gender" value={form.gender} onChange={handleChange}>
-          <option>Male</option>
-          <option>Female</option>
-        </select>
-      </div>
+          <label>Birthdate</label>
+          <input
+            type="date"
+            name="dateOfBirth"
+            value={form.dateOfBirth}
+            onChange={handleChange}
+          />
 
-      <div className="profile-section">
-        <h3>Change Password</h3>
+          <label>Phone</label>
+          <input name="phone" value={form.phone} onChange={handleChange} />
 
-        <input
-          type="password"
-          name="password"
-          placeholder="New password"
-          onChange={handleChange}
-        />
-
-        <input
-          type="password"
-          name="confirmPassword"
-          placeholder="Confirm password"
-          onChange={handleChange}
-        />
-      </div>
+          <label>Identity ID</label>
+          <input value={form.identityId} disabled />
+        </div>
+      )}
 
       <div className="profile-buttons">
         <button className="btn-save" onClick={handleSave}>
-          Save Changes
+          Save
         </button>
 
         <button className="btn-cancel" onClick={() => setEditMode(false)}>
