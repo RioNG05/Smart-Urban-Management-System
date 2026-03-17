@@ -8,6 +8,7 @@ import java.math.BigDecimal;
 @Entity
 @Table(name = "StayAtHistory")
 @Getter @Setter @NoArgsConstructor @AllArgsConstructor
+@Builder
 public class StayAtHistory {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
