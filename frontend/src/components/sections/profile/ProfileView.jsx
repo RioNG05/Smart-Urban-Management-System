@@ -1,6 +1,10 @@
 export default function ProfileView({ account, resident, setEditMode }) {
   if (!account) return null;
 
+  const rawRoleName = account?.role?.roleName || "USER";
+  const roleName = rawRoleName.toUpperCase();
+  const isResident = roleName === "RESIDENT";
+
   return (
     <div className="profile-card">
       <h1>Profile</h1>
@@ -17,11 +21,11 @@ export default function ProfileView({ account, resident, setEditMode }) {
         </p>
 
         <p>
-          <b>Role:</b> {account.role}
+          <b>Role:</b> {rawRoleName}
         </p>
       </div>
 
-      {account.role === "RESIDENT" && resident && (
+      {isResident && resident && (
         <div className="profile-section">
           <h3>Personal Information</h3>
 
@@ -36,13 +40,19 @@ export default function ProfileView({ account, resident, setEditMode }) {
           <p>
             <b>Birthdate:</b> {resident.dateOfBirth}
           </p>
-
-          <p>
-            <b>Phone:</b> {resident.phone}
-          </p>
-
           <p>
             <b>Identity ID:</b> {resident.identityId}
+          </p>
+        </div>
+      )}
+
+      {!isResident && (
+        <div className="profile-section profile-note">
+          <h3>Personal Information</h3>
+          <p>
+            Your account information is available above. A dedicated personal
+            profile for the role <b>{rawRoleName}</b> has not been provided by the
+            backend yet.
           </p>
         </div>
       )}

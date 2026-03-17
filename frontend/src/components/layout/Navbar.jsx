@@ -14,6 +14,7 @@ export default function Navbar({ solid = false }) {
   const menuRef = useRef(null);
 
   const { token, user, role, logout, isAuthenticated } = useAuth();
+  const displayRole = user?.role?.roleName || role;
 
   const handleScroll = useCallback(() => {
     setScrolled(window.scrollY > 50);
@@ -93,12 +94,12 @@ export default function Navbar({ solid = false }) {
 
                       {role && (
                         <span className={`role-badge ${role}`}>
-                          {role.toUpperCase()}
+                          {displayRole}
                         </span>
                       )}
                     </div>
 
-                    {role && role === "RESIDENT" && (
+                    {role === "RESIDENT" && (
                       <div
                         className="dropdown-item"
                         onClick={() => navigate("/dashboard")}
@@ -106,7 +107,7 @@ export default function Navbar({ solid = false }) {
                         Dashboard
                       </div>
                     )}
-                    {role && role === "RESIDENT" && (
+                    {role === "RESIDENT" && (
                       <div
                         className="dropdown-item"
                         onClick={() => navigate("/billing")}

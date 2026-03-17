@@ -11,6 +11,8 @@ export function AuthProvider({ children }) {
     return stored ? JSON.parse(stored) : null;
   });
 
+  const normalizedRole = user?.role?.roleName?.toUpperCase() || null;
+
   useEffect(() => {
     if (!token) return;
 
@@ -48,7 +50,7 @@ export function AuthProvider({ children }) {
       value={{
         token,
         user,
-        role: user?.role?.roleName,
+        role: normalizedRole,
         isAuthenticated: !!token,
         login,
         logout,

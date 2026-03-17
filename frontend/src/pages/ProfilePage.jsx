@@ -27,17 +27,29 @@ export default function ProfilePage() {
   const loadAccount = async () => {
     try {
       const acc = await getMyAccount();
-      const profile = await getMyProfile();
+      const roleName = acc?.role?.roleName?.toUpperCase();
 
       if (!acc) return;
 
       setAccount({
+        id: acc.id,
         email: acc.email || "",
         username: acc.username || "",
-        role: acc?.role?.roleName || "USER",
+        role: acc?.role || null,
+        isActive: acc?.isActive ?? true,
       });
 
-      setResident(profile || null);
+      if (roleName === "RESIDENT") {
+        try {
+          const profile = await getMyProfile();
+          setResident(profile || null);
+        } catch (profileErr) {
+          console.error(profileErr);
+          setResident(null);
+        }
+      } else {
+        setResident(null);
+      }
     } catch (err) {
       console.error(err);
     }
@@ -62,7 +74,10 @@ export default function ProfilePage() {
             ) : (
               <ProfileEdit
                 account={account}
+                resident={resident}
                 setAccount={setAccount}
+                setResident={setResident}
+                loadAccount={loadAccount}
                 setEditMode={setEditMode}
               />
             )}

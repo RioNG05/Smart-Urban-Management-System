@@ -16,7 +16,12 @@ import BillingPage from "../pages/BillingPage";
 
 // --- ADMIN SYSTEM ---
 import { AdminLayout, AdminDashboard } from "../admin/AdminCore";
-import { AdminRoleManager, AdminLockResident, AdminCreateContract, AdminPropertyManager } from "../admin/AdminManagement";
+import {
+  AdminRoleManager,
+  AdminLockResident,
+  AdminCreateContract,
+  AdminPropertyManager,
+} from "../admin/AdminManagement";
 import AdminReports from "../admin/AdminReports";
 import AdminAccountLock from "../admin/AdminAccountLock";
 
@@ -35,14 +40,7 @@ export default function AppRoutes() {
         <Route path="/billing" element={<BillingPage />} />
 
         {/* SECURE PAGES */}
-        <Route
-          path="/market"
-          element={
-            <PrivateRoute roles={["resident", "staff", "admin"]}>
-              <MarketPage />
-            </PrivateRoute>
-          }
-        />
+        <Route path="/market" element={<MarketPage />} />
         <Route
           path="/product/:id"
           element={
@@ -59,14 +57,7 @@ export default function AppRoutes() {
             </PrivateRoute>
           }
         />
-        <Route
-          path="/profile"
-          element={
-            <PrivateRoute roles={["resident", "staff", "admin"]}>
-              <Profile />
-            </PrivateRoute>
-          }
-        />
+        <Route path="/profile" element={<Profile />} />
         <Route path="/unauthorized" element={<Unauthorized />} />
 
         {/* --- ADMIN SYSTEM --- */}
@@ -79,7 +70,10 @@ export default function AppRoutes() {
           <Route path="reports/revenue" element={<AdminReports />} />
           <Route path="reports/residents" element={<AdminReports />} />
           <Route path="reports/payments" element={<AdminReports />} />
-          <Route path="account-lock" element={<AdminAccountLock title="General Accounts" />} />
+          <Route
+            path="account-lock"
+            element={<AdminAccountLock title="General Accounts" />}
+          />
         </Route>
 
         {/* --- STAFF SYSTEM --- */}
