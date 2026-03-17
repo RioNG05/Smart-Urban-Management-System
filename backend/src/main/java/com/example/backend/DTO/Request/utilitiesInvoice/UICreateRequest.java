@@ -12,12 +12,10 @@ import java.math.BigDecimal;
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class UICreateRequest {
-    Apartment apartment;
+    Integer apartmentId;
     Integer billingMonth;
     Integer billingYear;
     Integer totalElectricUsed;
     Integer totalWaterUsed;
     Integer status = 0;
-
-
 }

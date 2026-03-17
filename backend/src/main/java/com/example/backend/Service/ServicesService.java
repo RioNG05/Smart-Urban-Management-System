@@ -64,4 +64,8 @@ public class ServicesService {
         findById(id);
         repository.deleteById(id);
     }
+
+    public Services findByServiceCode(String serviceCode){
+        return repository.findByServiceCode(serviceCode).orElseThrow(() -> new RuntimeException("Không thấy dịch vụ với mã: " + serviceCode));
+    }
 }
