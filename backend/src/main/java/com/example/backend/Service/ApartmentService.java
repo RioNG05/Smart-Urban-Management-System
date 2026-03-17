@@ -4,7 +4,9 @@ import com.example.backend.DTO.Request.apartment.ApartmentCreateRequest;
 import com.example.backend.DTO.Request.apartment.ApartmentUpdateRequest;
 import com.example.backend.Entity.Apartment;
 import com.example.backend.Entity.ApartmentType;
+import com.example.backend.Entity.Contract;
 import com.example.backend.Repository.ApartmentRepository;
+import com.example.backend.Repository.ContractRepository;
 import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Optional;
@@ -14,10 +16,12 @@ public class ApartmentService {
 
     private final ApartmentRepository repository;
     private final ApartmentTypeService apartmentTypeService;
+    private final ContractRepository contractRepository;
 
-    public ApartmentService(ApartmentRepository repository, ApartmentTypeService apartmentTypeService) {
+    public ApartmentService(ApartmentRepository repository, ApartmentTypeService apartmentTypeService, ContractRepository contractRepository) {
         this.repository = repository;
         this.apartmentTypeService = apartmentTypeService;
+        this.contractRepository = contractRepository;
     }
 
     public List<Apartment> findAll() {
@@ -68,5 +72,13 @@ public class ApartmentService {
     public void delete(Integer id) {
         findById(id);
         repository.deleteById(id);
+    }
+    public boolean isOwned(Integer apartmentId){
+        Contract contract = contractRepository.findByApartmentId(apartmentId).orElseThrow(() ->new RuntimeException("Không tìm thấy hợp đồng căn hộ có id: " + apartmentId));
+        if(contract.getStatus() == 1){
+            return true;
+        }
+
+        return false;
     }
 }
