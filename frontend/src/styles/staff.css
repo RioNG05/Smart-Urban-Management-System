@@ -293,6 +293,7 @@
 }
 
 /* Hiệu ứng mượt khi chuyển Tab */
+.staff-tab-content,
 .staff-account-management {
     animation: slideUp 0.4s ease-out;
 }

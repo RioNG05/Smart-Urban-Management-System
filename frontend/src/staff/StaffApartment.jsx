@@ -126,9 +126,6 @@ const StaffApartment = () => {
                     <div className={`staff-nav-item ${activeTab === 'complaints' ? 'active' : ''}`} onClick={() => setActiveTab('complaints')}>
                         <FaComments /> {sidebarOpen && "Complaints & Replies"}
                     </div>
-                    <div className="staff-nav-item" onClick={() => navigate('/news')}>
-                        <FaNewspaper /> {sidebarOpen && "News Manager"}
-                    </div>
                     <div className={`staff-nav-item ${activeTab === 'apartment_management' ? 'active' : ''}`} onClick={() => { setActiveTab('apartment_management'); setSelectedComplaint(null) }}>
                         <FaBuilding /> {sidebarOpen && "Apartment Management"}
                     </div>
@@ -137,6 +134,9 @@ const StaffApartment = () => {
                     </div>
                     <div className={`staff-nav-item ${activeTab === 'appointments' ? 'active' : ''}`} onClick={() => setActiveTab('appointments')}>
                         <FaCalendarCheck /> {sidebarOpen && "Appointments"}
+                    </div>
+                    <div className="staff-nav-item" onClick={() => navigate('/news')}>
+                        <FaNewspaper /> {sidebarOpen && "News Manager"}
                     </div>
                 </nav>
             </aside>
