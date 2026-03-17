@@ -1383,6 +1383,41 @@ CREATE TABLE Apartments (
     CONSTRAINT FK_Apartments_Types FOREIGN KEY (ApartmentTypeId) REFERENCES ApartmentTypes(Id)
 );
 
+--thêm data
+DECLARE @Floor INT = 1;
+DECLARE @RoomIndex INT;
+
+WHILE @Floor <= 10
+BEGIN
+    SET @RoomIndex = 1;
+    WHILE @RoomIndex <= 12
+    BEGIN
+        INSERT INTO Apartments (RoomNumber, FloorNumber, Direction, Status, ApartmentTypeId)
+        VALUES (
+            (@Floor * 100) + @RoomIndex, -- RoomNumber: 101, 102... 201, 202...
+            @Floor,                      -- FloorNumber
+            CASE 
+                WHEN @RoomIndex % 4 = 1 THEN N'Đông Nam'
+                WHEN @RoomIndex % 4 = 2 THEN N'Tây Bắc'
+                WHEN @RoomIndex % 4 = 3 THEN N'Tây Nam'
+                ELSE N'Đông Bắc'
+            END,                         -- Direction (Xoay vòng hướng)
+            CASE 
+                WHEN @RoomIndex % 3 = 0 THEN 1 
+                ELSE 0 
+            END,                         -- Status (Mix ngẫu nhiên 0 và 1)
+            CASE 
+                WHEN @RoomIndex BETWEEN 1 AND 3 THEN 1 -- Căn 01, 02, 03: Loại Studio
+                WHEN @RoomIndex BETWEEN 4 AND 6 THEN 2 -- Căn 04, 05, 06: Loại 1PN
+                WHEN @RoomIndex BETWEEN 7 AND 9 THEN 3 -- Căn 07, 08, 09: Loại 2PN
+                ELSE 4                                 -- Căn 10, 11, 12: Loại 3PN
+            END                          -- ApartmentTypeId (Cố định theo số đuôi phòng)
+        );
+        SET @RoomIndex = @RoomIndex + 1;
+    END
+    SET @Floor = @Floor + 1;
+END
+GO
 
 
 -- 15 apartment utilities invoice
@@ -1568,18 +1603,20 @@ CREATE TABLE Expenses (
     CONSTRAINT FK_Expenses_Creator FOREIGN KEY (CreatedBy) REFERENCES Accounts(Id)
 );
 
---23 bảng fake monitoring, thực ra là theo dõi lần cuối add 
--- cái số được tăng sẽ random ở trong BE nhé, chứ t đéo biết :))) oghe ? s
+-- Bảng 23 IoT_Sync_Logs
 CREATE TABLE IoT_Sync_Logs (
     Id INT IDENTITY(1,1) PRIMARY KEY,
     
-    -- Liên kết với hóa đơn hoặc căn hộ
-    UtilitiesInvoiceId INT NOT NULL, 
-    
-    -- Mốc thời gian cuối cùng đã fake dữ liệu
-    LastMomentAdd DATETIME NOT NULL, 
-    
-    -- Chỉ số cuối cùng (Để lần sau cộng dồn tiếp từ đây)
-    CONSTRAINT FK_IoT_Invoice FOREIGN KEY (UtilitiesInvoiceId) REFERENCES UtilitiesInvoices(Id)
-);
+    -- Căn hộ được ghi log
+    ApartmentId INT NOT NULL, 
 
+    -- Chỉ số chốt cuối ngày (BE lấy số cũ + random tăng thêm)
+    ElectricityEndNum DECIMAL(10, 2) NOT NULL, 
+    WaterEndNum DECIMAL(10, 2) NOT NULL,
+
+    -- Ngày ghi log
+    LogDate DATETIME DEFAULT GETDATE(),
+
+    -- Ràng buộc khóa ngoại
+    CONSTRAINT FK_IoT_Apartment FOREIGN KEY (ApartmentId) REFERENCES Apartments(Id)
+);

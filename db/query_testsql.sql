@@ -18,3 +18,5 @@ FROM authorities a
 JOIN Permissions p ON p.Id = a.PermissionId 
 JOIN Roles ON Roles.Id = a.RoleId
 ORDER BY a.Id ASC; -- ASC là thấp -> cao (mặc định), DESC là cao -> thấp
+
+select * from Apartments
