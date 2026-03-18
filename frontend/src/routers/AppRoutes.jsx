@@ -11,6 +11,7 @@ import NewsDetailPage from "../pages/NewsDetailPage";
 import Unauthorized from "../pages/Unauthorized";
 import Profile from "../pages/ProfilePage";
 import ServicePage from "../pages/ServicePage";
+import ContactPage from "../pages/ContactPage";
 import PrivateRoute from "./PrivateRoute";
 import BillingPage from "../pages/BillingPage";
 
@@ -62,7 +63,7 @@ export default function AppRoutes() {
           }
         />
         <Route
-          path="/service"
+          path="/services"
           element={
             <PrivateRoute roles={["resident", "staff", "admin"]}>
               <ServicePage />
