@@ -21,13 +21,71 @@ const StaffApartmentMainContent = ({
 
   const mockHistories = [
     { id: 1, name: "Nguyen Van A", room: "A-505", checkIn: "01/01/2025", checkOut: "Present", status: "Active" },
-    { id: 2, name: "Nguyen Van B", room: "B-101", checkIn: "15/06/2024", checkOut: "28/02/2026", status: "Moved Out" }
+    { id: 2, name: "Minh Son Thanh", room: "B-101", checkIn: "15/06/2024", checkOut: "28/02/2026", status: "Moved Out" },
+    { id: 3, name: "Tran Van C", room: "C-202", checkIn: "10/03/2025", checkOut: "Present", status: "Active" },
+    { id: 4, name: "Le Thi D", room: "A-1204", checkIn: "20/12/2024", checkOut: "Present", status: "Active" },
+    { id: 5, name: "Pham Van E", room: "D-808", checkIn: "05/01/2024", checkOut: "30/11/2025", status: "Moved Out" },
+    { id: 6, name: "Le Thi Mai", room: "A-102", checkIn: "12/02/2025", checkOut: "Present", status: "Active" },
+    { id: 7, name: "Nguyen Van Dung", room: "B-304", checkIn: "25/03/2024", checkOut: "Present", status: "Active" },
+    { id: 8, name: "Trinh Thi Hoa", room: "C-1102", checkIn: "14/05/2025", checkOut: "Present", status: "Active" },
+    { id: 9, name: "An Ngoc Tuan", room: "D-1506", checkIn: "10/08/2024", checkOut: "Present", status: "Active" },
+    { id: 10, name: "Phan Hoang Linh", room: "A-703", checkIn: "01/09/2025", checkOut: "Present", status: "Active" },
+    { id: 11, name: "Bui Quoc Thanh", room: "B-910", checkIn: "15/10/2024", checkOut: "Present", status: "Active" },
+    { id: 12, name: "Ngo Thu Quynh", room: "C-405", checkIn: "20/11/2024", checkOut: "Present", status: "Active" },
+    { id: 13, name: "Do Van Dat", room: "D-1201", checkIn: "05/12/2025", checkOut: "Present", status: "Active" },
+    { id: 14, name: "Hoang Thi Yen", room: "A-312", checkIn: "18/01/2025", checkOut: "Present", status: "Active" },
+    { id: 15, name: "Pham Quoc Khanh", room: "B-508", checkIn: "10/02/2024", checkOut: "Present", status: "Active" },
+    { id: 16, name: "Phan Thu Ngoc", room: "C-801", checkIn: "01/03/2025", checkOut: "Present", status: "Active" },
+    { id: 17, name: "Hoang Van Long", room: "D-203", checkIn: "15/04/2024", checkOut: "Present", status: "Active" },
+    { id: 18, name: "Nguyen Thu Trang", room: "A-1405", checkIn: "20/05/2025", checkOut: "Present", status: "Active" },
+    { id: 19, name: "Nguyen Huu Thang", room: "B-702", checkIn: "05/06/2024", checkOut: "Present", status: "Active" },
+    { id: 20, name: "Tran Thi Diem", room: "C-1204", checkIn: "12/07/2025", checkOut: "Present", status: "Active" },
+    { id: 21, name: "Vu Quoc Binh", room: "D-510", checkIn: "25/08/2024", checkOut: "Present", status: "Active" },
+    { id: 22, name: "Ha Thi Thu", room: "A-908", checkIn: "14/09/2025", checkOut: "Present", status: "Active" },
+    { id: 23, name: "Nguyen Minh Quan", room: "B-1005", checkIn: "01/10/2024", checkOut: "Present", status: "Active" },
+    { id: 24, name: "Truong Thi Vy", room: "C-306", checkIn: "15/11/2025", checkOut: "Present", status: "Active" },
+    { id: 25, name: "Dang Hoang Phuc", room: "D-111", checkIn: "20/12/2024", checkOut: "Present", status: "Active" },
+    { id: 26, name: "Bui Thi An", room: "A-607", checkIn: "05/01/2025", checkOut: "Present", status: "Active" },
+    { id: 27, name: "Tran Van Minh", room: "B-212", checkIn: "18/02/2024", checkOut: "Present", status: "Active" },
+    { id: 28, name: "Do Kim Huong", room: "C-1502", checkIn: "10/03/2025", checkOut: "Present", status: "Active" },
+    { id: 29, name: "Pham Van Thinh", room: "D-404", checkIn: "01/04/2024", checkOut: "Present", status: "Active" },
+    { id: 30, name: "Trinh Thu Giang", room: "A-1210", checkIn: "15/05/2025", checkOut: "Present", status: "Active" }
   ];
+
 
   const mockAppointments = [
     { id: 1, resident: "Nguyen Van A", room: "C-202", date: "18/03/2026", time: "14:30", type: "Ownership Title Procedure", status: "Upcoming" },
-    { id: 2, resident: "Nguyen Van B", room: "A-505", date: "19/03/2026", time: "09:00", type: "Residency Registration", status: "Upcoming" }
+    { id: 2, resident: "Minh Son Thanh", room: "A-505", date: "19/03/2026", time: "09:00", type: "Residency Registration", status: "Upcoming" },
+    { id: 3, resident: "Tran Van C", room: "B-101", date: "20/03/2026", time: "11:00", type: "Contract Signing", status: "Upcoming" },
+    { id: 4, resident: "Le Thi D", room: "D-808", date: "21/03/2026", time: "15:00", type: "Renovation Request", status: "Upcoming" },
+    { id: 5, resident: "Pham Van E", room: "A-1204", date: "22/03/2026", time: "10:30", type: "Key Handover", status: "Completed" },
+    { id: 6, resident: "Le Thi Mai", room: "A-102", date: "23/03/2026", time: "08:00", type: "Parking Slot Registration", status: "Upcoming" },
+    { id: 7, resident: "Nguyen Van Dung", room: "B-304", date: "23/03/2026", time: "14:00", type: "Internet Setup", status: "Upcoming" },
+    { id: 8, resident: "Trinh Thi Hoa", room: "C-1102", date: "24/03/2026", time: "09:30", type: "Maintenance Feedback", status: "Upcoming" },
+    { id: 9, resident: "An Ngoc Tuan", room: "D-1506", date: "24/03/2026", time: "16:00", type: "Move-in Inspection", status: "Upcoming" },
+    { id: 10, resident: "Phan Hoang Linh", room: "A-703", date: "25/03/2026", time: "11:00", type: "Service Fee Inquiry", status: "Upcoming" },
+    { id: 11, resident: "Bui Quoc Thanh", room: "B-910", date: "25/03/2026", time: "15:30", type: "Utility Meter Check", status: "Upcoming" },
+    { id: 12, resident: "Ngo Thu Quynh", room: "C-405", date: "26/03/2026", time: "10:00", type: "Pet Registration", status: "Upcoming" },
+    { id: 13, resident: "Do Van Dat", room: "D-1201", date: "26/03/2026", time: "13:30", type: "Security Pass Issuance", status: "Upcoming" },
+    { id: 14, resident: "Hoang Thi Yen", room: "A-312", date: "27/03/2026", time: "09:00", type: "Furniture Delivery Access", status: "Upcoming" },
+    { id: 15, resident: "Pham Quoc Khanh", room: "B-508", date: "27/03/2026", time: "14:30", type: "Elevator Booking", status: "Upcoming" },
+    { id: 16, resident: "Phan Thu Ngoc", room: "C-801", date: "28/03/2026", time: "11:00", type: "Balcony Safety Check", status: "Upcoming" },
+    { id: 17, resident: "Hoang Van Long", room: "D-203", date: "28/03/2026", time: "16:15", type: "Fire Alarm Testing", status: "Upcoming" },
+    { id: 18, resident: "Nguyen Thu Trang", room: "A-1405", date: "29/03/2026", time: "10:00", type: "Guest Pre-registration", status: "Upcoming" },
+    { id: 19, resident: "Nguyen Huu Thang", room: "B-702", date: "29/03/2026", time: "15:00", type: "Pool Membership Renew", status: "Upcoming" },
+    { id: 20, resident: "Tran Thi Diem", room: "C-1204", date: "30/03/2026", time: "08:45", type: "Kitchen Leak Inspection", status: "Upcoming" },
+    { id: 21, resident: "Vu Quoc Binh", room: "D-510", date: "30/03/2026", time: "13:00", type: "Intercom Repair", status: "Upcoming" },
+    { id: 22, resident: "Ha Thi Thu", room: "A-908", date: "31/03/2026", time: "09:30", type: "AC Maintenance", status: "Upcoming" },
+    { id: 23, resident: "Nguyen Minh Quan", room: "B-1005", date: "31/03/2026", time: "14:00", type: "Door Lock Upgrade", status: "Upcoming" },
+    { id: 24, resident: "Truong Thi Vy", room: "C-306", date: "01/04/2026", time: "10:30", type: "Smart Home Integration", status: "Upcoming" },
+    { id: 25, resident: "Dang Hoang Phuc", room: "D-111", date: "01/04/2026", time: "16:00", type: "Bicycle Room Access", status: "Upcoming" },
+    { id: 26, resident: "Bui Thi An", room: "A-607", date: "02/04/2026", time: "11:15", type: "Pest Control Visit", status: "Upcoming" },
+    { id: 27, resident: "Tran Van Minh", room: "B-212", date: "02/04/2026", time: "15:45", type: "Window Cleaning", status: "Upcoming" },
+    { id: 28, resident: "Do Kim Huong", room: "C-1502", date: "03/04/2026", time: "09:00", type: "E-invoice Setup", status: "Upcoming" },
+    { id: 29, resident: "Pham Van Thinh", room: "D-404", date: "03/04/2026", time: "13:30", type: "Gym Personal Trainer", status: "Upcoming" },
+    { id: 30, resident: "Trinh Thu Giang", room: "A-1210", date: "04/04/2026", time: "10:00", type: "Community Garden Slot", status: "Upcoming" }
   ];
+
 
   const [selectedApartment, setSelectedApartment] = React.useState(null);
   const [expandedHistoryId, setExpandedHistoryId] = React.useState(null);
@@ -81,12 +139,24 @@ const StaffApartmentMainContent = ({
           <div className="staff-form-container" style={{ borderLeft: '5px solid #c89b3c' }}>
             <h3><FaUserPlus /> {editIndex !== null ? "Edit Resident Account" : "Issue New Resident Account"}</h3>
             <div className="staff-grid" style={{ marginTop: '20px' }}>
-              <div className="form-group"><label>Username</label><input type="text" value={formData.username} onChange={(e) => setFormData({ ...formData, username: e.target.value })} /></div>
-              <div className="form-group"><label>Password</label><input type="password" value={formData.password} onChange={(e) => setFormData({ ...formData, password: e.target.value })} /></div>
-              <div className="form-group"><label>Owner Name</label><input type="text" value={formData.owner} onChange={(e) => setFormData({ ...formData, owner: e.target.value })} /></div>
-              <div className="form-group"><label>Date of Birth</label><input type="date" value={formData.dob} onChange={(e) => setFormData({ ...formData, dob: e.target.value })} /></div>
-              <div className="form-group"><label>Date Added</label><input type="date" value={formData.dateAdded} onChange={(e) => setFormData({ ...formData, dateAdded: e.target.value })} /></div>
-              <div className="form-group"><label>Apartment No.</label><input type="text" value={formData.room} onChange={(e) => setFormData({ ...formData, room: e.target.value })} /></div>
+              <div className="form-group"><label>OWNER NAME</label><input type="text" value={formData.owner} onChange={(e) => setFormData({ ...formData, owner: e.target.value })} /></div>
+              <div className="form-group"><label>ID CARD / PASSPORT</label><input type="text" value={formData.idCard} onChange={(e) => setFormData({ ...formData, idCard: e.target.value })} placeholder="Enter ID number" /></div>
+              <div className="form-group"><label>USERNAME</label><input type="text" value={formData.username} onChange={(e) => setFormData({ ...formData, username: e.target.value })} /></div>
+              <div className="form-group">
+                <label>GENDER</label>
+                <select
+                  value={formData.gender}
+                  onChange={(e) => setFormData({ ...formData, gender: e.target.value })}
+                  style={{ padding: '10px', borderRadius: '8px', border: '1.5px solid #e2e8f0', outline: 'none' }}
+                >
+                  <option value="">Select Gender</option>
+                  <option value="Male">Male</option>
+                  <option value="Female">Female</option>
+                  <option value="Other">Other</option>
+                </select>
+              </div>
+              <div className="form-group"><label>DATE OF BIRTH</label><input type="date" value={formData.dob} onChange={(e) => setFormData({ ...formData, dob: e.target.value })} /></div>
+              <div className="form-group"><label>APARTMENT NO.</label><input type="text" value={formData.room} onChange={(e) => setFormData({ ...formData, room: e.target.value })} /></div>
             </div>
             <button className="btn-add-resident" style={{ marginTop: '20px', background: editIndex !== null ? '#f59e0b' : '#c89b3c' }} onClick={handleAddAccount}>
               {editIndex !== null ? "CONFIRM UPDATE" : "ISSUE ACCOUNT"}
@@ -95,10 +165,11 @@ const StaffApartmentMainContent = ({
 
           <div className="staff-form-container" style={{ marginTop: '30px' }}>
             <h3>Issued Accounts List</h3>
+          <div className="staff-table-scroll">
             <table className="admin-custom-table bordered">
               <thead>
                 <tr>
-                  <th>Username</th><th>Owner</th><th>Apartment</th><th>DOB</th><th>Date Issued</th>
+                  <th>Username</th><th>Owner</th><th>Apartment</th><th>Gender</th><th>DOB</th><th>ID Card</th>
                   <th style={{ textAlign: 'center' }}>Action</th>
                 </tr>
               </thead>
@@ -106,7 +177,7 @@ const StaffApartmentMainContent = ({
                 {residentAccounts.length > 0 ? residentAccounts.map((acc, index) => (
                   <tr key={index}>
                     <td><strong>{acc.username}</strong></td>
-                    <td>{acc.owner}</td><td>{acc.room}</td><td>{acc.dob}</td><td>{acc.dateAdded}</td>
+                    <td>{acc.owner}</td><td>{acc.room}</td><td>{acc.gender}</td><td>{acc.dob}</td><td>{acc.idCard}</td>
                     <td>
                       <div style={{ display: 'flex', justifyContent: 'center', gap: '10px' }}>
                         <button className="btn-table-edit" onClick={() => handleEdit(index)}><FaUserEdit /></button>
@@ -120,6 +191,8 @@ const StaffApartmentMainContent = ({
               </tbody>
             </table>
           </div>
+
+          </div>
         </div>
       )}
 
@@ -129,36 +202,38 @@ const StaffApartmentMainContent = ({
           {!selectedComplaint ? (
             <div className="staff-form-container">
               <h3>Resident Complaints List</h3>
-              <table className="admin-custom-table bordered" style={{ marginTop: '20px' }}>
-                <thead>
-                  <tr>
-                    <th>No.</th>
-                    <th>Time</th>
-                    <th>Resident Name</th>
-                    <th>Apartment</th>
-                    <th>Complaint Content</th>
-                    <th style={{ textAlign: 'center' }}>Action</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {complaints.map((c, idx) => (
-                    <tr key={c.id}>
-                      <td>{idx + 1}</td>
-                      <td style={{ fontSize: '12px', color: '#64748b' }}><FaClock style={{ marginRight: '5px' }} />{c.time}</td>
-                      <td><strong>{c.name}</strong></td>
-                      <td>{c.room}</td>
-                      <td>{c.note}</td>
-                      <td>
-                        <div style={{ display: 'flex', justifyContent: 'center', gap: '8px' }}>
-                          <button className="btn-reply-main" onClick={() => setSelectedComplaint(c)}><FaReply /> Reply</button>
-                          <button className="btn-approve-mini" onClick={() => handleAction(c.id, 'Approved')}><FaCheck /></button>
-                          <button className="btn-reject-mini" onClick={() => handleAction(c.id, 'Rejected')}><FaTimes /></button>
-                        </div>
-                      </td>
+              <div className="staff-table-scroll">
+                <table className="admin-custom-table bordered" style={{ marginTop: '20px' }}>
+                  <thead>
+                    <tr>
+                      <th>No.</th>
+                      <th>Time</th>
+                      <th>Resident Name</th>
+                      <th>Apartment</th>
+                      <th>Complaint Content</th>
+                      <th style={{ textAlign: 'center' }}>Action</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody>
+                    {complaints.map((c, idx) => (
+                      <tr key={c.id}>
+                        <td>{idx + 1}</td>
+                        <td style={{ fontSize: '12px', color: '#64748b' }}><FaClock style={{ marginRight: '5px' }} />{c.time}</td>
+                        <td><strong>{c.name}</strong></td>
+                        <td>{c.room}</td>
+                        <td>{c.note}</td>
+                        <td>
+                          <div style={{ display: 'flex', justifyContent: 'center', gap: '8px' }}>
+                            <button className="btn-reply-main" onClick={() => setSelectedComplaint(c)}><FaReply /> Reply</button>
+                            <button className="btn-approve-mini" onClick={() => handleAction(c.id, 'Approved')}><FaCheck /></button>
+                            <button className="btn-reject-mini" onClick={() => handleAction(c.id, 'Rejected')}><FaTimes /></button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             </div>
           ) : (
             <div className="staff-reply-detail-page">
@@ -171,7 +246,7 @@ const StaffApartmentMainContent = ({
                 <div style={{ background: '#f1f5f9', padding: '15px', borderRadius: '8px', fontStyle: 'italic', marginBottom: '20px', borderLeft: '4px solid #cbd5e0' }}>
                   "{selectedComplaint.note}"
                 </div>
-                <label><strong>Staff Response Note:</strong></label>
+                <label><strong>STAFF RESPONSE NOTE:</strong></label>
                 <textarea
                   style={{ width: '100%', height: '120px', marginTop: '10px', padding: '15px', borderRadius: '8px', border: '1px solid #e2e8f0', outline: 'none', fontFamily: 'inherit' }}
                   placeholder="Enter response to resident..."

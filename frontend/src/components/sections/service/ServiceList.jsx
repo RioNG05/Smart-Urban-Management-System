@@ -52,6 +52,30 @@ const dummyServices = [
     title: "BBQ Park",
     desc: "Dedicated outdoor BBQ areas equipped with grills, seating, and scenic views—perfect for weekend family and friend gather-ups.",
     image: "https://vinhomebysalereal.vn/wp-content/uploads/2024/08/khu-bbq-garden-vinhomes-ocean-park-3.jpg",
+  },
+  {
+    id: 9,
+    title: "Tennis Court",
+    desc: "Professional-grade tennis courts with high-quality surfaces and night lighting for enthusiasts and casual players.",
+    image: "https://congchungnguyenhue.com/Uploaded/Images/Original/2024/01/21/khu-do-thi-viet-hung-5_2101080916.jpg",
+  },
+  {
+    id: 10,
+    title: "Golf Course",
+    desc: "Premium mini-golf courses and putting greens designed for both practice and leisure in a beautifully landscaped setting.",
+    image: "https://images.unsplash.com/photo-1535131749006-b7f58c99034b",
+  },
+  {
+    id: 11,
+    title: "Sauna & Spa",
+    desc: "Relax and rejuvenate with our luxury sauna and spa facilities, offering a range of wellness treatments and tranquil environments.",
+    image: "https://vccinews.vn/upload/photos/2026/1/large/vbf-202612210123d2y.jpg",
+  },
+  {
+    id: 12,
+    title: "Community Hall",
+    desc: "Spacious and versatile community halls for meetings, cultural events, and social gatherings among residents.",
+    image: "https://images.unsplash.com/photo-1517457373958-b7bdd4587205",
   }
 ];
 

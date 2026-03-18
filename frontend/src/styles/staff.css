@@ -192,9 +192,10 @@
 
 .staff-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    grid-template-columns: repeat(3, 1fr);
     gap: 20px;
 }
+
 
 
 /* ============================================================ */
@@ -554,3 +555,142 @@
     background: #e2e8f0;
     color: #0f172a;
 }
+
+/* ============================================================ */
+/* SECTION: STAFF SERVICE DASHBOARD ENHANCEMENTS */
+/* ============================================================ */
+
+/* SUB-FILTER TABS - ENHANCED */
+.staff-sub-nav {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 25px;
+    padding: 6px;
+    background: #f1f5f9;
+    border-radius: 12px;
+    width: fit-content;
+}
+
+.sub-nav-item {
+    background: transparent;
+    color: #64748b;
+    border: none;
+    padding: 10px 22px;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.sub-nav-item:hover {
+    color: #0f172a;
+    background: rgba(15, 23, 42, 0.05);
+}
+
+.sub-nav-item.active {
+    background: #ffffff;
+    color: #c89b3c;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+/* STATUS BADGES - PREMIUM */
+.status-badge {
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    white-space: nowrap;
+}
+
+.status-badge.approved { background: #ecfdf5; color: #059669; border: 1px solid #a7f3d0; }
+.status-badge.pending { background: #fffbeb; color: #d97706; border: 1px solid #fde68a; }
+.status-badge.denied { background: #fef2f2; color: #dc2626; border: 1px solid #fecaca; }
+.status-badge.paid { background: #f0fdf4; color: #166534; border: 1px solid #bbf7d0; min-width: 90px; justify-content: center; }
+.status-badge.unpaid { background: #fff1f2; color: #991b1b; border: 1px solid #fecdd3; min-width: 90px; justify-content: center; }
+
+/* SERVICE TAGS */
+.service-row-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: #475569;
+    font-weight: 600;
+}
+
+.service-row-item svg {
+    color: #c89b3c;
+    font-size: 1rem;
+}
+
+/* ACTION BUTTONS */
+.action-btn-circle {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    border: 1px solid #e2e8f0;
+    background: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.action-btn-circle.approve:hover {
+    background: #10b981;
+    color: white;
+    border-color: #10b981;
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);
+}
+
+.action-btn-circle.deny:hover {
+    background: #ef4444;
+    color: white;
+    border-color: #ef4444;
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2);
+}
+
+.action-processed-text {
+    color: #94a3b8;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* SCROLLABLE TABLE CONTAINER */
+.staff-table-scroll {
+    max-height: 480px;
+    overflow-y: auto;
+    padding-right: 5px;
+    margin-top: 15px;
+}
+
+/* Custom Scrollbar for a premium look */
+.staff-table-scroll::-webkit-scrollbar {
+    width: 6px;
+}
+
+.staff-table-scroll::-webkit-scrollbar-track {
+    background: #f1f5f9;
+    border-radius: 10px;
+}
+
+.staff-table-scroll::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 10px;
+}
+
+.staff-table-scroll::-webkit-scrollbar-thumb:hover {
+    background: #c89b3c;
+}
+
