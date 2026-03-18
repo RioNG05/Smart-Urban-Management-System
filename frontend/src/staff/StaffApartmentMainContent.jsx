@@ -140,7 +140,7 @@ const StaffApartmentMainContent = ({
             <h3><FaUserPlus /> {editIndex !== null ? "Edit Resident Account" : "Issue New Resident Account"}</h3>
             <div className="staff-grid" style={{ marginTop: '20px' }}>
               <div className="form-group"><label>OWNER NAME</label><input type="text" value={formData.owner} onChange={(e) => setFormData({ ...formData, owner: e.target.value })} placeholder="Enter owner name" /></div>
-              <div className="form-group"><label>ID CARD / PASSPORT</label><input type="text" value={formData.idCard} onChange={(e) => setFormData({ ...formData, idCard: e.target.value })} placeholder="Enter ID number" /></div>
+              <div className="form-group"><label>ID CARD / PASSPORT</label><input type="text" value={formData.idCard} onChange={(e) => setFormData({ ...formData, idCard: e.target.value })} placeholder="Enter 12-digit ID number" /></div>
               <div className="form-group"><label>USERNAME</label><input type="text" value={formData.username} onChange={(e) => setFormData({ ...formData, username: e.target.value })} placeholder="Enter username" /></div>
               <div className="form-group">
                 <label>GENDER</label>
@@ -179,10 +179,10 @@ const StaffApartmentMainContent = ({
                       <td><strong>{acc.username}</strong></td>
                       <td>{acc.owner}</td><td>{acc.room}</td><td>{acc.gender}</td><td>{acc.dob}</td><td>{acc.idCard}</td>
                       <td>
-                        <span style={{ 
-                          padding: '4px 8px', 
-                          borderRadius: '12px', 
-                          fontSize: '11px', 
+                        <span style={{
+                          padding: '4px 8px',
+                          borderRadius: '12px',
+                          fontSize: '11px',
                           fontWeight: 'bold',
                           background: acc.status === 'Blocked' ? '#fee2e2' : '#dcfce7',
                           color: acc.status === 'Blocked' ? '#ef4444' : '#10b981'
@@ -193,8 +193,8 @@ const StaffApartmentMainContent = ({
                       <td>
                         <div style={{ display: 'flex', justifyContent: 'center', gap: '10px' }}>
                           <button className="btn-table-edit" onClick={() => handleEdit(index)} title="Edit"><FaUserEdit /></button>
-                          <button 
-                            className={acc.status === 'Blocked' ? "btn-approve-mini" : "btn-reject-mini"} 
+                          <button
+                            className={acc.status === 'Blocked' ? "btn-approve-mini" : "btn-reject-mini"}
                             style={{ padding: '6px', fontSize: '14px' }}
                             onClick={() => handleToggleBlock(index)}
                             title={acc.status === 'Blocked' ? "Unblock Account" : "Block Account"}

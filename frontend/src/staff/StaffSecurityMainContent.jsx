@@ -8,42 +8,43 @@ import {
 const StaffSecurityMainContent = ({ activeTab }) => {
     // --- MOCK DATA FOR SECURITY ---
     const [visitors, setVisitors] = useState([
-        { id: 1, name: "Le Van C", idCard: "0123456789", purpose: "Visit A-505", checkIn: "08:30 - 17/03/2026", status: "Registered" },
-        { id: 2, name: "Pham Thi D", idCard: "9876543210", purpose: "Delivery", checkIn: "14:20 - 17/03/2026", status: "Registered" },
-        { id: 3, name: "Hoang Van E", idCard: "4567890123", purpose: "Maintenance", checkIn: "09:00 - 18/03/2026", status: "Registered" },
-        { id: 4, name: "Do Thi F", idCard: "7890123456", purpose: "Guest A-1204", checkIn: "10:30 - 18/03/2026", status: "Registered" },
-        { id: 5, name: "Nguyen Van G", idCard: "2345678901", purpose: "Visit B-101", checkIn: "11:15 - 18/03/2026", status: "Registered" },
-        { id: 6, name: "Tran Thi H", idCard: "3456789012", purpose: "Cleaning Service", checkIn: "13:00 - 18/03/2026", status: "Registered" },
-        { id: 7, name: "Le Van I", idCard: "4567890123", purpose: "Visit C-202", checkIn: "14:45 - 18/03/2026", status: "Registered" },
-        { id: 8, name: "Pham Van J", idCard: "5678901234", purpose: "Delivery Food", checkIn: "18:00 - 18/03/2026", status: "Registered" },
-        { id: 9, name: "Hoang Thi K", idCard: "6789012345", purpose: "Visit D-808", checkIn: "08:00 - 19/03/2026", status: "Registered" },
-        { id: 10, name: "Do Van L", idCard: "7890123456", purpose: "Maintenance AC", checkIn: "09:30 - 19/03/2026", status: "Registered" },
-        { id: 11, name: "Nguyen Thi M", idCard: "8901234567", purpose: "Guest B-702", checkIn: "10:45 - 19/03/2026", status: "Registered" },
-        { id: 12, name: "Tran Van N", idCard: "9012345678", purpose: "Visit A-1405", checkIn: "12:15 - 19/03/2026", status: "Registered" },
-        { id: 13, name: "Le Thi O", idCard: "0123456789", purpose: "Delivery Package", checkIn: "14:30 - 19/03/2026", status: "Registered" },
-        { id: 14, name: "Pham Van P", idCard: "1234567890", purpose: "Visit C-1204", checkIn: "16:00 - 19/03/2026", status: "Registered" },
-        { id: 15, name: "Hoang Van Q", idCard: "2345678901", purpose: "Guest D-510", checkIn: "19:30 - 19/03/2026", status: "Registered" },
-        { id: 16, name: "Do Thi R", idCard: "3456789012", purpose: "Visit A-908", checkIn: "08:45 - 20/03/2026", status: "Registered" },
-        { id: 17, name: "Nguyen Van S", idCard: "4567890123", purpose: "Maintenance Lift", checkIn: "10:00 - 20/03/2026", status: "Registered" },
-        { id: 18, name: "Tran Thi T", idCard: "5678901234", purpose: "Visit B-1005", checkIn: "11:30 - 20/03/2026", status: "Registered" },
-        { id: 19, name: "Le Van U", idCard: "6789012345", purpose: "Delivery Grab", checkIn: "13:45 - 20/03/2026", status: "Registered" },
-        { id: 20, name: "Pham Thi V", idCard: "7890123456", purpose: "Visit C-306", checkIn: "15:20 - 20/03/2026", status: "Registered" },
-        { id: 21, name: "Hoang Van W", idCard: "8901234567", purpose: "Visit D-111", checkIn: "17:10 - 20/03/2026", status: "Registered" },
-        { id: 22, name: "Do Van X", idCard: "9012345678", purpose: "Guest A-607", checkIn: "09:00 - 21/03/2026", status: "Registered" },
-        { id: 23, name: "Nguyen Thi Y", idCard: "0123456789", purpose: "Cleaning Service", checkIn: "10:30 - 21/03/2026", status: "Registered" },
-        { id: 24, name: "Tran Van Z", idCard: "1234567890", purpose: "Visit B-212", checkIn: "12:00 - 21/03/2026", status: "Registered" },
-        { id: 25, name: "Le Thi AA", idCard: "2345678901", purpose: "Visit C-1502", checkIn: "14:15 - 21/03/2026", status: "Registered" },
-        { id: 26, name: "Pham Van BB", idCard: "3456789012", purpose: "Delivery Lazada", checkIn: "16:45 - 21/03/2026", status: "Registered" },
-        { id: 27, name: "Hoang Thi CC", idCard: "4567890123", purpose: "Visit D-404", checkIn: "18:30 - 21/03/2026", status: "Registered" },
-        { id: 28, name: "Do Van DD", idCard: "5678901234", purpose: "Visit A-1210", checkIn: "08:15 - 22/03/2026", status: "Registered" },
-        { id: 29, name: "Nguyen Van EE", idCard: "6789012345", purpose: "Maintenance Fire", checkIn: "10:00 - 22/03/2026", status: "Registered" },
-        { id: 30, name: "Tran Thi FF", idCard: "7890123456", purpose: "Guest B-808", checkIn: "11:45 - 22/03/2026", status: "Registered" }
+        { id: 1, name: "Le Van C", idCard: "001095012345", phone: "0901234567", purpose: "Visit A-505", checkIn: "08:30 - 17/03/2026", status: "Registered" },
+        { id: 2, name: "Pham Thi D", idCard: "001092098765", phone: "0912345678", purpose: "Delivery", checkIn: "14:20 - 17/03/2026", status: "Registered" },
+        { id: 3, name: "Hoang Van E", idCard: "001088456123", phone: "0923456789", purpose: "Maintenance", checkIn: "09:00 - 18/03/2026", status: "Registered" },
+        { id: 4, name: "Do Thi F", idCard: "001090789456", phone: "0934567890", purpose: "Guest A-1204", checkIn: "10:30 - 18/03/2026", status: "Registered" },
+        { id: 5, name: "Nguyen Van G", idCard: "001094123450", phone: "0945678901", purpose: "Visit B-101", checkIn: "11:15 - 18/03/2026", status: "Registered" },
+        { id: 6, name: "Tran Thi H", idCard: "001085543216", phone: "0956789012", purpose: "Cleaning Service", checkIn: "13:00 - 18/03/2026", status: "Registered" },
+        { id: 7, name: "Le Van I", idCard: "001091678905", phone: "0967890123", purpose: "Visit C-202", checkIn: "14:45 - 18/03/2026", status: "Registered" },
+        { id: 8, name: "Pham Van J", idCard: "001089901234", phone: "0978901234", purpose: "Delivery Food", checkIn: "18:00 - 18/03/2026", status: "Registered" },
+        { id: 9, name: "Hoang Thi K", idCard: "001096234567", phone: "0989012345", purpose: "Visit D-808", checkIn: "08:00 - 19/03/2026", status: "Registered" },
+        { id: 10, name: "Do Van L", idCard: "001093345678", phone: "0990123456", purpose: "Maintenance AC", checkIn: "09:30 - 19/03/2026", status: "Registered" },
+        { id: 11, name: "Nguyen Thi M", idCard: "001097456789", phone: "0901234567", purpose: "Guest B-702", checkIn: "10:45 - 19/03/2026", status: "Registered" },
+        { id: 12, name: "Tran Van N", idCard: "001087567890", phone: "0912345678", purpose: "Visit A-1405", checkIn: "12:15 - 19/03/2026", status: "Registered" },
+        { id: 13, name: "Le Thi O", idCard: "001092678901", phone: "0923456789", purpose: "Delivery Package", checkIn: "14:30 - 19/03/2026", status: "Registered" },
+        { id: 14, name: "Pham Van P", idCard: "001090789012", phone: "0934567890", purpose: "Visit C-1204", checkIn: "16:00 - 19/03/2026", status: "Registered" },
+        { id: 15, name: "Hoang Van Q", idCard: "001095890123", phone: "0945678901", purpose: "Guest D-510", checkIn: "19:30 - 19/03/2026", status: "Registered" },
+        { id: 16, name: "Do Thi R", idCard: "001084901234", phone: "0956789012", purpose: "Visit A-908", checkIn: "08:45 - 20/03/2026", status: "Registered" },
+        { id: 17, name: "Nguyen Van S", idCard: "001098012345", phone: "0967890123", purpose: "Maintenance Lift", checkIn: "10:00 - 20/03/2026", status: "Registered" },
+        { id: 18, name: "Tran Thi T", idCard: "001091123456", phone: "0978901234", purpose: "Visit B-1005", checkIn: "11:30 - 20/03/2026", status: "Registered" },
+        { id: 19, name: "Le Van U", idCard: "001093234567", phone: "0989012345", purpose: "Delivery Grab", checkIn: "13:45 - 20/03/2026", status: "Registered" },
+        { id: 20, name: "Pham Thi V", idCard: "001086345678", phone: "0990123456", purpose: "Visit C-306", checkIn: "15:20 - 20/03/2026", status: "Registered" },
+        { id: 21, name: "Hoang Van W", idCard: "001094456789", phone: "0901234567", purpose: "Visit D-111", checkIn: "17:10 - 20/03/2026", status: "Registered" },
+        { id: 22, name: "Do Van X", idCard: "001090567890", phone: "0912345678", purpose: "Guest A-607", checkIn: "09:00 - 21/03/2026", status: "Registered" },
+        { id: 23, name: "Nguyen Thi Y", idCard: "001096678901", phone: "0923456789", purpose: "Cleaning Service", checkIn: "10:30 - 21/03/2026", status: "Registered" },
+        { id: 24, name: "Tran Van Z", idCard: "001088789012", phone: "0934567890", purpose: "Visit B-212", checkIn: "12:00 - 21/03/2026", status: "Registered" },
+        { id: 25, name: "Le Thi AA", idCard: "001095890123", phone: "0945678901", purpose: "Visit C-1502", checkIn: "14:15 - 21/03/2026", status: "Registered" },
+        { id: 26, name: "Pham Van BB", idCard: "001092901234", phone: "0956789012", purpose: "Delivery Lazada", checkIn: "16:45 - 21/03/2026", status: "Registered" },
+        { id: 27, name: "Hoang Thi CC", idCard: "001097012345", phone: "0967890123", purpose: "Visit D-404", checkIn: "18:30 - 21/03/2026", status: "Registered" },
+        { id: 28, name: "Do Van DD", idCard: "001085123456", phone: "0978901234", purpose: "Visit A-1210", checkIn: "08:15 - 22/03/2026", status: "Registered" },
+        { id: 29, name: "Nguyen Van EE", idCard: "001093234567", phone: "0989012345", purpose: "Maintenance Fire", checkIn: "10:00 - 22/03/2026", status: "Registered" },
+        { id: 30, name: "Tran Thi FF", idCard: "001090345678", phone: "0990123456", purpose: "Guest B-808", checkIn: "11:45 - 22/03/2026", status: "Registered" }
     ]);
 
 
     const [visitorForm, setVisitorForm] = useState({
         name: '',
         idCard: '',
+        phone: '',
         purpose: ''
     });
 
@@ -64,7 +65,7 @@ const StaffSecurityMainContent = ({ activeTab }) => {
         // await axios.post('/api/security/visitors', newVisitor);
 
         setVisitors([newVisitor, ...visitors]);
-        setVisitorForm({ name: '', idCard: '', purpose: '' });
+        setVisitorForm({ name: '', idCard: '', phone: '', purpose: '' });
         alert("Visitor checked-in successfully!");
     };
 
@@ -152,7 +153,8 @@ const StaffSecurityMainContent = ({ activeTab }) => {
                         <h3><FaUserPlus /> Register New Visitor</h3>
                         <div className="staff-grid" style={{ marginTop: '20px' }}>
                             <div className="form-group"><label>VISITOR NAME</label><input type="text" placeholder="Full name..." value={visitorForm.name} onChange={(e) => setVisitorForm({ ...visitorForm, name: e.target.value })} /></div>
-                            <div className="form-group"><label>ID CARD / PASSPORT</label><input type="text" placeholder="ID Number..." value={visitorForm.idCard} onChange={(e) => setVisitorForm({ ...visitorForm, idCard: e.target.value })} /></div>
+                            <div className="form-group"><label>ID CARD / PASSPORT</label><input type="text" placeholder="Enter 12-digit ID number..." value={visitorForm.idCard} onChange={(e) => setVisitorForm({ ...visitorForm, idCard: e.target.value })} /></div>
+                            <div className="form-group"><label>PHONE NUMBER</label><input type="text" placeholder="Phone number..." value={visitorForm.phone} onChange={(e) => setVisitorForm({ ...visitorForm, phone: e.target.value })} /></div>
                             <div className="form-group"><label>PURPOSE / VISIT APARTMENT</label><input type="text" placeholder="e.g Visit A-505, Delivery..." value={visitorForm.purpose} onChange={(e) => setVisitorForm({ ...visitorForm, purpose: e.target.value })} /></div>
                         </div>
                         <button className="btn-add-resident" style={{ marginTop: '20px' }} onClick={handleCheckIn}>
@@ -168,6 +170,7 @@ const StaffSecurityMainContent = ({ activeTab }) => {
                                     <tr>
                                         <th>Visitor Name</th>
                                         <th>ID Card</th>
+                                        <th>Phone Number</th>
                                         <th>Purpose</th>
                                         <th>Check-in</th>
                                         <th style={{ textAlign: 'center' }}>Status</th>
@@ -178,6 +181,7 @@ const StaffSecurityMainContent = ({ activeTab }) => {
                                         <tr key={v.id}>
                                             <td><strong>{v.name}</strong></td>
                                             <td>{v.idCard}</td>
+                                            <td>{v.phone}</td>
                                             <td>{v.purpose}</td>
                                             <td style={{ fontSize: '12px' }}><FaClock /> {v.checkIn}</td>
                                             <td style={{ textAlign: 'center' }}>
