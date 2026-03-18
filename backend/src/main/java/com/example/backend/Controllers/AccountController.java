@@ -55,7 +55,7 @@ public class AccountController {
 
         response.setCode(200);
         response.setMessage("Cập nhật thông tin thành công");
-        response.setResult(accountService.update(accountID, req));
+        response.setResult(accountService.update(accountID,req));
         
         return response;
     }

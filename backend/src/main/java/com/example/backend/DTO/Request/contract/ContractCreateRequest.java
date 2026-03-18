@@ -18,5 +18,6 @@ public class ContractCreateRequest {
     LocalDate startDate;
     LocalDate endDate;
     BigDecimal monthlyRent;
+    Integer createdById;
     Integer status = 1;
 }
