@@ -74,17 +74,25 @@ export default function Navbar({ solid = false }) {
           <div className="user-menu" ref={menuRef}>
             <FaUserCircle
               className="user-icon"
-              onClick={() => setOpenMenu((prev) => !prev)}
+              onClick={(e) => {
+                e.stopPropagation();
+
+                if (!isAuthenticated) {
+                  navigate("/auth");
+                } else {
+                  setOpenMenu((prev) => !prev);
+                }
+              }}
             />
 
-            {openMenu && (
+            {openMenu && isAuthenticated && (
               <div className="dropdown fade-slide">
                 {loadingUser ? (
                   <div className="dropdown-skeleton">
                     <div className="skeleton-item"></div>
                     <div className="skeleton-item"></div>
                   </div>
-                ) : isAuthenticated ? (
+                ) : (
                   <>
                     <div
                       className="dropdown-item username"
@@ -100,48 +108,34 @@ export default function Navbar({ solid = false }) {
                     </div>
 
                     {role === "RESIDENT" && (
-                      <div
-                        className="dropdown-item"
-                        onClick={() => navigate("/dashboard")}
-                      >
-                        Dashboard
-                      </div>
+                      <>
+                        <div
+                          className="dropdown-item"
+                          onClick={() => navigate("/dashboard")}
+                        >
+                          Dashboard
+                        </div>
+                        <div
+                          className="dropdown-item"
+                          onClick={() => navigate("/billing")}
+                        >
+                          My Home
+                        </div>
+                      </>
                     )}
-                    {role === "RESIDENT" && (
-                      <div
-                        className="dropdown-item"
-                        onClick={() => navigate("/billing")}
-                      >
-                        My Home
-                      </div>
-                    )}
+
                     <div
-                      className="dropdown-item logout"
+                      className="dropdown-item"
                       onClick={() => navigate("/profile")}
                     >
                       Profile
                     </div>
+
                     <div
                       className="dropdown-item logout"
                       onClick={handleLogout}
                     >
                       Logout
-                    </div>
-                  </>
-                ) : (
-                  <>
-                    <div
-                      className="dropdown-item"
-                      onClick={() => navigate("/auth")}
-                    >
-                      Login
-                    </div>
-
-                    <div
-                      className="dropdown-item"
-                      onClick={() => navigate("/auth")}
-                    >
-                      Register
                     </div>
                   </>
                 )}

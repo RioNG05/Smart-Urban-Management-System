@@ -5,20 +5,18 @@ import { Navigate } from "react-router-dom";
 import "../styles/auth.css";
 
 function AuthPage() {
-  const { user } = useAuth();
+  const { user, role } = useAuth();
 
   const roleDashboard = {
-    ADMIN: "/admin/dashboard",
-    RESIDENT: "/resident/dashboard",
-    STAFF_APARTMENT: "/staff/apartment/dashboard",
-    STAFF_SERVICE: "/staff/service/dashboard",
-    STAFF_SECURITY: "/staff/security/dashboard"
+    ADMIN: "/admin",
+    RESIDENT: "/",
+    STAFF_APARTMENT: "/staff/apartment",
+    STAFF_SERVICE: "/staff/service",
+    STAFF_SECURITY: "/staff/security",
+    STAFF: "/staff/apartment",
   };
 
-  //Check role
   if (user) {
-    const role = user.role;
-
     const redirectPath = roleDashboard[role] || "/";
 
     return <Navigate to={redirectPath} replace />;
