@@ -73,7 +73,7 @@ export default function AppRoutes() {
         <Route
           path="/profile"
           element={
-            <PrivateRoute roles={["resident", "staff", "admin"]}>
+            <PrivateRoute roles={["resident", "staff", "admin", "user"]}>
               <Profile />
             </PrivateRoute>
           }

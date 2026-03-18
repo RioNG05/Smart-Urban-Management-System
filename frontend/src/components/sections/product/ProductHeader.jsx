@@ -1,15 +1,11 @@
-import { FaShareAlt, FaRegHeart } from "react-icons/fa";
+import { FaRegHeart, FaShareAlt } from "react-icons/fa";
 
-const ProductHeader = () => {
+const ProductHeader = ({ property }) => {
   return (
     <div className="product-header">
       <div className="header-left">
-        <h1 className="product-title">
-          Latest update: Best-priced apartments in 2026 with no brokerage fee
-          and clear legal status at Vinahouse Ocean Park
-        </h1>
-
-        <p className="product-location">Duong Xa Commune, Gia Lam, Hanoi</p>
+        <h1 className="product-title">{property.title}</h1>
+        <p className="product-location">{property.fullLocation}</p>
       </div>
 
       <div className="header-actions">
