@@ -37,37 +37,36 @@ const StaffApartment = () => {
         username: '', gender: '', owner: '', dob: '', idCard: '', room: ''
     });
     const [residentAccounts, setResidentAccounts] = useState([
-        { id: 1, username: "hung.tp", gender: "Male", owner: "Tran Phu Thanh Hung", dob: "1995-05-15", idCard: "0123456789", room: "A-505" },
-        { id: 2, username: "son.tm", gender: "Male", owner: "Minh Son Thanh", dob: "1992-10-20", idCard: "9876543210", room: "B-101" },
-        { id: 3, username: "lan.nt", gender: "Female", owner: "Nguyen Thi Lan", dob: "1988-03-12", idCard: "4561237890", room: "C-202" },
-        { id: 4, username: "cuong.vh", gender: "Male", owner: "Vu Hoang Cuong", dob: "1990-12-30", idCard: "7894561230", room: "D-808" },
-        { id: 5, username: "mai.lt", gender: "Female", owner: "Le Thi Mai", dob: "1994-07-22", idCard: "1234509876", room: "A-102" },
-        { id: 6, username: "dung.nv", gender: "Male", owner: "Nguyen Van Dung", dob: "1985-11-05", idCard: "5432167890", room: "B-304" },
-        { id: 7, username: "hoa.tt", gender: "Female", owner: "Trinh Thi Hoa", dob: "1991-02-14", idCard: "6789054321", room: "C-1102" },
-        { id: 8, username: "tuan.an", gender: "Male", owner: "An Ngoc Tuan", dob: "1989-09-09", idCard: "9012345678", room: "D-1506" },
-        { id: 9, username: "linh.ph", gender: "Female", owner: "Phan Hoang Linh", dob: "1996-12-25", idCard: "2345678901", room: "A-703" },
-        { id: 10, username: "thanh.bq", gender: "Male", owner: "Bui Quoc Thanh", dob: "1993-01-20", idCard: "3456789012", room: "B-910" },
-        { id: 11, username: "quynh.nt", gender: "Female", owner: "Ngo Thu Quynh", dob: "1997-06-18", idCard: "4567890123", room: "C-405" },
-        { id: 12, username: "dat.dv", gender: "Male", owner: "Do Van Dat", dob: "1987-04-12", idCard: "5678901234", room: "D-1201" },
-        { id: 13, username: "yen.ht", gender: "Female", owner: "Hoang Thi Yen", dob: "1992-08-30", idCard: "6789012345", room: "A-312" },
-        { id: 14, username: "khanh.pq", gender: "Male", owner: "Pham Quoc Khanh", dob: "1990-03-15", idCard: "7890123456", room: "B-508" },
-        { id: 15, username: "ngoc.pt", gender: "Female", owner: "Phan Thu Ngoc", dob: "1995-10-10", idCard: "8901234567", room: "C-801" },
-        { id: 16, username: "long.hv", gender: "Male", owner: "Hoang Van Long", dob: "1984-05-25", idCard: "9012345678", room: "D-203" },
-        { id: 17, username: "trang.nt", gender: "Female", owner: "Nguyen Thu Trang", dob: "1998-01-05", idCard: "0123456789", room: "A-1405" },
-        { id: 18, username: "thang.nh", gender: "Male", owner: "Nguyen Huu Thang", dob: "1991-11-20", idCard: "1234567890", room: "B-702" },
-        { id: 19, username: "diem.tt", gender: "Female", owner: "Tran Thi Diem", dob: "1993-02-28", idCard: "2345678901", room: "C-1204" },
-        { id: 20, username: "binh.vq", gender: "Male", owner: "Vu Quoc Binh", dob: "1986-07-15", idCard: "3456789012", room: "D-510" },
-        { id: 21, username: "thu.ha", gender: "Female", owner: "Ha Thi Thu", dob: "1994-09-12", idCard: "4567890123", room: "A-908" },
-        { id: 22, username: "quan.nm", gender: "Male", owner: "Nguyen Minh Quan", dob: "1990-12-01", idCard: "5678901234", room: "B-1005" },
-        { id: 23, username: "vy.tt", gender: "Female", owner: "Truong Thi Vy", dob: "1996-04-20", idCard: "6789012345", room: "C-306" },
-        { id: 24, username: "phuc.dh", gender: "Male", owner: "Dang Hoang Phuc", dob: "1988-06-10", idCard: "7890123456", room: "D-111" },
-        { id: 25, username: "an.bt", gender: "Female", owner: "Bui Thi An", dob: "1995-03-05", idCard: "8901234567", room: "A-607" },
-        { id: 26, username: "minh.tv", gender: "Male", owner: "Tran Van Minh", dob: "1992-05-30", idCard: "9012345678", room: "B-212" },
-        { id: 27, username: "huong.dk", gender: "Female", owner: "Do Kim Huong", dob: "1997-10-15", idCard: "0123456789", room: "C-1502" },
-        { id: 28, username: "thinh.pv", gender: "Male", owner: "Pham Van Thinh", dob: "1985-08-20", idCard: "1234567890", room: "D-404" },
-        { id: 29, username: "giang.tt", gender: "Female", owner: "Trinh Thu Giang", dob: "1993-11-12", idCard: "2345678901", room: "A-1210" },
-        { id: 30, username: "hieu.nm", gender: "Male", owner: "Nguyen Minh Hieu", dob: "1990-01-25", idCard: "3456789012", room: "B-808" }
-
+        { id: 1, username: "hung.tp", gender: "Male", owner: "Tran Phu Thanh Hung", dob: "1995-05-15", idCard: "001095012345", room: "A-505", status: 'Active' },
+        { id: 2, username: "son.tm", gender: "Male", owner: "Minh Son Thanh", dob: "1992-10-20", idCard: "001092098765", room: "B-101", status: 'Active' },
+        { id: 3, username: "lan.nt", gender: "Female", owner: "Nguyen Thi Lan", dob: "1988-03-12", idCard: "001088456123", room: "C-202", status: 'Active' },
+        { id: 4, username: "cuong.vh", gender: "Male", owner: "Vu Hoang Cuong", dob: "1990-12-30", idCard: "001090789456", room: "D-808", status: 'Active' },
+        { id: 5, username: "mai.lt", gender: "Female", owner: "Le Thi Mai", dob: "1994-07-22", idCard: "001094123450", room: "A-102", status: 'Active' },
+        { id: 6, username: "dung.nv", gender: "Male", owner: "Nguyen Van Dung", dob: "1985-11-05", idCard: "001085543216", room: "B-304", status: 'Active' },
+        { id: 7, username: "hoa.tt", gender: "Female", owner: "Trinh Thi Hoa", dob: "1991-02-14", idCard: "001091678905", room: "C-1102", status: 'Active' },
+        { id: 8, username: "tuan.an", gender: "Male", owner: "An Ngoc Tuan", dob: "1989-09-09", idCard: "001089901234", room: "D-1506", status: 'Active' },
+        { id: 9, username: "linh.ph", gender: "Female", owner: "Phan Hoang Linh", dob: "1996-12-25", idCard: "001096234567", room: "A-703", status: 'Active' },
+        { id: 10, username: "thanh.bq", gender: "Male", owner: "Bui Quoc Thanh", dob: "1993-01-20", idCard: "001093345678", room: "B-910", status: 'Active' },
+        { id: 11, username: "quynh.nt", gender: "Female", owner: "Ngo Thu Quynh", dob: "1997-06-18", idCard: "001097456789", room: "C-405", status: 'Active' },
+        { id: 12, username: "dat.dv", gender: "Male", owner: "Do Van Dat", dob: "1987-04-12", idCard: "001087567890", room: "D-1201", status: 'Active' },
+        { id: 13, username: "yen.ht", gender: "Female", owner: "Hoang Thi Yen", dob: "1992-08-30", idCard: "001092678901", room: "A-312", status: 'Active' },
+        { id: 14, username: "khanh.pq", gender: "Male", owner: "Pham Quoc Khanh", dob: "1990-03-15", idCard: "001090789012", room: "B-508", status: 'Active' },
+        { id: 15, username: "ngoc.pt", gender: "Female", owner: "Phan Thu Ngoc", dob: "1995-10-10", idCard: "001095890123", room: "C-801", status: 'Active' },
+        { id: 16, username: "long.hv", gender: "Male", owner: "Hoang Van Long", dob: "1984-05-25", idCard: "001084901234", room: "D-203", status: 'Active' },
+        { id: 17, username: "trang.nt", gender: "Female", owner: "Nguyen Thu Trang", dob: "1998-01-05", idCard: "001098012345", room: "A-1405", status: 'Active' },
+        { id: 18, username: "thang.nh", gender: "Male", owner: "Nguyen Huu Thang", dob: "1991-11-20", idCard: "001091123456", room: "B-702", status: 'Active' },
+        { id: 19, username: "diem.tt", gender: "Female", owner: "Tran Thi Diem", dob: "1993-02-28", idCard: "001093234567", room: "C-1204", status: 'Active' },
+        { id: 20, username: "binh.vq", gender: "Male", owner: "Vu Quoc Binh", dob: "1986-07-15", idCard: "001086345678", room: "D-510", status: 'Active' },
+        { id: 21, username: "thu.ha", gender: "Female", owner: "Ha Thi Thu", dob: "1994-09-12", idCard: "001094456789", room: "A-908", status: 'Active' },
+        { id: 22, username: "quan.nm", gender: "Male", owner: "Nguyen Minh Quan", dob: "1990-12-01", idCard: "001090567890", room: "B-1005", status: 'Active' },
+        { id: 23, username: "vy.tt", gender: "Female", owner: "Truong Thi Vy", dob: "1996-04-20", idCard: "001096678901", room: "C-306", status: 'Active' },
+        { id: 24, username: "phuc.dh", gender: "Male", owner: "Dang Hoang Phuc", dob: "1988-06-10", idCard: "001088789012", room: "D-111", status: 'Active' },
+        { id: 25, username: "an.bt", gender: "Female", owner: "Bui Thi An", dob: "1995-03-05", idCard: "001095890123", room: "A-607", status: 'Active' },
+        { id: 26, username: "minh.tv", gender: "Male", owner: "Tran Van Minh", dob: "1992-05-30", idCard: "001092901234", room: "B-212", status: 'Active' },
+        { id: 27, username: "huong.dk", gender: "Female", owner: "Do Kim Huong", dob: "1997-10-15", idCard: "001097012345", room: "C-1502", status: 'Active' },
+        { id: 28, username: "thinh.pv", gender: "Male", owner: "Pham Van Thinh", dob: "1985-08-20", idCard: "001085123456", room: "D-404", status: 'Active' },
+        { id: 29, username: "giang.tt", gender: "Female", owner: "Trinh Thu Giang", dob: "1993-11-12", idCard: "001093234567", room: "A-1210", status: 'Active' },
+        { id: 30, username: "hieu.nm", gender: "Male", owner: "Nguyen Minh Hieu", dob: "1990-01-25", idCard: "001090345678", room: "B-808", status: 'Active' }
     ]);
     const [editIndex, setEditIndex] = useState(null);
 
@@ -89,7 +88,7 @@ const StaffApartment = () => {
             // [BACKEND_NOTE]: Gọi API (POST) để lưu tài khoản mới xuống Database
             // await axios.post('/api/staff/accounts', formData);
 
-            setResidentAccounts([...residentAccounts, formData]);
+            setResidentAccounts([...residentAccounts, { ...formData, status: 'Active' }]);
             alert("Đã cấp tài khoản thành công!");
         }
         setFormData({ username: '', gender: '', owner: '', dob: '', idCard: '', room: '' });
@@ -101,14 +100,22 @@ const StaffApartment = () => {
         window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
-    const handleDelete = (index) => {
-        if (window.confirm("Mày có chắc muốn xóa không?")) {
-            // [BACKEND_NOTE]: Gọi API (DELETE) để xóa tài khoản trong Database
-            // const accountId = residentAccounts[index].id;
-            // await axios.delete(`/api/staff/accounts/${accountId}`);
+    const handleToggleBlock = (index) => {
+        const account = residentAccounts[index];
+        const newStatus = account.status === 'Active' ? 'Blocked' : 'Active';
 
-            setResidentAccounts(residentAccounts.filter((_, i) => i !== index));
-            if (editIndex === index) setEditIndex(null);
+        // [BACKEND_NOTE]: 
+        // 1. Khi Mở khóa (Unblock), cần đối chiếu với Database để kiểm tra Resident còn Hợp đồng (Contract) hiệu lực không.
+        // 2. Chỉ cho phép Unblock nếu có Hợp đồng Thuê/Mua bán hợp lệ.
+        if (window.confirm(`Mày có chắc muốn ${newStatus === 'Blocked' ? 'Khóa' : 'Mở khóa'} tài khoản này không?`)) {
+            // [BACKEND_NOTE]: Gọi API (PATCH/PUT) để cập nhật status tài khoản trong Database
+            // const accountId = residentAccounts[index].id;
+            // await axios.patch(`/api/staff/accounts/${accountId}/status`, { status: newStatus });
+
+            const updatedList = [...residentAccounts];
+            updatedList[index] = { ...account, status: newStatus };
+            setResidentAccounts(updatedList);
+            alert(`Đã ${newStatus === 'Blocked' ? 'Khóa' : 'Mở khóa'} tài khoản thành công!`);
         }
     };
 
@@ -208,7 +215,7 @@ const StaffApartment = () => {
                             </div>
                             {showIdCard && (
                                 <div className="staff-id-card">
-                                    {/* [BACKEND_NOTE]: Sau này lấy dữ liệu từ Backend, thay thế các giá trị cứng bên dưới bằng các biến State. Ví dụ:
+                                    {/* [BACKEND_NOTE]: Lấy dữ liệu từ Backend, thay thế các giá trị cứng bên dưới bằng các biến State. Ví dụ:
                                     - <div className="staff-avatar-circle">{staffProfile.shortName}</div>
                                     - <h3>{staffProfile.fullName}</h3>
                                     - <p>{staffProfile.role} | ID: {staffProfile.id}</p>
@@ -240,7 +247,7 @@ const StaffApartment = () => {
                     handleAddAccount={handleAddAccount}
                     residentAccounts={residentAccounts}
                     handleEdit={handleEdit}
-                    handleDelete={handleDelete}
+                    handleToggleBlock={handleToggleBlock}
                     selectedComplaint={selectedComplaint}
                     complaints={complaints}
                     setSelectedComplaint={setSelectedComplaint}

@@ -1,5 +1,5 @@
 import React from 'react';
-import { FaUserPlus, FaUserEdit, FaTrash, FaReply, FaCheck, FaTimes, FaPaperPlane, FaClock } from 'react-icons/fa';
+import { FaUserPlus, FaUserEdit, FaTrash, FaReply, FaCheck, FaTimes, FaPaperPlane, FaClock, FaUserSlash, FaUserCheck, FaLock, FaUnlock } from 'react-icons/fa';
 
 const StaffApartmentMainContent = ({
   activeTab,
@@ -9,7 +9,7 @@ const StaffApartmentMainContent = ({
   handleAddAccount,
   residentAccounts,
   handleEdit,
-  handleDelete,
+  handleToggleBlock,
   selectedComplaint,
   complaints,
   setSelectedComplaint,
@@ -139,9 +139,9 @@ const StaffApartmentMainContent = ({
           <div className="staff-form-container" style={{ borderLeft: '5px solid #c89b3c' }}>
             <h3><FaUserPlus /> {editIndex !== null ? "Edit Resident Account" : "Issue New Resident Account"}</h3>
             <div className="staff-grid" style={{ marginTop: '20px' }}>
-              <div className="form-group"><label>OWNER NAME</label><input type="text" value={formData.owner} onChange={(e) => setFormData({ ...formData, owner: e.target.value })} /></div>
-              <div className="form-group"><label>ID CARD / PASSPORT</label><input type="text" value={formData.idCard} onChange={(e) => setFormData({ ...formData, idCard: e.target.value })} placeholder="Enter ID number" /></div>
-              <div className="form-group"><label>USERNAME</label><input type="text" value={formData.username} onChange={(e) => setFormData({ ...formData, username: e.target.value })} /></div>
+              <div className="form-group"><label>OWNER NAME</label><input type="text" value={formData.owner} onChange={(e) => setFormData({ ...formData, owner: e.target.value })} placeholder="Enter owner name" /></div>
+              <div className="form-group"><label>ID CARD / PASSPORT</label><input type="text" value={formData.idCard} onChange={(e) => setFormData({ ...formData, idCard: e.target.value })} placeholder="Enter 12-digit ID number" /></div>
+              <div className="form-group"><label>USERNAME</label><input type="text" value={formData.username} onChange={(e) => setFormData({ ...formData, username: e.target.value })} placeholder="Enter username" /></div>
               <div className="form-group">
                 <label>GENDER</label>
                 <select
@@ -156,7 +156,7 @@ const StaffApartmentMainContent = ({
                 </select>
               </div>
               <div className="form-group"><label>DATE OF BIRTH</label><input type="date" value={formData.dob} onChange={(e) => setFormData({ ...formData, dob: e.target.value })} /></div>
-              <div className="form-group"><label>APARTMENT NO.</label><input type="text" value={formData.room} onChange={(e) => setFormData({ ...formData, room: e.target.value })} /></div>
+              <div className="form-group"><label>APARTMENT NO.</label><input type="text" value={formData.room} onChange={(e) => setFormData({ ...formData, room: e.target.value })} placeholder="Enter apartment number" /></div>
             </div>
             <button className="btn-add-resident" style={{ marginTop: '20px', background: editIndex !== null ? '#f59e0b' : '#c89b3c' }} onClick={handleAddAccount}>
               {editIndex !== null ? "CONFIRM UPDATE" : "ISSUE ACCOUNT"}
@@ -165,32 +165,51 @@ const StaffApartmentMainContent = ({
 
           <div className="staff-form-container" style={{ marginTop: '30px' }}>
             <h3>Issued Accounts List</h3>
-          <div className="staff-table-scroll">
-            <table className="admin-custom-table bordered">
-              <thead>
-                <tr>
-                  <th>Username</th><th>Owner</th><th>Apartment</th><th>Gender</th><th>DOB</th><th>ID Card</th>
-                  <th style={{ textAlign: 'center' }}>Action</th>
-                </tr>
-              </thead>
-              <tbody>
-                {residentAccounts.length > 0 ? residentAccounts.map((acc, index) => (
-                  <tr key={index}>
-                    <td><strong>{acc.username}</strong></td>
-                    <td>{acc.owner}</td><td>{acc.room}</td><td>{acc.gender}</td><td>{acc.dob}</td><td>{acc.idCard}</td>
-                    <td>
-                      <div style={{ display: 'flex', justifyContent: 'center', gap: '10px' }}>
-                        <button className="btn-table-edit" onClick={() => handleEdit(index)}><FaUserEdit /></button>
-                        <button className="btn-table-delete" onClick={() => handleDelete(index)}><FaTrash /></button>
-                      </div>
-                    </td>
+            <div className="staff-table-scroll">
+              <table className="admin-custom-table bordered">
+                <thead>
+                  <tr>
+                    <th>Username</th><th>Owner</th><th>Apartment</th><th>Gender</th><th>DOB</th><th>ID Card</th><th>Status</th>
+                    <th style={{ textAlign: 'center' }}>Action</th>
                   </tr>
-                )) : (
-                  <tr><td colSpan="6" style={{ textAlign: 'center', padding: '20px' }}>No data available...</td></tr>
-                )}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody>
+                  {residentAccounts.length > 0 ? residentAccounts.map((acc, index) => (
+                    <tr key={index} style={{ opacity: acc.status === 'Blocked' ? 0.6 : 1, backgroundColor: acc.status === 'Blocked' ? '#f8fafc' : 'transparent' }}>
+                      <td><strong>{acc.username}</strong></td>
+                      <td>{acc.owner}</td><td>{acc.room}</td><td>{acc.gender}</td><td>{acc.dob}</td><td>{acc.idCard}</td>
+                      <td>
+                        <span style={{
+                          padding: '4px 8px',
+                          borderRadius: '12px',
+                          fontSize: '11px',
+                          fontWeight: 'bold',
+                          background: acc.status === 'Blocked' ? '#fee2e2' : '#dcfce7',
+                          color: acc.status === 'Blocked' ? '#ef4444' : '#10b981'
+                        }}>
+                          {acc.status}
+                        </span>
+                      </td>
+                      <td>
+                        <div style={{ display: 'flex', justifyContent: 'center', gap: '10px' }}>
+                          <button className="btn-table-edit" onClick={() => handleEdit(index)} title="Edit"><FaUserEdit /></button>
+                          <button
+                            className={acc.status === 'Blocked' ? "btn-approve-mini" : "btn-reject-mini"}
+                            style={{ padding: '6px', fontSize: '14px' }}
+                            onClick={() => handleToggleBlock(index)}
+                            title={acc.status === 'Blocked' ? "Unblock Account" : "Block Account"}
+                          >
+                            {acc.status === 'Blocked' ? <FaUnlock /> : <FaLock />}
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  )) : (
+                    <tr><td colSpan="6" style={{ textAlign: 'center', padding: '20px' }}>No data available...</td></tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
 
           </div>
         </div>
