@@ -1489,20 +1489,21 @@ CREATE TABLE StaffInfo (
 );
 
 
--- 19 visitor logs
--- Note: Chức năng này chỉ dành cho Security (Bảo vệ) thực hiện
+-- 19 Visitor logs
+-- Chức năng dành cho Security (Bảo vệ) thực hiện
 CREATE TABLE VisitorLogs (
-    Id INT IDENTITY(1,1) PRIMARY KEY,       -- visitor_log_id (PK)
-    VisitorName NVARCHAR(255) NOT NULL,     -- Tên người vào
-    PhoneNumber VARCHAR(20) NOT NULL,       -- SĐT người vào
-    ApartmentId INT NOT NULL,               -- ID phòng khách ghé thăm (FK)
-    CreatedByStaffId INT NOT NULL,          -- ID bảo vệ thực hiện check-in (FK nối tới StaffInfo)
-    CheckInTime DATETIME DEFAULT GETDATE(), -- Thời điểm vào
-    Note NVARCHAR(MAX),                     -- Ghi chú thêm (Vd: Mang theo đồ cồng kềnh)
+    Id INT IDENTITY(1,1) PRIMARY KEY,        -- visitor_log_id (PK)
+    VisitorName NVARCHAR(255) NOT NULL,      -- Tên người vào
+    IdentityCard VARCHAR(20) NOT NULL,       -- Số CCCD/Passport (Thêm mới, không để UNIQUE)
+    PhoneNumber VARCHAR(20) NOT NULL,        -- SĐT người vào
+    ApartmentId INT NOT NULL,                -- ID phòng khách ghé thăm (FK)
+    CreatedByStaffId INT NOT NULL,           -- ID bảo vệ thực hiện check-in (FK)
+    CheckInTime DATETIME DEFAULT GETDATE(),  -- Thời điểm vào
+    Note NVARCHAR(MAX),                      -- Ghi chú thêm
 
     -- Khóa ngoại nối tới bảng căn hộ
     CONSTRAINT FK_Visitor_Apartments FOREIGN KEY (ApartmentId) REFERENCES Apartments(Id),
-    -- Khóa ngoại nối tới bảng nhân viên (để biết bảo vệ nào check-in)
+    -- Khóa ngoại nối tới bảng nhân viên
     CONSTRAINT FK_Visitor_Staff FOREIGN KEY (CreatedByStaffId) REFERENCES StaffInfo(Id)
 );
 
@@ -1603,7 +1604,7 @@ CREATE TABLE Expenses (
     CONSTRAINT FK_Expenses_Creator FOREIGN KEY (CreatedBy) REFERENCES Accounts(Id)
 );
 
--- Bảng 23 IoT_Sync_Logs
+-- Bảng 23 IoT_Sync_Logs 
 CREATE TABLE IoT_Sync_Logs (
     Id INT IDENTITY(1,1) PRIMARY KEY,
     
@@ -1616,7 +1617,6 @@ CREATE TABLE IoT_Sync_Logs (
 
     -- Ngày ghi log
     LogDate DATETIME DEFAULT GETDATE(),
-
     -- Ràng buộc khóa ngoại
     CONSTRAINT FK_IoT_Apartment FOREIGN KEY (ApartmentId) REFERENCES Apartments(Id)
 );
