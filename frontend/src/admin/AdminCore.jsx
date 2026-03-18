@@ -46,7 +46,7 @@ const AdminSidebar = () => {
                     )}
                 </div>
 
-                {/* --- QUẢN LÝ CĂN HỘ VÀ HỢP ĐỒNG --- */}
+                {/* --- APARTMENT & CONTRACT --- */}
                 <div className="menu-group">
                     <div className="menu-item-title" onClick={() => handleGroupClick(setOpenContract, openContract)}>
                         <FaFileContract />
@@ -90,8 +90,7 @@ export const AdminLayout = () => {
     const [adminName, setAdminName] = useState('');
 
     useEffect(() => {
-        // TODO: Gọi API Backend để lấy thông tin Admin đang đăng nhập tại đây
-        // VD:
+        // Gọi API Backend để lấy thông tin Admin đang đăng nhập tại đây
         // fetch('/api/admin/profile', {
         //     headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
         // })
@@ -100,7 +99,6 @@ export const AdminLayout = () => {
         // .catch(err => console.error(err));
 
         // Tạm thời giả lập dữ liệu tĩnh để test UI (xóa khi có API thật)
-        // setAdminName('Super Admin'); 
     }, []);
 
     return (
@@ -113,7 +111,7 @@ export const AdminLayout = () => {
                         <span className="header-brand-name">ADMIN: {adminName}</span>
                     </div>
 
-                    {/* Lấy dữ liệu account từ database ở đây trong tương lai */}
+                    {/* Lấy dữ liệu account từ database */}
                     <div className="topbar-right">
                         <NavLink to="/" className="topbar-home-link">
                             <FaHome /> <span>Home</span>

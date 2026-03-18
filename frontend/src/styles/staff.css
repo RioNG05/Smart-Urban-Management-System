@@ -2,19 +2,22 @@
 .staff-wrapper {
     display: flex;
     min-height: 100vh;
-    background-color: #f4f7f6;
+    background-color: #f4f6fa;
 }
 
-/* SIDEBAR STAFF - THU RA THỤT VÀO */
+/* SIDEBAR STAFF */
 .staff-sidebar {
     width: 260px;
-    background: #1e293b;
+    background: #0f172a;
     color: white;
     transition: all 0.3s ease;
     display: flex;
     flex-direction: column;
 }
-.staff-sidebar.closed { width: 80px; }
+
+.staff-sidebar.closed {
+    width: 80px;
+}
 
 .staff-sidebar-nav {
     flex: 1;
@@ -30,19 +33,29 @@
     border-radius: 8px;
     margin-bottom: 5px;
     transition: 0.2s;
+    cursor: pointer;
+    gap: 15px;
 }
-.staff-nav-item:hover { background: #334155; color: white; }
-.staff-nav-item svg { margin-right: 15px; font-size: 1.2rem; }
+
+.staff-nav-item:hover {
+    background: #1e293b;
+    color: white;
+}
+
+.staff-nav-item svg {
+    font-size: 1.2rem;
+}
 
 /* TOPBAR ĐIỀU HƯỚNG GÓC PHẢI */
 .staff-topbar {
     height: 70px;
     background: white;
     display: flex;
-    justify-content: flex-end; /* Đẩy về bên phải */
+    justify-content: flex-end;
+    /* Đẩy về bên phải */
     align-items: center;
     padding: 0 30px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
 }
 
 .staff-main-nav {
@@ -59,12 +72,74 @@
     font-size: 13px;
     transition: 0.3s;
 }
-.staff-main-nav a:hover, .staff-main-nav a.active { color: #3b82f6; }
+
+.staff-main-nav a:hover,
+.staff-main-nav a.active {
+    color: #c89b3c;
+}
 
 /* THẺ NHÂN VIÊN GÓC PHẢI */
 .staff-profile-trigger {
     position: relative;
     cursor: pointer;
+    display: flex;
+    align-items: center;
+}
+
+.profile-icon-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #0f172a;
+    border-radius: 50%;
+    width: 44px;
+    height: 44px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    padding: 6px;
+}
+
+.profile-icon-inner {
+    background: white;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+}
+
+.profile-icon-inner svg {
+    color: #0f172a !important;
+    width: 16px;
+    height: 16px;
+    margin-top: -2px;
+    transition: all 0.3s ease;
+}
+
+.profile-icon-wrapper:hover {
+    background: #c89b3c;
+    box-shadow: 0 4px 12px rgba(200, 155, 60, 0.4);
+}
+
+.btn-header-home {
+    background: transparent;
+    color: #0f172a;
+    border: 1px solid #cbd5e1;
+    border-radius: 10px;
+    padding: 8px 18px;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-header-home:hover {
+    color: #c89b3c;
+    border-color: #c89b3c;
+    background: #fdfaf6;
+    box-shadow: 0 4px 12px rgba(200, 155, 60, 0.15);
 }
 
 .staff-id-card {
@@ -75,14 +150,14 @@
     background: linear-gradient(135deg, #ffffff 0%, #f1f5f9 100%);
     border-radius: 15px;
     padding: 20px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
     z-index: 999;
     border: 1px solid #e2e8f0;
 }
 
 .id-card-header {
     text-align: center;
-    border-bottom: 2px solid #3b82f6;
+    border-bottom: 2px solid #c89b3c;
     padding-bottom: 15px;
     margin-bottom: 15px;
 }
@@ -90,7 +165,7 @@
 .staff-avatar-circle {
     width: 70px;
     height: 70px;
-    background: #3b82f6;
+    background: #c89b3c;
     border-radius: 50%;
     margin: 0 auto 10px;
     display: flex;
@@ -102,9 +177,25 @@
 }
 
 /* FORM & TABLE */
-.staff-content-area { padding: 30px; flex: 1; overflow-y: auto; }
-.staff-form-container { background: white; padding: 25px; border-radius: 12px; margin-bottom: 30px; }
-.staff-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; }
+.staff-content-area {
+    padding: 30px;
+    flex: 1;
+    overflow-y: auto;
+}
+
+.staff-form-container {
+    background: white;
+    padding: 25px;
+    border-radius: 12px;
+    margin-bottom: 30px;
+}
+
+.staff-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+}
+
 
 
 /* ============================================================ */
@@ -113,11 +204,11 @@
 
 /* Tab Active trong Sidebar */
 .staff-nav-item.active {
-    background: #3b82f6;
+    background: #c89b3c;
     color: white !important;
 }
 
-/* Style cho các Group nhập liệu trong Form */
+/* Style Form */
 .form-group {
     display: flex;
     flex-direction: column;
@@ -139,13 +230,13 @@
 }
 
 .form-group input:focus {
-    border-color: #3b82f6;
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    border-color: #c89b3c;
+    box-shadow: 0 0 0 3px rgba(200, 155, 60, 0.1);
 }
 
 /* Nút Cấp tài khoản */
 .btn-add-resident {
-    background: #3b82f6;
+    background: #c89b3c;
     color: white;
     border: none;
     padding: 12px 30px;
@@ -157,9 +248,9 @@
 }
 
 .btn-add-resident:hover {
-    background: #2563eb;
+    background: #b08630;
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+    box-shadow: 0 4px 12px rgba(176, 134, 48, 0.2);
 }
 
 /* Custom Table cho danh sách Account */
@@ -182,18 +273,19 @@
 }
 
 /* Nút hành động trong bảng (Sửa/Xóa) */
-.btn-table-edit, .btn-table-delete {
+.btn-table-edit,
+.btn-table-delete {
     background: white;
     border: 1px solid #e2e8f0;
     padding: 8px;
-    border-radius: 6px;
+    border-radius: 5px;
     cursor: pointer;
     transition: 0.2s;
 }
 
 .btn-table-edit:hover {
-    background: #eff6ff;
-    border-color: #3b82f6;
+    background: #fdf8eb;
+    border-color: #c89b3c;
 }
 
 .btn-table-delete:hover {
@@ -202,13 +294,21 @@
 }
 
 /* Hiệu ứng mượt khi chuyển Tab */
+.staff-tab-content,
 .staff-account-management {
     animation: slideUp 0.4s ease-out;
 }
 
 @keyframes slideUp {
-    from { opacity: 0; transform: translateY(20px); }
-    to { opacity: 1; transform: translateY(0); }
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 /* Container cho các nút hành động trong bảng */
@@ -219,39 +319,94 @@
     height: 100%;
 }
 
-.btn-table-edit, .btn-table-delete {
+.btn-table-edit,
+.btn-table-delete {
     display: flex;
     align-items: center;
     justify-content: center;
     width: 35px;
     height: 35px;
-    padding: 0; /* Xóa padding để icon vào giữa */
+    padding: 0;
+    /* Xóa padding để icon vào giữa */
     border: 1px solid #e2e8f0;
     border-radius: 6px;
     cursor: pointer;
     transition: 0.2s;
 }
 
-.btn-table-edit:hover { background: #eff6ff; color: #3b82f6; border-color: #3b82f6; }
-.btn-table-delete:hover { background: #fff5f5; color: #e53e3e; border-color: #e53e3e; }
+.btn-table-edit:hover {
+    background: #fdf8eb;
+    color: #c89b3c;
+    border-color: #c89b3c;
+}
+
+.btn-table-delete:hover {
+    background: #fff5f5;
+    color: #e53e3e;
+    border-color: #e53e3e;
+}
 
 
 /* Style cho bảng Complaints */
-.btn-reply-action {
-    background: #3b82f6;
-    color: white;
-    border: none;
+.btn-reply-main {
+    background: #f8fafc;
+    color: #1e293b;
+    border: 1px solid #64748b;
     padding: 6px 12px;
     border-radius: 4px;
     cursor: pointer;
-    font-size: 12px;
+    font-size: 13px;
+    font-weight: 500;
     display: flex;
     align-items: center;
-    gap: 5px;
+    gap: 6px;
+    transition: all 0.2s ease;
 }
 
-.btn-approve-mini { background: #10b981; color: white; border: none; padding: 6px 10px; border-radius: 4px; cursor: pointer; }
-.btn-reject-mini { background: #ef4444; color: white; border: none; padding: 6px 10px; border-radius: 4px; cursor: pointer; }
+.btn-reply-main:hover {
+    background: #e2e8f0;
+    color: #0f172a;
+}
+
+.btn-approve-mini {
+    background: #10b981;
+    color: white;
+    border: none;
+    width: 32px;
+    height: 32px;
+    border-radius: 6px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    transition: all 0.2s ease;
+}
+
+.btn-approve-mini:hover {
+    background: #059669;
+    transform: scale(1.05);
+}
+
+.btn-reject-mini {
+    background: #ef4444;
+    color: white;
+    border: none;
+    width: 32px;
+    height: 32px;
+    border-radius: 6px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    transition: all 0.2s ease;
+}
+
+.btn-reject-mini:hover {
+    background: #dc2626;
+    transform: scale(1.05);
+}
 
 /* Trang Phản hồi chi tiết */
 .staff-reply-page {
@@ -278,7 +433,7 @@
     background: #f8fafc;
     padding: 20px;
     border-radius: 10px;
-    border-left: 5px solid #3b82f6;
+    border-left: 5px solid #c89b3c;
 }
 
 .resident-message-bubble {
@@ -286,7 +441,7 @@
     padding: 15px;
     border-radius: 8px;
     margin-top: 10px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
     font-style: italic;
     color: #475569;
 }
@@ -302,10 +457,12 @@
     resize: vertical;
 }
 
-.reply-textarea:focus { border-color: #3b82f6; }
+.reply-textarea:focus {
+    border-color: #c89b3c;
+}
 
 .btn-send-reply {
-    background: #1e293b;
+    background: #c89b3c;
     color: white;
     border: none;
     padding: 10px 30px;
@@ -318,4 +475,222 @@
     transition: 0.3s;
 }
 
-.btn-send-reply:hover { background: #334155; transform: scale(1.05); }
+.btn-send-reply:hover {
+    background: #b08630;
+    transform: scale(1.05);
+}
+
+/* ============================================================ */
+/* SECTION: APARTMENT MANAGEMENT */
+/* ============================================================ */
+.building-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.floor-row {
+    display: flex;
+    align-items: stretch;
+    background: #f8fafc;
+    border-radius: 8px;
+    padding: 10px;
+    border: 1px solid #e2e8f0;
+}
+
+.floor-label {
+    min-width: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    color: #ffffff;
+    background: #0f172a;
+    border-radius: 6px;
+    margin-right: 15px;
+    font-size: 14px;
+}
+
+.apartment-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 10px;
+    flex: 1;
+}
+
+.apartment-box {
+    background: white;
+    border: 2px solid #e2e8f0;
+    border-radius: 6px;
+    padding: 15px 5px;
+    text-align: center;
+    font-weight: 700;
+    color: #1e293b;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 15px;
+}
+
+.apartment-box:hover {
+    background: #c89b3c;
+    color: white;
+    border-color: #c89b3c;
+    box-shadow: 0 4px 12px rgba(200, 155, 60, 0.3);
+    transform: translateY(-3px);
+}
+
+.btn-back {
+    background: #f1f5f9;
+    border: 1px solid #cbd5e1;
+    padding: 8px 18px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 700;
+    color: #475569;
+    transition: all 0.2s ease;
+    margin-bottom: 20px;
+}
+
+.btn-back:hover {
+    background: #e2e8f0;
+    color: #0f172a;
+}
+
+/* ============================================================ */
+/* SECTION: STAFF SERVICE DASHBOARD ENHANCEMENTS */
+/* ============================================================ */
+
+/* SUB-FILTER TABS - ENHANCED */
+.staff-sub-nav {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 25px;
+    padding: 6px;
+    background: #f1f5f9;
+    border-radius: 12px;
+    width: fit-content;
+}
+
+.sub-nav-item {
+    background: transparent;
+    color: #64748b;
+    border: none;
+    padding: 10px 22px;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.sub-nav-item:hover {
+    color: #0f172a;
+    background: rgba(15, 23, 42, 0.05);
+}
+
+.sub-nav-item.active {
+    background: #ffffff;
+    color: #c89b3c;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+/* STATUS BADGES - PREMIUM */
+.status-badge {
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    white-space: nowrap;
+}
+
+.status-badge.approved { background: #ecfdf5; color: #059669; border: 1px solid #a7f3d0; }
+.status-badge.pending { background: #fffbeb; color: #d97706; border: 1px solid #fde68a; }
+.status-badge.denied { background: #fef2f2; color: #dc2626; border: 1px solid #fecaca; }
+.status-badge.paid { background: #f0fdf4; color: #166534; border: 1px solid #bbf7d0; min-width: 90px; justify-content: center; }
+.status-badge.unpaid { background: #fff1f2; color: #991b1b; border: 1px solid #fecdd3; min-width: 90px; justify-content: center; }
+
+/* SERVICE TAGS */
+.service-row-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: #475569;
+    font-weight: 600;
+}
+
+.service-row-item svg {
+    color: #c89b3c;
+    font-size: 1rem;
+}
+
+/* ACTION BUTTONS */
+.action-btn-circle {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    border: 1px solid #e2e8f0;
+    background: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.action-btn-circle.approve:hover {
+    background: #10b981;
+    color: white;
+    border-color: #10b981;
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);
+}
+
+.action-btn-circle.deny:hover {
+    background: #ef4444;
+    color: white;
+    border-color: #ef4444;
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2);
+}
+
+.action-processed-text {
+    color: #94a3b8;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* SCROLLABLE TABLE CONTAINER */
+.staff-table-scroll {
+    max-height: 480px;
+    overflow-y: auto;
+    padding-right: 5px;
+    margin-top: 15px;
+}
+
+/* Custom Scrollbar for a premium look */
+.staff-table-scroll::-webkit-scrollbar {
+    width: 6px;
+}
+
+.staff-table-scroll::-webkit-scrollbar-track {
+    background: #f1f5f9;
+    border-radius: 10px;
+}
+
+.staff-table-scroll::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 10px;
+}
+
+.staff-table-scroll::-webkit-scrollbar-thumb:hover {
+    background: #c89b3c;
+}
+

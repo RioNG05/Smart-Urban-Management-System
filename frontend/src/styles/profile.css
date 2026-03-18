@@ -52,6 +52,19 @@
   margin: 6px 0;
 }
 
+.profile-note {
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  border-radius: 12px;
+  padding: 16px;
+}
+
+.profile-note p {
+  margin: 0;
+  line-height: 1.6;
+  color: #3f3f46;
+}
+
 .profile-section input,
 .profile-section select {
   width: 100%;

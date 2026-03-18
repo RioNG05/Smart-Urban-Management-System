@@ -1,6 +1,6 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
-// --- CÁC TRANG USER (Folder pages) ---
+// --- USER PAGES (pages folder) ---
 import MarketPage from "../pages/MarketPage";
 import AuthPage from "../pages/Authpage";
 import Product from "../pages/ProductDetailPage";
@@ -13,9 +13,8 @@ import Profile from "../pages/ProfilePage";
 import ServicePage from "../pages/ServicePage";
 import PrivateRoute from "./PrivateRoute";
 import BillingPage from "../pages/BillingPage";
-// --- IMPORT TỪ 4 FILE GỘP (GIỮ 100% CODE GỐC) ---
 
-// --- IMPORT ADMIN (Đường dẫn đã đưa ra ngoài pages) ---
+// --- ADMIN SYSTEM ---
 import { AdminLayout, AdminDashboard } from "../admin/AdminCore";
 import {
   AdminRoleManager,
@@ -26,90 +25,83 @@ import {
 import AdminReports from "../admin/AdminReports";
 import AdminAccountLock from "../admin/AdminAccountLock";
 
-// --- IMPORT STAFF (Đường dẫn đã đưa ra ngoài pages) ---
 import StaffApartment from "../staff/StaffApartment";
+import StaffSecurity from "../staff/StaffSecurity";
+import StaffService from "../staff/StaffService";
 
-function AppRoutes() {
+export default function AppRoutes() {
   return (
     <BrowserRouter>
       <Routes>
-        {/* --- ROUTES NGƯỜI DÙNG --- */}
+        {/* --- USER ROUTES --- */}
         <Route path="/" element={<Home />} />
         <Route path="/about" element={<AboutPage />} />
         <Route path="/auth" element={<AuthPage />} />
-        <Route path="/services" element={<ServicePage />} />
         <Route path="/news" element={<NewsPage />} />
         <Route path="/news/:id" element={<NewsDetailPage />} />
         <Route path="/billing" element={<BillingPage />} />
+        <Route path="/services" element={<ServicePage />} />
+        <Route path="/market" element={<MarketPage />} />
+        <Route path="/product/:id" element={<Product />} />
 
-        {/* CÁC TRANG CÓ BẢO MẬT */}
+        {/* SECURE PAGES */}
         <Route
           path="/market"
           element={
-            <PrivateRoute>
+            <PrivateRoute roles={["resident", "staff", "admin"]}>
               <MarketPage />
             </PrivateRoute>
           }
         />
         <Route
-          path="/product"
+          path="/product/:id"
           element={
-            <PrivateRoute>
+            <PrivateRoute roles={["resident", "staff", "admin"]}>
               <Product />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/service"
+          element={
+            <PrivateRoute roles={["resident", "staff", "admin"]}>
+              <ServicePage />
             </PrivateRoute>
           }
         />
         <Route
           path="/profile"
           element={
-            <PrivateRoute>
+            <PrivateRoute roles={["resident", "staff", "admin"]}>
               <Profile />
             </PrivateRoute>
           }
         />
         <Route path="/unauthorized" element={<Unauthorized />} />
 
-        {/* --- HỆ THỐNG ADMIN --- */}
+        {/* --- ADMIN SYSTEM --- */}
         <Route path="/admin" element={<AdminLayout />}>
           <Route index element={<AdminDashboard />} />
           <Route path="roles" element={<AdminRoleManager />} />
           <Route path="lock-resident" element={<AdminLockResident />} />
-
-          {/* Các tính năng mở rộng của Hùng */}
           <Route path="contracts/create" element={<AdminCreateContract />} />
           <Route path="contracts/view" element={<AdminPropertyManager />} />
-
           <Route path="reports/revenue" element={<AdminReports />} />
           <Route path="reports/residents" element={<AdminReports />} />
           <Route path="reports/payments" element={<AdminReports />} />
-          <Route path="reports/services" element={<AdminReports />} />
           <Route
             path="account-lock"
             element={<AdminAccountLock title="General Accounts" />}
           />
         </Route>
 
-        {/* --- HỆ THỐNG STAFF --- */}
+        {/* --- STAFF SYSTEM --- */}
         <Route path="/staff">
           <Route path="apartment" element={<StaffApartment />} />
-          <Route
-            path="service"
-            element={
-              <div style={{ padding: "50px" }}>Staff Service - Coming Soon</div>
-            }
-          />
-          <Route
-            path="security"
-            element={
-              <div style={{ padding: "50px" }}>
-                Staff Security - Coming Soon
-              </div>
-            }
-          />
+          <Route path="service" element={<StaffService />} />
+          <Route path="security" element={<StaffSecurity />} />
         </Route>
       </Routes>
     </BrowserRouter>
   );
 }
-
-export default AppRoutes;
