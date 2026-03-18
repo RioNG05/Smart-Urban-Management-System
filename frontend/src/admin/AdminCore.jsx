@@ -2,15 +2,18 @@ import React, { useState } from 'react';
 import { Outlet, Link } from 'react-router-dom';
 import { 
     FaHome, FaUserShield, FaBuilding, FaNewspaper, FaBars, 
-    FaUserLock, FaChartPie, FaChevronDown, FaUsers 
+    FaUserLock, FaChartPie, FaChevronDown, FaUsers,
+    FaFileContract // Tao thêm icon hợp đồng
 } from 'react-icons/fa';
-import "../../styles/admin.css";
+import "../styles/admin.css";
 
-// --- NGUYÊN VĂN ADMIN SIDEBAR ---
+// --- NGUYÊN VĂN ADMIN SIDEBAR (ĐÃ THÊM MENU CĂN HỘ & HỢP ĐỒNG) ---
 const AdminSidebar = () => {
     const [isOpen, setIsOpen] = useState(true);
     const [openAccess, setOpenAccess] = useState(false);
     const [openReports, setOpenReports] = useState(false);
+    // State để đóng mở menu Hợp đồng
+    const [openContract, setOpenContract] = useState(false);
 
     return (
         <div className={`admin-sidebar ${isOpen ? 'open' : 'closed'}`}>
@@ -18,7 +21,7 @@ const AdminSidebar = () => {
                 <FaBars className="menu-toggle-icon" onClick={() => setIsOpen(!isOpen)} />
                 {isOpen && <span className="logo-text">VinaHouse CMS</span>}
             </div>
-            
+
             <nav className="sidebar-nav">
                 <Link to="/admin" className="nav-item">
                     <FaHome /> {isOpen && <span>Dashboard</span>}
@@ -35,6 +38,21 @@ const AdminSidebar = () => {
                         <div className="submenu">
                             <Link to="/admin/roles">Permissions</Link>
                             <Link to="/admin/lock-resident">Lock Resident</Link>
+                        </div>
+                    )}
+                </div>
+
+                {/* --- NHÓM MỚI: QUẢN LÝ CĂN HỘ VÀ HỢP ĐỒNG --- */}
+                <div className="menu-group">
+                    <div className="menu-item-title" onClick={() => setOpenContract(!openContract)}>
+                        <FaFileContract /> 
+                        {isOpen && <span>APARTMENT MANAGEMENT AND CONTRACTS</span>}
+                        {isOpen && <FaChevronDown className={`arrow ${openContract ? 'rotate' : ''}`} />}
+                    </div>
+                    {isOpen && openContract && (
+                        <div className="submenu">
+                            <Link to="/admin/contracts/create">Create a contract</Link>
+                            <Link to="/admin/contracts/view">See contract</Link>
                         </div>
                     )}
                 </div>
@@ -69,8 +87,16 @@ export const AdminLayout = () => {
         <div className="admin-page-wrapper">
             <AdminSidebar />
             <div className="admin-main-container">
+                {/* THANH TOPBAR ĐÃ ĐƯỢC CHỈNH SỬA TỐI GIẢN */}
                 <div className="admin-topbar">
-                    <span>VinaHouse CMS Management System</span>
+                    <div className="vinahouse-header-brand">
+                        <img
+                            src="z7591806382044_ba5ea6e51b85fa2bcbf1489a10e60601.jpg"
+                            alt=""
+                            className="header-logo-img"
+                        />
+                        <span className="header-brand-name">VINAHOUSES</span>
+                    </div>
                 </div>
                 <div className="admin-content-area">
                     <Outlet />
