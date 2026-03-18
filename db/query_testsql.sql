@@ -1,16 +1,22 @@
-﻿--1. xem thk nào là resident  tức (role id = 2) để add resident cho nó.  
-select * from Accounts where roleid = 2 
+﻿-- IT 1 -- check when create new account
+Select * from accounts
 
--- check xem có những role và id gì.
 select * from Roles
--- check xem account nào ứng với resident nào 
 
+-- check xem các permission dược add chưa 
+select * from Permissions
+
+-- 
 SELECT 
-    A.Id AS AccountId,
-    A.Email,
-    R.FullName,
-    R.PhoneNumber,
-    R.IdentityNumber
-FROM Accounts A
-INNER JOIN Residents R ON A.Id = R.AccountId
-WHERE A.RoleId = 2; -- Chỉ lấy những người là cư dân
+    a.Id,               -- Dùng 'a' thay vì 'authorities'
+    a.RoleId,           -- Thiếu dấu phẩy ở đây nữa nè
+    a.PermissionId, 
+    p.PermissionCode,
+	p.Description,
+    Roles.RoleName      -- Bảng Roles anh không đặt Alias nên dùng tên gốc là đúng
+FROM authorities a 
+JOIN Permissions p ON p.Id = a.PermissionId 
+JOIN Roles ON Roles.Id = a.RoleId
+ORDER BY a.Id ASC; -- ASC là thấp -> cao (mặc định), DESC là cao -> thấp
+
+select * from Apartments

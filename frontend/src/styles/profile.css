@@ -1,0 +1,231 @@
+.profile-page {
+  padding: 80px 20px;
+  background: #f5f7f6;
+  min-height: 80vh;
+}
+
+.profile-layout {
+  max-width: 1200px;
+  margin: auto;
+
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 30px;
+}
+
+/* LEFT PROFILE */
+
+.profile-left {
+  background: white;
+
+  border-radius: 16px;
+
+  padding: 40px;
+
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+}
+
+/* RIGHT HOUSES */
+
+.profile-right {
+  background: white;
+
+  border-radius: 16px;
+
+  padding: 30px;
+
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+}
+
+/* PROFILE SECTION */
+
+.profile-section {
+  margin-top: 25px;
+}
+
+.profile-section h3 {
+  margin-bottom: 10px;
+  color: #166534;
+}
+
+.profile-section p {
+  margin: 6px 0;
+}
+
+.profile-note {
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  border-radius: 12px;
+  padding: 16px;
+}
+
+.profile-note p {
+  margin: 0;
+  line-height: 1.6;
+  color: #3f3f46;
+}
+
+.profile-section input,
+.profile-section select {
+  width: 100%;
+  padding: 10px;
+  margin-top: 8px;
+
+  border-radius: 6px;
+  border: 1px solid #ddd;
+}
+
+/* BUTTONS */
+
+.profile-buttons {
+  margin-top: 30px;
+  display: flex;
+  gap: 10px;
+}
+
+.btn-edit {
+  background: #22c55e;
+  color: white;
+
+  padding: 10px 20px;
+  border: none;
+  border-radius: 8px;
+
+  cursor: pointer;
+}
+
+.btn-save {
+  background: #16a34a;
+  color: white;
+
+  padding: 10px 20px;
+  border: none;
+  border-radius: 8px;
+
+  cursor: pointer;
+}
+
+.btn-cancel {
+  background: #ef4444;
+  color: white;
+
+  padding: 10px 20px;
+  border: none;
+  border-radius: 8px;
+
+  cursor: pointer;
+}
+
+/* HOUSES */
+
+.houses-card {
+  width: 100%;
+}
+
+.house-list {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.house-item {
+  border: 1px solid #eee;
+
+  border-radius: 10px;
+
+  padding: 15px;
+
+  transition: all 0.2s ease;
+}
+
+.house-item:hover {
+  transform: translateY(-3px);
+
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+}
+
+.house-item h4 {
+  margin-bottom: 5px;
+  color: #166534;
+}
+
+/* RESPONSIVE */
+
+@media (max-width: 900px) {
+  .profile-layout {
+    grid-template-columns: 1fr;
+  }
+}
+.house-title {
+  margin-bottom: 20px;
+  color: #14532d;
+}
+
+/* HOUSE CARD */
+
+.house-item {
+  border: 1px solid #eee;
+  border-radius: 12px;
+  padding: 18px;
+
+  transition: all 0.25s ease;
+
+  background: white;
+}
+
+.house-item:hover {
+  transform: translateY(-4px);
+
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+}
+
+/* HEADER */
+
+.house-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.house-header h4 {
+  color: #166534;
+  font-size: 18px;
+}
+
+.house-price {
+  font-weight: 600;
+  color: #22c55e;
+}
+
+/* DEADLINE */
+
+.house-deadline {
+  margin: 10px 0;
+  font-size: 14px;
+  color: #555;
+}
+
+/* PROGRESS BAR */
+
+.progress-container {
+  height: 8px;
+  background: #e5e7eb;
+
+  border-radius: 10px;
+
+  overflow: hidden;
+}
+
+.progress-bar {
+  height: 100%;
+
+  background: linear-gradient(90deg, #22c55e, #16a34a);
+
+  transition: width 0.4s ease;
+}
+
+.progress-text {
+  margin-top: 6px;
+  font-size: 13px;
+  color: #666;
+}

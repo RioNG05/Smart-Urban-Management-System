@@ -2,8 +2,8 @@ function PropertyCard({ property, view }) {
   return (
     <div className={`property-card ${view}`}>
       <div className="property-image">
-        <img src={property.image} alt="" />
-        <span className="tag">For Sale</span>
+        <img src={property.image} alt={property.title} />
+        <span className="tag">{property.statusLabel}</span>
       </div>
 
       <div className="property-content">
@@ -13,7 +13,7 @@ function PropertyCard({ property, view }) {
         <div className="property-meta">
           <span>{property.bedrooms} Beds</span>
           <span>{property.bathrooms} Baths</span>
-          <span>{property.area} m²</span>
+          <span>{property.area} m2</span>
         </div>
 
         <div className="price">{property.price}</div>

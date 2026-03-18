@@ -2,12 +2,18 @@ package com.example.backend.Entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+import tools.jackson.databind.deser.bean.CreatorCandidate;
+
 import java.time.*;
 import java.math.BigDecimal;
 
 @Entity
 @Table(name = "ApartmentTypes")
 @Getter @Setter @NoArgsConstructor @AllArgsConstructor
+@Builder
+@EntityListeners(AuditingEntityListener.class)
 public class ApartmentType {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -35,6 +41,11 @@ public class ApartmentType {
     @Column(name = "CommonPriceForRent", precision = 18, scale = 2)
     private BigDecimal commonPriceForRent;
 
+    @CreatedDate
     @Column(name = "CreatedAt", insertable = false, updatable = false)
     private LocalDateTime createdAt;
+
+    @Column(name = "Furniture")
+    private Integer furniture;
+
 }

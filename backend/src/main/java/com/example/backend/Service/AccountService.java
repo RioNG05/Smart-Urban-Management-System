@@ -1,7 +1,7 @@
 package com.example.backend.Service;
 
-import com.example.backend.DTO.Request.AccountCreateRequest;
-import com.example.backend.DTO.Request.AccountUpdateRequest;
+import com.example.backend.DTO.Request.account.AccountCreateRequest;
+import com.example.backend.DTO.Request.account.AccountUpdateRequest;
 import com.example.backend.Entity.Account;
 import com.example.backend.Entity.Role;
 import com.example.backend.Repository.AccountRepository;
@@ -10,9 +10,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @Service
 public class AccountService {
@@ -20,6 +18,7 @@ public class AccountService {
     private AccountRepository repository;
     @Autowired
     private RoleService roleService;
+
     private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(10);
 
     public List<Account> findAll() {
@@ -32,23 +31,15 @@ public class AccountService {
     }
 
     public Account create(AccountCreateRequest req) {
-
-        if (repository.existsByUsername(req.getUsername())) {
-            throw new RuntimeException("Tên người dùng đã được sử dụng");
-        }
-
-        if (repository.existsByEmail(req.getEmail())) {
-            throw new RuntimeException("Email đã được sử dụng");
-        }
-
-
-        Account account = new Account();
+        Account account =new Account();
+        PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(10);
+        Role role =  roleService.findById(req.getRoleId());
 
         account.setEmail(req.getEmail());
         account.setUsername(req.getUsername());
         account.setPassword(passwordEncoder.encode(req.getPassword()));
-        Role role = roleService.findById(req.getRoleId());
         account.setRole(role);
+        account.setIsActive(req.getActive());
 
         return repository.save(account);
     }
@@ -82,6 +73,12 @@ public class AccountService {
     public void delete(Integer id) {
         findById(id);
         repository.deleteById(id);
+    }
+
+    public void changeRole(Integer id, Integer roleId){
+        Account account = findById(id);
+        Role role = roleService.findById(roleId);
+        account.setRole(role);
     }
 
 }

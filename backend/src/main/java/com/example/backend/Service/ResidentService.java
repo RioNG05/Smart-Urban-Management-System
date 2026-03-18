@@ -1,12 +1,10 @@
 package com.example.backend.Service;
 
-import com.example.backend.DTO.Request.ResidentCreateRequest;
-import com.example.backend.DTO.Request.ResidentUpdateRequest;
+import com.example.backend.DTO.Request.account.AccountUpdateRequest;
+import com.example.backend.DTO.Request.resident.ResidentCreateRequest;
+import com.example.backend.DTO.Request.resident.ResidentUpdateRequest;
 import com.example.backend.Entity.Account;
-import com.example.backend.Entity.Apartment;
 import com.example.backend.Entity.Resident;
-import com.example.backend.Repository.AccountRepository;
-import com.example.backend.Repository.ApartmentRepository;
 import com.example.backend.Repository.ResidentRepository;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
@@ -29,11 +27,16 @@ public class ResidentService {
 
     public Resident findById(Integer id) {
         return residentRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Apartment not found"));
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy thông tin dân cư với id: "+id));
     }
 
     public Resident create(ResidentCreateRequest request) {
-        Account account = accountService.findById(request.getAccountId());
+        Account account = null;
+
+        if(request.getAccountId() != null){
+            accountService.changeRole(request.getAccountId(), 2);
+            account = accountService.findById(request.getAccountId());
+        }
 
         Resident resident = Resident.builder()
                 .fullName(request.getFullName())
@@ -47,13 +50,17 @@ public class ResidentService {
     }
 
     public Resident update(Integer id, ResidentUpdateRequest req) {
+
         Resident resident = findById(id);
 
-        resident = Resident.builder()
-                .fullName(req.getFullName())
-                .gender(req.getGender())
-                .dateOfBirth(req.getDateOfBirth())
-                .build();
+        if(req.getFullName() != null)
+            resident.setFullName(req.getFullName());
+
+        if(req.getGender() != null)
+            resident.setGender(req.getGender());
+
+        if(req.getDateOfBirth() != null)
+            resident.setDateOfBirth(req.getDateOfBirth());
 
         return residentRepository.save(resident);
     }
@@ -61,5 +68,9 @@ public class ResidentService {
     public void delete(Integer id) {
         findById(id);
         residentRepository.deleteById(id);
+    }
+
+    public Resident findByAccountId(Integer accountId){
+        return residentRepository.findByAccountId(accountId).orElseThrow(()->new RuntimeException("Không tìm thấy tài khoản người dân"));
     }
 }
