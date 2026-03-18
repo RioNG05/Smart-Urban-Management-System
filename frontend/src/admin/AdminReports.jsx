@@ -7,9 +7,13 @@ import {
 const serviceData = [
     { name: 'Electricity', users: 450, revenue: 2400 },
     { name: 'Water', users: 320, revenue: 1398 },
-    { name: 'Internet', users: 280, revenue: 9800 },
+    { name: 'Monthly management fee', users: 280, revenue: 560 },
     { name: 'Gym/Pool', users: 150, revenue: 3908 },
     { name: 'Parking', users: 500, revenue: 4800 },
+    { name: 'Tennis Court', users: 80, revenue: 1200 },
+    { name: 'Golf Course', users: 40, revenue: 3500 },
+    { name: 'Sauna & Spa', users: 120, revenue: 5600 },
+    { name: 'Community Hall', users: 200, revenue: 500 },
 ];
 
 const AdminReports = () => {
@@ -47,7 +51,16 @@ const AdminReports = () => {
                     <ResponsiveContainer width="100%" height="100%">
                         <BarChart data={serviceData}>
                             <CartesianGrid strokeDasharray="3 3" vertical={false} />
-                            <XAxis dataKey="name" axisLine={false} tickLine={false} />
+                            <XAxis 
+                                dataKey="name" 
+                                axisLine={false} 
+                                tickLine={false} 
+                                interval={0}
+                                tick={{ fontSize: 10 }}
+                                angle={-45}
+                                textAnchor="end"
+                                height={80}
+                            />
                             <YAxis axisLine={false} tickLine={false} />
                             <Tooltip
                                 contentStyle={{ borderRadius: '10px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}
