@@ -21,6 +21,8 @@ import AdminReports from "../admin/AdminReports";
 import AdminAccountLock from "../admin/AdminAccountLock";
 
 import StaffApartment from "../staff/StaffApartment";
+import StaffSecurity from "../staff/StaffSecurity";
+import StaffService from "../staff/StaffService";
 
 export default function AppRoutes() {
   return (
@@ -33,32 +35,11 @@ export default function AppRoutes() {
         <Route path="/news" element={<NewsPage />} />
         <Route path="/news/:id" element={<NewsDetailPage />} />
         <Route path="/billing" element={<BillingPage />} />
+        <Route path="/services" element={<ServicePage />} />
+        <Route path="/market" element={<MarketPage />} />
+        <Route path="/product/:id" element={<Product />} />
 
         {/* SECURE PAGES */}
-        <Route
-          path="/market"
-          element={
-            <PrivateRoute roles={["resident", "staff", "admin"]}>
-              <MarketPage />
-            </PrivateRoute>
-          }
-        />
-        <Route
-          path="/product/:id"
-          element={
-            <PrivateRoute roles={["resident", "staff", "admin"]}>
-              <Product />
-            </PrivateRoute>
-          }
-        />
-        <Route
-          path="/service"
-          element={
-            <PrivateRoute roles={["resident", "staff", "admin"]}>
-              <ServicePage />
-            </PrivateRoute>
-          }
-        />
         <Route
           path="/profile"
           element={
@@ -85,20 +66,8 @@ export default function AppRoutes() {
         {/* --- STAFF SYSTEM --- */}
         <Route path="/staff">
           <Route path="apartment" element={<StaffApartment />} />
-          <Route
-            path="service"
-            element={
-              <div style={{ padding: "50px" }}>Staff Service - Coming Soon</div>
-            }
-          />
-          <Route
-            path="security"
-            element={
-              <div style={{ padding: "50px" }}>
-                Staff Security - Coming Soon
-              </div>
-            }
-          />
+          <Route path="service" element={<StaffService />} />
+          <Route path="security" element={<StaffSecurity />} />
         </Route>
       </Routes>
     </BrowserRouter>
