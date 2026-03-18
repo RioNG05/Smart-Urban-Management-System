@@ -16,6 +16,9 @@ import {
     FaShieldAlt,
     FaUsers,
     FaLeaf,
+    FaTableTennis,
+    FaGolfBall,
+    FaSpa,
 } from "react-icons/fa";
 
 export default function AboutPage() {
@@ -178,6 +181,26 @@ export default function AboutPage() {
                                 <FaFireAlt className="icon" />
                                 <h4>BBQ Park</h4>
                                 <p>Over 100 outdoor BBQ stations set beside a scenic white sand lake for gatherings and leisure.</p>
+                            </div>
+                            <div className="amenity-card">
+                                <FaTableTennis className="icon" />
+                                <h4>Tennis Court</h4>
+                                <p>Professional-grade tennis courts with high-quality surfaces and night lighting.</p>
+                            </div>
+                            <div className="amenity-card">
+                                <FaGolfBall className="icon" />
+                                <h4>Golf Course</h4>
+                                <p>Premium mini-golf courses and putting greens for practice and leisure.</p>
+                            </div>
+                            <div className="amenity-card">
+                                <FaSpa className="icon" />
+                                <h4>Sauna & Spa</h4>
+                                <p>Luxury sauna and spa facilities offering a range of wellness treatments.</p>
+                            </div>
+                            <div className="amenity-card">
+                                <FaUsers className="icon" />
+                                <h4>Community Hall</h4>
+                                <p>Spacious and versatile community halls for meetings and social gatherings.</p>
                             </div>
                         </div>
                     </div>

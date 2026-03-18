@@ -14,7 +14,7 @@ const steps = [
   {
     step: "03",
     title: "Book Services",
-    desc: "Browse and book amenities like BBQ stations, tennis courts, and swimming pools instantly.",
+    desc: "Browse and book amenities like BBQ stations, tennis courts, golf courses, and spa facilities instantly.",
   },
   {
     step: "04",

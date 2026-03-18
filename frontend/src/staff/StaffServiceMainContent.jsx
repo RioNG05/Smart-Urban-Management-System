@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import {
     FaCalendarCheck, FaCreditCard, FaCheck, FaTimes,
-    FaInfoCircle, FaSwimmingPool, FaDumbbell, FaFire
+    FaInfoCircle, FaSwimmingPool, FaDumbbell, FaFire,
+    FaTableTennis, FaGolfBall, FaSpa, FaUsers
 } from 'react-icons/fa';
 
 const StaffServiceMainContent = ({ activeTab }) => {
@@ -40,7 +41,11 @@ const StaffServiceMainContent = ({ activeTab }) => {
         { id: 27, resident: "Truong Thi Vy", service: "BBQ Park", date: "29/03/2026", time: "11:00 - 15:00", status: "Pending" },
         { id: 28, resident: "Dang Hoang Phuc", service: "Swimming Pool", date: "30/03/2026", time: "10:00 - 12:00", status: "Approved" },
         { id: 29, resident: "Bui Thi An", service: "Gym & Yoga", date: "30/03/2026", time: "16:00 - 18:00", status: "Pending" },
-        { id: 30, resident: "Tran Van Minh", service: "BBQ Park", date: "31/03/2026", time: "18:00 - 21:00", status: "Approved" }
+        { id: 30, resident: "Tran Van Minh", service: "BBQ Park", date: "31/03/2026", time: "18:00 - 21:00", status: "Approved" },
+        { id: 31, resident: "Nguyen Van A", service: "Tennis Court", date: "18/03/2026", time: "06:00 - 08:00", status: "Pending" },
+        { id: 32, resident: "Tran Thi B", service: "Golf Course", date: "19/03/2026", time: "09:00 - 11:00", status: "Approved" },
+        { id: 33, resident: "Le Van C", service: "Sauna & Spa", date: "20/03/2026", time: "14:00 - 16:00", status: "Pending" },
+        { id: 34, resident: "Pham Thi D", service: "Community Hall", date: "21/03/2026", time: "18:00 - 20:00", status: "Approved" }
     ]);
 
 
@@ -74,7 +79,11 @@ const StaffServiceMainContent = ({ activeTab }) => {
         { id: 27, resident: "Dang Hoang Phuc", apartment: "D-111", service: "BBQ Park", amount: "200,000 VND", status: "Unpaid", date: "26/03/2026" },
         { id: 28, resident: "Bui Thi An", apartment: "A-607", service: "Swimming Pool", amount: "350,000 VND", status: "Paid", date: "26/03/2026" },
         { id: 29, resident: "Tran Van Minh", apartment: "B-212", service: "Gym & Yoga", amount: "150,000 VND", status: "Paid", date: "27/03/2026" },
-        { id: 30, resident: "Do Kim Huong", apartment: "C-1502", service: "BBQ Park", amount: "450,000 VND", status: "Paid", date: "27/03/2026" }
+        { id: 30, resident: "Do Kim Huong", apartment: "C-1502", service: "BBQ Park", amount: "450,000 VND", status: "Paid", date: "27/03/2026" },
+        { id: 31, resident: "Nguyen Van A", apartment: "A-505", service: "Tennis Court", amount: "100,000 VND", status: "Paid", date: "18/03/2026" },
+        { id: 32, resident: "Tran Thi B", apartment: "B-202", service: "Golf Course", amount: "200,000 VND", status: "Unpaid", date: "19/03/2026" },
+        { id: 33, resident: "Le Van C", apartment: "C-1101", service: "Sauna & Spa", amount: "300,000 VND", status: "Paid", date: "20/03/2026" },
+        { id: 34, resident: "Pham Thi D", apartment: "A-1204", service: "Community Hall", amount: "50,000 VND", status: "Paid", date: "21/03/2026" }
     ]);
 
 
@@ -82,6 +91,10 @@ const StaffServiceMainContent = ({ activeTab }) => {
         if (service.includes("Pool")) return <FaSwimmingPool />;
         if (service.includes("Gym")) return <FaDumbbell />;
         if (service.includes("BBQ")) return <FaFire />;
+        if (service.includes("Tennis")) return <FaTableTennis />;
+        if (service.includes("Golf")) return <FaGolfBall />;
+        if (service.includes("Sauna")) return <FaSpa />;
+        if (service.includes("Community") || service.includes("Nhà sinh hoạt")) return <FaUsers />;
         return <FaCalendarCheck />;
     };
 
@@ -110,7 +123,7 @@ const StaffServiceMainContent = ({ activeTab }) => {
                             </p>
 
                             <div className="staff-sub-nav">
-                                {['All', 'Swimming Pool', 'Gym & Yoga', 'BBQ Park'].map(cat => (
+                                {['All', 'Swimming Pool', 'Gym & Yoga', 'BBQ Park', 'Tennis Court', 'Golf Course', 'Sauna & Spa', 'Community Hall'].map(cat => (
                                     <div
                                         key={cat}
                                         className={`sub-nav-item ${bookingFilter === cat ? 'active' : ''}`}
@@ -203,7 +216,7 @@ const StaffServiceMainContent = ({ activeTab }) => {
                             </p>
 
                             <div className="staff-sub-nav">
-                                {['All', 'Swimming Pool', 'Gym & Yoga', 'BBQ Park'].map(cat => (
+                                {['All', 'Swimming Pool', 'Gym & Yoga', 'BBQ Park', 'Tennis Court', 'Golf Course', 'Sauna & Spa', 'Community Hall'].map(cat => (
                                     <div
                                         key={cat}
                                         className={`sub-nav-item ${feeFilter === cat ? 'active' : ''}`}
