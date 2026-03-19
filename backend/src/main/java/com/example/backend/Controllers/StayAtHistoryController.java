@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/stay_at_history")
+@RequestMapping("/api/stay-at-history")
 public class StayAtHistoryController {
 
     @Autowired
