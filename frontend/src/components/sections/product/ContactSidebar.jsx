@@ -1,4 +1,4 @@
-const ContactSidebar = () => {
+const ContactSidebar = ({ property }) => {
   return (
     <div className="contact-sidebar">
       <div className="agent-info">
@@ -9,18 +9,21 @@ const ContactSidebar = () => {
         />
 
         <div className="agent-details">
-          <div className="agent-name">Nguyễn Văn A</div>
-          <div className="agent-status">● Đang hoạt động</div>
+          <div className="agent-name">Sales Office</div>
+          <div className="agent-status">Dang hoat dong</div>
         </div>
       </div>
 
-      <button className="btn-call">📞 Gọi điện</button>
+      <button className="btn-call">Goi dien</button>
 
-      <button className="btn-message">💬 Nhắn tin</button>
+      <button className="btn-message">Nhan tin</button>
 
       <div className="quick-contact">
-        <input type="text" placeholder="Nhập số điện thoại của bạn" />
-        <button className="btn-submit">Gửi liên hệ</button>
+        <input
+          type="text"
+          placeholder={`Nhan tu van cho phong ${property.roomNumber}`}
+        />
+        <button className="btn-submit">Gui lien he</button>
       </div>
     </div>
   );

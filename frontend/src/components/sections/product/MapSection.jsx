@@ -1,4 +1,4 @@
-const MapSection = () => {
+const MapSection = ({ property }) => {
   return (
     <div className="product-map">
       <h2 className="section-title">Location</h2>
@@ -6,7 +6,7 @@ const MapSection = () => {
       <div className="map-container">
         <iframe
           title="property-location"
-          src="https://www.google.com/maps?q=Vinhomes+Ocean+Park+Gia+Lam&output=embed"
+          src={`https://www.google.com/maps?q=${encodeURIComponent(property.fullLocation)}&output=embed`}
           loading="lazy"
           allowFullScreen
         ></iframe>

@@ -4,34 +4,9 @@ import {
   getApartments,
   getApartmentTypes,
 } from "../../../services/apartmentService.js";
+import { mapApartmentToProperty } from "../../../services/propertyMapper.js";
 
-const formatPrice = (value) => {
-  const numericValue = Number(value);
-
-  if (!Number.isFinite(numericValue) || numericValue <= 0) {
-    return "Lien he";
-  }
-
-  return new Intl.NumberFormat("vi-VN", {
-    style: "currency",
-    currency: "VND",
-    maximumFractionDigits: 0,
-  }).format(numericValue);
-};
-
-const getImageByTypeName = (name = "") => {
-  const normalizedName = name.toLowerCase();
-
-  if (normalizedName.includes("studio")) {
-    return "https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?auto=format&fit=crop&w=1200&q=80";
-  }
-
-  if (normalizedName.includes("villa") || normalizedName.includes("penthouse")) {
-    return "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=1200&q=80";
-  }
-
-  return "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=80";
-};
+const ITEMS_PER_PAGE = 20;
 
 const mapProperties = (apartments = [], apartmentTypes = []) => {
   const apartmentTypeMap = new Map(
@@ -46,36 +21,24 @@ const mapProperties = (apartments = [], apartmentTypes = []) => {
       ) ??
       {};
 
-    const buyPrice =
-      apartment.specificPriceForBuying ?? apartmentType.commonPriceForBuying;
-    const rentPrice =
-      apartment.specificPriceForRenting ?? apartmentType.commonPriceForRent;
-
-    return {
-      id: apartment.id,
-      title: apartmentType.name || `Can ho ${apartment.roomNumber ?? apartment.id}`,
-      location: `Tang ${apartment.floorNumber ?? "?"}, Vinhomes`,
-      bedrooms: apartmentType.numberOfBedroom ?? 0,
-      bathrooms: apartmentType.numberOfBathroom ?? 0,
-      area: apartmentType.designSqrt ?? 0,
-      price: formatPrice(buyPrice ?? rentPrice),
-      image: getImageByTypeName(apartmentType.name),
-      statusLabel: apartment.status === 1 ? "Da ban" : "Dang mo ban",
-      sortPrice: Number(buyPrice ?? rentPrice ?? 0),
-    };
+    return mapApartmentToProperty(apartment, apartmentType);
   });
 };
 
-function PropertyGrid({ view, sortBy, onCountChange }) {
+function PropertyGrid({
+  view,
+  sortBy,
+  statusFilter,
+  onCountChange,
+  onAvailableCountChange,
+  onPageMetaChange,
+}) {
   const [properties, setProperties] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
 
   useEffect(() => {
-    // [BACKEND API INTEGRATION POINT]
-    // Goi API lay danh sach can ho: GET /api/apartments
-    // Goi API lay danh sach loai can ho: GET /api/apartments/type
-
     const fetchProperties = async () => {
       try {
         setIsLoading(true);
@@ -98,8 +61,24 @@ function PropertyGrid({ view, sortBy, onCountChange }) {
     fetchProperties();
   }, []);
 
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [sortBy, statusFilter]);
+
   const sortedProperties = useMemo(() => {
-    const nextProperties = [...properties];
+    const filteredProperties = properties.filter((property) => {
+      if (statusFilter === "available") {
+        return property.isAvailable;
+      }
+
+      if (statusFilter === "unavailable") {
+        return !property.isAvailable;
+      }
+
+      return true;
+    });
+
+    const nextProperties = [...filteredProperties];
 
     if (sortBy === "price-asc") {
       return nextProperties.sort((a, b) => a.sortPrice - b.sortPrice);
@@ -110,13 +89,52 @@ function PropertyGrid({ view, sortBy, onCountChange }) {
     }
 
     return nextProperties.sort((a, b) => b.id - a.id);
-  }, [properties, sortBy]);
+  }, [properties, sortBy, statusFilter]);
+
+  const totalPages = Math.max(1, Math.ceil(sortedProperties.length / ITEMS_PER_PAGE));
+  const safeCurrentPage = Math.min(currentPage, totalPages);
+  const startOffset = (safeCurrentPage - 1) * ITEMS_PER_PAGE;
+  const paginatedProperties = sortedProperties.slice(
+    startOffset,
+    startOffset + ITEMS_PER_PAGE,
+  );
+
+  useEffect(() => {
+    if (safeCurrentPage !== currentPage) {
+      setCurrentPage(safeCurrentPage);
+    }
+  }, [safeCurrentPage, currentPage]);
 
   useEffect(() => {
     if (typeof onCountChange === "function") {
       onCountChange(sortedProperties.length);
     }
   }, [sortedProperties, onCountChange]);
+
+  useEffect(() => {
+    if (typeof onAvailableCountChange === "function") {
+      onAvailableCountChange(
+        properties.filter((property) => property.isAvailable).length,
+      );
+    }
+  }, [properties, onAvailableCountChange]);
+
+  useEffect(() => {
+    if (typeof onPageMetaChange === "function") {
+      onPageMetaChange({
+        currentPage: safeCurrentPage,
+        totalPages,
+        startIndex: sortedProperties.length ? startOffset + 1 : 0,
+        endIndex: Math.min(startOffset + ITEMS_PER_PAGE, sortedProperties.length),
+      });
+    }
+  }, [
+    safeCurrentPage,
+    totalPages,
+    startOffset,
+    sortedProperties.length,
+    onPageMetaChange,
+  ]);
 
   if (isLoading) {
     return (
@@ -146,10 +164,49 @@ function PropertyGrid({ view, sortBy, onCountChange }) {
   }
 
   return (
-    <div className={`property-grid ${view}`}>
-      {sortedProperties.map((item) => (
-        <PropertyCard key={item.id} property={item} view={view} />
-      ))}
+    <div className="property-grid-section">
+      <div className={`property-grid ${view}`}>
+        {paginatedProperties.map((item) => (
+          <PropertyCard key={item.id} property={item} view={view} />
+        ))}
+      </div>
+
+      <div className="pagination-bar">
+        <button
+          type="button"
+          className="pagination-btn"
+          onClick={() => setCurrentPage((page) => Math.max(1, page - 1))}
+          disabled={safeCurrentPage === 1}
+        >
+          Previous
+        </button>
+
+        <div className="pagination-pages">
+          {Array.from({ length: totalPages }, (_, index) => index + 1).map(
+            (page) => (
+              <button
+                key={page}
+                type="button"
+                className={`pagination-page ${
+                  page === safeCurrentPage ? "active" : ""
+                }`}
+                onClick={() => setCurrentPage(page)}
+              >
+                {page}
+              </button>
+            ),
+          )}
+        </div>
+
+        <button
+          type="button"
+          className="pagination-btn"
+          onClick={() => setCurrentPage((page) => Math.min(totalPages, page + 1))}
+          disabled={safeCurrentPage === totalPages}
+        >
+          Next
+        </button>
+      </div>
     </div>
   );
 }
