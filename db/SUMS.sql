@@ -1114,20 +1114,20 @@ CREATE TABLE Accounts (
 
 INSERT INTO Accounts (Email, Username, Password, RoleId, IsActive)
 VALUES 
-('admin@tems.com', 'admin', 'admin_secret', 1, 1),           -- Tài khoản Admin tổng
-('resident.tuan@gmail.com', 'tuan01', 'tuan_pass', 2, 1),    -- Tài khoản Cư dân mẫu
-('staff.building@tems.com', 'buildingstaff', 'apart_pass', 3, 1),   -- Nhân viên quản lý căn hộ
-('staff.finance@tems.com', 'financestaff', 'service_pass', 4, 1),  -- Nhân viên kế toán/dịch vụ
-('staff.guard@tems.com','guardstaff', 'security_pass', 5, 1);    -- Nhân viên an ninh
+('admin@tems.com', 'admin', '$2a$10$2t8T/IEmhhSuXuVFsqDhKeB5PUYq07eCrJuUJrVcLmrKSAn8co99W', 1, 1),           -- Tài khoản Admin tổng
+('resident.tuan@gmail.com', 'tuan01', '$2a$10$2t8T/IEmhhSuXuVFsqDhKeB5PUYq07eCrJuUJrVcLmrKSAn8co99W', 2, 1),    -- Tài khoản Cư dân mẫu
+('staff.building@tems.com', 'buildingstaff', '$2a$10$2t8T/IEmhhSuXuVFsqDhKeB5PUYq07eCrJuUJrVcLmrKSAn8co99W', 3, 1),   -- Nhân viên quản lý căn hộ
+('staff.finance@tems.com', 'financestaff', '$2a$10$2t8T/IEmhhSuXuVFsqDhKeB5PUYq07eCrJuUJrVcLmrKSAn8co99W', 4, 1),  -- Nhân viên kế toán/dịch vụ
+('staff.guard@tems.com','guardstaff', '$2a$10$2t8T/IEmhhSuXuVFsqDhKeB5PUYq07eCrJuUJrVcLmrKSAn8co99W', 5, 1);    -- Nhân viên an ninh
 GO
 
 -- add thêm resident. 
 -- Giả định RoleId = 2 là RESIDENT
 INSERT INTO Accounts (Email, Username, Password, RoleId, IsActive)
 VALUES 
-('thao.tran@gmail.com', 'thao01', 'thao_pass123', 2, 1),
-('hoang.le@gmail.com','hoang01', 'hoang_pass456', 2, 1),
-('lan.anh@gmail.com','lan01', 'lananh_pass789', 2, 1);
+('thao.tran@gmail.com', 'thao01', '$2a$10$2t8T/IEmhhSuXuVFsqDhKeB5PUYq07eCrJuUJrVcLmrKSAn8co99W', 2, 1),
+('hoang.le@gmail.com','hoang01', '$2a$10$2t8T/IEmhhSuXuVFsqDhKeB5PUYq07eCrJuUJrVcLmrKSAn8co99W', 2, 1),
+('lan.anh@gmail.com','lan01', '$2a$10$2t8T/IEmhhSuXuVFsqDhKeB5PUYq07eCrJuUJrVcLmrKSAn8co99W', 2, 1);
 GO
 
 --bảng 5 

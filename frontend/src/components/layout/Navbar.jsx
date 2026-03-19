@@ -11,6 +11,10 @@ export default function Navbar({ solid = false }) {
   const [loadingUser, setLoadingUser] = useState(true);
 
   const navigate = useNavigate();
+  const handleNavigation = (path) => {
+    navigate(path);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
   const menuRef = useRef(null);
 
   const { token, user, role, logout, isAuthenticated } = useAuth();
@@ -56,18 +60,18 @@ export default function Navbar({ solid = false }) {
     <nav className={`navbar ${scrolled || solid ? "navbar-scrolled" : ""}`}>
       <div className="nav-container">
         {/* LOGO */}
-        <div className="nav-logo" onClick={() => navigate("/")}>
+        <div className="nav-logo" onClick={() => handleNavigation("/")}>
           <img src={logoImg} alt="VINAHOUSES Logo" className="nav-logoImg" />
           <span className="nav-logoText">VINAHOUSE</span>
         </div>
 
         <ul className="nav-links">
-          <li onClick={() => navigate("/")}>Home</li>
-          <li onClick={() => navigate("/about")}>About</li>
-          <li onClick={() => navigate("/market")}>Projects</li>
-          <li onClick={() => navigate("/services")}>Services</li>
-          <li onClick={() => navigate("/news")}>News</li>
-          <li onClick={() => navigate("/contact")}>Contact</li>
+          <li onClick={() => handleNavigation("/")}>Home</li>
+          <li onClick={() => handleNavigation("/about")}>About</li>
+          <li onClick={() => handleNavigation("/market")}>Projects</li>
+          <li onClick={() => handleNavigation("/services")}>Services</li>
+          <li onClick={() => handleNavigation("/news")}>News</li>
+          <li onClick={() => handleNavigation("/contact")}>Contact</li>
         </ul>
 
         <div className="nav-actions">
@@ -143,7 +147,7 @@ export default function Navbar({ solid = false }) {
             )}
           </div>
 
-          <button className="nav-btn" onClick={() => navigate("/projects")}>
+          <button className="nav-btn" onClick={() => handleNavigation("/projects")}>
             Explore
           </button>
         </div>
