@@ -42,6 +42,26 @@ public class StayAtHistoryController {
         return response;
     }
 
+    @GetMapping("/resident/{residentId}")
+    ApiResponse<List<StayAtHistory>> getByResidentID(@PathVariable("residentId") Integer residentId){
+        ApiResponse<List<StayAtHistory>> response = new ApiResponse<>();
+
+        response.setCode(200);
+        response.setMessage("Thông tin lịch sử lưu trú của cư dân với id: " + residentId);
+        response.setResult(service.findAllByResidentId(residentId));
+        return response;
+    }
+
+    @GetMapping("/apartment/{apartmentId}")
+    ApiResponse<List<StayAtHistory>> getByApartmentId(@PathVariable("apartmentId") Integer apartmentId){
+        ApiResponse<List<StayAtHistory>> response = new ApiResponse<>();
+
+        response.setCode(200);
+        response.setMessage("Thông tin lịch sử lưu trú của căn hộ id: " + apartmentId);
+        response.setResult(service.findAllByApartmentId(apartmentId));
+        return response;
+    }
+
     @PostMapping
     ApiResponse<StayAtHistory> create(@RequestBody @Valid SAHCreateRequest req){
         ApiResponse<StayAtHistory> response = new ApiResponse<>();
