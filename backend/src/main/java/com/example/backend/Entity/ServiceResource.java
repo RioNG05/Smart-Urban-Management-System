@@ -2,12 +2,11 @@ package com.example.backend.Entity;
 
 import jakarta.persistence.*;
 import lombok.*;
-import java.time.*;
-import java.math.BigDecimal;
 
 @Entity
 @Table(name = "ServiceResources")
 @Getter @Setter @NoArgsConstructor @AllArgsConstructor
+@Builder
 public class ServiceResource {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -22,7 +21,7 @@ public class ServiceResource {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "ServiceId", nullable = false)
-    private Service service;
+    private Services service;
 
     @Column(name = "IsAvailable")
     private Boolean isAvailable = true;

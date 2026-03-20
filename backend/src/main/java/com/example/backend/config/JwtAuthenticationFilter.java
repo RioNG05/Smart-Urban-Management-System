@@ -1,5 +1,7 @@
 package com.example.backend.config;
 
+import com.example.backend.Entity.Account;
+import com.example.backend.Repository.AccountRepository;
 import com.example.backend.Service.AuthenticationService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -14,13 +16,14 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 import java.text.ParseException;
-import java.util.Collections;
 
 @Component
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final AuthenticationService authenticationService;
+
+    private final AccountRepository accountRepository;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request,
@@ -36,18 +39,30 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         String token = authHeader.substring(7);
 
+
         try {
+//            var result = authenticationService.introspect(
+//                    IntrospectRequest.builder()
+//                            .token(token)
+//                            .build()
+//            );
+//
+//            if(!result.isValid()){
+//                filterChain.doFilter(request,response);
+//                return;
+//            }
 
             String username = authenticationService.extractUsername(token);
-            String roleId = authenticationService.extractRole(token);
 
-            if(username != null && SecurityContextHolder.getContext().getAuthentication() == null){
+            if(username != null){
+
+                Account account = accountRepository.findByUsername(username).orElseThrow(() -> new RuntimeException("Không tìm thấy tài khoản có tên người dùng là: " +username));
 
                 UsernamePasswordAuthenticationToken authentication =
                         new UsernamePasswordAuthenticationToken(
-                                username,
+                                account,
                                 null,
-                                Collections.emptyList()
+                                account.getAuthorities()
                         );
 
                 authentication.setDetails(
@@ -57,7 +72,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             }
 
-        } catch (ParseException e) {
+        } catch (ParseException ex) {
             System.out.println("JWT token parse error");
         }
 

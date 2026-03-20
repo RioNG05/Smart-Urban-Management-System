@@ -1,39 +1,97 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { 
-    FaBars, FaUserCircle, FaHistory, FaCalendarCheck, 
-    FaMoneyBillWave, FaFileInvoice, FaNewspaper, FaComments, 
-    FaBuilding, FaUserPlus, FaUserEdit, FaTrash, FaReply, FaCheck, FaTimes, FaPaperPlane, FaClock, FaPhone,
-    FaFileExcel, FaCogs, FaPlus, FaEye, FaCalendarAlt, FaSearch
+import { useNavigate } from 'react-router-dom'; // Thêm useNavigate để điều hướng
+import {
+    FaBars, FaUserCircle, FaUser, FaHistory, FaCalendarCheck,
+    FaMoneyBillWave, FaFileInvoice, FaNewspaper, FaComments,
+    FaBuilding
 } from 'react-icons/fa';
+import StaffApartmentMainContent from './StaffApartmentMainContent';
 import '../styles/staff.css';
 
 const StaffApartment = () => {
-    const navigate = useNavigate();
+    const navigate = useNavigate(); // Hook điều hướng
     const [sidebarOpen, setSidebarOpen] = useState(true);
     const [showIdCard, setShowIdCard] = useState(false);
     const [activeTab, setActiveTab] = useState('accounts');
 
-    // --- 1. LOGIC QUẢN LÝ TÀI KHOẢN ---
+    // [BACKEND_NOTE]: Tạo state để lưu thông tin profile từ API
+    // const [staffProfile, setStaffProfile] = useState({});
+
+    // [BACKEND_NOTE]: Gọi API lấy thông tin profile và danh sách các bảng khi mới vào trang
+    // useEffect(() => {
+    //     const fetchData = async () => {
+    //         // const profileData = await axios.get('/api/staff/profile');
+    //         // setStaffProfile(profileData.data);
+    //
+    //         // const accountsData = await axios.get('/api/staff/accounts');
+    //         // setResidentAccounts(accountsData.data);
+    //
+    //         // const complaintsData = await axios.get('/api/staff/complaints');
+    //         // setComplaints(complaintsData.data);
+    //     };
+    //     fetchData();
+    // }, []);
+
+    // --- LOGIC QUẢN LÝ TÀI KHOẢN ---
     const [formData, setFormData] = useState({
-        username: '', password: '', owner: '', dob: '', dateAdded: '', room: '', phone: ''
+        username: '', gender: '', owner: '', dob: '', idCard: '', room: ''
     });
-    const [residentAccounts, setResidentAccounts] = useState([]);
+    const [residentAccounts, setResidentAccounts] = useState([
+        { id: 1, username: "hung.tp", gender: "Male", owner: "Tran Phu Thanh Hung", dob: "1995-05-15", idCard: "001095012345", room: "A-505", status: 'Active' },
+        { id: 2, username: "son.tm", gender: "Male", owner: "Minh Son Thanh", dob: "1992-10-20", idCard: "001092098765", room: "B-101", status: 'Active' },
+        { id: 3, username: "lan.nt", gender: "Female", owner: "Nguyen Thi Lan", dob: "1988-03-12", idCard: "001088456123", room: "C-202", status: 'Active' },
+        { id: 4, username: "cuong.vh", gender: "Male", owner: "Vu Hoang Cuong", dob: "1990-12-30", idCard: "001090789456", room: "D-808", status: 'Active' },
+        { id: 5, username: "mai.lt", gender: "Female", owner: "Le Thi Mai", dob: "1994-07-22", idCard: "001094123450", room: "A-102", status: 'Active' },
+        { id: 6, username: "dung.nv", gender: "Male", owner: "Nguyen Van Dung", dob: "1985-11-05", idCard: "001085543216", room: "B-304", status: 'Active' },
+        { id: 7, username: "hoa.tt", gender: "Female", owner: "Trinh Thi Hoa", dob: "1991-02-14", idCard: "001091678905", room: "C-1102", status: 'Active' },
+        { id: 8, username: "tuan.an", gender: "Male", owner: "An Ngoc Tuan", dob: "1989-09-09", idCard: "001089901234", room: "D-1506", status: 'Active' },
+        { id: 9, username: "linh.ph", gender: "Female", owner: "Phan Hoang Linh", dob: "1996-12-25", idCard: "001096234567", room: "A-703", status: 'Active' },
+        { id: 10, username: "thanh.bq", gender: "Male", owner: "Bui Quoc Thanh", dob: "1993-01-20", idCard: "001093345678", room: "B-910", status: 'Active' },
+        { id: 11, username: "quynh.nt", gender: "Female", owner: "Ngo Thu Quynh", dob: "1997-06-18", idCard: "001097456789", room: "C-405", status: 'Active' },
+        { id: 12, username: "dat.dv", gender: "Male", owner: "Do Van Dat", dob: "1987-04-12", idCard: "001087567890", room: "D-1201", status: 'Active' },
+        { id: 13, username: "yen.ht", gender: "Female", owner: "Hoang Thi Yen", dob: "1992-08-30", idCard: "001092678901", room: "A-312", status: 'Active' },
+        { id: 14, username: "khanh.pq", gender: "Male", owner: "Pham Quoc Khanh", dob: "1990-03-15", idCard: "001090789012", room: "B-508", status: 'Active' },
+        { id: 15, username: "ngoc.pt", gender: "Female", owner: "Phan Thu Ngoc", dob: "1995-10-10", idCard: "001095890123", room: "C-801", status: 'Active' },
+        { id: 16, username: "long.hv", gender: "Male", owner: "Hoang Van Long", dob: "1984-05-25", idCard: "001084901234", room: "D-203", status: 'Active' },
+        { id: 17, username: "trang.nt", gender: "Female", owner: "Nguyen Thu Trang", dob: "1998-01-05", idCard: "001098012345", room: "A-1405", status: 'Active' },
+        { id: 18, username: "thang.nh", gender: "Male", owner: "Nguyen Huu Thang", dob: "1991-11-20", idCard: "001091123456", room: "B-702", status: 'Active' },
+        { id: 19, username: "diem.tt", gender: "Female", owner: "Tran Thi Diem", dob: "1993-02-28", idCard: "001093234567", room: "C-1204", status: 'Active' },
+        { id: 20, username: "binh.vq", gender: "Male", owner: "Vu Quoc Binh", dob: "1986-07-15", idCard: "001086345678", room: "D-510", status: 'Active' },
+        { id: 21, username: "thu.ha", gender: "Female", owner: "Ha Thi Thu", dob: "1994-09-12", idCard: "001094456789", room: "A-908", status: 'Active' },
+        { id: 22, username: "quan.nm", gender: "Male", owner: "Nguyen Minh Quan", dob: "1990-12-01", idCard: "001090567890", room: "B-1005", status: 'Active' },
+        { id: 23, username: "vy.tt", gender: "Female", owner: "Truong Thi Vy", dob: "1996-04-20", idCard: "001096678901", room: "C-306", status: 'Active' },
+        { id: 24, username: "phuc.dh", gender: "Male", owner: "Dang Hoang Phuc", dob: "1988-06-10", idCard: "001088789012", room: "D-111", status: 'Active' },
+        { id: 25, username: "an.bt", gender: "Female", owner: "Bui Thi An", dob: "1995-03-05", idCard: "001095890123", room: "A-607", status: 'Active' },
+        { id: 26, username: "minh.tv", gender: "Male", owner: "Tran Van Minh", dob: "1992-05-30", idCard: "001092901234", room: "B-212", status: 'Active' },
+        { id: 27, username: "huong.dk", gender: "Female", owner: "Do Kim Huong", dob: "1997-10-15", idCard: "001097012345", room: "C-1502", status: 'Active' },
+        { id: 28, username: "thinh.pv", gender: "Male", owner: "Pham Van Thinh", dob: "1985-08-20", idCard: "001085123456", room: "D-404", status: 'Active' },
+        { id: 29, username: "giang.tt", gender: "Female", owner: "Trinh Thu Giang", dob: "1993-11-12", idCard: "001093234567", room: "A-1210", status: 'Active' },
+        { id: 30, username: "hieu.nm", gender: "Male", owner: "Nguyen Minh Hieu", dob: "1990-01-25", idCard: "001090345678", room: "B-808", status: 'Active' }
+    ]);
     const [editIndex, setEditIndex] = useState(null);
 
     const handleAddAccount = () => {
-        if (!formData.username || !formData.owner || !formData.room || !formData.phone) {
-            alert("Vui lòng nhập đủ các thông tin bắt buộc!"); return;
+        if (!formData.username || !formData.owner || !formData.room) {
+            alert("Mày phải nhập ít nhất là Username, Tên chủ hộ và Số phòng!");
+            return;
         }
         if (editIndex !== null) {
+            // [BACKEND_NOTE]: Gọi API (PUT/PATCH) để cập nhật thông tin tài khoản trên Database
+            // await axios.put(`/api/staff/accounts/${formData.id}`, formData);
+
             const updatedList = [...residentAccounts];
             updatedList[editIndex] = formData;
             setResidentAccounts(updatedList);
             setEditIndex(null);
+            alert("Đã cập nhật tài khoản!");
         } else {
-            setResidentAccounts([...residentAccounts, formData]);
+            // [BACKEND_NOTE]: Gọi API (POST) để lưu tài khoản mới xuống Database
+            // await axios.post('/api/staff/accounts', formData);
+
+            setResidentAccounts([...residentAccounts, { ...formData, status: 'Active' }]);
+            alert("Đã cấp tài khoản thành công!");
         }
-        setFormData({ username: '', password: '', owner: '', dob: '', dateAdded: '', room: '', phone: '' });
+        setFormData({ username: '', gender: '', owner: '', dob: '', idCard: '', room: '' });
     };
 
     const handleEdit = (index) => {
@@ -42,285 +100,162 @@ const StaffApartment = () => {
         window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
-    const handleDelete = (index) => {
-        if(window.confirm("Mày có chắc muốn xóa không?")) {
-            setResidentAccounts(residentAccounts.filter((_, i) => i !== index));
-            if(editIndex === index) setEditIndex(null);
+    const handleToggleBlock = (index) => {
+        const account = residentAccounts[index];
+        const newStatus = account.status === 'Active' ? 'Blocked' : 'Active';
+
+        // [BACKEND_NOTE]: 
+        // 1. Khi Mở khóa (Unblock), cần đối chiếu với Database để kiểm tra Resident còn Hợp đồng (Contract) hiệu lực không.
+        // 2. Chỉ cho phép Unblock nếu có Hợp đồng Thuê/Mua bán hợp lệ.
+        if (window.confirm(`Mày có chắc muốn ${newStatus === 'Blocked' ? 'Khóa' : 'Mở khóa'} tài khoản này không?`)) {
+            // [BACKEND_NOTE]: Gọi API (PATCH/PUT) để cập nhật status tài khoản trong Database
+            // const accountId = residentAccounts[index].id;
+            // await axios.patch(`/api/staff/accounts/${accountId}/status`, { status: newStatus });
+
+            const updatedList = [...residentAccounts];
+            updatedList[index] = { ...account, status: newStatus };
+            setResidentAccounts(updatedList);
+            alert(`Đã ${newStatus === 'Blocked' ? 'Khóa' : 'Mở khóa'} tài khoản thành công!`);
         }
     };
 
-    // --- 2. LOGIC STAY AT HISTORY (KHÔI PHỤC ĐỦ 7 Ô NHƯ ẢNH) ---
-    const [historyFormData, setHistoryFormData] = useState({
-        id: '', owner: '', room: '', phone: '', hometown: '', current: '', status: 'Đang lưu trú'
-    });
-    const [stayHistory, setStayHistory] = useState([
-        { id: '01', owner: 'Trần Phu Thanh Hung', room: 'A-505', phone: '0912345678', hometown: 'Nam Định', current: 'Vin Ocean Park', status: 'Đang lưu trú' }
-    ]);
-    const [editHistoryIndex, setEditHistoryIndex] = useState(null);
-
-    const handleAddHistory = () => {
-        if (!historyFormData.id || !historyFormData.owner || !historyFormData.room) {
-            alert("Vui lòng nhập đủ ID, Chủ hộ và Căn hộ!"); return;
-        }
-        if (editHistoryIndex !== null) {
-            const updated = [...stayHistory];
-            updated[editHistoryIndex] = historyFormData;
-            setStayHistory(updated);
-            setEditHistoryIndex(null);
-        } else {
-            setStayHistory([...stayHistory, historyFormData]);
-        }
-        setHistoryFormData({ id: '', owner: '', room: '', phone: '', hometown: '', current: '', status: 'Đang lưu trú' });
-    };
-
-    // --- 3. LOGIC KHIẾU NẠI ---
-    const [selectedComplaint, setSelectedComplaint] = useState(null); 
+    // --- LOGIC KHIẾU NẠI ---
+    const [selectedComplaint, setSelectedComplaint] = useState(null);
     const [replyNote, setReplyNote] = useState("");
     const [complaints, setComplaints] = useState([
-        { id: 1, name: "Trần Phu Thanh Hung", room: "A-505", note: "Điều hòa kêu to quá không ngủ được!", time: "15:30 - 12/03/2026", status: "Pending" },
-        { id: 2, name: "Minh Son Thanh", room: "B-101", note: "Cửa thoát hiểm bị kẹt, staff xem lại", time: "09:15 - 13/03/2026", status: "Pending" }
+        { id: 1, name: "Tran Phu Thanh Hung", room: "A-505", note: "Điều hòa kêu to quá không ngủ được!", time: "15:30 - 12/03/2026", status: "Pending" },
+        { id: 2, name: "Minh Son Thanh", room: "B-101", note: "Cửa thoát hiểm bị kẹt, staff xem lại", time: "09:15 - 13/03/2026", status: "Pending" },
+        { id: 3, name: "Nguyen Thi Lan", room: "C-202", note: "Bể bơi tầng 5 nước có vẻ hơi đục", time: "10:00 - 14/03/2026", status: "Approved" },
+        { id: 4, name: "Vu Hoang Cuong", room: "D-808", note: "Hệ thống đèn hành lang bị hỏng", time: "20:00 - 15/03/2026", status: "Rejected" },
+        { id: 5, name: "Le Thi Mai", room: "A-102", note: "Hàng xóm làm ồn lúc nửa đêm", time: "23:45 - 15/03/2026", status: "Pending" },
+        { id: 6, name: "Nguyen Van Dung", room: "B-304", note: "Vòi nước bồn rửa bát bị rò rỉ", time: "08:30 - 16/03/2026", status: "Approved" },
+        { id: 7, name: "Trinh Thi Hoa", room: "C-1102", note: "Thang máy số 3 di chuyển rất chậm", time: "14:20 - 16/03/2026", status: "Pending" },
+        { id: 8, name: "An Ngoc Tuan", room: "D-1506", note: "Có mùi lạ ở khu vực đổ rác", time: "17:10 - 16/03/2026", status: "Approved" },
+        { id: 9, name: "Phan Hoang Linh", room: "A-703", note: "Wifi khu vực sảnh yếu quá", time: "11:55 - 17/03/2026", status: "Pending" },
+        { id: 10, name: "Bui Quoc Thanh", room: "B-910", note: "Cần kiểm tra lại hóa đơn nước tháng này", time: "16:40 - 17/03/2026", status: "Pending" },
+        { id: 11, name: "Ngo Thu Quynh", room: "C-405", note: "Khu vui chơi trẻ em có thiết bị hỏng", time: "09:30 - 18/03/2026", status: "Approved" },
+        { id: 12, name: "Do Van Dat", room: "D-1201", note: "Bảo vệ ca đêm ngủ gật", time: "02:15 - 18/03/2026", status: "Rejected" },
+        { id: 13, name: "Hoang Thi Yen", room: "A-312", note: "Cửa sổ bị thấm nước khi trời mưa", time: "13:00 - 18/03/2026", status: "Pending" },
+        { id: 14, name: "Pham Quoc Khanh", room: "B-508", note: "Máy tập gym hỏng dây cáp", time: "18:25 - 18/03/2026", status: "Approved" },
+        { id: 15, name: "Phan Thu Ngoc", room: "C-801", note: "Có côn trùng trong hầm gửi xe", time: "21:50 - 18/03/2026", status: "Pending" },
+        { id: 16, name: "Hoang Van Long", room: "D-203", note: "Đèn cảm biến cầu thang không sáng", time: "20:30 - 19/03/2026", status: "Approved" },
+        { id: 17, name: "Nguyen Thu Trang", room: "A-1405", note: "Yêu cầu phun thuốc muỗi định kỳ", time: "10:15 - 19/03/2026", status: "Pending" },
+        { id: 18, name: "Nguyen Huu Thang", room: "B-702", note: "Hệ thống báo cháy kêu nhầm", time: "15:45 - 19/03/2026", status: "Rejected" },
+        { id: 19, name: "Tran Thi Diem", room: "C-1204", note: "Ống thoát nước ban công bị tắc", time: "07:20 - 20/03/2026", status: "Pending" },
+        { id: 20, name: "Vu Quoc Binh", room: "D-510", note: "Nhân viên vệ sinh dọn dẹp chưa sạch", time: "16:30 - 20/03/2026", status: "Approved" },
+        { id: 21, name: "Ha Thi Thu", room: "A-908", note: "Cần hỗ trợ chuyển đồ cồng kềnh", time: "09:00 - 21/03/2026", status: "Pending" },
+        { id: 22, name: "Nguyen Minh Quan", room: "B-1005", note: "Thẻ từ thang máy không nhận", time: "11:10 - 21/03/2026", status: "Approved" },
+        { id: 23, name: "Truong Thi Vy", room: "C-306", note: "Bình nóng lạnh có vấn đề", time: "22:00 - 21/03/2026", status: "Pending" },
+        { id: 24, name: "Dang Hoang Phuc", room: "D-111", note: "Gạch lát sảnh bị bong tróc", time: "08:45 - 22/03/2026", status: "Pending" },
+        { id: 25, name: "Bui Thi An", room: "A-607", note: "Chuông cửa không hoạt động", time: "14:15 - 22/03/2026", status: "Approved" },
+        { id: 26, name: "Tran Van Minh", room: "B-212", note: "Có xe đậu sai vị trí thường xuyên", time: "19:30 - 22/03/2026", status: "Pending" },
+        { id: 27, name: "Do Kim Huong", room: "C-1502", note: "Wifi công cộng quá chậm", time: "10:00 - 23/03/2026", status: "Approved" },
+        { id: 28, name: "Pham Van Thinh", room: "D-404", note: "Yêu cầu thay pin khóa cửa điện tử", time: "13:40 - 23/03/2026", status: "Pending" },
+        { id: 29, name: "Trinh Thu Giang", room: "A-1210", note: "Máy lọc nước khu vực chung hết hạn thay lõi", time: "15:10 - 23/03/2026", status: "Approved" },
+        { id: 30, name: "Nguyen Minh Hieu", room: "B-808", note: "Có người hút thuốc trong thang máy", time: "17:55 - 23/03/2026", status: "Pending" }
+
     ]);
 
     const handleAction = (id, type) => {
+        // [BACKEND_NOTE]: Gọi API (PUT/PATCH) để cập nhật trạng thái khiếu nại (Approved/Rejected) trên Database
+        // await axios.patch(`/api/staff/complaints/${id}/status`, { status: type });
+
         setComplaints(complaints.map(c => c.id === id ? { ...c, status: type } : c));
         alert(`Đã ${type === 'Approved' ? 'Phê duyệt' : 'Từ chối'} phản ánh!`);
     };
 
-    // --- 4. LOGIC UTILITIES INVOICES & MODAL MỚI ---
-    const [showInvoiceModal, setShowInvoiceModal] = useState(false);
-    const [invForm, setInvForm] = useState({
-        room: '', date: '', roomPrice: 0, prevElec: 0, currElec: 0, dueDate: ''
-    });
-    const elecPrice = 3500;
-    const otherServiceFee = 500000;
-
-    const calcElecTotal = () => {
-        const consumed = Number(invForm.currElec) - Number(invForm.prevElec);
-        return consumed > 0 ? consumed * elecPrice : 0;
-    };
-
-    const calcFinalTotal = () => {
-        return calcElecTotal() + otherServiceFee + Number(invForm.roomPrice);
-    };
-
-    const [invoices] = useState([
-        { id: 'HD-202512-001', room: 'Phòng 1', owner: 'Nguyễn Văn Dược', time: '12/2025', total: '2.940.000 VNĐ', status: 'ĐÃ THANH TOÁN' }
-    ]);
-
     return (
         <div className="staff-wrapper">
+            {/* SIDEBAR */}
             <aside className={`staff-sidebar ${sidebarOpen ? '' : 'closed'}`}>
-                <div style={{padding: '25px', display: 'flex', alignItems: 'center'}}>
-                    <FaBars onClick={() => setSidebarOpen(!sidebarOpen)} style={{cursor: 'pointer', color: '#f59e0b'}} />
-                    {sidebarOpen && <span style={{marginLeft: '15px', fontWeight: '800', color: '#f59e0b'}}>STAFF HUB</span>}
+                <div style={{ padding: '25px', display: 'flex', alignItems: 'center' }}>
+                    <FaBars onClick={() => setSidebarOpen(!sidebarOpen)} style={{ cursor: 'pointer' }} />
+                    {sidebarOpen && <span style={{ marginLeft: '15px', fontWeight: '800' }}>APARTMENT HUB</span>}
                 </div>
+
                 <nav className="staff-sidebar-nav">
-                    <div className={`staff-nav-item ${activeTab === 'accounts' ? 'active' : ''}`} onClick={() => {setActiveTab('accounts'); setSelectedComplaint(null)}}><FaUserCircle /> {sidebarOpen && "Resident Accounts"}</div>
-                    <div className={`staff-nav-item ${activeTab === 'complaints' ? 'active' : ''}`} onClick={() => setActiveTab('complaints')}><FaComments /> {sidebarOpen && "Complaints & Replies"}</div>
-                    <div className="staff-nav-item" onClick={() => navigate('/news')}><FaNewspaper /> {sidebarOpen && "News Manager"}</div>
-                    <div className="staff-nav-item" onClick={() => navigate('/market')}><FaBuilding /> {sidebarOpen && "Apartment Types"}</div>
-                    <div className={`staff-nav-item ${activeTab === 'history' ? 'active' : ''}`} onClick={() => setActiveTab('history')}><FaHistory /> {sidebarOpen && "Stay At History"}</div>
-                    <div className={`staff-nav-item ${activeTab === 'invoices' ? 'active' : ''}`} onClick={() => setActiveTab('invoices')}><FaFileInvoice /> {sidebarOpen && "Utilities Invoices"}</div>
-                    <div className="staff-nav-item"><FaCalendarCheck /> {sidebarOpen && "Appointments"}</div>
-                    <div className="staff-nav-item"><FaMoneyBillWave /> {sidebarOpen && "Expenses"}</div>
+                    <div className={`staff-nav-item ${activeTab === 'accounts' ? 'active' : ''}`} onClick={() => { setActiveTab('accounts'); setSelectedComplaint(null) }}>
+                        <FaUserCircle /> {sidebarOpen && "Resident Accounts"}
+                    </div>
+                    <div className={`staff-nav-item ${activeTab === 'complaints' ? 'active' : ''}`} onClick={() => setActiveTab('complaints')}>
+                        <FaComments /> {sidebarOpen && "Complaints & Replies"}
+                    </div>
+                    <div className={`staff-nav-item ${activeTab === 'apartment_management' ? 'active' : ''}`} onClick={() => { setActiveTab('apartment_management'); setSelectedComplaint(null) }}>
+                        <FaBuilding /> {sidebarOpen && "Apartment Management"}
+                    </div>
+                    <div className={`staff-nav-item ${activeTab === 'history' ? 'active' : ''}`} onClick={() => setActiveTab('history')}>
+                        <FaHistory /> {sidebarOpen && "Stay At History"}
+                    </div>
+                    <div className={`staff-nav-item ${activeTab === 'appointments' ? 'active' : ''}`} onClick={() => setActiveTab('appointments')}>
+                        <FaCalendarCheck /> {sidebarOpen && "Appointments"}
+                    </div>
+                    <div className="staff-nav-item" onClick={() => navigate('/news')}>
+                        <FaNewspaper /> {sidebarOpen && "News Manager"}
+                    </div>
                 </nav>
             </aside>
 
-            <div style={{flex: 1, display: 'flex', flexDirection: 'column'}}>
-                <header className="staff-topbar">
-                    <nav className="staff-main-nav">
-                        <a href="/staff/apartment" className="active">STAFF APARTMENT</a>
-                        <a href="/staff/service">STAFF SERVICE</a>
-                        <a href="/staff/security">STAFF SECURITY</a>
+            <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+                <header className="staff-topbar" style={{ justifyContent: 'space-between' }}>
+                    <nav className="staff-main-nav" style={{ marginRight: 0 }}>
+                        <a href="/staff/apartment" className="active">Staff Apartment</a>
+                        <a href="/staff/service">Staff Service</a>
+                        <a href="/staff/security">Staff Security</a>
                     </nav>
-                    <div className="staff-profile-trigger" onClick={() => setShowIdCard(!showIdCard)}>
-                        <FaUserCircle size={35} color="#f59e0b" />
-                    </div>
-                </header>
 
-                <main className="staff-content-area">
-                    {/* --- TAB 1: ACCOUNTS --- */}
-                    {activeTab === 'accounts' && (
-                        <div className="staff-account-management">
-                            <div className="staff-form-container gold-border">
-                                <h3><FaUserPlus color="#f59e0b" /> {editIndex !== null ? "Chỉnh sửa tài khoản" : "Cấp tài khoản Resident mới"}</h3>
-                                <div className="staff-grid" style={{marginTop: '20px', gridTemplateColumns: 'repeat(3, 1fr)'}}>
-                                    <div className="form-group"><label>TÊN ĐĂNG NHẬP</label><input type="text" value={formData.username} onChange={(e) => setFormData({...formData, username: e.target.value})} /></div>
-                                    <div className="form-group"><label>MẬT KHẨU</label><input type="password" value={formData.password} onChange={(e) => setFormData({...formData, password: e.target.value})} /></div>
-                                    <div className="form-group"><label>TÊN CHỦ HỘ</label><input type="text" value={formData.owner} onChange={(e) => setFormData({...formData, owner: e.target.value})} /></div>
-                                    <div className="form-group"><label>NGÀY SINH</label><input type="date" value={formData.dob} onChange={(e) => setFormData({...formData, dob: e.target.value})} /></div>
-                                    <div className="form-group"><label>SỐ ĐIỆN THOẠI</label><input type="text" value={formData.phone} onChange={(e) => setFormData({...formData, phone: e.target.value})} /></div>
-                                    <div className="form-group"><label>NGÀY THÊM</label><input type="date" value={formData.dateAdded} onChange={(e) => setFormData({...formData, dateAdded: e.target.value})} /></div>
-                                    <div className="form-group"><label>SỐ CĂN HỘ</label><input type="text" value={formData.room} onChange={(e) => setFormData({...formData, room: e.target.value})} /></div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+                        <button className="btn-header-home" onClick={() => navigate('/')}>
+                            Home
+                        </button>
+                        <div className="staff-profile-trigger" onClick={() => setShowIdCard(!showIdCard)}>
+                            <div className="profile-icon-wrapper">
+                                <div className="profile-icon-inner">
+                                    <FaUser />
                                 </div>
-                                <button className="btn-gold" style={{marginTop: '20px'}} onClick={handleAddAccount}>CẤP TÀI KHOẢN</button>
                             </div>
-                            <div className="staff-form-container">
-                                <h3>Danh sách tài khoản đã cấp</h3>
-                                <table className="admin-custom-table bordered">
-                                    <thead>
-                                        <tr><th>ID</th><th>USERNAME</th><th>CHỦ HỘ</th><th>PHONE</th><th>CĂN HỘ</th><th>NGÀY SINH</th><th style={{textAlign: 'center'}}>HÀNH ĐỘNG</th></tr>
-                                    </thead>
-                                    <tbody>
-                                        {residentAccounts.map((acc, index) => (
-                                            <tr key={index}>
-                                                <td>{String(index + 1).padStart(2, '0')}</td>
-                                                <td><strong>{acc.username}</strong></td>
-                                                <td>{acc.owner}</td><td>{acc.phone}</td>
-                                                <td><span className="apartment-tag">{acc.room}</span></td>
-                                                <td>{acc.dob}</td>
-                                                <td style={{textAlign: 'center'}}><div className="action-flex"><FaUserEdit className="icon-edit" onClick={()=>handleEdit(index)}/><FaTrash className="icon-delete" onClick={()=>handleDelete(index)}/></div></td>
-                                            </tr>
-                                        ))}
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    )}
-
-                    {/* --- TAB 2: COMPLAINTS --- */}
-                    {activeTab === 'complaints' && (
-                        <div className="staff-complaint-section">
-                            <div className="staff-form-container">
-                                <h3>Danh sách phản ánh từ Resident</h3>
-                                <table className="admin-custom-table bordered" style={{marginTop: '20px'}}>
-                                    <thead>
-                                        <tr><th>STT</th><th>Thời gian</th><th>Tên Resident</th><th>Căn hộ</th><th>Nội dung</th><th style={{textAlign: 'center'}}>Hành động</th></tr>
-                                    </thead>
-                                    <tbody>
-                                        {complaints.map((c, idx) => (
-                                            <tr key={c.id}>
-                                                <td>{idx + 1}</td>
-                                                <td style={{fontSize: '12px', color: '#64748b'}}><FaClock /> {c.time}</td>
-                                                <td><strong>{c.name}</strong></td><td>{c.room}</td><td>{c.note}</td>
-                                                <td style={{textAlign: 'center'}}><div className="action-flex"><button className="btn-reply-gold" onClick={() => setSelectedComplaint(c)}><FaReply /> Phản hồi</button><FaCheck style={{color: 'green', cursor:'pointer'}} onClick={()=>handleAction(c.id, 'Approved')}/><FaTimes style={{color: 'red', cursor:'pointer'}} onClick={()=>handleAction(c.id, 'Rejected')}/></div></td>
-                                            </tr>
-                                        ))}
-                                    </tbody>
-                                </table>
-                            </div>
-                            {selectedComplaint && (
-                                <div className="staff-reply-detail-page" style={{marginTop: '20px'}}>
-                                    <div className="staff-form-container gold-border">
-                                        <h3>Phản hồi cho: {selectedComplaint.name}</h3>
-                                        <textarea style={{width: '100%', height: '100px', marginTop:'10px'}} placeholder="Nhập nội dung..."></textarea>
-                                        <div style={{display:'flex', gap:'10px', marginTop:'10px'}}><button className="btn-gold">GỬI</button><button className="btn-cancel" onClick={()=>setSelectedComplaint(null)}>HỦY</button></div>
+                            {showIdCard && (
+                                <div className="staff-id-card">
+                                    {/* [BACKEND_NOTE]: Lấy dữ liệu từ Backend, thay thế các giá trị cứng bên dưới bằng các biến State. Ví dụ:
+                                    - <div className="staff-avatar-circle">{staffProfile.shortName}</div>
+                                    - <h3>{staffProfile.fullName}</h3>
+                                    - <p>{staffProfile.role} | ID: {staffProfile.id}</p>
+                                    - <p><strong>Department:</strong> {staffProfile.department}</p>
+                                    - <p><strong>Join Date:</strong> {staffProfile.joinDate}</p>
+                                    - <p><strong>Shift:</strong> {staffProfile.shift}</p>
+                                */}
+                                    <div className="id-card-header">
+                                        <div className="staff-avatar-circle">SA</div>
+                                        <h3 style={{ margin: 0 }}>Staff Apartment</h3>
+                                        <p style={{ fontSize: '12px', color: '#64748b' }}>Senior Staff | ID: VNH-2026</p>
+                                    </div>
+                                    <div style={{ fontSize: '13px' }}>
+                                        <p><strong>Department:</strong> Apartment Management</p>
+                                        <p><strong>Join Date:</strong> 13/03/2026</p>
+                                        <p><strong>Shift:</strong> 08:00 - 17:00</p>
                                     </div>
                                 </div>
                             )}
                         </div>
-                    )}
-
-                    {/* --- TAB 3: STAY AT HISTORY --- */}
-                    {activeTab === 'history' && (
-                        <div className="staff-history-section">
-                            <div className="staff-form-container gold-border">
-                                <h3><FaHistory color="#f59e0b" /> Stay At History Registration</h3>
-                                <div className="staff-grid" style={{marginTop: '20px', gridTemplateColumns: 'repeat(4, 1fr)'}}>
-                                    <div className="form-group"><label>ID</label><input type="text" value={historyFormData.id} onChange={(e) => setHistoryFormData({...historyFormData, id: e.target.value})} /></div>
-                                    <div className="form-group"><label>TÊN CHỦ HỘ</label><input type="text" value={historyFormData.owner} onChange={(e) => setHistoryFormData({...historyFormData, owner: e.target.value})} /></div>
-                                    <div className="form-group"><label>CĂN HỘ</label><input type="text" value={historyFormData.room} onChange={(e) => setHistoryFormData({...historyFormData, room: e.target.value})} /></div>
-                                    <div className="form-group"><label>SỐ ĐIỆN THOẠI</label><input type="text" value={historyFormData.phone} onChange={(e) => setHistoryFormData({...historyFormData, phone: e.target.value})} /></div>
-                                    <div className="form-group"><label>HỘ KHẨU</label><input type="text" value={historyFormData.hometown} onChange={(e) => setHistoryFormData({...historyFormData, hometown: e.target.value})} /></div>
-                                    <div className="form-group"><label>NƠI Ở HIỆN TẠI</label><input type="text" value={historyFormData.current} onChange={(e) => setHistoryFormData({...historyFormData, current: e.target.value})} /></div>
-                                    <div className="form-group"><label>TÌNH TRẠNG</label><select value={historyFormData.status} onChange={(e) => setHistoryFormData({...historyFormData, status: e.target.value})}><option>Đang lưu trú</option><option>Đã rời đi</option></select></div>
-                                </div>
-                                <button className="btn-gold" style={{marginTop: '20px'}} onClick={handleAddHistory}>LƯU LỊCH SỬ</button>
-                            </div>
-                            <div className="staff-form-container">
-                                <h3>Bảng Tổng hợp Lịch sử Lưu trú</h3>
-                                <table className="admin-custom-table bordered">
-                                    <thead><tr><th>ID</th><th>CHỦ HỘ</th><th>CĂN HỘ</th><th>SĐT</th><th>HỘ KHẨU</th><th>NƠI Ở HT</th><th>TÌNH TRẠNG</th><th>HÀNH ĐỘNG</th></tr></thead>
-                                    <tbody>
-                                        {stayHistory.map((h, i) => (
-                                            <tr key={i}>
-                                                <td>{h.id}</td><td><strong>{h.owner}</strong></td><td>{h.room}</td><td>{h.phone}</td><td>{h.hometown}</td><td>{h.current}</td>
-                                                <td><span className={`status-tag ${h.status==='Đang lưu trú'?'active':'left'}`}>{h.status}</span></td>
-                                                <td><div className="action-flex"><FaUserEdit className="icon-edit" onClick={()=>{setEditHistoryIndex(i); setHistoryFormData(h)}}/><FaTrash className="icon-delete" onClick={()=>setStayHistory(stayHistory.filter((_,idx)=>idx!==i))}/></div></td>
-                                            </tr>
-                                        ))}
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    )}
-
-                    {/* --- TAB 4: UTILITIES INVOICES --- */}
-                    {activeTab === 'invoices' && (
-                        <div className="staff-invoice-section">
-                            <div className="invoice-header-flex">
-                                <h2>Quản Lý Hóa Đơn</h2>
-                                <div className="invoice-header-btns">
-                                    <button className="btn-excel"><FaFileExcel /> Xuất Excel</button>
-                                    <button className="btn-config"><FaCogs /> Cấu hình giá</button>
-                                    <button className="btn-create-inv" onClick={() => setShowInvoiceModal(true)}><FaPlus /> Tạo hóa đơn</button>
-                                </div>
-                            </div>
-                            <div className="staff-form-container">
-                                <div className="staff-grid" style={{gridTemplateColumns: 'repeat(4, 1fr)'}}>
-                                    <div className="form-group"><label>TRẠNG THÁI</label><select><option>Tất cả</option><option>Đã thanh toán</option><option>Chưa thanh toán</option></select></div>
-                                    <div className="form-group"><label>THÁNG</label><select><option>Tất cả</option></select></div>
-                                    <div className="form-group"><label>PHÒNG</label><input type="text" placeholder="Tất cả" /></div>
-                                    <div className="form-group"><label>TÌM KIẾM</label><div className="input-with-icon"><input type="text" placeholder="Tìm kiếm..." /><FaSearch className="inner-icon"/></div></div>
-                                </div>
-                            </div>
-                            <div className="staff-form-container">
-                                <table className="admin-custom-table bordered">
-                                    <thead><tr><th>Số hóa đơn</th><th>Phòng</th><th>Người thuê</th><th>Tổng tiền</th><th>Thao tác</th></tr></thead>
-                                    <tbody>
-                                        {invoices.map((inv, idx) => (
-                                            <tr key={idx}>
-                                                <td>{inv.id}</td><td>{inv.room}</td><td><strong>{inv.owner}</strong></td><td>{inv.total}</td>
-                                                <td><div className="action-flex"><FaEye className="icon-view"/><FaUserEdit className="icon-edit"/><FaTrash className="icon-delete"/></div></td>
-                                            </tr>
-                                        ))}
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    )}
-                </main>
-            </div>
-
-            {/* MODAL NỔI TẠO HÓA ĐƠN THEO ẢNH */}
-            {showInvoiceModal && (
-                <div className="invoice-modal-overlay">
-                    <div className="invoice-modal-content">
-                        <div className="modal-header">
-                            <h3>Tạo hóa đơn mới</h3>
-                            <FaTimes className="close-btn" onClick={() => setShowInvoiceModal(false)} />
-                        </div>
-                        <div className="modal-body-scroll">
-                            <div className="form-group">
-                                <label>Phòng <span style={{color:'red'}}>*</span></label>
-                                <input type="text" placeholder="PHONGC101 - Nguyễn Văn B" value={invForm.room} onChange={e => setInvForm({...invForm, room: e.target.value})} />
-                            </div>
-                            <div className="staff-grid" style={{gridTemplateColumns:'1fr 1fr', gap:'10px', marginTop:'15px'}}>
-                                <div className="form-group"><label>Tháng/Năm</label><input type="month" /></div>
-                                <div className="form-group"><label>Tiền phòng (VNĐ)</label><input type="number" placeholder="Tiền thuê nhà..." value={invForm.roomPrice} onChange={e => setInvForm({...invForm, roomPrice: e.target.value})} /></div>
-                            </div>
-                            <div className="electric-box-shadow">
-                                <h4 style={{marginBottom:'10px'}}>Chỉ số Điện</h4>
-                                <div className="form-group"><label>Giá điện (VNĐ/kWh)</label><input type="text" value="3500" disabled /></div>
-                                <div className="staff-grid" style={{gridTemplateColumns:'1fr 1fr', gap:'10px', marginTop:'10px'}}>
-                                    <div className="form-group"><label>Số điện tháng trước</label><input type="number" value={invForm.prevElec} onChange={e => setInvForm({...invForm, prevElec: e.target.value})} /></div>
-                                    <div className="form-group"><label>Số điện tháng này</label><input type="number" value={invForm.currElec} onChange={e => setInvForm({...invForm, currElec: e.target.value})} /></div>
-                                </div>
-                                <div className="res-calc">Tiền điện: <strong>{calcElecTotal().toLocaleString()} VNĐ</strong></div>
-                            </div>
-                            <div className="form-group" style={{marginTop:'15px'}}><label>Dịch vụ khác (Mặc định)</label><input type="text" value="500,000 VNĐ" disabled /></div>
-                            <div className="form-group" style={{marginTop:'15px'}}><label>Ngày đến hạn</label><input type="date" /></div>
-                            <div className="total-final-box">
-                                TỔNG CỘNG: <strong>{calcFinalTotal().toLocaleString()} VNĐ</strong>
-                            </div>
-                        </div>
-                        <div className="modal-footer">
-                            <button className="btn-cancel" onClick={() => setShowInvoiceModal(false)}>HỦY</button>
-                            <button className="btn-gold">TẠO HÓA ĐƠN</button>
-                        </div>
                     </div>
-                </div>
-            )}
+                </header>
+
+                <StaffApartmentMainContent
+                    activeTab={activeTab}
+                    editIndex={editIndex}
+                    formData={formData}
+                    setFormData={setFormData}
+                    handleAddAccount={handleAddAccount}
+                    residentAccounts={residentAccounts}
+                    handleEdit={handleEdit}
+                    handleToggleBlock={handleToggleBlock}
+                    selectedComplaint={selectedComplaint}
+                    complaints={complaints}
+                    setSelectedComplaint={setSelectedComplaint}
+                    handleAction={handleAction}
+                    replyNote={replyNote}
+                    setReplyNote={setReplyNote}
+                />
+            </div>
         </div>
     );
 };

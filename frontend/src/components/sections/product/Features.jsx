@@ -1,15 +1,15 @@
-const Features = () => {
+const Features = ({ property }) => {
   const features = [
-    { label: "Property Type", value: "Apartment" },
-    { label: "Area", value: "75 m²" },
-    { label: "Bedrooms", value: "2 rooms" },
-    { label: "Bathrooms", value: "2 rooms" },
-    { label: "Direction", value: "Southeast" },
-    { label: "Balcony Direction", value: "Northwest" },
-    { label: "Interior Status", value: "Basic interior" },
-    { label: "Floor", value: "Mid floor" },
-    { label: "Legal Status", value: "Red book (Ownership certificate)" },
-    { label: "Posted Date", value: "03/03/2026" },
+    { label: "Property Type", value: property.propertyType },
+    { label: "Area", value: `${property.area} m2` },
+    { label: "Bedrooms", value: `${property.bedrooms} rooms` },
+    { label: "Bathrooms", value: `${property.bathrooms} rooms` },
+    { label: "Direction", value: property.direction },
+    { label: "Interior Status", value: property.furniture },
+    { label: "Floor", value: `${property.floorNumber}` },
+    { label: "Room Number", value: `${property.roomNumber}` },
+    { label: "Legal Status", value: property.legalStatus },
+    { label: "Posted Date", value: property.postedDate },
   ];
 
   return (

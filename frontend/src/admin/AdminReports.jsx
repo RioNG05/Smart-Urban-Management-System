@@ -1,19 +1,22 @@
 import React from 'react';
-import { 
-  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer 
+import {
+    BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer
 } from 'recharts';
 
 // Dữ liệu mẫu cho Dịch vụ (Vẽ lên biểu đồ)
 const serviceData = [
-  { name: 'Electricity', users: 450, revenue: 2400 },
-  { name: 'Water', users: 320, revenue: 1398 },
-  { name: 'Internet', users: 280, revenue: 9800 },
-  { name: 'Gym/Pool', users: 150, revenue: 3908 },
-  { name: 'Parking', users: 500, revenue: 4800 },
+    { name: 'Electricity', users: 450, revenue: 2400 },
+    { name: 'Water', users: 320, revenue: 1398 },
+    { name: 'Monthly management fee', users: 280, revenue: 560 },
+    { name: 'Gym/Pool', users: 150, revenue: 3908 },
+    { name: 'Parking', users: 500, revenue: 4800 },
+    { name: 'Tennis Court', users: 80, revenue: 1200 },
+    { name: 'Golf Course', users: 40, revenue: 3500 },
+    { name: 'Sauna & Spa', users: 120, revenue: 5600 },
+    { name: 'Community Hall', users: 200, revenue: 500 },
 ];
 
 const AdminReports = () => {
-    // 1. Giữ nguyên mảng Categories cũ của mày để lấy Icon và Color
     const reportCategories = [
         { title: "Monthly Revenue", color: "#3182ce", icon: "💰", value: "$25,400", trend: "+12.5% from last month" },
         { title: "Resident Count", color: "#38a169", icon: "👥", value: "1,250", trend: "Active residents" },
@@ -24,14 +27,14 @@ const AdminReports = () => {
     return (
         <div className="admin-reports-container">
             <h2 className="admin-page-title">Analytics & Strategic Reports</h2>
-            
+
             {/* --- GIỮ NGUYÊN GRID VÀ CARD CŨ (ĐÃ THÊM SỐ THẬT) --- */}
             <div className="reports-grid">
                 {reportCategories.map((item) => (
-                    <div key={item.title} className="report-stat-card" style={{ borderTop: `4px solid ${item.color}` }}>
+                    <div key={item.title} className="report-stat-card">
                         <div className="card-info">
                             <span className="card-label">{item.title}</span>
-                            <h3 className="card-value">{item.value}</h3> 
+                            <h3 className="card-value">{item.value}</h3>
                             <span className="card-trend">{item.trend}</span>
                         </div>
                         <div className="card-icon-bg">{item.icon}</div>
@@ -39,7 +42,7 @@ const AdminReports = () => {
                 ))}
             </div>
 
-            {/* --- KHU VỰC BIỂU ĐỒ (THAY THẾ SKELETON) --- */}
+            {/* --- KHU VỰC BIỂU ĐỒ --- */}
             <div className="chart-section-mockup" style={{ marginTop: '30px' }}>
                 <div className="mockup-header">
                     <h3>Service Usage & Revenue Distribution</h3>
@@ -48,9 +51,18 @@ const AdminReports = () => {
                     <ResponsiveContainer width="100%" height="100%">
                         <BarChart data={serviceData}>
                             <CartesianGrid strokeDasharray="3 3" vertical={false} />
-                            <XAxis dataKey="name" axisLine={false} tickLine={false} />
+                            <XAxis 
+                                dataKey="name" 
+                                axisLine={false} 
+                                tickLine={false} 
+                                interval={0}
+                                tick={{ fontSize: 10 }}
+                                angle={-45}
+                                textAnchor="end"
+                                height={80}
+                            />
                             <YAxis axisLine={false} tickLine={false} />
-                            <Tooltip 
+                            <Tooltip
                                 contentStyle={{ borderRadius: '10px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}
                             />
                             <Legend />

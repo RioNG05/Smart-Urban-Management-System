@@ -1,12 +1,11 @@
 package com.example.backend.Service;
 
-import com.example.backend.DTO.Request.ResidentCreateRequest;
-import com.example.backend.DTO.Request.ResidentUpdateRequest;
+import com.example.backend.DTO.Request.contract.ContractCreateRequest;
+import com.example.backend.DTO.Request.contract.ContractUpdateRequest;
 import com.example.backend.Entity.Account;
+import com.example.backend.Entity.Apartment;
 import com.example.backend.Entity.Contract;
-import com.example.backend.Entity.Resident;
 import com.example.backend.Repository.ContractRepository;
-import com.example.backend.Repository.ResidentRepository;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,9 +18,17 @@ import java.util.List;
 public class ContractService {
     @Autowired
     ContractRepository repository;
+    @Autowired
+    AccountService accountService;
+    @Autowired
+    ApartmentService apartmentService;
 
     public List<Contract> findAll() {
         return repository.findAll();
+    }
+
+    public List<Contract> findAllByAccountId(Integer accountId){
+        return repository.findAllByAccountId(accountId).orElseThrow(() -> new RuntimeException("Người dùng  với id " + accountId + " hiện không sở hữu tài sản nào!"));
     }
 
     public Contract findById(Integer id) {
@@ -29,34 +36,68 @@ public class ContractService {
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy hợp đồng với id: " + id));
     }
 
-//    public Contract create(Contract request) {
-//        Account account = accountService.findById(request.getAccountId());
-//
-//        Resident resident = Resident.builder()
-//                .fullName(request.getFullName())
-//                .gender(request.getGender())
-//                .dateOfBirth(request.getDateOfBirth())
-//                .identityId(request.getIdentityId())
-//                .account(account)
-//                .build();
-//
-//        return residentRepository.save(resident);
-//    }
+    public Contract create(ContractCreateRequest request) {
+        Account account = accountService.findById(request.getAccountId());
+        Apartment apartment = apartmentService.findById(request.getApartmentId());
 
-//    public Resident update(Integer id, ResidentUpdateRequest req) {
-//        Resident resident = findById(id);
-//
-//        resident = Resident.builder()
-//                .fullName(req.getFullName())
-//                .gender(req.getGender())
-//                .dateOfBirth(req.getDateOfBirth())
-//                .build();
-//
-//        return residentRepository.save(resident);
-//    }
-//
-//    public void delete(Integer id) {
-//        findById(id);
-//        residentRepository.deleteById(id);
-//    }
+        Contract contract = Contract.builder()
+                .apartment(apartment)
+                .account(account)
+                .startDate(request.getStartDate())
+                .endDate(request.getEndDate())
+                .status(request.getStatus())
+                .contractType(request.getContractType())
+                .monthlyRent(request.getMonthlyRent())
+                .createdById(request.getCreatedById())
+                .build();
+
+        return repository.save(contract);
+    }
+
+    public Contract update(Integer id, ContractUpdateRequest request) {
+        Contract contract = findById(id);
+
+
+
+        if(request.getApartmentId() != null){
+            Apartment apartment = apartmentService.findById(request.getApartmentId());
+            contract.setApartment(apartment);
+        }
+
+        if(request.getAccountId() != null){
+            Account account = accountService.findById(request.getAccountId());
+            contract.setAccount(account);
+        }
+
+        if(request.getContractType() != null){
+            contract.setContractType(request.getContractType());
+        }
+
+        if(request.getStartDate() != null){
+            contract.setStartDate(request.getStartDate());
+        }
+
+        if(request.getMonthlyRent() != null){
+            contract.setMonthlyRent(request.getMonthlyRent());
+        }
+
+        if(request.getStatus() != null){
+            contract.setStatus(request.getStatus());
+        }
+
+        if(request.getEndDate() != null){
+            contract.setEndDate(request.getEndDate());
+        }
+
+        if(request.getCreatedById() != null){
+            contract.setCreatedById(request.getCreatedById());
+        }
+
+        return repository.save(contract);
+    }
+
+    public void delete(Integer id) {
+        findById(id);
+        repository.deleteById(id);
+    }
 }

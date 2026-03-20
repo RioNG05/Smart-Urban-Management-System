@@ -3,18 +3,22 @@ import { FaUserCircle } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import useScrollEffect from "../../hooks/useScrollEffect";
 import { useAuth } from "../../components/sections/auth/AuthContext";
-import logoImg from "../../assets/logo.jpg"
+import logoImg from "../../assets/logo.jpg";
 
-export default function Navbar() {
+export default function Navbar({ solid = false }) {
   const [scrolled, setScrolled] = useState(false);
   const [openMenu, setOpenMenu] = useState(false);
+  const [loadingUser, setLoadingUser] = useState(true);
 
   const navigate = useNavigate();
-  const menuRef = useRef();
+  const handleNavigation = (path) => {
+    navigate(path);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+  const menuRef = useRef(null);
 
-  // lấy user từ AuthContext
-  const { user, logout } = useAuth();
-  const isLoggedIn = !!user;
+  const { token, user, role, logout, isAuthenticated } = useAuth();
+  const displayRole = user?.role?.roleName || role;
 
   const handleScroll = useCallback(() => {
     setScrolled(window.scrollY > 50);
@@ -22,86 +26,120 @@ export default function Navbar() {
 
   useScrollEffect(handleScroll);
 
-  // click ngoài dropdown -> đóng menu
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setLoadingUser(false);
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, []);
+
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (menuRef.current && !menuRef.current.contains(event.target)) {
+      if (!menuRef.current) return;
+
+      if (!menuRef.current.contains(event.target)) {
         setOpenMenu(false);
       }
     };
 
-    document.addEventListener("mousedown", handleClickOutside);
+    document.addEventListener("click", handleClickOutside, true);
 
     return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("click", handleClickOutside, true);
     };
   }, []);
 
   const handleLogout = () => {
     logout();
     setOpenMenu(false);
-
-    setTimeout(() => {
-      window.location.href = "/";
-    }, 200);
+    navigate("/");
   };
 
   return (
-    <nav className={`navbar ${scrolled ? "navbar-scrolled" : ""}`}>
+    <nav className={`navbar ${scrolled || solid ? "navbar-scrolled" : ""}`}>
       <div className="nav-container">
         {/* LOGO */}
-        <div className="nav-logo" onClick={() => navigate("/")}>
-          <img src={logoImg} alt="VINAHOUSES Logo" className="nav-logoImg"/>
-          <span className="nav-logoText">VINAHOUSES</span>
+        <div className="nav-logo" onClick={() => handleNavigation("/")}>
+          <img src={logoImg} alt="VINAHOUSES Logo" className="nav-logoImg" />
+          <span className="nav-logoText">VINAHOUSE</span>
         </div>
 
-        {/* MENU */}
         <ul className="nav-links">
-          <li onClick={() => navigate("/")}>Home</li>
-          <li onClick={() => navigate("/market")}>Projects</li>
-          <li onClick={() => navigate("/about")}>About</li>
-          <li onClick={() => navigate("/news")}>News</li>
-          <li onClick={() => navigate("/contact")}>Contact</li>
+          <li onClick={() => handleNavigation("/")}>Home</li>
+          <li onClick={() => handleNavigation("/about")}>About</li>
+          <li onClick={() => handleNavigation("/market")}>Projects</li>
+          <li onClick={() => handleNavigation("/services")}>Services</li>
+          <li onClick={() => handleNavigation("/news")}>News</li>
+          <li onClick={() => handleNavigation("/contact")}>Contact</li>
         </ul>
 
-        {/* ACTION */}
         <div className="nav-actions">
-          {/* USER */}
           <div className="user-menu" ref={menuRef}>
             <FaUserCircle
               className="user-icon"
-              onClick={() => setOpenMenu(!openMenu)}
+              onClick={(e) => {
+                e.stopPropagation();
+
+                if (!isAuthenticated) {
+                  navigate("/auth");
+                } else {
+                  setOpenMenu((prev) => !prev);
+                }
+              }}
             />
 
-            {openMenu && (
-              <div className="dropdown">
-                {isLoggedIn ? (
+            {openMenu && isAuthenticated && (
+              <div className="dropdown fade-slide">
+                {loadingUser ? (
+                  <div className="dropdown-skeleton">
+                    <div className="skeleton-item"></div>
+                    <div className="skeleton-item"></div>
+                  </div>
+                ) : (
                   <>
+                    <div
+                      className="dropdown-item username"
+                      onClick={() => navigate("/profile")}
+                    >
+                      <span>{user?.username}</span>
+
+                      {role && (
+                        <span className={`role-badge ${role}`}>
+                          {displayRole}
+                        </span>
+                      )}
+                    </div>
+
+                    {role === "RESIDENT" && (
+                      <>
+                        <div
+                          className="dropdown-item"
+                          onClick={() => navigate("/dashboard")}
+                        >
+                          Dashboard
+                        </div>
+                        <div
+                          className="dropdown-item"
+                          onClick={() => navigate("/billing")}
+                        >
+                          My Home
+                        </div>
+                      </>
+                    )}
+
                     <div
                       className="dropdown-item"
                       onClick={() => navigate("/profile")}
                     >
-                      {user.username || "Profile"}
+                      Profile
                     </div>
 
-                    <div className="dropdown-item" onClick={handleLogout}>
+                    <div
+                      className="dropdown-item logout"
+                      onClick={handleLogout}
+                    >
                       Logout
-                    </div>
-                  </>
-                ) : (
-                  <>
-                    <div
-                      className="dropdown-item"
-                      onClick={() => navigate("/auth")}
-                    >
-                      Login
-                    </div>
-
-                    <div
-                      className="dropdown-item"
-                      onClick={() => navigate("/auth")}
-                    >
-                      Register
                     </div>
                   </>
                 )}
@@ -109,7 +147,7 @@ export default function Navbar() {
             )}
           </div>
 
-          <button className="nav-btn" onClick={() => navigate("/projects")}>
+          <button className="nav-btn" onClick={() => handleNavigation("/projects")}>
             Explore
           </button>
         </div>

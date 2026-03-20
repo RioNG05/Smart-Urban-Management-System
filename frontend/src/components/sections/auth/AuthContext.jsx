@@ -1,51 +1,103 @@
 import { createContext, useContext, useState, useEffect } from "react";
+import { jwtDecode } from "jwt-decode";
+import api from "../../../services/api";
 
 const AuthContext = createContext(null);
 
 export function AuthProvider({ children }) {
+  const [token, setToken] = useState(() => localStorage.getItem("token"));
   const [user, setUser] = useState(() => {
-    try {
-      const storedUser = localStorage.getItem("user");
-      return storedUser && storedUser !== "undefined"
-        ? JSON.parse(storedUser)
-        : null;
-    } catch (error) {
-      console.error("Invalid user JSON in localStorage:", error);
-      return null;
-    }
+    const stored = localStorage.getItem("user");
+    return stored ? JSON.parse(stored) : null;
   });
 
-  const login = (user) => {
-    if (!user) return;
+  const normalizedRole = user?.role?.roleName?.toUpperCase() || null;
 
-    localStorage.setItem("user", JSON.stringify(user));
-    setUser(user);
-  };
-
-  const logout = () => {
-    localStorage.removeItem("user");
+  const clearAuth = () => {
     localStorage.removeItem("token");
-
+    localStorage.removeItem("user");
+    setToken(null);
     setUser(null);
   };
 
-  const value = {
-    user,
-    login,
-    logout,
-    isAuthenticated: Boolean(user),
-    role: user?.role?.roleName || null,
+  useEffect(() => {
+    if (!token) return;
+
+    try {
+      const decoded = jwtDecode(token);
+
+      if (decoded.exp * 1000 < Date.now()) {
+        clearAuth();
+      }
+    } catch {
+      clearAuth();
+    }
+  }, [token]);
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const tokenFromUrl = params.get("token");
+
+    if (!tokenFromUrl) return;
+
+    const bootstrapGoogleLogin = async () => {
+      try {
+        localStorage.setItem("token", tokenFromUrl);
+        setToken(tokenFromUrl);
+
+        const userRes = await api.get("/auth/accounts/me", {
+          headers: {
+            Authorization: `Bearer ${tokenFromUrl}`,
+          },
+        });
+
+        const userData = userRes.data.result;
+        localStorage.setItem("user", JSON.stringify(userData));
+        setUser(userData);
+      } catch {
+        clearAuth();
+      } finally {
+        params.delete("token");
+        const nextQuery = params.toString();
+        const nextUrl = `${window.location.pathname}${
+          nextQuery ? `?${nextQuery}` : ""
+        }${window.location.hash}`;
+        window.history.replaceState({}, document.title, nextUrl);
+      }
+    };
+
+    bootstrapGoogleLogin();
+  }, []);
+
+  const login = (token, userData) => {
+    localStorage.setItem("token", token);
+    localStorage.setItem("user", JSON.stringify(userData));
+
+    setToken(token);
+    setUser(userData);
   };
 
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+  const logout = () => {
+    clearAuth();
+    window.location.href = "/";
+  };
+
+  return (
+    <AuthContext.Provider
+      value={{
+        token,
+        user,
+        role: normalizedRole,
+        isAuthenticated: !!token,
+        login,
+        logout,
+      }}
+    >
+      {children}
+    </AuthContext.Provider>
+  );
 }
 
 export function useAuth() {
-  const context = useContext(AuthContext);
-
-  if (!context) {
-    throw new Error("useAuth must be used inside AuthProvider");
-  }
-
-  return context;
+  return useContext(AuthContext);
 }

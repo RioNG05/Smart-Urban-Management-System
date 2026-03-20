@@ -1,13 +1,10 @@
 package com.example.backend.Controllers;
 
-import com.example.backend.DTO.Request.AccountCreateRequest;
-import com.example.backend.DTO.Request.AccountUpdateRequest;
-import com.example.backend.DTO.Request.ResidentCreateRequest;
-import com.example.backend.DTO.Request.ResidentUpdateRequest;
+import com.example.backend.DTO.Request.resident.ResidentCreateRequest;
+import com.example.backend.DTO.Request.resident.ResidentUpdateRequest;
 import com.example.backend.DTO.Response.ApiResponse;
 import com.example.backend.Entity.Account;
 import com.example.backend.Entity.Resident;
-import com.example.backend.Service.AccountService;
 import com.example.backend.Service.ResidentService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,13 +20,24 @@ public class ResidentController {
     private ResidentService residentService;
 
     @GetMapping
-    List<Resident> get(){
-        return residentService.findAll();
+    ApiResponse<List<Resident>> get(){
+        ApiResponse<List<Resident>> response = new ApiResponse<>();
+
+        response.setCode(200);
+        response.setMessage("Lấy danh sách người dân thành công!");
+        response.setResult(residentService.findAll());
+
+        return response;
     }
 
     @GetMapping("/{residentID}")
-    Resident getByID(@PathVariable("residentID") Integer residentID){
-        return residentService.findById(residentID);
+    ApiResponse<Resident> getByID(@PathVariable("residentID") Integer residentID){
+        ApiResponse<Resident> response = new ApiResponse<>();
+
+        response.setCode(200);
+        response.setMessage("Thông tin người dân id: " + residentID);
+        response.setResult(residentService.findById(residentID));
+        return response;
     }
 
     @PostMapping

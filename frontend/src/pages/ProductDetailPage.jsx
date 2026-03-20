@@ -1,3 +1,5 @@
+import { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
 import "../styles/product.css";
 
 import Header from "../components/layout/Navbar";
@@ -13,32 +15,120 @@ import LegalInfo from "../components/sections/product/LegalInfo";
 import MapSection from "../components/sections/product/MapSection";
 import SimilarProperties from "../components/sections/product/SimilarProperties";
 import ContactSidebar from "../components/sections/product/ContactSidebar";
+import {
+  getApartmentById,
+  getApartments,
+  getApartmentTypes,
+} from "../services/apartmentService";
+import { mapApartmentToProperty } from "../services/propertyMapper";
 
 const ProductDetailPage = () => {
+  const { id } = useParams();
+  const [property, setProperty] = useState(null);
+  const [relatedProperties, setRelatedProperties] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchPropertyDetail = async () => {
+      try {
+        setIsLoading(true);
+        setError(null);
+
+        const apartment = await getApartmentById(id);
+        const apartmentTypeId =
+          apartment.apartmentTypeId ?? apartment.apartmentType?.id;
+        const [apartments, apartmentTypes] = await Promise.all([
+          getApartments(),
+          getApartmentTypes(),
+        ]);
+
+        const apartmentTypeMap = new Map(
+          apartmentTypes.map((item) => [item.id, item]),
+        );
+
+        const apartmentType =
+          apartment.apartmentType ?? apartmentTypeMap.get(apartmentTypeId) ?? {};
+
+        setProperty(mapApartmentToProperty(apartment, apartmentType));
+
+        setRelatedProperties(
+          apartments
+            .filter((item) => item.id !== Number(id))
+            .slice(0, 3)
+            .map((item) =>
+              mapApartmentToProperty(
+                item,
+                item.apartmentType ??
+                  apartmentTypeMap.get(item.apartmentTypeId ?? item.apartmentType?.id) ??
+                  {},
+              ),
+            ),
+        );
+      } catch (err) {
+        console.error("Error fetching property detail:", err);
+        setError("Could not load property detail at this time.");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchPropertyDetail();
+  }, [id]);
+
+  if (isLoading) {
+    return (
+      <>
+        <Header />
+        <div className="detail-container">
+          <div className="property-feedback">
+            <div className="spinner-border text-primary" role="status">
+              <span className="visually-hidden">Loading...</span>
+            </div>
+            <p className="property-feedback-text">Loading property detail...</p>
+          </div>
+        </div>
+        <Footer />
+      </>
+    );
+  }
+
+  if (error || !property) {
+    return (
+      <>
+        <Header />
+        <div className="detail-container">
+          <div className="alert alert-danger" role="alert">
+            {error || "Property detail is unavailable."}
+          </div>
+        </div>
+        <Footer />
+      </>
+    );
+  }
+
   return (
     <>
       <Header />
 
       <div className="detail-container">
-        <Breadcrumb />
+        <Breadcrumb title={property.title} />
 
-        <Gallery />
+        <Gallery property={property} />
 
         <div className="detail-main">
-          {/* LEFT CONTENT */}
           <div className="detail-left">
-            <ProductHeader />
-            <ProductMeta />
-            <Description />
-            <Features />
-            <LegalInfo />
-            <MapSection />
-            <SimilarProperties />
+            <ProductHeader property={property} />
+            <ProductMeta property={property} />
+            <Description property={property} />
+            <Features property={property} />
+            <LegalInfo property={property} />
+            <MapSection property={property} />
+            <SimilarProperties properties={relatedProperties} />
           </div>
 
-          {/* RIGHT SIDEBAR */}
           <div className="detail-right">
-            <ContactSidebar />
+            <ContactSidebar property={property} />
           </div>
         </div>
       </div>

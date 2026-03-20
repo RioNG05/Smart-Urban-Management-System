@@ -8,6 +8,7 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "ServiceInvoices")
 @Getter @Setter @NoArgsConstructor @AllArgsConstructor
+@Builder
 public class ServiceInvoice {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

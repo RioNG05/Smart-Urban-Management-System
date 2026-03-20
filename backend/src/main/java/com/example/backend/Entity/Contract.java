@@ -8,6 +8,7 @@ import java.math.BigDecimal;
 @Entity
 @Table(name = "Contracts")
 @Getter @Setter @NoArgsConstructor @AllArgsConstructor
+@Builder
 public class Contract {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -39,4 +40,7 @@ public class Contract {
 
     @Column(name = "CreatedAt", insertable = false, updatable = false)
     private LocalDateTime createdAt;
+
+    @Column(name = "CreatedById", nullable = false)
+    private Integer createdById;                     // id của staff tạo ra cái hợp đồng này
 }

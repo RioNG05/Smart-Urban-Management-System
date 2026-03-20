@@ -5,10 +5,21 @@ import { Navigate } from "react-router-dom";
 import "../styles/auth.css";
 
 function AuthPage() {
-  const { user } = useAuth();
+  const { user, role } = useAuth();
+
+  const roleDashboard = {
+    ADMIN: "/admin",
+    RESIDENT: "/",
+    STAFF_APARTMENT: "/staff/apartment",
+    STAFF_SERVICE: "/staff/service",
+    STAFF_SECURITY: "/staff/security",
+    STAFF: "/staff/apartment",
+  };
 
   if (user) {
-    return <Navigate to="/" />;
+    const redirectPath = roleDashboard[role] || "/";
+
+    return <Navigate to={redirectPath} replace />;
   }
 
   return (

@@ -1,5 +1,6 @@
 package com.example.backend.DTO.Response;
 
+import com.example.backend.Entity.Account;
 import com.example.backend.Entity.Role;
 import jakarta.validation.constraints.Email;
 import lombok.*;
@@ -11,8 +12,8 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Builder
 public class AccountsResponse {
+    Integer id;
     String username;
-    String password;
     Role role;
     String email;
 }

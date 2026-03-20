@@ -1,27 +1,66 @@
-function PropertyToolbar({ view, setView }) {
+function PropertyToolbar({
+  view,
+  setView,
+  resultCount,
+  availableCount,
+  sortBy,
+  setSortBy,
+  statusFilter,
+  setStatusFilter,
+  pageMeta,
+}) {
+  const { currentPage, totalPages, startIndex, endIndex } = pageMeta;
+
   return (
     <div className="property-toolbar">
-      <div className="results">24 Properties Available</div>
+      <div className="toolbar-copy">
+        <div className="toolbar-kicker">Market Overview</div>
+        <div className="results">{availableCount} properties available</div>
+        <p className="toolbar-subtext">
+          Showing {startIndex}-{endIndex} of {resultCount} listings on page{" "}
+          {currentPage} of {totalPages}.
+        </p>
+      </div>
 
       <div className="toolbar-actions">
-        <select>
-          <option>Sort by Price (Low → High)</option>
-          <option>Sort by Price (High → Low)</option>
-          <option>Newest</option>
-        </select>
+        <label className="toolbar-select">
+          <span>Status</span>
+          <select
+            value={statusFilter}
+            onChange={(event) => setStatusFilter(event.target.value)}
+          >
+            <option value="all">All listings</option>
+            <option value="available">Dang mo ban</option>
+            <option value="unavailable">Khong mo ban</option>
+          </select>
+        </label>
+
+        <label className="toolbar-select">
+          <span>Sort by</span>
+          <select
+            value={sortBy}
+            onChange={(event) => setSortBy(event.target.value)}
+          >
+            <option value="price-asc">Price: Low to High</option>
+            <option value="price-desc">Price: High to Low</option>
+            <option value="newest">Newest</option>
+          </select>
+        </label>
 
         <div className="view-toggle">
           <button
             className={view === "grid" ? "active" : ""}
             onClick={() => setView("grid")}
+            type="button"
           >
-            ⬛
+            Grid
           </button>
           <button
             className={view === "list" ? "active" : ""}
             onClick={() => setView("list")}
+            type="button"
           >
-            ☰
+            List
           </button>
         </div>
       </div>

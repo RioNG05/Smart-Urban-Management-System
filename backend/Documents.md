@@ -1,498 +1,845 @@
 # API Documentation - Smart Urban System
 
-## Thông Tin Chung
-
-| Thông Tin | Chi Tiết |
-|-----------|---------|
-| **Base URL** | `http://localhost:8080/api` |
-| **Format Response** | JSON |
-| **Authentication** | Bearer Token (sẽ áp dụng) |
-
-## API Response Format
-
-Tất cả API responses đều tuân theo định dạng chuẩn:
-
-```json
-{
-    "code": 200,
-    "message": "Mô tả kết quả hoặc lỗi",
-    "result": {}
-}
-```
-
-| Field | Type | Mô Tả |
-|-------|------|-------|
-| `code` | Integer | Mã HTTP status (200, 400, 500, etc.) |
-| `message` | String | Thông báo từ server |
-| `result` | Object/Array | Dữ liệu trả về (null nếu không có) |
+**Base URL**: `http://localhost:8080/api` | **Format**: JSON | **Response**: `{ "code", "message", "result" }`
 
 ---
 
-## A. ACCOUNT ROUTES - Quản Lý Tài Khoản Người Dùng
-
-### 1. Lấy Danh Sách Tất Cả Tài Khoản
-
-```http
-GET /accounts
-```
-
-**Mô Tả**: Truy xuất danh sách tất cả tài khoản trong hệ thống.
-
-**Tham Số**: Không có
-
-**Response (200 OK)**:
-```json
-{
-    "code": 200,
-    "message": "Success",
-    "result": [
-        {
-            "id": 1,
-            "email": "user@example.com",
-            "username": "username",
-            "password": "hashedPassword",
-            "role": {
-                "id": 2,
-                "roleName": "RESIDENT",
-                "hibernateLazyInitializer": {}
-            },
-            "isActive": true
-        }
-    ]
-}
-```
-
-**Lỗi Có Thể Xảy Ra**:
-| Status | Thông Báo | Mô Tả |
-|--------|-----------|-------|
-| 500 | Internal Server Error | Lỗi máy chủ |
+## 📋 Table of Contents
+- [A. Account Routes](#a-account-routes) — Tài khoản người dùng
+- [B. Resident Routes](#b-resident-routes) — Cư dân
+- [C. Authentication Routes](#c-authentication-routes) — Đăng nhập & Token
+- [D. Contract Routes](#d-contract-routes) — Hợp đồng
+- [E. Apartment Type Routes](#e-apartment-type-routes) — Loại căn hộ
+- [F. Apartment Routes](#f-apartment-routes) — Căn hộ
+- [G. Complaint Routes](#g-complaint-routes) — Khiếu nại
+- [H. Reply Routes](#h-reply-routes) — Trả lời khiếu nại
+- [I. Services Routes](#i-services-routes) — Dịch vụ
+- [J. Service Resource Routes](#j-service-resource-routes) — Tài nguyên dịch vụ
+- [K. Staff Routes](#k-staff-routes) — Nhân viên
+- [L. Stay At History Routes](#l-stay-at-history-routes) — Lịch sử lưu trú
+- [M. Utilities Invoice Routes](#m-utilities-invoice-routes) — Hóa đơn tiện ích
+- [N. Visitor Log Routes](#n-visitor-log-routes) — Nhật ký khách tham quan
 
 ---
 
-### 2. Lấy Chi Tiết Tài Khoản Theo ID
+## A. Account Routes
 
-```http
-GET /accounts/{accountID}
-```
+| Endpoint | Method | Mô Tả |
+|----------|--------|-------|
+| `/accounts` | GET | Lấy tất cả account |
+| `/accounts/{id}` | GET | Lấy 1 account |
+| `/accounts` | POST | Tạo account |
+| `/accounts/{id}` | PUT | Cập nhật account |
+| `/accounts/{id}` | DELETE | Xóa account |
 
-**Mô Tả**: Truy xuất thông tin chi tiết của một tài khoản cụ thể.
+### 📄 GET /accounts — Danh Sách Tất Cả Account
 
-**Tham Số**:
-| Tham Số | Kiểu | Vị Trí | Mô Tả |
-|---------|------|--------|-------|
-| `accountID` | Integer | Path | ID của tài khoản cần lấy |
+**Response**: `{ "code": 200, "message": "Lấy danh sách tài khoản thành công", "result": [...] }`
 
-**Response (200 OK)**:
+### 📄 GET /accounts/{id} — Chi Tiết Account
+
+**Response**: `{ "code": 200, "message": "Thông tin tài khoản id: {id}", "result": { "id": 1, "email": "user@example.com", "username": "username", "role": {...}, ... } }`  
+**Errors**: `404` Account không tồn tại
+
+### ➕ POST /accounts — Tạo Account
+
 ```json
 {
-    "code": 200,
-    "message": "Success",
-    "result": {
-        "id": 1,
-        "email": "user@example.com",
-        "username": "username",
-        "password": "hashedPassword",
-        "role": {
-            "id": 2,
-            "roleName": "RESIDENT",
-            "hibernateLazyInitializer": {}
-        },
-        "isActive": true
-    }
+  "email": "user@example.com",
+  "username": "username",
+  "password": "Password@123",
+  "roleId": 2
 }
 ```
 
-**Lỗi Có Thể Xảy Ra**:
-| Status | Thông Báo | Mô Tả |
-|--------|-----------|-------|
-| 500 | Không tìm thấy Account với ID: {id} | Account không tồn tại |
+| Field | Type | Yêu cầu | Chi tiết |
+|-------|------|--------|---------|
+| email | String | ✓ | Unique |
+| username | String | ✓ | Min 6 ký tự, unique |
+| password | String | ✓ | Min 8 ký tự, phải có chữ hoa, thường, số, ký tự đặc biệt |
+| roleId | Integer | ✗ | Default = 2 (RESIDENT) |
+
+**Response**: `{ "code": 200, "message": "Tạo người dùng thành công!", "result": {...} }`  
+**Errors**: `400` Validation | `500` Email/Username trùng | `500` Role không tồn tại
+
+### ✏️ PUT /accounts/{id} — Cập Nhật Account
+
+```json
+{ "email": "...", "username": "...", "password": "...", "roleId": 3, "isActive": false }
+```
+*Tất cả trường optional*
 
 ---
 
-### 3. Tạo Tài Khoản Mới
+## B. Resident Routes
 
-```http
-POST /accounts
-```
+| Endpoint | Method | Mô Tả |
+|----------|--------|-------|
+| `/residents` | GET | Lấy tất cả resident |
+| `/residents/{id}` | GET | Lấy 1 resident |
+| `/residents` | POST | Tạo resident |
+| `/residents/{id}` | PUT | Cập nhật resident |
+| `/residents/{id}` | DELETE | Xóa resident |
 
-**Mô Tả**: Tạo một tài khoản người dùng mới với các thông tin cần thiết.
+### 📄 GET /residents — Danh Sách Tất Cả Resident
 
-**Request Body**:
+**Response**: `{ "code": 200, "message": "Lấy danh sách người dân thành công!", "result": [...] }`
+
+### 📄 GET /residents/{id} — Chi Tiết Resident
+
+**Response**: `{ "code": 200, "message": "Thông tin người dân id: {id}", "result": { "id": 1, "fullName": "...", "gender": "Male", "dateOfBirth": "1990-05-15", "identityId": "001090012345", "account": {...}, ... } }`  
+**Errors**: `404` Resident không tồn tại
+
+### ➕ POST /residents — Tạo Resident
+
 ```json
 {
-    "email": "newuser@example.com",
-    "username": "newuser",
-    "password": "Password@123",
-    "roleId": 2,                    -- Hiện tại phần này ở BE đang mặc định là 2, dù FE có gửi gì thì cũng về 2 hết
-    "isActive": true                -- BE đang mặc định trả về true
+  "fullName": "Nguyễn Văn A",
+  "gender": "Male",
+  "dateOfBirth": "1990-05-15",
+  "identityId": "001090012345",
+  "accountId": 2
 }
 ```
 
-**Tham Số Request**:
-| Tham Số | Kiểu | Bắt Buộc | Mô Tả |
-|---------|------|---------|-------|
-| `email` | String | ✓ | Email người dùng (phải unique) |
-| `username` | String | ✓ | Tên đăng nhập (phải unique) |
-| `password` | String | ✓ | Mật khẩu |
-| `roleId` | Integer | ✗ | ID vai trò (mặc định = 2: RESIDENT) |
-| `isActive` | Boolean | ✗ | Trạng thái hoạt động (mặc định = true) |
+| Field | Type | Yêu cầu | Chi tiết |
+|-------|------|--------|---------|
+| fullName | String | ✓ | Họ tên |
+| gender | String | ✗ | Male/Female/Other |
+| dateOfBirth | Date | ✗ | YYYY-MM-DD |
+| identityId | String | ✓ | Max 20 ký tự, unique |
+| accountId | Integer | ✓ | Phải tồn tại |
 
-**Validations**:
-| Trường | Quy Tắc | Lỗi |
-|--------|--------|-----|
-| `email` | Không được để trống | "Email không được để trống" |
-| `username` | Min 6 ký tự, không được để trống | "Tên người dùng phải có ít nhất 6 ký tự" |
-| `password` | Min 8 ký tự, phải chứa: chữ hoa, chữ thường, chữ số, ký tự đặc biệt (@$!%*?&#) | "Mật khẩu phải chứa ít nhất 1 chữ hoa, 1 chữ thường, 1 chữ số và 1 ký tự đặc biệt" |
-| `username` + `email` | Không được trùng lặp | "Tên người dùng đã được sử dụng" / "Email đã được sử dụng" |
+**Response**: `{ "code": 200, "message": "Tạo tài khoản người dân thành công!", "result": {...} }`  
+**Errors**: `500` Account không tồn tại
 
-**Response (200 OK)**:
+### ✏️ PUT /residents/{id} — Cập Nhật Resident
+
 ```json
-{
-    "code": 200,
-    "message": "Tạo người dùng thành công!",
-    "result": {
-        "id": 5,
-        "email": "newuser@example.com",
-        "username": "newuser",
-        "password": "$2a$10$hashedPassword...",
-        "role": {
-            "id": 2,
-            "roleName": "RESIDENT"
-        },
-        "isActive": true
-    }
-}
+{ "fullName": "...", "gender": "...", "dateOfBirth": "..." }
 ```
-
-**Lỗi Có Thể Xảy Ra**:
-| Status | Thông Báo | Mô Tả |
-|--------|-----------|-------|
-| 400 | Các thông báo validation | Dữ liệu không hợp lệ |
-| 500 | Tên người dùng đã được sử dụng | Username đã tồn tại |
-| 500 | Email đã được sử dụng | Email đã tồn tại |
-| 500 | Không tìm thấy Role với ID: {roleId} | Role không tồn tại |
+*Chỉ cập nhật fullName, gender, dateOfBirth*
 
 ---
 
-### 4. Cập Nhật Tài Khoản
+## C. Authentication Routes
 
-```http
-PUT /accounts/{accountID}
+| Endpoint | Method | Mô Tả |
+|----------|--------|-------|
+| `/auth/token` | POST | Đăng nhập (lấy token) |
+| `/auth/introspect` | POST | Kiểm tra token |
+| `/auth/accounts/me` | GET | Thông tin account hiện tại |
+| `/auth/profile/me` | GET | Hồ sơ người dùng hiện tại |
+
+### 🔓 POST /auth/token — Đăng Nhập
+
+```json
+{ "username": "tuan01", "password": "password123" }
 ```
 
-**Mô Tả**: Cập nhật thông tin của một tài khoản (tất cả trường là optional).
-
-**Tham Số**:
-| Tham Số | Kiểu | Vị Trí | Mô Tả |
-|---------|------|--------|-------|
-| `accountID` | Integer | Path | ID của tài khoản cần cập nhật |
-
-**Request Body** (tất cả trường optional):
+**Response**:
 ```json
-{
-    "email": "newemail@example.com",
-    "username": "newusername",
-    "password": "NewPassword@456",
-    "roleId": 3,
-    "isActive": false
+{ 
+  "code": 200, 
+  "result": { "token": "eyJ...", "authenticated": true }
 }
 ```
 
-**Response (200 OK)**:
+**Token**: Algorithm HS512, Duration 1 giờ  
+**Errors**: `500` Username/password sai
+
+### 🔍 POST /auth/introspect — Kiểm Tra Token
+
 ```json
-{
-    "code": 200,
-    "message": "Cập nhật thông tin thành công",
-    "result": {
-        "id": 1,
-        "email": "newemail@example.com",
-        "username": "newusername",
-        "password": "$2a$10$hashedPassword...",
-        "role": {
-            "id": 3,
-            "roleName": "STAFF_APARTMENT"
-        },
-        "isActive": false
-    }
-}
+{ "token": "eyJ..." }
 ```
 
-**Lỗi Có Thể Xảy Ra**:
-| Status | Thông Báo | Mô Tả |
-|--------|-----------|-------|
-| 500 | Không tìm thấy Account với ID: {id} | Account không tồn tại |
-| 500 | Không tìm thấy Role với ID: {roleId} | Role không tồn tại |
+**Response**: `{ "code": 200, "result": { "valid": true } }`
+
+### 👤 GET /auth/accounts/me — Thông Tin Account
+
+**Header**: `Authorization: Bearer {token}`  
+**Response**: `{ "code": 200, "result": { "username": "...", "email": "...", "role": {...} } }`  
+**Errors**: `400` Unauthorized | `500` Account không tồn tại
+
+### 👥 GET /auth/profile/me — Hồ Sơ người dùng
+
+**Header**: `Authorization: Bearer {token}`  
+**Response**: `{ "code": 200, "result": { "fullName": "...", "account": {...} } }`  
+**Errors**: `400` Unauthorized | `500` Resident profile không tồn tại
 
 ---
 
-### 5. Xóa Tài Khoản
+## D. Contract Routes
 
-```http
-DELETE /accounts/{accountID}
-```
+| Endpoint | Method | Mô Tả |
+|----------|--------|-------|
+| `/contracts` | GET | Lấy tất cả contract |
+| `/contracts/{id}` | GET | Lấy 1 contract |
+| `/contracts/list/{accountId}` | GET | Lấy contract của account |
+| `/contracts` | POST | Tạo contract |
+| `/contracts/{id}` | PUT | Cập nhật contract |
+| `/contracts/{id}` | DELETE | Xóa contract |
 
-**Mô Tả**: Xóa một tài khoản khỏi hệ thống (không thể khôi phục).
+### 📄 GET /contracts — Danh Sách Tất Cả Contract
 
-**Tham Số**:
-| Tham Số | Kiểu | Vị Trí | Mô Tả |
-|---------|------|--------|-------|
-| `accountID` | Integer | Path | ID của tài khoản cần xóa |
+**Response**: `{ "code": 200, "message": "Lấy danh sách hợp đồng thành công", "result": [...] }`
 
-**Response (200 OK)**:
+### 📄 GET /contracts/{id} — Chi Tiết Contract
+
+**Response**: `{ "code": 200, "message": "Thông tin hợp đồng id: {id}", "result": { "id": 1, "apartmentId": 1, "accountId": 2, "contractType": "Residential", "startDate": "2024-01-01", "endDate": "2025-12-31", "monthlyRent": 5000000.00, "status": 1, ... } }`  
+**Errors**: `404` Contract không tồn tại
+
+### 📄 GET /contracts/list/{accountId} — Contract Của Account
+
+**Response**: `{ "code": 200, "message": "Lấy danh sách hợp đồng thành công", "result": [...] }`  
+**Errors**: `404` Account không tồn tại
+
+### ➕ POST /contracts — Tạo Contract
+
 ```json
 {
-    "code": 200,
-    "message": "Xóa tài khoản người dùng thành công",
-    "result": null
+  "apartmentId": 1,
+  "accountId": 2,
+  "contractType": "Residential",
+  "startDate": "2024-01-01",
+  "endDate": "2025-12-31",
+  "monthlyRent": 5000000.00,
+  "status": 1
 }
 ```
 
-**Lỗi Có Thể Xảy Ra**:
-| Status | Thông Báo | Mô Tả |
-|--------|-----------|-------|
-| 500 | Không tìm thấy Account với ID: {id} | Account không tồn tại |
+| Field | Type | Yêu cầu | Chi tiết |
+|-------|------|--------|---------|
+| apartmentId | Integer | ✓ | ID căn hộ |
+| accountId | Integer | ✓ | ID account |
+| contractType | String | ✗ | Residential, Commercial, etc. |
+| startDate | Date | ✓ | YYYY-MM-DD |
+| endDate | Date | ✗ | YYYY-MM-DD, optional |
+| monthlyRent | Decimal | ✗ | Tiền thuê hàng tháng |
+| status | Integer | ✗ | 1=Active (default), 0=Inactive |
+
+**Response**: `{ "code": 200, "message": "Tạo hợp đồng thành công!", "result": {...} }`  
+**Errors**: `500` Apartment/Account không tồn tại
+
+### ✏️ PUT /contracts/{id} — Cập Nhật Contract
+
+```json
+{ "endDate": "2026-12-31", "monthlyRent": 5500000.00, "status": 1 }
+```
+*Tất cả trường optional*
 
 ---
 
-## B. RESIDENT ROUTES - Quản Lý Cư Dân
+## E. Apartment Type Routes
 
-### 1. Lấy Danh Sách Tất Cả Cư Dân
+| Endpoint | Method | Mô Tả |
+|----------|--------|-------|
+| `/apartments/type` | GET | Lấy tất cả loại |
+| `/apartments/type/{id}` | GET | Lấy 1 loại |
+| `/apartments/type` | POST | Tạo loại |
+| `/apartments/type/{id}` | PUT | Cập nhật loại |
+| `/apartments/type/{id}` | DELETE | Xóa loại |
 
-```http
-GET /residents
-```
+### 📄 GET /apartments/type — Danh Sách Tất Cả Loại Căn Hộ
 
-**Mô Tả**: Truy xuất danh sách tất cả cư dân trong hệ thống.
+**Response**: `{ "code": 200, "message": "Lấy danh sách kiểu căn hộ thành công!", "result": [...] }`
 
-**Tham Số**: Không có
+### 📄 GET /apartments/type/{id} — Chi Tiết Loại Căn Hộ
 
-**Response (200 OK)**:
+**Response**: `{ "code": 200, "message": "Thông tin kiểu căn hộ id: {id}", "result": { "id": 1, "name": "2 Bedrooms", "designSqrt": 75.50, "numberOfBedroom": 2, "numberOfBathroom": 2, "overview": "...", "commonPriceForBuying": 1800000000.00, "commonPriceForRent": 12000000.00, "furniture": 1, ... } }`  
+**Errors**: `404` Loại căn hộ không tồn tại
+
+### ➕ POST /apartments/type — Tạo Loại Căn Hộ
+
 ```json
 {
-    "code": 200,
-    "message": "Success",
-    "result": [
-        {
-            "id": 1,
-            "fullName": "Nguyễn Văn Tuấn",
-            "gender": "Male",
-            "dateOfBirth": "1990-05-15",
-            "identityId": "001090012345",
-            "account": {
-                "id": 2,
-                "email": "resident.tuan@gmail.com",
-                "username": "tuan01",
-                "role": {
-                    "id": 2,
-                    "roleName": "RESIDENT"
-                },
-                "isActive": true
-            }
-        }
-    ]
+  "name": "2 Bedrooms",
+  "designSqrt": 75.50,
+  "numberOfBedroom": 2,
+  "numberOfBathroom": 2,
+  "overview": "Căn hộ 2 phòng ngủ tiêu chuẩn",
+  "commonPriceForBuying": 1800000000.00,
+  "commonPriceForRent": 12000000.00,
+  "furniture": 1
 }
 ```
 
-**Lỗi Có Thể Xảy Ra**:
-| Status | Thông Báo | Mô Tả |
-|--------|-----------|-------|
-| 500 | Internal Server Error | Lỗi máy chủ |
+| Field | Type | Yêu cầu | Chi tiết |
+|-------|------|--------|---------|
+| name | String | ✓ | Max 100 ký tự |
+| designSqrt | Decimal | ✗ | Diện tích (m²) |
+| numberOfBedroom | Integer | ✗ | Default = 1 |
+| numberOfBathroom | Integer | ✗ | Default = 1 |
+| overview | String | ✗ | Mô tả chi tiết |
+| commonPriceForBuying | Decimal | ✗ | Giá mua trung bình |
+| commonPriceForRent | Decimal | ✗ | Giá thuê trung bình |
+| furniture | Integer | ✗ | 0=Không, 1=Có |
+
+**Response**: `{ "code": 200, "message": "Tạo kiểu căn hộ mới thành công!", "result": {...} }`  
+**Errors**: `400` Validation
+
+### ✏️ PUT /apartments/type/{id} — Cập Nhật Loại
+
+```json
+{ "name": "...", "commonPriceForRent": 13000000.00 }
+```
+*Tất cả trường optional*
 
 ---
 
-### 2. Lấy Chi Tiết Cư Dân Theo ID
+## F. Apartment Routes
 
-```http
-GET /residents/{residentID}
-```
+| Endpoint | Method | Mô Tả |
+|----------|--------|-------|
+| `/apartments` | GET | Lấy tất cả căn hộ |
+| `/apartments/{id}` | GET | Lấy 1 căn hộ |
+| `/apartments` | POST | Tạo căn hộ |
+| `/apartments/{id}` | PUT | Cập nhật căn hộ |
+| `/apartments/{id}` | DELETE | Xóa căn hộ |
 
-**Mô Tả**: Truy xuất thông tin chi tiết của một cư dân cụ thể.
+### 📄 GET /apartments — Danh Sách Tất Cả Căn Hộ
 
-**Tham Số**:
-| Tham Số | Kiểu | Vị Trí | Mô Tả |
-|---------|------|--------|-------|
-| `residentID` | Integer | Path | ID của cư dân cần lấy |
+**Response**: `{ "code": 200, "message": "Lấy danh sách căn hộ thành công", "result": [...] }`
 
-**Response (200 OK)**:
+### 📄 GET /apartments/{id} — Chi Tiết Căn Hộ
+
+**Response**: `{ "code": 200, "message": "Thông tin căn hộ id: {id}", "result": { "id": 1, "roomNumber": 101, "floorNumber": 1, "direction": "East", "status": 1, "apartmentTypeId": 1, ... } }`  
+**Errors**: `404` Căn hộ không tồn tại
+
+### ➕ POST /apartments — Tạo Căn Hộ
+
 ```json
 {
-    "code": 200,
-    "message": "Success",
-    "result": {
-        "id": 1,
-        "fullName": "Nguyễn Văn Tuấn",
-        "gender": "Male",
-        "dateOfBirth": "1990-05-15",
-        "identityId": "001090012345",
-        "account": {
-            "id": 2,
-            "email": "resident.tuan@gmail.com",
-            "username": "tuan01",
-            "role": {
-                "id": 2,
-                "roleName": "RESIDENT"
-            },
-            "isActive": true
-        }
-    }
+  "roomNumber": 101,
+  "floorNumber": 1,
+  "direction": "East",
+  "status": 1,
+  "apartmentTypeId": 1
 }
 ```
 
-**Lỗi Có Thể Xảy Ra**:
-| Status | Thông Báo | Mô Tả |
-|--------|-----------|-------|
-| 500 | Apartment not found | Cư dân không tồn tại |
+| Field | Type | Yêu cầu | Chi tiết |
+|-------|------|--------|---------|
+| roomNumber | Integer | ✓ | Số phòng (unique) |
+| floorNumber | Integer | ✓ | Số tầng |
+| direction | String | ✗ | Hướng căn hộ (East, West, North, South) |
+| status | Integer | ✗ | 0=Empty, 1=Occupied, Default=1 |
+| apartmentTypeId | Integer | ✓ | ID loại căn hộ |
+
+**Response**: `{ "code": 200, "message": "Tạo căn hộ thành công!", "result": {...} }`  
+**Errors**: `500` ApartmentType không tồn tại | `400` RoomNumber đã tồn tại
+
+### ✏️ PUT /apartments/{id} — Cập Nhật Căn Hộ
+
+```json
+{ "direction": "West", "status": 0 }
+```
+*Tất cả trường optional*
 
 ---
 
-### 3. Tạo Cư Dân Mới
+## G. Complaint Routes
 
-```http
-POST /residents
-```
+| Endpoint | Method | Mô Tả |
+|----------|--------|-------|
+| `/complaints` | GET | Lấy tất cả khiếu nại |
+| `/complaints/{id}` | GET | Lấy 1 khiếu nại |
+| `/complaints` | POST | Tạo khiếu nại |
+| `/complaints/{id}` | PUT | Cập nhật khiếu nại |
+| `/complaints/{id}` | DELETE | Xóa khiếu nại |
 
-**Mô Tả**: Tạo một hồ sơ cư dân mới liên kết với tài khoản người dùng.
+### 📄 GET /complaints — Danh Sách Tất Cả Khiếu Nại
 
-**Request Body**:
+**Response**: `{ "code": 200, "result": [...] }`
+
+### 📄 GET /complaints/{id} — Chi Tiết Khiếu Nại
+
+**Response**: `{ "code": 200, "result": { "id": 1, "content": "...", "userId": 5, ... } }`  
+**Errors**: `404` Khiếu nại không tồn tại
+
+### ➕ POST /complaints — Tạo Khiếu Nại
+
 ```json
 {
-    "fullName": "Trần Thị Thanh Thảo",
-    "gender": "Female",
-    "dateOfBirth": "1995-10-20",
-    "identityId": "001095098765",
-    "accountId": 6
+  "content": "Tiếng ồn từ hàng xóm vào buổi tối",
+  "userId": 5
 }
 ```
 
-**Tham Số Request**:
-| Tham Số | Kiểu | Bắt Buộc | Mô Tả |
-|---------|------|---------|-------|
-| `fullName` | String | ✓ | Họ và tên cư dân |
-| `gender` | String | ✗ | Giới tính (Male/Female/Other) |
-| `dateOfBirth` | Date | ✗ | Ngày sinh (YYYY-MM-DD) |
-| `identityId` | String | ✓ | Số CMND/CCCD (phải unique) |
-| `accountId` | Integer | ✓ | ID của Account liên kết |
+| Field | Type | Yêu cầu | Chi tiết |
+|-------|------|--------|---------|
+| content | String | ✓ | Nội dung khiếu nại, not blank |
+| userId | Integer | ✓ | ID người khiếu nại |
 
-**Validations**:
-| Trường | Quy Tắc | Lỗi |
-|--------|--------|-----|
-| `fullName` | Không được để trống | Lỗi validation |
-| `identityId` | Tối đa 20 ký tự, phải unique | "Apartment not found" |
-| `accountId` | Phải tồn tại trong table Accounts | "Không tìm thấy Account" |
+**Response**: `{ "code": 200, "result": {...} }`  
+**Errors**: `500` User không tồn tại
 
-**Response (200 OK)**:
+### ✏️ PUT /complaints/{id} — Cập Nhật Khiếu Nại
+
 ```json
-{
-    "code": 200,
-    "message": "Tạo tài khoản người dân thành công!",
-    "result": {
-        "id": 6,
-        "fullName": "Trần Thị Thanh Thảo",
-        "gender": "Female",
-        "dateOfBirth": "1995-10-20",
-        "identityId": "001095098765",
-        "account": {
-            "id": 6,
-            "email": "thao.tran@gmail.com",
-            "username": "thao01"
-        }
-    }
-}
+{ "content": "Nội dung khiếu nại mới" }
 ```
-
-**Lỗi Có Thể Xảy Ra**:
-| Status | Thông Báo | Mô Tả |
-|--------|-----------|-------|
-| 500 | Apartment not found | Account không tồn tại |
+*Tất cả trường optional*
 
 ---
 
-### 4. Cập Nhật Thông Tin Cư Dân
+## H. Reply Routes
 
-```http
-PUT /residents/{residentID}
-```
+| Endpoint | Method | Mô Tả |
+|----------|--------|-------|
+| `/replies` | GET | Lấy tất cả trả lời |
+| `/replies/{id}` | GET | Lấy 1 trả lời |
+| `/replies` | POST | Tạo trả lời |
+| `/replies/{id}` | PUT | Cập nhật trả lời |
+| `/replies/{id}` | DELETE | Xóa trả lời |
+| `/replies/complaint/{complaintId}` | GET | Lấy trả lời của khiếu nại |
 
-**Mô Tả**: Cập nhật thông tin của một cư dân (chỉ fullName, gender, dateOfBirth).
+### 📄 GET /replies — Danh Sách Tất Cả Trả Lời
 
-**Tham Số**:
-| Tham Số | Kiểu | Vị Trí | Mô Tả |
-|---------|------|--------|-------|
-| `residentID` | Integer | Path | ID của cư dân cần cập nhật |
+**Response**: `{ "code": 200, "result": [...] }`
 
-**Request Body** (tất cả trường optional):
+### 📄 GET /replies/{id} — Chi Tiết Trả Lời
+
+**Response**: `{ "code": 200, "result": { "id": 1, "content": "...", "complaintId": 3, "userId": 2, ... } }`  
+**Errors**: `404` Trả lời không tồn tại
+
+### ➕ POST /replies — Tạo Trả Lời
+
 ```json
 {
-    "fullName": "Trần Thị Thanh Thảo Mới",
-    "gender": "Female",
-    "dateOfBirth": "1995-10-20"
+  "content": "Chúng tôi sẽ xem xét vấn đề này sớm",
+  "complaintId": 3,
+  "userId": 2
 }
 ```
 
-**Response (200 OK)**:
-```json
-{
-    "code": 200,
-    "message": "Cập nhật thông tin thành công",
-    "result": {
-        "id": 6,
-        "fullName": "Trần Thị Thanh Thảo Mới",
-        "gender": "Female",
-        "dateOfBirth": "1995-10-20",
-        "identityId": "001095098765",
-        "account": {
-            "id": 6,
-            "email": "thao.tran@gmail.com",
-            "username": "thao01"
-        }
-    }
-}
-```
+| Field | Type | Yêu cầu | Chi tiết |
+|-------|------|--------|---------|
+| content | String | ✓ | Nội dung trả lời, max 2000 ký tự |
+| complaintId | Integer | ✗ | ID khiếu nại (optional) |
+| userId | Integer | ✓ | ID người trả lời |
 
-**Lỗi Có Thể Xảy Ra**:
-| Status | Thông Báo | Mô Tả |
-|--------|-----------|-------|
-| 500 | Apartment not found | Cư dân không tồn tại |
+**Response**: `{ "code": 200, "result": {...} }`  
+**Errors**: `500` User/Complaint không tồn tại
+
+### ✏️ PUT /replies/{id} — Cập Nhật Trả Lời
+
+```json
+{ "content": "Nội dung trả lời cập nhật" }
+```
+*Tất cả trường optional*
+
+### 🔍 GET /replies/complaint/{complaintId} — Lấy Trả Lời Của Khiếu Nại
+
+**Response**: `{ "code": 200, "result": [...] }`  
+**Errors**: `404` Khiếu nại không tồn tại
 
 ---
 
-### 5. Xóa Cư Dân
+## I. Services Routes
 
-```http
-DELETE /residents/{residentID}
-```
+| Endpoint | Method | Mô Tả |
+|----------|--------|-------|
+| `/services` | GET | Lấy tất cả dịch vụ |
+| `/services/{id}` | GET | Lấy 1 dịch vụ |
+| `/services` | POST | Tạo dịch vụ |
+| `/services/{id}` | PUT | Cập nhật dịch vụ |
+| `/services/{id}` | DELETE | Xóa dịch vụ |
 
-**Mô Tả**: Xóa hồ sơ cư dân khỏi hệ thống (không thể khôi phục).
+### 📄 GET /services — Danh Sách Tất Cả Dịch Vụ
 
-**Tham Số**:
-| Tham Số | Kiểu | Vị Trí | Mô Tả |
-|---------|------|--------|-------|
-| `residentID` | Integer | Path | ID của cư dân cần xóa |
+**Response**: `{ "code": 200, "message": "Lấy danh sách dịch vụ thành công!", "result": [...] }`
 
-**Response (200 OK)**:
+### 📄 GET /services/{id} — Chi Tiết Dịch Vụ
+
+**Response**: `{ "code": 200, "message": "Thông tin dịch vụ id: {id}", "result": { "id": 1, "serviceName": "...", "serviceCode": "CLN001", ... } }`  
+**Errors**: `404` Dịch vụ không tồn tại
+
+### ➕ POST /services — Tạo Dịch Vụ
+
 ```json
 {
-    "code": 200,
-    "message": "Xóa tài khoản cư dân thành công",
-    "result": null
+  "serviceName": "Dịch vụ vệ sinh",
+  "serviceCode": "CLN001",
+  "feePerUnit": 50000.00,
+  "unitType": "per_month"
 }
 ```
 
-**Lỗi Có Thể Xảy Ra**:
-| Status | Thông Báo | Mô Tả |
-|--------|-----------|-------|
-| 500 | Apartment not found | Cư dân không tồn tại |
+| Field | Type | Yêu cầu | Chi tiết |
+|-------|------|--------|---------|
+| serviceName | String | ✓ | Tên dịch vụ |
+| serviceCode | String | ✓ | Mã dịch vụ (unique) |
+| feePerUnit | Decimal | ✓ | Giá theo đơn vị |
+| unitType | String | ✓ | per_month, per_unit, per_service, etc. |
+
+**Response**: `{ "code": 200, "message": "Tạo dịch vụ mới thành công!", "result": {...} }`  
+**Errors**: `400` ServiceCode đã tồn tại
+
+### ✏️ PUT /services/{id} — Cập Nhật Dịch Vụ
+
+```json
+{ "feePerUnit": 60000.00 }
+```
+*Tất cả trường optional*
 
 ---
 
-## Ghi Chú
+## J. Service Resource Routes
 
-- Mật khẩu được mã hóa bằng **BCrypt** (độ mạnh: 10)
-- **RoleId** mặc định = 2 (RESIDENT) nếu không cung cấp
-- **isActive** mặc định = true nếu không cung cấp
-- Email và Username phải **unique** trong hệ thống
-- Khi lấy Account, password sẽ trả về dạng **hash** vì lý do bảo mật
-- **Resident** phải được liên kết với một **Account** (accountId phải tồn tại)
-- **IdentityId** (Số CMND/CCCD) phải **unique** trong bảng Residents
-- Khi cập nhật Resident, chỉ có thể thay đổi fullName, gender, dateOfBirth (không thể thay đổi identityId, accountId)
+| Endpoint | Method | Mô Tả |
+|----------|--------|-------|
+| `/service-resource` | GET | Lấy tất cả tài nguyên |
+| `/service-resource/{id}` | GET | Lấy 1 tài nguyên |
+| `/service-resource` | POST | Tạo tài nguyên |
+| `/service-resource/{id}` | PUT | Cập nhật tài nguyên |
+| `/service-resource/{id}` | DELETE | Xóa tài nguyên |
+
+### 📄 GET /service-resource — Danh Sách Tất Cả Tài Nguyên Dịch Vụ
+
+**Response**: `{ "code": 200, "message": "Lấy danh sách tài nguyên dịch vụ thành công!", "result": [...] }`
+
+### 📄 GET /service-resource/{id} — Chi Tiết Tài Nguyên
+
+**Response**: `{ "code": 200, "message": "Thông tin tài nguyên dịch vụ id: {id}", "result": { "id": 1, "resourceCode": "RES001", "location": "...", "serviceId": 1, ... } }`  
+**Errors**: `404` Tài nguyên không tồn tại
+
+### ➕ POST /service-resource — Tạo Tài Nguyên Dịch Vụ
+
+```json
+{
+  "resourceCode": "RES001",
+  "location": "Tầng 1 - Phòng vệ sinh",
+  "serviceId": 1,
+  "isAvailable": true
+}
+```
+
+| Field | Type | Yêu cầu | Chi tiết |
+|-------|------|--------|---------|
+| resourceCode | String | ✓ | Mã tài nguyên (unique) |
+| location | String | ✓ | Vị trí tài nguyên |
+| serviceId | Integer | ✓ | ID dịch vụ |
+| isAvailable | Boolean | ✗ | Default = true |
+
+**Response**: `{ "code": 200, "message": "Tạo tài nguyên dịch vụ mới thành công!", "result": {...} }`  
+**Errors**: `500` Service không tồn tại | `400` ResourceCode đã tồn tại
+
+### ✏️ PUT /service-resource/{id} — Cập Nhật Tài Nguyên
+
+```json
+{ "location": "Tầng 2 - Phòng vệ sinh", "isAvailable": false }
+```
+*Tất cả trường optional*
+
+---
+
+## K. Staff Routes
+
+| Endpoint | Method | Mô Tả |
+|----------|--------|-------|
+| `/staff` | GET | Lấy tất cả nhân viên |
+| `/staff/{id}` | GET | Lấy 1 nhân viên |
+| `/staff` | POST | Tạo nhân viên |
+| `/staff/{id}` | PUT | Cập nhật nhân viên |
+| `/staff/{id}` | DELETE | Xóa nhân viên |
+
+### 📄 GET /staff — Danh Sách Tất Cả Nhân Viên
+
+**Response**: `{ "code": 200, "result": [...] }`
+
+### 📄 GET /staff/{id} — Chi Tiết Nhân Viên
+
+**Response**: `{ "code": 200, "result": { "id": 1, "fullName": "Trần Văn B", "gender": "Male", "dateOfBirth": "1990-01-01", "identityId": "001990012345", "accountId": 8, ... } }`  
+**Errors**: `404` Nhân viên không tồn tại
+
+### ➕ POST /staff — Tạo Nhân Viên
+
+```json
+{
+  "fullName": "Trần Văn B",
+  "gender": "Male",
+  "dateOfBirth": "1990-01-01",
+  "identityId": "001990012345",
+  "accountId": 8
+}
+```
+
+| Field | Type | Yêu cầu | Chi tiết |
+|-------|------|--------|---------|
+| fullName | String | ✓ | Họ tên nhân viên |
+| gender | String | ✗ | Male/Female/Other |
+| dateOfBirth | Date | ✗ | YYYY-MM-DD |
+| identityId | String | ✓ | CMND/CCCD, unique, max 20 ký tự |
+| accountId | Integer | ✓ | ID account liên kết |
+
+**Response**: `{ "code": 200, "result": {...} }`  
+**Errors**: `500` Account không tồn tại | `400` IdentityId đã tồn tại
+
+### ✏️ PUT /staff/{id} — Cập Nhật Nhân Viên
+
+```json
+{ "fullName": "...", "gender": "Female" }
+```
+*Tất cả trường optional*
+
+---
+
+## L. Stay At History Routes
+
+| Endpoint | Method | Mô Tả |
+|----------|--------|-------|
+| `/stay-at-history` | GET | Lấy tất cả lịch sử |
+| `/stay-at-history/{id}` | GET | Lấy 1 lịch sử |
+| `/stay-at-history/resident/{residentId}` | GET | Lấy lịch sử của cư dân |
+| `/stay-at-history/apartment/{apartmentId}` | GET | Lấy lịch sử của căn hộ |
+| `/stay-at-history` | POST | Tạo lịch sử |
+| `/stay-at-history/{id}` | PUT | Cập nhật lịch sử |
+| `/stay-at-history/{id}` | DELETE | Xóa lịch sử |
+
+### 📄 GET /stay-at-history — Danh Sách Tất Cả Lịch Sử Lưu Trú
+
+**Response**: `{ "code": 200, "message": "Lấy danh sách lịch sử lưu trú thành công", "result": [...] }`
+
+### 📄 GET /stay-at-history/{id} — Chi Tiết Lịch Sử Lưu Trú
+
+**Response**: `{ "code": 200, "message": "Thông tin lịch sử lưu trú id: {id}", "result": { "id": 1, "residentId": 1, "apartmentId": 101, "moveIn": "2024-01-01", "moveOut": "2024-12-31", ... } }`  
+**Errors**: `404` Lịch sử không tồn tại
+
+### 📄 GET /stay-at-history/resident/{residentId} — Lịch Sử Lưu Trú Của Cư Dân
+
+**Response**: `{ "code": 200, "message": "Thông tin lịch sử lưu trú của cư dân với id: {residentId}", "result": [...] }`  
+**Errors**: `404` Cư dân không tồn tại
+
+### 📄 GET /stay-at-history/apartment/{apartmentId} — Lịch Sử Lưu Trú Của Căn Hộ
+
+**Response**: `{ "code": 200, "message": "Thông tin lịch sử lưu trú của căn hộ id: {apartmentId}", "result": [...] }`  
+**Errors**: `404` Căn hộ không tồn tại
+
+### ➕ POST /stay-at-history — Tạo Lịch Sử Lưu Trú
+
+```json
+{
+  "residentId": 1,
+  "apartmentId": 101,
+  "moveIn": "2024-01-01",
+  "moveOut": "2024-12-31"
+}
+```
+
+| Field | Type | Yêu cầu | Chi tiết |
+|-------|------|--------|---------|
+| residentId | Integer | ✓ | ID cư dân |
+| apartmentId | Integer | ✓ | ID căn hộ |
+| moveIn | Date | ✓ | Ngày vào (YYYY-MM-DD) |
+| moveOut | Date | ✗ | Ngày đi (optional, vô thời hạn nếu null) |
+
+**Response**: `{ "code": 200, "message": "Tạo lịch sử lưu trú thành công!", "result": {...} }`  
+**Errors**: `500` Resident/Apartment không tồn tại
+
+### ✏️ PUT /stay-at-history/{id} — Cập Nhật Lịch Sử
+
+```json
+{ "moveOut": "2025-06-30" }
+```
+*Tất cả trường optional*
+
+---
+
+## M. Utilities Invoice Routes
+
+| Endpoint | Method | Mô Tả |
+|----------|--------|-------|
+| `/utilities-invoice` | GET | Lấy tất cả hóa đơn |
+| `/utilities-invoice/{id}` | GET | Lấy 1 hóa đơn |
+| `/utilities-invoice/apartment/{id}` | GET | Lấy hóa đơn của căn hộ |
+| `/utilities-invoice` | POST | Tạo hóa đơn |
+| `/utilities-invoice/{id}` | PUT | Cập nhật hóa đơn |
+| `/utilities-invoice/{id}` | DELETE | Xóa hóa đơn |
+
+### 📄 GET /utilities-invoice — Danh Sách Tất Cả Hóa Đơn
+
+**Response**: `{ "code": 200, "message": "Lấy danh sách hóa đơn thành công", "result": [...] }`
+
+### 📄 GET /utilities-invoice/{id} — Chi Tiết Hóa Đơn
+
+**Response**: `{ "code": 200, "message": "Thông tin hóa đơn id: {id}", "result": { "id": 1, "apartmentId": 101, "billingMonth": 1, "billingYear": 2024, "totalElectricUsed": 250, "totalWaterUsed": 15, "status": 0, ... } }`  
+**Errors**: `404` Hóa đơn không tồn tại
+
+### 📄 GET /utilities-invoice/apartment/{id} — Hóa Đơn Của Căn Hộ
+
+**Response**: `{ "code": 200, "message": "Danh sách hóa đơn của căn hộ id: {id}", "result": [...] }`  
+**Errors**: `404` Căn hộ không tồn tại
+
+### ➕ POST /utilities-invoice — Tạo Hóa Đơn Tiện Ích
+
+```json
+{
+  "apartmentId": 101,
+  "billingMonth": 1,
+  "billingYear": 2024,
+  "totalElectricUsed": 250,
+  "totalWaterUsed": 15,
+  "status": 0
+}
+```
+
+| Field | Type | Yêu cầu | Chi tiết |
+|-------|------|--------|---------|
+| apartmentId | Integer | ✓ | ID căn hộ |
+| billingMonth | Integer | ✓ | Tháng (1-12) |
+| billingYear | Integer | ✓ | Năm (YYYY) |
+| totalElectricUsed | Integer | ✓ | Điện tiêu thụ (kWh) |
+| totalWaterUsed | Integer | ✓ | Nước tiêu thụ (m³) |
+| status | Integer | ✗ | 0=Pending, 1=Paid, Default=0 |
+
+**Response**: `{ "code": 200, "message": "Tạo hóa đơn thành công!", "result": {...} }`  
+**Errors**: `500` Apartment không tồn tại | `400` Hóa đơn tháng năm này đã tồn tại
+
+### ✏️ PUT /utilities-invoice/{id} — Cập Nhật Hóa Đơn
+
+```json
+{ "totalElectricUsed": 280, "status": 1 }
+```
+*Tất cả trường optional*
+
+---
+
+## N. Visitor Log Routes
+
+| Endpoint | Method | Mô Tả |
+|----------|--------|-------|
+| `/visitors` | GET | Lấy tất cả khách tham quan |
+| `/visitors/{id}` | GET | Lấy 1 khách tham quan |
+| `/visitors` | POST | Tạo thông tin khách tham quan |
+| `/visitors/{id}` | PUT | Cập nhật thông tin khách |
+| `/visitors/{id}` | DELETE | Xóa thông tin khách |
+
+### 📄 GET /visitors — Danh Sách Tất Cả Khách Tham Quan
+
+**Response**: `{ "code": 200, "result": [...] }`
+
+### 📄 GET /visitors/{id} — Chi Tiết Khách Tham Quan
+
+**Response**: `{ "code": 200, "result": { "id": 1, "visitorName": "Đinh Văn C", "phoneNumber": "0901234567", "apartmentId": 101, "staffId": 1, "note": "Khách tham quan căn hộ mẫu", ... } }`  
+**Errors**: `404` Khách tham quan không tồn tại
+
+### ➕ POST /visitors — Tạo Thông Tin Khách Tham Quan
+
+```json
+{
+  "visitorName": "Đinh Văn C",
+  "phoneNumber": "0901234567",
+  "apartmentId": 101,
+  "staffId": 1,
+  "note": "Khách tham quan căn hộ mẫu"
+}
+```
+
+| Field | Type | Yêu cầu | Chi tiết |
+|-------|------|--------|---------|
+| visitorName | String | ✓ | Tên khách, not blank |
+| phoneNumber | String | ✓ | Số điện thoại, not blank |
+| apartmentId | Integer | ✓ | ID căn hộ tham quan |
+| staffId | Integer | ✓ | ID nhân viên hỗ trợ |
+| note | String | ✗ | Ghi chú thêm (optional) |
+
+**Response**: `{ "code": 200, "result": {...} }`  
+**Errors**: `500` Apartment/Staff không tồn tại | `400` Validation failed
+
+### ✏️ PUT /visitors/{id} — Cập Nhật Khách Tham Quan
+
+```json
+{ "note": "Khách có hứng thú mua căn hộ" }
+```
+*Tất cả trường optional*
+
+---
+
+## 📝 Notes
+
+### Account & Authentication
+- **Password**: BCrypt (độ mạnh 10)
+- **RoleId**: Default = 2 (RESIDENT)
+- **Email & Username**: Phải unique
+- **JWT Token**: 1 giờ, Algorithm HS512
+- **Claims**: `sub` (username), `iss` (sums.vn), `iat`, `exp`, `roleId`
+
+### Resident
+- Phải liên kết với Account
+- **IdentityId**: Unique, max 20 ký tự
+- **Cập nhật**: Chỉ fullName, gender, dateOfBirth
+
+### Contract
+- Liên kết: Apartment + Account
+- **Status**: 1 = Active, 0 = Inactive
+- **MonthlyRent**: Decimal(18,2)
+- **EndDate**: Optional (vô thời hạn nếu null)
+
+### Apartment Type
+- **Name**: Studio, 1BR, 2BR, Penthouse, etc.
+- **DesignSqrt**: Diện tích thiết kế (m²)
+- **Furniture**: 0 = Không nội thất, 1 = Có nội thất
+- **CommonPrice**: Giá tham khảo (mua/thuê)
+
+### Apartment
+- **RoomNumber**: Unique, không được trùng
+- **Status**: 0 = Trống, 1 = Đã cho thuê/bán (default)
+- **Direction**: Hướng: East, West, North, South, Southeast, Southwest, Northeast, Northwest
+- **FloorNumber**: Tầng có thể trùng (các phòng khác nhau trên cùng 1 tầng)
+
+### Complaint & Reply
+- **Complaint**: User khiếu nại về vấn đề trong khu phức hợp
+- **Reply**: Nhân viên hoặc quản lý trả lời khiếu nại
+- **Content**: Nội dung không được để trống
+- **Max Length**: Reply content ≤ 2000 ký tự
+
+### Services & Service Resource
+- **Services**: Danh sách dịch vụ khả dụng (vệ sinh, bảo vệ, vận chuyển, etc.)
+- **Service Resource**: Tài nguyên để cung cấp dịch vụ (máy móc, phòng, dụng cụ)
+- **FeePerUnit**: Giá dịch vụ theo đơn vị (tháng, phòng, lần, etc.)
+- **UnitType**: per_month, per_unit, per_service, per_apartment, per_day, etc.
+- **IsAvailable**: Tài nguyên có sẵn để sử dụng hay không
+
+### Staff
+- **Staff**: Nhân viên làm việc trong khu phức hợp
+- **Liên kết**: Phải có Account để đăng nhập hệ thống
+- **IdentityId**: CMND/CCCD, unique, max 20 ký tự
+- **Cập nhật**: fullName, gender, dateOfBirth (không cập nhật identityId)
+
+### Stay At History
+- **MoveIn**: Ngày bắt đầu lưu trú (bắt buộc)
+- **MoveOut**: Ngày kết thúc lưu trú (optional, null nếu vô thời hạn)
+- **Tracking**: Theo dõi lịch sử lưu trú của cư dân qua các căn hộ
+- **Multiple Apartments**: Một cư dân có thể lưu trú ở nhiều căn hộ khác nhau qua thời gian
+
+### Utilities Invoice
+- **Billing Period**: Tháng và năm (1-12 và YYYY)
+- **Status**: 0 = Pending (chưa thanh toán), 1 = Paid (đã thanh toán)
+- **Usage Units**: Điện (kWh), Nước (m³)
+- **Unique**: Một căn hộ không thể có 2 hóa đơn cho cùng 1 tháng/năm
+- **Calculation**: Chi phí = (Electric Used × Electric Price) + (Water Used × Water Price)
+
+### Visitor Log
+- **Tracking**: Ghi nhận khách tham quan, khách thăm căn hộ
+- **Staff Assignment**: Quy định nhân viên hỗ trợ khách
+- **Apartment**: Căn hộ nào được tham quan
+- **Contact**: Tên và số điện thoại khách bắt buộc
+- **Note**: Có thể ghi chú về khách (ý định mua, feedback, etc.)
+
+---
+
+### General Notes
+- **Timestamps**: Tất cả entities đều có `createdAt` và `updatedAt` (tự động)
+- **Soft Delete**: Một số entities có thể dùng soft delete (isDeleted flag)
+- **Validation**: All request objects are validated using Jakarta Validation
+- **Response Format**: Tất cả responses tuân theo format `{ "code", "message", "result" }`
+- **Error Codes**: 
+  - 200 = Success
+  - 400 = Bad Request / Validation failed
+  - 401 = Unauthorized
+  - 403 = Forbidden
+  - 404 = Not Found
+  - 500 = Internal Server Error
 

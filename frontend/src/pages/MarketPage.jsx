@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import Navbar from "../components/layout/Navbar.jsx";
 import Footer from "../components/layout/Footer.jsx";
 
@@ -8,17 +8,46 @@ import PropertyHero from "../components/sections/listing/PropertyHero.jsx";
 
 function MarketPage() {
   const [view, setView] = useState("grid");
+  const [sortBy, setSortBy] = useState("price-asc");
+  const [resultCount, setResultCount] = useState(0);
+  const [availableCount, setAvailableCount] = useState(0);
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [pageMeta, setPageMeta] = useState({
+    currentPage: 1,
+    totalPages: 1,
+    startIndex: 0,
+    endIndex: 0,
+  });
 
   return (
     <>
       <Navbar />
 
       <div className="market-page">
-        <PropertyHero />
+        <PropertyHero totalProperties={resultCount} />
 
-        <div className="market-container">
-          <PropertyToolbar view={view} setView={setView} />
-          <PropertyGrid view={view} />
+        <div className="market-shell">
+          <div className="market-container">
+            <PropertyToolbar
+              view={view}
+              setView={setView}
+              resultCount={resultCount}
+              availableCount={availableCount}
+              sortBy={sortBy}
+              setSortBy={setSortBy}
+              statusFilter={statusFilter}
+              setStatusFilter={setStatusFilter}
+              pageMeta={pageMeta}
+            />
+            <PropertyGrid
+              view={view}
+              sortBy={sortBy}
+              statusFilter={statusFilter}
+              onCountChange={setResultCount}
+              onAvailableCountChange={setAvailableCount}
+              onPageMetaChange={setPageMeta}
+            />
+          </div>
         </div>
       </div>
 
