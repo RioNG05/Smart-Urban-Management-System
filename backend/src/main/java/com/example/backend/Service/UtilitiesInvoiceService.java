@@ -41,6 +41,10 @@ public class UtilitiesInvoiceService {
         return repository.findAll();
     }
 
+    public List<UtilitiesInvoice> findAllByAparmentId(Integer apartmentId){
+        return repository.findAllByApartmentId(apartmentId);
+    }
+
     public UtilitiesInvoice findById(Integer id) {
         return repository.findById(id).orElseThrow(() -> new RuntimeException("Không tìm thấy hóa đơn với id: " + id));
     }
