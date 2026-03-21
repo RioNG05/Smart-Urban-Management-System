@@ -32,6 +32,16 @@ public class ApartmentController {
         return response;
     }
 
+    @GetMapping("/list/type/{id}")
+    ApiResponse<List<Apartment>> getByApartmentTypeId(@PathVariable("id") Integer id){
+        ApiResponse<List<Apartment>> response = new ApiResponse<>();
+
+        response.setCode(200);
+        response.setMessage("Thông tin căn hộ id: " + id);
+        response.setResult(service.findAllByApartmentTypeId(id));
+        return response;
+    }
+
     @GetMapping("/{id}")
     ApiResponse<Apartment> getByID(@PathVariable("id") Integer id){
         ApiResponse<Apartment> response = new ApiResponse<>();

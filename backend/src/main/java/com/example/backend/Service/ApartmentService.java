@@ -28,6 +28,8 @@ public class ApartmentService {
         return repository.findAll();
     }
 
+    public List<Apartment> findAllByApartmentTypeId(Integer id) {return repository.findAllByApartmentTypeId(id);}
+
     public Apartment findById(Integer id) {
         return repository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy căn hộ với id: "  + id));
