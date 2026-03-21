@@ -2,13 +2,9 @@ package com.example.backend.Controllers;
 
 import com.example.backend.DTO.Request.apartment.ApartmentCreateRequest;
 import com.example.backend.DTO.Request.apartment.ApartmentUpdateRequest;
-import com.example.backend.DTO.Request.contract.ContractCreateRequest;
-import com.example.backend.DTO.Request.contract.ContractUpdateRequest;
 import com.example.backend.DTO.Response.ApiResponse;
 import com.example.backend.Entity.Apartment;
-import com.example.backend.Entity.Contract;
 import com.example.backend.Service.ApartmentService;
-import com.example.backend.Service.ContractService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -37,7 +33,7 @@ public class ApartmentController {
         ApiResponse<List<Apartment>> response = new ApiResponse<>();
 
         response.setCode(200);
-        response.setMessage("Thông tin căn hộ id: " + id);
+        response.setMessage("Danh sách căn hộ với kiểu căn hộ có id: " + id);
         response.setResult(service.findAllByApartmentTypeId(id));
         return response;
     }

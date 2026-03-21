@@ -42,7 +42,7 @@ public class ContractController {
         return response;
     }
 
-    @GetMapping("/list/{accountId}")
+    @GetMapping("/list/account/{accountId}")
 //    @PreAuthorize("@accessValidate.isAllowed(#accountId, authentication)")
     ApiResponse<List<Contract>> getAllByAccountId(@PathVariable("accountId") Integer accountId){
         ApiResponse<List<Contract>> response = new ApiResponse<>();
@@ -50,6 +50,16 @@ public class ContractController {
         response.setCode(200);
         response.setMessage("Lấy danh sách hợp đồng thành công");
         response.setResult(service.findAllByAccountId(accountId));
+        return response;
+    }
+    @GetMapping("/list/apartment/{apartmentId}")
+//    @PreAuthorize("@accessValidate.isAllowed(#accountId, authentication)")
+    ApiResponse<List<Contract>> getAllByApartmentId(@PathVariable("apartmentId") Integer apartmentId){
+        ApiResponse<List<Contract>> response = new ApiResponse<>();
+
+        response.setCode(200);
+        response.setMessage("Lấy danh sách hợp đồng thành công");
+        response.setResult(service.findAllByApartmentId(apartmentId));
         return response;
     }
 

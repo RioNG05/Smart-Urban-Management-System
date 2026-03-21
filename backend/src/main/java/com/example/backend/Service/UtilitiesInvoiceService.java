@@ -50,9 +50,9 @@ public class UtilitiesInvoiceService {
     }
 
     public UtilitiesInvoice create(UICreateRequest req) {
-        if(!apartmentService.isOwned(req.getApartmentId())){
-            throw new RuntimeException("Căn hộ chưa được sở hữu");
-        }
+//        if(!apartmentService.isOwned(req.getApartmentId())){
+//            throw new RuntimeException("Căn hộ chưa được sở hữu");
+//        }
 
         Apartment apartment = apartmentService.findById(req.getApartmentId());
 
@@ -78,9 +78,9 @@ public class UtilitiesInvoiceService {
     }
 
     public UtilitiesInvoice update(Integer id, UIUpdateRequest req) {
-        if(!apartmentService.isOwned(req.getApartmentId())){
-            throw new RuntimeException("Căn hộ chưa được sở hữu");
-        }
+//        if(!apartmentService.isOwned(req.getApartmentId())){
+//            throw new RuntimeException("Căn hộ chưa được sở hữu");
+//        }
 
         UtilitiesInvoice UI = findById(id);
 
