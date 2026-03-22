@@ -1332,3 +1332,437 @@
         position: absolute;
     }
 }
+
+/* TRANG TRÍ MỤC PAY - ADMIN */
+.admin-payment-container {
+    padding: 20px;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+    min-height: 80vh;
+}
+
+.payment-header-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.payment-title {
+    font-size: 24px;
+    font-weight: 800;
+    color: #1e293b;
+    margin: 0;
+}
+
+.btn-refresh-payment {
+    background: #f1f5f9;
+    color: #475569;
+    border: none;
+    padding: 8px 18px;
+    border-radius: 8px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.btn-refresh-payment:hover {
+    background: #e2e8f0;
+    color: #f59e0b;
+}
+
+
+/* TẠO GIAO DIỆN MỤC PAY - ADMIN */
+.admin-pay-wrapper {
+    padding: 25px;
+    background: #ffffff;
+    border-radius: 15px;
+    min-height: 85vh;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.03);
+}
+
+.pay-header-main {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.pay-title-left h2 {
+    font-size: 26px;
+    font-weight: 800;
+    color: #1e293b;
+    margin: 0;
+}
+
+.btn-pay-refresh {
+    background: #f8fafc;
+    color: #475569;
+    border: 1.5px solid #e2e8f0;
+    padding: 10px 20px;
+    border-radius: 10px;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: 0.3s;
+}
+
+.btn-pay-refresh:hover {
+    color: #f59e0b;
+    border-color: #f59e0b;
+    background: #fffbeb;
+}
+
+/* TAB NAVIGATION */
+.pay-tab-navigation {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 30px;
+    border-bottom: 2px solid #f1f5f9;
+}
+
+.pay-tab-btn {
+    background: none;
+    border: none;
+    padding: 15px 10px;
+    font-size: 15px;
+    font-weight: 700;
+    color: #94a3b8;
+    cursor: pointer;
+    position: relative;
+    transition: 0.3s;
+}
+
+.pay-tab-btn:hover {
+    color: #f59e0b;
+}
+
+.pay-tab-btn.active {
+    color: #f59e0b;
+}
+
+.pay-tab-btn.active::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background: #f59e0b;
+    border-radius: 10px;
+}
+
+.tab-count {
+    font-size: 13px;
+    background: #fef3c7;
+    color: #d97706;
+    padding: 2px 8px;
+    border-radius: 20px;
+    margin-left: 5px;
+}
+
+/* CONTENT PLACEHOLDER */
+.pay-content-area {
+    padding: 60px;
+    background: #fafafa;
+    border: 2px dashed #e2e8f0;
+    border-radius: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.pay-placeholder-card {
+    text-align: center;
+    color: #64748b;
+    font-weight: 600;
+}
+
+.pay-placeholder-card p {
+    margin-top: 15px;
+    font-size: 16px;
+}
+
+.nav-badge {
+    background: #ef4444; /* Màu đỏ nổi bật */
+    color: white;
+    font-size: 11px;
+    font-weight: 800;
+    padding: 2px 8px;
+    border-radius: 12px;
+    box-shadow: 0 2px 5px rgba(239, 68, 68, 0.4);
+}
+
+/* TRANG TRÍ RIÊNG CHO MỤC PAY */
+.admin-pay-wrapper {
+    padding: 10px;
+}
+
+.payment-management-title {
+    font-size: 24px;
+    font-weight: 800;
+    color: #1e293b;
+}
+
+/* FORM BỘ LỌC NỔI */
+.payment-filter-card-raised {
+    background: #ffffff;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    border: 1px solid #f1f5f9;
+}
+
+.filter-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 800;
+    font-size: 14px;
+    color: #475569;
+    text-transform: uppercase;
+}
+
+/* BADGE FLOOR */
+.floor-badge {
+    background: #fffbeb;
+    color: #b45309;
+    padding: 3px 8px;
+    border-radius: 6px;
+    font-weight: 800;
+    border: 1px solid #fef3c7;
+}
+
+/* RE-SYNC REFRESH BTN */
+.btn-pay-refresh {
+    background: #f8fafc;
+    color: #475569;
+    border: 1.5px solid #e2e8f0;
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: 0.3s;
+}
+
+.btn-pay-refresh:hover {
+    color: #f59e0b;
+    border-color: #f59e0b;
+}
+
+/* APARTMENT LAYOUT STYLES */
+.admin-apartment-layout-wrapper {
+    background: #fff; padding: 30px; border-radius: 15px;
+    box-shadow: 0 5px 25px rgba(0,0,0,0.05);
+}
+.layout-header h2 {
+    font-size: 24px; font-weight: 800; color: #1e293b;
+    margin-bottom: 30px; border-left: 5px solid #f59e0b; padding-left: 15px;
+}
+.building-grid-container { display: flex; flex-direction: column; gap: 12px; }
+.floor-row { display: flex; align-items: center; gap: 20px; }
+.floor-label-box {
+    background: #1e293b; color: white; width: 120px; padding: 12px;
+    border-radius: 8px; display: flex; align-items: center;
+    justify-content: center; gap: 8px; font-weight: 700; flex-shrink: 0;
+}
+.rooms-container { display: flex; gap: 10px; flex-wrap: wrap; }
+.room-box {
+    width: 110px; height: 45px; background: #f8fafc;
+    border: 1px solid #e2e8f0; border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 600; color: #475569; cursor: pointer; transition: 0.2s;
+}
+.room-box:hover { border-color: #f59e0b; background: #fffbeb; }
+.room-box.highlight { background: #d97706; color: white; border-color: #b45309; }
+
+
+/* REPAIR MANAGEMENT INTERFACE */
+.admin-repair-wrapper {
+    padding: 20px;
+    background: #f8fafc;
+    min-height: 85vh;
+    border-radius: 15px;
+}
+
+.repair-header-main {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+}
+
+
+/* --- MAINTENANCE INTERFACE STYLES --- */
+.admin-maintenance-wrapper {
+    padding: 10px;
+}
+
+/* Tận dụng lại class filter-card-raised từ mục Pay/Repair */
+.maintenance-header-flex {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+}
+
+.maintenance-title {
+    font-size: 24px;
+    font-weight: 800;
+    color: #1e293b;
+    margin: 0;
+}
+
+.btn-create-maintenance {
+    background: #f59e0b;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: 0.3s;
+    box-shadow: 0 4px 12px rgba(245, 158, 11, 0.2);
+}
+
+.btn-create-maintenance:hover {
+    background: #d97706;
+    transform: translateY(-1px);
+}
+
+/* Trạng thái trong bảng bảo trì */
+.status-upcoming {
+    background: #fff7ed;
+    color: #c2410c;
+    border: 1px solid #ffedd5;
+}
+
+.status-in-progress {
+    background: #eff6ff;
+    color: #1d4ed8;
+    border: 1px solid #dbeafe;
+}
+
+.status-completed {
+    background: #f0fdf4;
+    color: #15803d;
+    border: 1px solid #dcfce7;
+}
+
+/* CSS cho cái số đỏ (badge) ở Sidebar menu trái */
+.nav-badge {
+    background: #ff0000;
+    color: white;
+    font-size: 10px;
+    font-weight: 800;
+    min-width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-left: 10px;
+    box-shadow: 0 0 8px rgba(255, 0, 0, 0.4);
+    animation: pulseBadge 2s infinite;
+}
+
+@keyframes pulseBadge {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); }
+}
+
+/* MAINTENANCE MODAL & TABLE STYLES */
+.btn-create-maintenance {
+    background: #f59e0b;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: 0.3s;
+}
+
+.btn-create-maintenance:hover {
+    background: #d97706;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(217, 119, 6, 0.3);
+}
+
+/* Đảm bảo bảng hiển thị đẹp */
+.admin-custom-table.bordered td {
+    vertical-align: middle;
+}
+
+.action-flex FaEdit:hover { color: #d97706 !important; }
+.action-flex FaTrashAlt:hover { color: #dc2626 !important; }
+
+
+
+
+/* EVALUATE STYLES */
+.admin-evaluate-wrapper {
+    padding: 10px;
+}
+
+.evaluate-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.evaluate-stat-card {
+    background: white;
+    padding: 25px;
+    border-radius: 15px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+    text-align: center;
+}
+
+.evaluate-stat-card p {
+    color: #64748b;
+    font-weight: 600;
+    margin-bottom: 10px;
+}
+
+.evaluate-stat-card h3 {
+    font-size: 32px;
+    font-weight: 800;
+    color: #1e293b;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.evaluate-stat-card span {
+    font-size: 13px;
+    color: #94a3b8;
+}
+
+.evaluate-chart-container {
+    background: white;
+    padding: 25px;
+    border-radius: 15px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+}
+
+.evaluate-chart-container h4 {
+    margin: 0;
+    color: #1e293b;
+    font-weight: 700;
+}

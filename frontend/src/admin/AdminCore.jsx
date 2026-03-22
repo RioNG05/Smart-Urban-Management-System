@@ -1,17 +1,19 @@
 import React, { useState, useEffect } from 'react';
-import { Outlet, NavLink } from 'react-router-dom';
+import { Outlet, NavLink, useOutletContext } from 'react-router-dom';
 import {
     FaHome, FaUserShield, FaBuilding, FaNewspaper, FaBars,
     FaUserLock, FaChartPie, FaChevronDown, FaUsers,
-    FaFileContract // Tao thêm icon hợp đồng
+    FaFileContract,
+    FaMoneyBillWave, // Thêm icon cho mục PAY
+    FaWrench, // Thêm icon cho mục REPAIR
+    FaCalendarAlt, // Icon cuốn lịch cho mục MAINTENANCE
+    FaStar // Thêm icon cho mục EVALUATE
 } from 'react-icons/fa';
 import "../styles/admin.css";
-
-// --- NGUYÊN VĂN ADMIN SIDEBAR (ĐÃ THÊM MENU CĂN HỘ & HỢP ĐỒNG) ---
 import logoImg from '../assets/logo.jpg';
 
-const AdminSidebar = () => {
-    const [isOpen, setIsOpen] = useState(true);
+// Component Sidebar nhận số lượng bảo trì từ Layout cha
+const AdminSidebar = ({ isOpen, setIsOpen, upcomingCount }) => {
     const [openAccess, setOpenAccess] = useState(false);
     const [openReports, setOpenReports] = useState(false);
     const [openContract, setOpenContract] = useState(false);
@@ -25,7 +27,7 @@ const AdminSidebar = () => {
         <div className={`admin-sidebar ${isOpen ? 'open' : 'closed'}`}>
             <div className="sidebar-header">
                 <FaBars className="menu-toggle-icon" onClick={() => setIsOpen(!isOpen)} />
-                {isOpen && <span className="logo-text">VINAHOUSE CMS</span>}
+                {isOpen && <span className="logo-text">VINAHOUSE</span>}
             </div>
 
             <nav className="sidebar-nav">
@@ -80,6 +82,48 @@ const AdminSidebar = () => {
                     )}
                 </div>
 
+                {/* --- MỤC PAY --- */}
+                <NavLink to="/admin/pay" className="nav-item">
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                            <FaMoneyBillWave />
+                            {isOpen && <span>PAY</span>}
+                        </div>
+                        {isOpen && <span className="nav-badge">17</span>}
+                    </div>
+                </NavLink>
+
+                {/* --- MỤC APARTMENT MANAGEMENT --- */}
+                <NavLink to="/admin/apartment-layout" className="nav-item">
+                    <FaBuilding /> {isOpen && <span>Apartment Management</span>}
+                </NavLink>
+
+                {/* --- MỤC REPAIR --- */}
+                <NavLink to="/admin/repair" className="nav-item">
+                    <FaWrench /> {isOpen && <span>REPAIR</span>}
+                </NavLink>
+
+                {/* --- MỤC MAINTENANCE --- */}
+                <NavLink to="/admin/maintenance" className="nav-item">
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                            <FaCalendarAlt />
+                            {isOpen && <span>MAINTENANCE</span>}
+                        </div>
+                        {/* Chỉ hiện badge đỏ khi có số lượng thiết bị đến hạn */}
+                        {isOpen && upcomingCount > 0 && (
+                            <span className="nav-badge" style={{ background: '#ff0000', boxShadow: '0 0 10px rgba(255,0,0,0.3)' }}>
+                                {upcomingCount}
+                            </span>
+                        )}
+                    </div>
+                </NavLink>
+
+                {/* --- MỤC EVALUATE (MỚI THÊM) --- */}
+                <NavLink to="/admin/evaluate" className="nav-item">
+                    <FaStar /> {isOpen && <span>EVALUATE</span>}
+                </NavLink>
+
                 <NavLink to="/market" className="nav-item"><FaBuilding /> {isOpen && "Edit Properties"}</NavLink>
                 <NavLink to="/news" className="nav-item"><FaNewspaper /> {isOpen && "News Manager"}</NavLink>
             </nav>
@@ -88,10 +132,13 @@ const AdminSidebar = () => {
 };
 
 export const AdminLayout = () => {
-    // Lấy account Admin từ DB
     const [adminName, setAdminName] = useState('');
+    const [isOpen, setIsOpen] = useState(true);
+    // Quản lý số lượng bảo trì toàn cục
+    const [upcomingCount, setUpcomingCount] = useState(0); 
 
     useEffect(() => {
+        setAdminName('Super Admin'); 
         // Gọi API Backend để lấy thông tin Admin đang đăng nhập tại đây
         // fetch('/api/admin/profile', {
         //     headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
@@ -105,7 +152,7 @@ export const AdminLayout = () => {
 
     return (
         <div className="admin-page-wrapper">
-            <AdminSidebar />
+            <AdminSidebar isOpen={isOpen} setIsOpen={setIsOpen} upcomingCount={upcomingCount} />
             <div className="admin-main-container">
                 <div className="admin-topbar">
                     <div className="vinahouse-header-brand">
@@ -114,6 +161,7 @@ export const AdminLayout = () => {
                     </div>
 
                     {/* Lấy dữ liệu account từ database */}
+
                     <div className="topbar-right">
                         <NavLink to="/" className="topbar-home-link">
                             <FaHome /> <span>Home</span>
@@ -132,7 +180,8 @@ export const AdminLayout = () => {
                     </div>
                 </div>
                 <div className="admin-content-area">
-                    <Outlet />
+                    {/* Truyền hàm cập nhật số lượng xuống các trang con */}
+                    <Outlet context={{ setUpcomingCount }} />
                 </div>
             </div>
         </div>
