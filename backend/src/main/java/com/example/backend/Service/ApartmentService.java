@@ -75,12 +75,17 @@ public class ApartmentService {
         findById(id);
         repository.deleteById(id);
     }
-//    public boolean isOwned(Integer apartmentId){
-//        Contract contract = contractRepository.findByApartmentId(apartmentId).orElseThrow(() ->new RuntimeException("Không tìm thấy hợp đồng căn hộ có id: " + apartmentId));
-//        if(contract.getStatus() == 1){
-//            return true;
-//        }
-//
-//        return false;
-//    }
+    public boolean isOwned(Integer apartmentId, Integer accountId) {
+        List<Contract> contractList = contractRepository.findAllByApartmentId(apartmentId);
+
+        for (Contract contract : contractList) {
+            if(contract.getAccount().getId().equals(accountId)){
+                if(contract.getStatus() == 1){
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
 }

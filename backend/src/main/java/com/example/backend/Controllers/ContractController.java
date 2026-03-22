@@ -4,11 +4,9 @@ import com.example.backend.DTO.Request.contract.ContractCreateRequest;
 import com.example.backend.DTO.Request.contract.ContractUpdateRequest;
 import com.example.backend.DTO.Response.ApiResponse;
 import com.example.backend.Entity.Contract;
-import com.example.backend.Entity.Resident;
 import com.example.backend.Service.ContractService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
