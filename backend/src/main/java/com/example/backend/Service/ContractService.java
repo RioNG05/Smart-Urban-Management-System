@@ -28,7 +28,10 @@ public class ContractService {
     }
 
     public List<Contract> findAllByAccountId(Integer accountId){
-        return repository.findAllByAccountId(accountId).orElseThrow(() -> new RuntimeException("Người dùng  với id " + accountId + " hiện không sở hữu tài sản nào!"));
+        return repository.findAllByAccountId(accountId);
+    }
+    public List<Contract> findAllByApartmentId(Integer apartmentId){
+        return repository.findAllByApartmentId(apartmentId);
     }
 
     public Contract findById(Integer id) {
