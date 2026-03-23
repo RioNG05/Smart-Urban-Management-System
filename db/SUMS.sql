@@ -263,22 +263,23 @@ VALUES
     (N'IoT_Sync_Logs_U_01', N'Update IoT Sync Log Information'),
     (N'IoT_Sync_Logs_D_01', N'Delete IoT Sync Log Record');
 GO
---bảng 2
+
+-- Bảng 2
+-- Bảng Roles (Chỉ giữ lại định danh Role)
 CREATE TABLE Roles (
     Id INT IDENTITY(1,1) PRIMARY KEY, -- role id
-    RoleName NVARCHAR(50) NOT NULL UNIQUE, -- role name (Vd: 'ADMIN', 'RESIDENT')
-	ContextPath NVARCHAR(20) NOT NULL UNIQUE -- context path của url khi đi tìm endpoint.
+    RoleName NVARCHAR(50) NOT NULL UNIQUE -- role name (Vd: 'MANAGER', 'RESIDENT')
 );
 
--- Chèn dữ liệu cho bảng Roles (Bao gồm RoleName và ContextPath)
-INSERT INTO Roles (RoleName, ContextPath)
+-- Chèn dữ liệu cho bảng Roles
+INSERT INTO Roles (RoleName)
 VALUES 
-(N'MANAGER',         N'admin'),      -- Toàn quyền hệ thống
-(N'RESIDENT',        N'resident'),   -- Cư dân (Sử dụng App)
-(N'STAFF_APARTMENT', N'apartment'),  -- Quản lý căn hộ, hợp đồng
-(N'STAFF_SERVICE',   N'service'),    -- Quản lý tiện ích, hóa đơn
-(N'STAFF_SECURITY',  N'security'),   -- An ninh, check-in khách,  khiếu nại
-(N'USER',            N'user');       -- Người dùng vãng lai/hết hạn hợp đồng
+(N'MANAGER'),         -- Toàn quyền hệ thống
+(N'RESIDENT'),        -- Cư dân (Sử dụng App)
+(N'STAFF_APARTMENT'), -- Quản lý căn hộ, hợp đồng
+(N'STAFF_SERVICE'),   -- Quản lý tiện ích, hóa đơn
+(N'STAFF_SECURITY'),  -- An ninh, check-in khách, khiếu nại
+(N'USER');            -- Người dùng vãng lai/hết hạn hợp đồng
 GO
 
 --bảng 3 
@@ -1264,31 +1265,34 @@ GO
 CREATE TABLE Services (
     Id INT IDENTITY(1,1) PRIMARY KEY,    -- service_id (PK)
     ServiceName NVARCHAR(100) NOT NULL,  -- name
-    ServiceCode VARCHAR(50) UNIQUE,      -- e_code (Mã định danh dịch vụ)
-    FeePerUnit DECIMAL(18, 2),           -- fee/unit (Giá tiền trên mỗi đơn vị)
-    UnitType NVARCHAR(50),               -- fee unit (Vd: "Hour", "Times", "Person")
-	Description NVARCHAR(MAX)            -- Thêm trường mô tả chi tiết
+    ServiceCode VARCHAR(50) UNIQUE,      -- unique service code (e.g., 'BBQ_01')
+    FeePerUnit DECIMAL(18, 2),           -- price per unit
+    UnitType NVARCHAR(50),               -- unit (e.g., "Hour", "Turn", "Month")
+    Description NVARCHAR(MAX),           -- detailed description
+    ImageUrl NVARCHAR(MAX),              -- URL for the service thumbnail
+    IsBookable BIT DEFAULT 0             -- 1: Requires booking (e.g., Tennis), 0: Public access (e.g., Park)
 );
-
-INSERT INTO Services (ServiceName, ServiceCode, FeePerUnit, UnitType, Description)
+--batch 1
+INSERT INTO Services (ServiceName, ServiceCode, FeePerUnit, UnitType, ImageUrl, Description, IsBookable)
 VALUES 
--- 1. Dịch vụ thiết yếu (Tính theo chỉ số hàng tháng)
-(N'Điện sinh hoạt', 'ELEC_01', 2500.00, 'kWh', N'Hóa đơn điện tiêu thụ hàng tháng dựa trên chỉ số công tơ thực tế.'),
-(N'Nước sinh hoạt', 'WAT_01', 15000.00, 'm3', N'Hóa đơn nước tiêu thụ hàng tháng tính theo khối lượng sử dụng.'),
-
--- 2. Dịch vụ tiện ích (Cần đặt trước và check quyền cư dân)
-(N'Bếp nướng BBQ', 'BBQ', 2000000.00, N'Turn', N'Thuê khu vực nướng ngoài trời (tối đa 4 giờ). Bao gồm dụng cụ nướng và hỗ trợ nhóm than.'),
-(N'Sân Tennis', 'TENNIS', 150000.00, N'Hour', N'Thuê sân Tennis tiêu chuẩn. Giá đã bao gồm hệ thống chiếu sáng ban đêm.'),
-(N'Phòng Gym', 'GYM', 500000.00, N'Month', N'Thẻ hội viên Gym trọn gói trong tháng. Sử dụng không giới hạn thiết bị và phòng xông hơi.'),
-
--- 3. Dịch vụ cộng thêm khác (Ví dụ thêm cho phong phú)
-(N'Vé bể bơi lượt', 'SWIM_01', 30000.00, N'Person', N'Vé lượt sử dụng hồ bơi tầng 5, chỉ áp dụng cho cư dân chính thức.');
-GO
-
-INSERT INTO Services (ServiceName, ServiceCode, FeePerUnit, UnitType, Description)
+('Green Park', 'GREEN_PARK', 0.00, 'Free', 'https://img.freepik.com/free-photo/beautiful-park_1417-1417.jpg?semt=ais_rp_progressive&w=740&q=80', 'Extensive green parks with lush landscapes and walking trails.', 0),
+('Swimming Pools', 'SWIM_POOL', 0.00, 'Resident Only', 'https://images.unsplash.com/photo-1576013551627-0cc20b96c2a7', 'Olympic-sized and infinity pools exclusively for residents.', 0),
+('Shopping Center', 'SHOP_CENTER', 0.00, 'Free Access', 'https://dynamic-media-cdn.tripadvisor.com/media/photo-o/1b/06/a3/68/field-s-shopping-center.jpg?w=800&h=500&s=1', 'Sprawling commercial complex with top global brands.', 0),
+('Children’s Playground', 'KIDS_PLAY', 0.00, 'Free', 'https://contentgrid.homedepot-static.com/hdus/en_US/DTCCOMNEW/Articles/PlaygroundHero.jpg', 'Safe indoor and outdoor playgrounds for kids of all ages.', 0);
+--batch 2
+INSERT INTO Services (ServiceName, ServiceCode, FeePerUnit, UnitType, ImageUrl, Description, IsBookable)
 VALUES 
-(N'Phí quản lý tòa nhà (Tháng)', 'MNG_FEE_MONTH', 500000.00, N'Tháng', N'Phí quản lý định kỳ hàng tháng, áp dụng đồng mức cho các căn hộ cùng phân khu.');
-GO
+('Gym & Yoga Facilities', 'GYM_YOGA', 500000.00, 'Month', 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48', 'High-end fitness centers and dedicated yoga studios.', 0), -- Gym thường mua thẻ tháng, không cần đặt giờ
+('Education System', 'EDU_K12', 0.00, 'Semester', 'https://vcdn1-vnexpress.vnecdn.net/2023/12/13/v1-5551-1702452332.jpg?w=680&h=0&q=100&dpr=2&fit=crop&s=vTDtn5c45HktGxyMQtP20w', 'International standard curriculums for the next generation.', 0),
+('Smart Parking', 'SMART_PARK', 0.00, 'Month', 'https://sliving.vn/static/bg-parking-55d4ba544730bb343bfb7709c4c8e50b.jpg', 'Automated parking systems with real-time slot tracking.', 0),
+('BBQ Park', 'BBQ_PARK', 100000.00, 'Hour', 'https://vinhomebysalereal.vn/wp-content/uploads/2024/08/khu-bbq-garden-vinhomes-ocean-park-3.jpg', 'Dedicated outdoor BBQ areas equipped with grills.', 1); -- BBQ cần đặt chỗ trước
+--batch 3
+INSERT INTO Services (ServiceName, ServiceCode, FeePerUnit, UnitType, ImageUrl, Description, IsBookable)
+VALUES 
+('Tennis Court', 'TENNIS_PRO', 200000.00, 'Hour', 'https://congchungnguyenhue.com/Uploaded/Images/Original/2024/01/21/khu-do-thi-viet-hung-5_2101080916.jpg', 'Professional-grade courts with night lighting.', 1),
+('Golf Course', 'GOLF_MINI', 500000.00, 'Hour', 'https://images.unsplash.com/photo-1535131749006-b7f58c99034b', 'Premium mini-golf courses for practice and leisure.', 1),
+('Sauna & Spa', 'SPA_SAUNA', 300000.00, 'Turn', 'https://vccinews.vn/upload/photos/2026/1/large/vbf-202612210123d2y.jpg', 'Luxury sauna and spa facilities with wellness treatments.', 1),
+('Community Hall', 'COMM_HALL', 0.00, 'Event', 'https://images.unsplash.com/photo-1517457373958-b7bdd4587205', 'Spacious halls for meetings and social gatherings.', 0);
 
 -- 10 service resource
 CREATE TABLE ServiceResources (
@@ -1305,23 +1309,31 @@ CREATE TABLE ServiceResources (
 -- trong nay có vài cái book được và vài cái không nhé, 
 -- vd: bookable: bbq, tenis
 -- ko cần book/ko book được: bể bơi và gym.
+-- 1. Resources cho BBQ Park (Giả sử ServiceId = 8)
 INSERT INTO ServiceResources (ResourceCode, Location, ServiceId, IsAvailable)
 VALUES 
--- 1. Tài nguyên cho Bếp nướng BBQ (Có 3 khu vực nướng riêng biệt)
-('BBQ_ZONE_A', N'Khu vực sân vườn phía Tây - Trạm A', 3, 1),
-('BBQ_ZONE_B', N'Khu vực sân vườn phía Tây - Trạm B', 3, 1),
-('BBQ_ZONE_C', N'Khu vực sân vườn phía Tây - Trạm C', 3, 1),
+('BBQ_ZONE_A_01', N'Vườn BBQ - Khu A (Cạnh hồ bơi)', 8, 1),
+('BBQ_ZONE_A_02', N'Vườn BBQ - Khu A (Cạnh hồ bơi)', 8, 1),
+('BBQ_ZONE_B_01', N'Vườn BBQ - Khu B (Công viên trung tâm)', 8, 1);
 
--- 2. Tài nguyên cho Sân Tennis (Có 2 sân)
-('TENNIS_COURT_01', N'Tầng thượng Tòa A', 4, 1),
-('TENNIS_COURT_02', N'Tầng thượng Tòa A', 4, 1),
+-- 2. Resources cho Tennis Court (Giả sử ServiceId = 9)
+INSERT INTO ServiceResources (ResourceCode, Location, ServiceId, IsAvailable)
+VALUES 
+('TENNIS_CT_01', N'Khu thể thao ngoài trời - Sân số 1', 9, 1),
+('TENNIS_CT_02', N'Khu thể thao ngoài trời - Sân số 2', 9, 1),
+('TENNIS_CT_03', N'Khu thể thao ngoài trời - Sân số 3 (Đang bảo trì)', 9, 0); -- Sân bảo trì để test logic
 
--- 3. Tài nguyên cho Phòng Gym (Phân theo khu vực tập)
-('GYM_MAIN_AREA', N'Tầng 2 - Tòa B', 5, 1),
+-- 3. Resources cho Golf Course (Giả sử ServiceId = 10)
+INSERT INTO ServiceResources (ResourceCode, Location, ServiceId, IsAvailable)
+VALUES 
+('GOLF_LANE_01', N'Sân tập Golf - Làn số 1', 10, 1),
+('GOLF_LANE_02', N'Sân tập Golf - Làn số 2', 10, 1);
 
--- 4. Tài nguyên cho Vé bể bơi (Chia làm 2 bể như bồ yêu cầu)
-('POOL_ADULT', N'Bể bơi vô cực - Tầng 5 (Dành cho người lớn)', 6, 1),
-('POOL_KID', N'Bể bơi trẻ em - Tầng G (Khu vui chơi)', 6, 1);
+-- 4. Resources cho Sauna & Spa (Giả sử ServiceId = 11)
+INSERT INTO ServiceResources (ResourceCode, Location, ServiceId, IsAvailable)
+VALUES 
+('SPA_ROOM_01', N'Tầng 3 - Tòa S1 - Phòng VIP 1', 11, 1),
+('SPA_ROOM_02', N'Tầng 3 - Tòa S1 - Phòng VIP 2', 11, 1);
 GO
 
 
@@ -1643,3 +1655,21 @@ CREATE TABLE IoT_Sync_Logs (
     -- Ràng buộc khóa ngoại
     CONSTRAINT FK_IoT_Apartment FOREIGN KEY (ApartmentId) REFERENCES Apartments(Id)
 );
+
+-- Bảng 24 (tách từ bảng service)
+CREATE TABLE MandatoryServices (
+    Id INT IDENTITY(1,1) PRIMARY KEY,
+    ServiceName NVARCHAR(100) NOT NULL,
+    ServiceCode VARCHAR(50) UNIQUE,
+    BasePrice DECIMAL(18, 2), -- Giá tiền
+    UnitType NVARCHAR(50),    -- kWh, m3, Tháng
+    Description NVARCHAR(MAX)
+);
+GO
+
+INSERT INTO MandatoryServices (ServiceName, ServiceCode, BasePrice, UnitType, Description)
+VALUES 
+(N'Điện sinh hoạt', 'ELEC_01', 2500.00, 'kWh',  N'Tiền điện theo chỉ số.'),
+(N'Nước sinh hoạt', 'WAT_01', 15000.00, 'm3', N'Tiền nước theo chỉ số.'),
+(N'Phí quản lý tòa nhà', 'MNG_FEE', 500000.00, N'Tháng', N'Phí cố định hàng tháng.');
+GO
