@@ -1,8 +1,8 @@
 package com.example.backend.config;
 
-import com.example.backend.DTO.Request.auth.IntrospectRequest;
+import com.example.backend.Entity.Account;
+import com.example.backend.Repository.AccountRepository;
 import com.example.backend.Service.AuthenticationService;
-import com.nimbusds.jose.JOSEException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -16,13 +16,14 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 import java.text.ParseException;
-import java.util.Collections;
 
 @Component
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final AuthenticationService authenticationService;
+
+    private final AccountRepository accountRepository;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request,
@@ -55,11 +56,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
             if(username != null){
 
+                Account account = accountRepository.findByUsername(username).orElseThrow(() -> new RuntimeException("Không tìm thấy tài khoản có tên người dùng là: " +username));
+
                 UsernamePasswordAuthenticationToken authentication =
                         new UsernamePasswordAuthenticationToken(
-                                username,
+                                account,
                                 null,
-                                Collections.emptyList()
+                                account.getAuthorities()
                         );
 
                 authentication.setDetails(

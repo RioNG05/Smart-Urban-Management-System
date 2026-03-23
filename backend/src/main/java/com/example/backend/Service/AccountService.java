@@ -2,9 +2,12 @@ package com.example.backend.Service;
 
 import com.example.backend.DTO.Request.account.AccountCreateRequest;
 import com.example.backend.DTO.Request.account.AccountUpdateRequest;
+import com.example.backend.DTO.Response.AccountsResponse;
 import com.example.backend.Entity.Account;
 import com.example.backend.Entity.Role;
+import com.example.backend.Enum.RoleEnum;
 import com.example.backend.Repository.AccountRepository;
+import com.example.backend.Repository.RoleRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -16,6 +19,8 @@ import java.util.List;
 public class AccountService {
     @Autowired
     private AccountRepository repository;
+    @Autowired
+    private RoleRepository roleRepository;
     @Autowired
     private RoleService roleService;
 
@@ -33,7 +38,7 @@ public class AccountService {
     public Account create(AccountCreateRequest req) {
         Account account =new Account();
         PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(10);
-        Role role =  roleService.findById(req.getRoleId());
+        Role role =  roleRepository.findByRoleName(RoleEnum.USER).orElseThrow(() -> new RuntimeException("Không tìm thấy role tên USER"));
 
         account.setEmail(req.getEmail());
         account.setUsername(req.getUsername());
@@ -60,7 +65,7 @@ public class AccountService {
             account.setPassword(passwordEncoder.encode(req.getPassword()));
         }
         if (req.getRoleId() != null) {
-            Role role = roleService.findById(req.getRoleId());
+            Role role =  roleRepository.findByRoleName(RoleEnum.USER).orElseThrow(() -> new RuntimeException("Không tìm thấy role tên USER"));
             account.setRole(role);
         }
         if (req.getIsActive() != null) {

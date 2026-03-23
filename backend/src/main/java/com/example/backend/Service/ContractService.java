@@ -27,6 +27,13 @@ public class ContractService {
         return repository.findAll();
     }
 
+    public List<Contract> findAllByAccountId(Integer accountId){
+        return repository.findAllByAccountId(accountId);
+    }
+    public List<Contract> findAllByApartmentId(Integer apartmentId){
+        return repository.findAllByApartmentId(apartmentId);
+    }
+
     public Contract findById(Integer id) {
         return repository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy hợp đồng với id: " + id));
@@ -44,6 +51,7 @@ public class ContractService {
                 .status(request.getStatus())
                 .contractType(request.getContractType())
                 .monthlyRent(request.getMonthlyRent())
+                .createdById(request.getCreatedById())
                 .build();
 
         return repository.save(contract);
@@ -82,6 +90,10 @@ public class ContractService {
 
         if(request.getEndDate() != null){
             contract.setEndDate(request.getEndDate());
+        }
+
+        if(request.getCreatedById() != null){
+            contract.setCreatedById(request.getCreatedById());
         }
 
         return repository.save(contract);

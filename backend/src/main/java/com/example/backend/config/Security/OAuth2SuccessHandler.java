@@ -20,7 +20,7 @@ import java.util.Optional;
 @Component
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
+public class    OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
     AccountRepository accountRepository;
     AuthenticationService authenticationService;
     AccountService accountService;

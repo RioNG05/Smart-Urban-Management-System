@@ -129,7 +129,7 @@ function AuthForm() {
           />
 
           <div className="forgot-row">
-            <a href="#">Forgot password?</a>
+            <a href="#" className="forgot-link">Forgot password?</a>
           </div>
 
           <button type="submit" className="primary-btn">
