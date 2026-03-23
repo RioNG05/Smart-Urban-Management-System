@@ -1130,6 +1130,29 @@ VALUES
 ('lan.anh@gmail.com','lan01', '$2a$10$2t8T/IEmhhSuXuVFsqDhKeB5PUYq07eCrJuUJrVcLmrKSAn8co99W', 2, 1);
 GO
 
+-- add 100 thk user
+DECLARE @i INT = 1;
+DECLARE @MaxUsers INT = 100;
+DECLARE @PasswordHash NVARCHAR(255) = '$2a$10$2t8T/IEmhhSuXuVFsqDhKeB5PUYq07eCrJuUJrVcLmrKSAn8co99W';
+DECLARE @RoleId INT = 6;
+
+WHILE @i <= @MaxUsers
+BEGIN
+    INSERT INTO Accounts (Email, Username, Password, RoleId, IsActive)
+    VALUES (
+        CONCAT('user', @i, '@smarturban.com'), -- Email: user1@smarturban.com, user2...
+        CONCAT('user_test_', @i),              -- Username: user_test_1, user_test_2...
+        @PasswordHash, 
+        @RoleId, 
+        1                                      -- IsActive = 1
+    );
+    
+    SET @i = @i + 1;
+END;
+
+PRINT 'Đã nạp xong 100 anh em vào hệ thống! Hẹ hẹ.';
+GO
+
 --bảng 5 
 CREATE TABLE Residents (
     Id INT IDENTITY(1,1) PRIMARY KEY,    -- ResidentId (Auto increment PK)
