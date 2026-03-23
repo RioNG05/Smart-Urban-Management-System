@@ -2,6 +2,7 @@ package com.example.backend.config.Security;
 
 import com.example.backend.Entity.Account;
 import com.example.backend.Entity.Contract;
+import com.example.backend.Repository.ApartmentRepository;
 import com.example.backend.Repository.ContractRepository;
 import org.jspecify.annotations.NonNull;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +14,8 @@ public class AccessValidate {
 
     @Autowired
     private ContractRepository contractRepository;
+    @Autowired
+    private ApartmentRepository apartmentRepository;
 
     /**
      * Check xem user có được truy cập vào api của contract không

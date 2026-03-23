@@ -1117,7 +1117,8 @@ VALUES
 ('resident.tuan@gmail.com', 'tuan01', '$2a$10$2t8T/IEmhhSuXuVFsqDhKeB5PUYq07eCrJuUJrVcLmrKSAn8co99W', 2, 1),    -- Tài khoản Cư dân mẫu
 ('staff.building@tems.com', 'buildingstaff', '$2a$10$2t8T/IEmhhSuXuVFsqDhKeB5PUYq07eCrJuUJrVcLmrKSAn8co99W', 3, 1),   -- Nhân viên quản lý căn hộ
 ('staff.finance@tems.com', 'financestaff', '$2a$10$2t8T/IEmhhSuXuVFsqDhKeB5PUYq07eCrJuUJrVcLmrKSAn8co99W', 4, 1),  -- Nhân viên kế toán/dịch vụ
-('staff.guard@tems.com','guardstaff', '$2a$10$2t8T/IEmhhSuXuVFsqDhKeB5PUYq07eCrJuUJrVcLmrKSAn8co99W', 5, 1);    -- Nhân viên an ninh
+('staff.guard@tems.com','guardstaff', '$2a$10$2t8T/IEmhhSuXuVFsqDhKeB5PUYq07eCrJuUJrVcLmrKSAn8co99W', 5, 1),		-- Nhân viên an ninh
+('admin123@tems.com', 'admin123', '$2a$10$bP5VzgNlCr4HRYLKRaKJKOnNqgswLkYHK.3pcsthYal8vVAHPDbS2', 1, 1);    
 GO
 
 -- add thêm resident. 
