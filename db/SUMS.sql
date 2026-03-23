@@ -1673,3 +1673,23 @@ VALUES
 (N'Nước sinh hoạt', 'WAT_01', 15000.00, 'm3', N'Tiền nước theo chỉ số.'),
 (N'Phí quản lý tòa nhà', 'MNG_FEE', 500000.00, N'Tháng', N'Phí cố định hàng tháng.');
 GO
+
+-- bảng 25 && 26 : để lưu các ảnh liên quan đến loại căn hộ và Service Resource
+-- Bảng lưu bộ sưu tập ảnh cho từng loại căn hộ
+CREATE TABLE ApartmentTypeImages (
+    Id INT IDENTITY(1,1) PRIMARY KEY,
+    ApartmentTypeId INT NOT NULL,           -- FK nối sang ApartmentTypes
+    ImageUrl NVARCHAR(MAX) NOT NULL,        -- URL ảnh (Cloudinary)
+    
+    CONSTRAINT FK_Images_ApartmentTypes FOREIGN KEY (ApartmentTypeId) REFERENCES ApartmentTypes(Id) ON DELETE CASCADE
+);
+
+-- Bảng lưu bộ sưu tập ảnh cho từng Resource cụ thể (Vị trí/Phòng/Sân)
+CREATE TABLE ServiceResourceImages (
+    Id INT IDENTITY(1,1) PRIMARY KEY,
+    ServiceResourceId INT NOT NULL,         -- FK nối sang ServiceResources
+    ImageUrl NVARCHAR(MAX) NOT NULL,        -- URL ảnh (Cloudinary)
+    Description NVARCHAR(255),              -- Chú thích ảnh (Vd: Góc nhìn từ khán đài)
+
+    CONSTRAINT FK_Images_ServiceResources FOREIGN KEY (ServiceResourceId) REFERENCES ServiceResources(Id) ON DELETE CASCADE
+);
