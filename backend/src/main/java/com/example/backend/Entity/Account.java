@@ -41,10 +41,8 @@ public class Account implements UserDetails {
     public Collection<? extends GrantedAuthority> getAuthorities() {
         List<SimpleGrantedAuthority> authorities = new ArrayList<>();
 
-        // 1. Thêm Role name
         authorities.add(new SimpleGrantedAuthority("ROLE_" + role.getRoleName()));
 
-        // 2. Nạp toàn bộ chi tiết quyền hạn từ bảng Permissions
         if (role.getPermissions() != null) {
             for (Permission permission : role.getPermissions()) {
                 authorities.add(new SimpleGrantedAuthority(permission.getPermissionCode()));

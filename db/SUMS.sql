@@ -267,18 +267,17 @@ GO
 CREATE TABLE Roles (
     Id INT IDENTITY(1,1) PRIMARY KEY, -- role id
     RoleName NVARCHAR(50) NOT NULL UNIQUE, -- role name (Vd: 'ADMIN', 'RESIDENT')
-	ContextPath NVARCHAR(20) NOT NULL UNIQUE -- context path của url khi đi tìm endpoint.
 );
 
 -- Chèn dữ liệu cho bảng Roles (Bao gồm RoleName và ContextPath)
-INSERT INTO Roles (RoleName, ContextPath)
+INSERT INTO Roles (RoleName)
 VALUES 
-(N'MANAGER',         N'admin'),      -- Toàn quyền hệ thống
-(N'RESIDENT',        N'resident'),   -- Cư dân (Sử dụng App)
-(N'STAFF_APARTMENT', N'apartment'),  -- Quản lý căn hộ, hợp đồng
-(N'STAFF_SERVICE',   N'service'),    -- Quản lý tiện ích, hóa đơn
-(N'STAFF_SECURITY',  N'security'),   -- An ninh, check-in khách,  khiếu nại
-(N'USER',            N'user');       -- Người dùng vãng lai/hết hạn hợp đồng
+(N'MANAGER'),      -- Toàn quyền hệ thống
+(N'RESIDENT'),   -- Cư dân (Sử dụng App)
+(N'STAFF_APARTMENT'),  -- Quản lý căn hộ, hợp đồng
+(N'STAFF_SERVICE'),    -- Quản lý tiện ích, hóa đơn
+(N'STAFF_SECURITY'),   -- An ninh, check-in khách,  khiếu nại
+(N'USER');       -- Người dùng vãng lai/hết hạn hợp đồng
 GO
 
 --bảng 3 

@@ -4,6 +4,8 @@ import com.example.backend.DTO.Request.account.AccountCreateRequest;
 import com.example.backend.DTO.Request.account.AccountUpdateRequest;
 import com.example.backend.DTO.Response.ApiResponse;
 import com.example.backend.Entity.Account;
+import com.example.backend.Entity.Role;
+import com.example.backend.Repository.RoleRepository;
 import com.example.backend.Service.AccountService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +19,8 @@ public class AccountController {
 
     @Autowired
     private AccountService accountService;
+    @Autowired
+    private RoleRepository roleRepository;
 
     @GetMapping
     ApiResponse<List<Account>> get(){
@@ -45,6 +49,17 @@ public class AccountController {
         response.setCode(200);
         response.setMessage("Tạo tài khoản thành công!");
         response.setResult(accountService.create(req));
+        return response;
+    }
+
+    @PutMapping("/change/role/{id}")
+    ApiResponse<Account> changeRole(@PathVariable("id") Integer accountId, @RequestBody @Valid AccountUpdateRequest request){
+        ApiResponse<Account> response = new ApiResponse<>();
+
+        accountService.changeRole(accountId, request.getRoleId());
+        response.setCode(200);
+        response.setMessage("Thay vai trò thành công!");
+        response.setResult(accountService.findById(accountId));
         return response;
     }
 

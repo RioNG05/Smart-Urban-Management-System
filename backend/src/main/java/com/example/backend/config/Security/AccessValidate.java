@@ -14,6 +14,12 @@ public class AccessValidate {
     @Autowired
     private ContractRepository contractRepository;
 
+    /**
+     * Check xem user có được truy cập vào api của contract không
+     * @param id id của contract
+     * @param auth authentication header
+     * @return true nếu được truy cập, false nếu không được truy cập
+     */
     public boolean canViewContract(Integer id, @NonNull Authentication auth){
         Account account = (Account) auth.getPrincipal();
 
@@ -26,11 +32,17 @@ public class AccessValidate {
         return isAdmin | isOwned;
     }
 
+    /**
+     * Check xem account Id được gửi từ jwt token và id ở api có trùng khớp không và cấp quyền truy cập
+     * @param pathId id của account tại api
+     * @param auth authentication header
+     * @return true nếu trùng và false nếu không trùng
+     */
     public boolean isAllowed(Integer pathId, Authentication auth){
         if(auth == null || !(auth.getPrincipal() instanceof Account)){
             throw new RuntimeException("Hệ thống không tìm thấy thông tin tài khoản hoặc bạn chưa đăng nhập");
         }
         Account account = (Account) auth.getPrincipal();
-        return pathId.equals(account.getId());
+        return pathId.equals(account.getId()) || account.getRole().getId() == 1;
     }
 }
