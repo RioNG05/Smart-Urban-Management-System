@@ -137,7 +137,7 @@ VALUES
     (N'BookingServices_R_01', N'View All Booking Service'),
     (N'BookingServices_R_02', N'View My Booking Service'),
     (N'BookingServices_U_01', N'Update My Booking'),
-    (N'BookingServices_U_02', N'Accept/Reject Booking Request'),
+    (N'BookingServices_U_02', N'Update Booking Request include Accept/Reject Booking Request'),
     (N'BookingServices_D_01', N'Delete Booking Request');
 GO
 
@@ -263,6 +263,44 @@ VALUES
     (N'IoT_Sync_Logs_U_01', N'Update IoT Sync Log Information'),
     (N'IoT_Sync_Logs_D_01', N'Delete IoT Sync Log Record');
 GO
+-- =============================================
+-- Permission liên quan đến bảng 24: MandatoryServices
+-- NOTE: Không cho Staff/Admin tạo mới (C) đâu nhé :)))) 
+-- Vì phí bắt buộc phải do hệ thống hoặc Super Admin cấu hình cứng từ đầu, 
+-- add bừa vào là không biết tính toán hóa đơn sao cho khớp đâu.
+-- =============================================
+INSERT INTO Permissions (PermissionCode, Description)
+VALUES 
+    (N'MandatoryServices_C_01', N'Create new mandatory service'),
+    (N'MandatoryServices_R_01', N'View mandatory service details'),
+    (N'MandatoryServices_U_01', N'Update mandatory fee configuration'),
+    (N'MandatoryServices_D_01', N'Delete mandatory service record');
+GO
+
+-- =============================================
+-- Permission liên quan đến bảng 25: ApartmentTypeImages
+-- Quản lý bộ sưu tập ảnh cho các loại căn hộ (2PN, 3PN...)
+-- =============================================
+INSERT INTO Permissions (PermissionCode, Description)
+VALUES 
+    (N'ApartmentTypeImages_C_01', N'Create new Apartment Type Images'),
+    (N'ApartmentTypeImages_R_01', N'View all Apartment Type Images'),
+    (N'ApartmentTypeImages_U_01', N'Update Apartment Type Images'),
+    (N'ApartmentTypeImages_D_01', N'Delete Apartment Type Images');
+GO
+
+-- =============================================
+-- Permission liên quan đến bảng 26: ServiceResourceImages
+-- Quản lý ảnh thực tế của từng tài nguyên (Sân bóng, Phòng gym...)
+-- =============================================
+INSERT INTO Permissions (PermissionCode, Description)
+VALUES 
+    (N'ServiceResourceImages_C_01', N'Create new service Resource Images'),
+    (N'ServiceResourceImages_R_01', N'View all service Resource Images'),
+    (N'ServiceResourceImages_U_01', N'Update service Resource Images'),
+    (N'ServiceResourceImages_D_01', N'Delete service Resource Images');
+GO
+
 
 -- Bảng 2
 -- Bảng Roles (Chỉ giữ lại định danh Role)
@@ -612,8 +650,10 @@ GO
 INSERT INTO Authorities (RoleId, PermissionId)
 SELECT 1, Id FROM Permissions 
 WHERE PermissionCode IN (
+    'BookingServices_C_01',
     'BookingServices_R_01', 
-    'BookingServices_U_02'
+    'BookingServices_U_02',
+	'BookingServices_D_01'
 )
 AND NOT EXISTS (
     SELECT 1 FROM Authorities WHERE RoleId = 1 AND PermissionId = Permissions.Id
@@ -640,8 +680,10 @@ GO
 INSERT INTO Authorities (RoleId, PermissionId)
 SELECT 4, Id FROM Permissions 
 WHERE PermissionCode IN (
+	'BookingServices_C_01',
     'BookingServices_R_01', 
-    'BookingServices_U_02'
+    'BookingServices_U_02',
+	'BookingServices_D_01'
 )
 AND NOT EXISTS (
     SELECT 1 FROM Authorities WHERE RoleId = 4 AND PermissionId = Permissions.Id
@@ -1098,6 +1140,104 @@ AND NOT EXISTS (
 );
 GO
 
+--Table 24: MandatoryServices
+-- 24.1 gán quyền cho thk admin
+INSERT INTO Authorities (RoleId, PermissionId)
+SELECT 1, Id FROM Permissions 
+WHERE PermissionCode IN (
+    'MandatoryServices_R_01', 
+    'MandatoryServices_U_01'
+)
+AND NOT EXISTS (
+    SELECT 1 FROM Authorities 
+    WHERE RoleId = 1 AND PermissionId = Permissions.Id
+);
+GO
+
+-- 24.2 gán quyền cho thk service staff
+INSERT INTO Authorities (RoleId, PermissionId)
+SELECT 4, Id FROM Permissions 
+WHERE PermissionCode IN (
+    'MandatoryServices_R_01', 
+    'MandatoryServices_U_01'
+)
+AND NOT EXISTS (
+    SELECT 1 FROM Authorities 
+    WHERE RoleId = 4 AND PermissionId = Permissions.Id
+);
+GO
+
+-- Bảng 25: Apartment Type
+-- 25.1 gán quyền cho thk admin
+INSERT INTO Authorities (RoleId, PermissionId)
+SELECT 1, Id FROM Permissions 
+WHERE PermissionCode IN (
+    'ApartmentTypeImages_C_01', 
+    'ApartmentTypeImages_U_01', 
+    'ApartmentTypeImages_D_01'
+)
+AND NOT EXISTS (
+    SELECT 1 FROM Authorities 
+    WHERE RoleId = 1 AND PermissionId = Permissions.Id
+);
+GO
+
+-- 25.2 gán quyền cho thk role id là 3 (Manager)
+INSERT INTO Authorities (RoleId, PermissionId)
+SELECT 3, Id FROM Permissions 
+WHERE PermissionCode IN (
+    'ApartmentTypeImages_C_01', 
+    'ApartmentTypeImages_U_01', 
+    'ApartmentTypeImages_D_01'
+)
+AND NOT EXISTS (
+    SELECT 1 FROM Authorities 
+    WHERE RoleId = 3 AND PermissionId = Permissions.Id
+);
+GO
+
+-- 26.1 gán full quyền cho thk admin
+INSERT INTO Authorities (RoleId, PermissionId)
+SELECT 1, Id FROM Permissions 
+WHERE PermissionCode IN (
+    'ServiceResourceImages_C_01', 
+    'ServiceResourceImages_R_01', 
+    'ServiceResourceImages_U_01', 
+    'ServiceResourceImages_D_01'
+)
+AND NOT EXISTS (
+    SELECT 1 FROM Authorities 
+    WHERE RoleId = 1 AND PermissionId = Permissions.Id
+);
+GO
+
+--Bảng 26: ảnh của Apartmnet Type 
+-- 26.2 gán full quyền cho thk service staff (Role Id = 4)
+INSERT INTO Authorities (RoleId, PermissionId)
+SELECT 4, Id FROM Permissions 
+WHERE PermissionCode IN (
+    'ServiceResourceImages_C_01', 
+    'ServiceResourceImages_R_01', 
+    'ServiceResourceImages_U_01', 
+    'ServiceResourceImages_D_01'
+)
+AND NOT EXISTS (
+    SELECT 1 FROM Authorities 
+    WHERE RoleId = 4 AND PermissionId = Permissions.Id
+);
+GO
+
+-- 26.3 gán quyền xem (Read) cho thk resident (Role Id = 2)
+INSERT INTO Authorities (RoleId, PermissionId)
+SELECT 2, Id FROM Permissions 
+WHERE PermissionCode IN (
+    'ServiceResourceImages_R_01'
+)
+AND NOT EXISTS (
+    SELECT 1 FROM Authorities 
+    WHERE RoleId = 2 AND PermissionId = Permissions.Id
+);
+GO
 
 -- bảng 4
 CREATE TABLE Accounts (
