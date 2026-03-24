@@ -1,10 +1,8 @@
 package com.example.backend.config.Security;
 
-import com.example.backend.Entity.Account;
-import com.example.backend.Entity.BookingService;
-import com.example.backend.Entity.Contract;
-import com.example.backend.Entity.Resident;
+import com.example.backend.Entity.*;
 import com.example.backend.Repository.BookingServiceRepository;
+import com.example.backend.Repository.ComplaintRepository;
 import com.example.backend.Repository.ContractRepository;
 import com.example.backend.Repository.ResidentRepository;
 import org.jspecify.annotations.NonNull;
@@ -21,6 +19,8 @@ public class AccessValidate {
     private ResidentRepository residentRepository;
     @Autowired
     private BookingServiceRepository bookingServiceRepository;
+    @Autowired
+    private ComplaintRepository complaintRepository;
 
     /**
      * Check xem user có được truy cập vào api của contract không
@@ -87,7 +87,7 @@ public class AccessValidate {
     /**
      * Check xem account gửi request có quyền xem 1 booking cụ thể không
      * @param bookingId booking service đang được gửi yêu cầu xem
-     * @param authentication authetication header
+     * @param authentication authentication header
      * @return true nếu có quyền xem, false nếu không
      */
     public boolean canViewBookingService(Integer bookingId, Authentication authentication){
@@ -101,5 +101,24 @@ public class AccessValidate {
             return false;
         }
         return bookingService.getAccount().getId().equals(account.getId());
+    }
+
+    /**
+     * check xem account gửi request có quyền xem 1 complaint cụ thể không
+     * @param complaintId complaint Id được xem
+     * @param auth authentication header
+     * @return true nếu có, false nếu không
+     */
+    public boolean canViewComplaint(Integer complaintId, Authentication auth){
+        Object principal = auth.getPrincipal();
+        if(!(principal instanceof Account account)){
+            throw new RuntimeException("Invalid principal");
+        }
+
+        Complaint complaint = complaintRepository.findById(complaintId).orElse(null);
+        if(complaint == null){
+            return false;
+        }
+        return complaint.getMadeByUser().getId().equals(account.getId());
     }
 }
