@@ -7,6 +7,7 @@ import com.example.backend.Entity.Contract;
 import com.example.backend.Service.ContractService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -19,7 +20,7 @@ public class ContractController {
     private ContractService service;
 
     @GetMapping
-//    @PreAuthorize("hasAuthority('Contracts_R_01')")
+    @PreAuthorize("hasAuthority('Contracts_R_01')")
     ApiResponse<List<Contract>> get(){
         ApiResponse<List<Contract>> response = new ApiResponse<>();
 
@@ -30,7 +31,7 @@ public class ContractController {
     }
 
     @GetMapping("/{id}")
-//    @PreAuthorize("@accessValidate.canViewContract(#id, authentication)")
+    @PreAuthorize("@accessValidate.canViewContract(#id, authentication)")
     ApiResponse<Contract> getByID(@PathVariable("id") Integer id){
         ApiResponse<Contract> response = new ApiResponse<>();
 
@@ -41,7 +42,7 @@ public class ContractController {
     }
 
     @GetMapping("/list/account/{accountId}")
-//    @PreAuthorize("@accessValidate.isAllowed(#accountId, authentication)")
+    @PreAuthorize("@accessValidate.isAllowed(#accountId, authentication)")
     ApiResponse<List<Contract>> getAllByAccountId(@PathVariable("accountId") Integer accountId){
         ApiResponse<List<Contract>> response = new ApiResponse<>();
 
@@ -50,8 +51,9 @@ public class ContractController {
         response.setResult(service.findAllByAccountId(accountId));
         return response;
     }
+
     @GetMapping("/list/apartment/{apartmentId}")
-//    @PreAuthorize("@accessValidate.isAllowed(#accountId, authentication)")
+    @PreAuthorize("hasAuthority('Contracts_R_01')")
     ApiResponse<List<Contract>> getAllByApartmentId(@PathVariable("apartmentId") Integer apartmentId){
         ApiResponse<List<Contract>> response = new ApiResponse<>();
 
@@ -62,6 +64,7 @@ public class ContractController {
     }
 
     @PostMapping
+    @PreAuthorize("hasAuthority('Contracts_C_01')")
     ApiResponse<Contract> create(@RequestBody @Valid ContractCreateRequest req){
         ApiResponse<Contract> response = new ApiResponse<>();
 
@@ -72,6 +75,7 @@ public class ContractController {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasAuthority('Contracts_U_01')")
     ApiResponse<Contract> update(@PathVariable("id") Integer id, @RequestBody ContractUpdateRequest req){
         ApiResponse<Contract> response = new ApiResponse<>();
 
@@ -83,6 +87,7 @@ public class ContractController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasAuthority('Contracts_D_01')")
     ApiResponse<Contract> delete(@PathVariable("id") Integer id){
         ApiResponse<Contract> response = new ApiResponse<>();
 

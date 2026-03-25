@@ -1,6 +1,7 @@
 package com.example.backend.DTO.Request.resident;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -15,10 +16,10 @@ public class ResidentCreateRequest {
     @NotBlank(message = "Không được để trống tên người dân")
     String fullName;
     String gender;
-    @NotBlank(message = "Không được để trống ngày tháng năm sinh")
+    @NotNull(message = "Không được để trống ngày tháng năm sinh")
     LocalDate dateOfBirth;
     @NotBlank(message = "Không được để trống căn cước công dân")
     String identityId;
-    @NotBlank(message = "Không được để trống id tài khoản đăng ký")
+    @NotNull(message = "Không được để trống id tài khoản đăng ký")
     Integer accountId;
 }
