@@ -35,6 +35,11 @@ public class AccountService {
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy Account với ID: " + id));
     }
 
+    public Account findByUsername(String username) {
+        return repository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy Account với username: " + username));
+    }
+
     public Account create(AccountCreateRequest req) {
         Account account =new Account();
         PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(10);
