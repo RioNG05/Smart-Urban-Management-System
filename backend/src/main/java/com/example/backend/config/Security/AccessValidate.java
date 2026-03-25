@@ -1,10 +1,7 @@
 package com.example.backend.config.Security;
 
 import com.example.backend.Entity.*;
-import com.example.backend.Repository.BookingServiceRepository;
-import com.example.backend.Repository.ComplaintRepository;
-import com.example.backend.Repository.ContractRepository;
-import com.example.backend.Repository.ResidentRepository;
+import com.example.backend.Repository.*;
 import org.jspecify.annotations.NonNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
@@ -21,6 +18,8 @@ public class AccessValidate {
     private BookingServiceRepository bookingServiceRepository;
     @Autowired
     private ComplaintRepository complaintRepository;
+    @Autowired
+    private ReplyRepository replyRepository;
 
     /**
      * Check xem user có được truy cập vào api của contract không
@@ -116,6 +115,29 @@ public class AccessValidate {
         }
 
         Complaint complaint = complaintRepository.findById(complaintId).orElse(null);
+        if(complaint == null){
+            return false;
+        }
+        return complaint.getMadeByUser().getId().equals(account.getId());
+    }
+
+    /**
+     * check xem account gửi request có quyền xem 1 reply cụ thể không
+     * @param replyId reply Id được xem
+     * @param auth authentication header
+     * @return true nếu có, false nếu không
+     */
+    public boolean canViewReplies(Integer replyId, Authentication auth){
+        Object principal = auth.getPrincipal();
+        if(!(principal instanceof Account account)){
+            throw new RuntimeException("Invalid principal");
+        }
+
+        Reply reply = replyRepository.findById(replyId).orElse(null);
+        if(reply == null){
+            return false;
+        }
+        Complaint complaint = complaintRepository.findById(reply.getComplaint().getId()).orElse(null);
         if(complaint == null){
             return false;
         }
