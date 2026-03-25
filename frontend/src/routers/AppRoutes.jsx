@@ -14,6 +14,7 @@ import ServicePage from "../pages/ServicePage";
 import ContactPage from "../pages/ContactPage";
 import PrivateRoute from "./PrivateRoute";
 import BillingPage from "../pages/BillingPage";
+import BookingPage from "../pages/BookingPage";
 
 // --- ADMIN SYSTEM ---
 import { AdminLayout, AdminDashboard } from "../admin/AdminCore";
@@ -40,9 +41,19 @@ export default function AppRoutes() {
         <Route path="/auth" element={<AuthPage />} />
         <Route path="/news" element={<NewsPage />} />
         <Route path="/news/:id" element={<NewsDetailPage />} />
-        <Route path="/billing" element={<BillingPage />} />
+        <Route
+          path="/billing"
+          element={
+            <PrivateRoute roles={["resident"]}>
+              <BillingPage />
+            </PrivateRoute>
+          }
+        />
+        <Route path="/service" element={<ServicePage />} />
         <Route path="/services" element={<ServicePage />} />
+        <Route path="/booking" element={<BookingPage />} />
         <Route path="/market" element={<MarketPage />} />
+        <Route path="/contact" element={<ContactPage />} />
         <Route path="/product/:id" element={<Product />} />
 
         {/* SECURE PAGES */}

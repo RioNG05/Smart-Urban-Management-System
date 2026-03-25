@@ -1,66 +1,49 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import NewsCard from "./NewsCard";
 import NewsSidebar from "./NewsSidebar";
+import { getNewsList } from "../../../services/newsService";
 
-// Xóa khi dùng API thật, tạm thời dùng làm dữ liệu mẫu
-const fallbackNewsData = [
-  {
-    id: 1,
-    title: "Hanoi Apartment Prices Surge",
-    desc: "The real estate market is experiencing significant growth...",
-    image: "https://images.unsplash.com/photo-1560518883-ce09059eeffa",
-    date: "10/03/2026",
-  },
-  {
-    id: 2,
-    title: "Most Livable Urban Areas in Hanoi",
-    desc: "A list of the most livable urban areas in Hanoi...",
-    image: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c",
-    date: "08/03/2026",
-  },
-  {
-    id: 3,
-    title: "Is Real Estate Investment Worth It in 2026?",
-    desc: "Experts share their insights on the 2026 property market...",
-    image: "https://images.unsplash.com/photo-1502005229762-cf1b2da7c5d6",
-    date: "06/03/2026",
-  },
-];
+const normalizeKeyword = (value) =>
+  value
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .trim();
 
-export default function NewsList() {
+export default function NewsList({ activeTag = "" }) {
   const [newsList, setNewsList] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    // [BACKEND API INTEGRATION POINT]
-    // Đây là nơi sẽ gọi API để lấy danh sách tin tức từ Database
-    // Ví dụ: GET /api/news
-
     const fetchNews = async () => {
       try {
         setIsLoading(true);
-        // Bỏ khi có API:
-        /*
-        const response = await fetch('/api/news');
-        if (!response.ok) throw new Error('Failed to fetch news');
-        const data = await response.json();
+        setError(null);
+
+        const data = await getNewsList();
         setNewsList(data);
-        */
-
-        // Giả lập lấy dữ liệu mẫu (Xóa phần này khi dùng API thật)
-        setNewsList(fallbackNewsData);
-        setIsLoading(false);
-
       } catch (err) {
         console.error("Error fetching news:", err);
         setError("Could not load news at this time.");
+      } finally {
         setIsLoading(false);
       }
     };
 
     fetchNews();
   }, []);
+
+  const normalizedTag = normalizeKeyword(activeTag);
+  const filteredNews = newsList.filter((news) => {
+    if (!normalizedTag) return true;
+
+    const searchableText = normalizeKeyword(
+      `${news.title} ${news.desc} ${news.content} ${news.author}`
+    );
+
+    return searchableText.includes(normalizedTag);
+  });
 
   return (
     <section className="news-container">
@@ -86,12 +69,18 @@ export default function NewsList() {
           </div>
         )}
 
-        {!isLoading && !error && newsList.map((news) => (
-          <NewsCard key={news.id} news={news} />
-        ))}
+        {!isLoading && !error && newsList.length > 0 && filteredNews.length === 0 && (
+          <div className="alert alert-warning" role="alert">
+            No articles matched the tag <strong>#{activeTag}</strong>.
+          </div>
+        )}
+
+        {!isLoading &&
+          !error &&
+          filteredNews.map((news) => <NewsCard key={news.id} news={news} />)}
       </div>
 
-      <NewsSidebar />
+      <NewsSidebar items={newsList.slice(0, 5)} />
     </section>
   );
 }

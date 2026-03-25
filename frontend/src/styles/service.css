@@ -15,6 +15,21 @@
   padding: 0 20px;
 }
 
+.service-hero-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 8px 16px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.14);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #f5deb1;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 18px;
+}
+
 .service-hero h1 {
   font-size: 48px;
   font-weight: 700;
@@ -24,6 +39,25 @@
 .service-hero p {
   font-size: 18px;
   color: #ddd;
+}
+
+.service-hero-cta {
+  margin-top: 28px;
+  padding: 14px 30px;
+  border: none;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #c89b3c 0%, #e7c76f 100%);
+  color: #1f1b10;
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  box-shadow: 0 18px 40px rgba(200, 155, 60, 0.28);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.service-hero-cta:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 22px 45px rgba(200, 155, 60, 0.34);
 }
 
 /* Service Container & Header */
