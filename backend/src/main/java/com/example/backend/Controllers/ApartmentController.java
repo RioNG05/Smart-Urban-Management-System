@@ -7,6 +7,7 @@ import com.example.backend.Entity.Apartment;
 import com.example.backend.Service.ApartmentService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -38,6 +39,16 @@ public class ApartmentController {
         return response;
     }
 
+    @PostMapping("/search-by-number")
+    ApiResponse<Apartment> getByRoomNumberAndFloorNumber(@RequestBody @Valid ApartmentUpdateRequest req){
+        ApiResponse<Apartment> response = new ApiResponse<>();
+
+        response.setCode(200);
+        response.setMessage("Apartment found!");
+        response.setResult(service.findByRoomNumberAndFloorNumber(req.getRoomNumber(), req.getFloorNumber()));
+        return response;
+    }
+
     @GetMapping("/{id}")
     ApiResponse<Apartment> getByID(@PathVariable("id") Integer id){
         ApiResponse<Apartment> response = new ApiResponse<>();
@@ -49,6 +60,7 @@ public class ApartmentController {
     }
 
     @PostMapping
+    @PreAuthorize("hasAuthority('Apartments_C_01')")
     ApiResponse<Apartment> create(@RequestBody @Valid ApartmentCreateRequest req){
         ApiResponse<Apartment> response = new ApiResponse<>();
 
@@ -59,6 +71,7 @@ public class ApartmentController {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasAuthority('Apartments_U_01')")
     ApiResponse<Apartment> update(@PathVariable("id") Integer id, @RequestBody ApartmentUpdateRequest req){
         ApiResponse<Apartment> response = new ApiResponse<>();
 
@@ -70,6 +83,7 @@ public class ApartmentController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasAuthority('Apartments_D_01')")
     ApiResponse<Apartment> delete(@PathVariable("id") Integer id){
         ApiResponse<Apartment> response = new ApiResponse<>();
 

@@ -24,6 +24,7 @@ public class ServiceInvoiceController {
     private ServiceInvoiceService service;
 
     @GetMapping
+    @PreAuthorize("hasAuthority('ServiceInvoices_R_01')")
     ApiResponse<List<ServiceInvoice>> get(){
         ApiResponse<List<ServiceInvoice>> response = new ApiResponse<>();
 
@@ -34,6 +35,7 @@ public class ServiceInvoiceController {
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasAuthority('ServiceInvoices_R_01') or @accessValidate.canViewServiceInvoice(#id, authentication)")
     ApiResponse<ServiceInvoice> getByID(@PathVariable("id") Integer id){
         ApiResponse<ServiceInvoice> response = new ApiResponse<>();
 
@@ -44,6 +46,7 @@ public class ServiceInvoiceController {
     }
 
     @PostMapping
+    @PreAuthorize("hasAuthority('ServiceInvoices_C_01')")
     ApiResponse<ServiceInvoice> create(@RequestBody @Valid SICreateRequest req){
         ApiResponse<ServiceInvoice> response = new ApiResponse<>();
 
@@ -54,6 +57,7 @@ public class ServiceInvoiceController {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasAuthority('ServiceInvoices_U_01')")
     ApiResponse<ServiceInvoice> update(@PathVariable("id") Integer id, @RequestBody SIUpdateRequest req){
         ApiResponse<ServiceInvoice> response = new ApiResponse<>();
 
@@ -65,6 +69,7 @@ public class ServiceInvoiceController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasAuthority('ServiceInvoices_D_01')")
     ApiResponse<ServiceInvoice> delete(@PathVariable("id") Integer id){
         ApiResponse<ServiceInvoice> response = new ApiResponse<>();
 
