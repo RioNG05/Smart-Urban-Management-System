@@ -30,6 +30,10 @@ public class ApartmentService {
 
     public List<Apartment> findAllByApartmentTypeId(Integer id) {return repository.findAllByApartmentTypeId(id);}
 
+    public Apartment findByRoomNumberAndFloorNumber(Integer roomNumber, Integer floorNumber){
+        return repository.findByRoomNumberAndFloorNumber(roomNumber,floorNumber).orElseThrow(()->new RuntimeException("Cant found apartment"));
+    }
+
     public Apartment findById(Integer id) {
         return repository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy căn hộ với id: "  + id));

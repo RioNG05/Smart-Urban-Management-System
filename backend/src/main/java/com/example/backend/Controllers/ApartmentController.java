@@ -39,6 +39,16 @@ public class ApartmentController {
         return response;
     }
 
+    @PostMapping("/search-by-number")
+    ApiResponse<Apartment> getByRoomNumberAndFloorNumber(@RequestBody @Valid ApartmentUpdateRequest req){
+        ApiResponse<Apartment> response = new ApiResponse<>();
+
+        response.setCode(200);
+        response.setMessage("Apartment found!");
+        response.setResult(service.findByRoomNumberAndFloorNumber(req.getRoomNumber(), req.getFloorNumber()));
+        return response;
+    }
+
     @GetMapping("/{id}")
     ApiResponse<Apartment> getByID(@PathVariable("id") Integer id){
         ApiResponse<Apartment> response = new ApiResponse<>();
