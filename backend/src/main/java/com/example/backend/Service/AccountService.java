@@ -50,7 +50,6 @@ public class AccountService {
     }
 
     public Account update(Integer id, AccountUpdateRequest req) {
-        // Kiểm tra xem record có tồn tại không trước khi update
         Account account = findById(id);
 
         if (req.getEmail() != null) {
@@ -65,7 +64,7 @@ public class AccountService {
             account.setPassword(passwordEncoder.encode(req.getPassword()));
         }
         if (req.getRoleId() != null) {
-            Role role =  roleRepository.findByRoleName(RoleEnum.USER).orElseThrow(() -> new RuntimeException("Không tìm thấy role tên USER"));
+            Role role =  roleRepository.findById(req.getRoleId()).orElseThrow(() -> new RuntimeException("Không tìm thấy role tên USER"));
             account.setRole(role);
         }
         if (req.getIsActive() != null) {
