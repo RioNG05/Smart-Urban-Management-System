@@ -8,6 +8,7 @@ import com.example.backend.Entity.Resident;
 import com.example.backend.Service.ResidentService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -20,6 +21,7 @@ public class ResidentController {
     private ResidentService residentService;
 
     @GetMapping
+    @PreAuthorize("hasAuthority('Resident_R_01')")
     ApiResponse<List<Resident>> get(){
         ApiResponse<List<Resident>> response = new ApiResponse<>();
 
@@ -31,6 +33,7 @@ public class ResidentController {
     }
 
     @GetMapping("/{residentID}")
+    @PreAuthorize("@accessValidate.canViewResidentProfile(#residentID, authentication)")
     ApiResponse<Resident> getByID(@PathVariable("residentID") Integer residentID){
         ApiResponse<Resident> response = new ApiResponse<>();
 
@@ -41,6 +44,7 @@ public class ResidentController {
     }
 
     @PostMapping
+    @PreAuthorize("hasAuthority('Resident_C_01')")
     ApiResponse<Resident> create(@RequestBody @Valid ResidentCreateRequest req){
         ApiResponse<Resident> response = new ApiResponse<>();
 
@@ -51,6 +55,7 @@ public class ResidentController {
     }
 
     @PutMapping("/{residentID}")
+    @PreAuthorize("hasAuthority('Resident_U_01') or @accessValidate.canViewResidentProfile(#residentID, authentication)")
     ApiResponse<Resident> update(@PathVariable("residentID") Integer residentID, @RequestBody ResidentUpdateRequest req){
         ApiResponse<Resident> response = new ApiResponse<>();
 
@@ -62,6 +67,7 @@ public class ResidentController {
     }
 
     @DeleteMapping("/{residentID}")
+    @PreAuthorize("hasAuthority('Resident_D_01')")
     ApiResponse<Resident> delete(@PathVariable("residentID") Integer residentID){
         ApiResponse<Resident> response = new ApiResponse<>();
 

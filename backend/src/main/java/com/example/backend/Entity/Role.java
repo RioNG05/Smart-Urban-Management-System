@@ -22,8 +22,6 @@ public class Role {
     @Enumerated(EnumType.STRING)
     private RoleEnum roleName;
 
-   
-
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name="Authorities",
