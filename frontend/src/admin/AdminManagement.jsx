@@ -9,6 +9,17 @@ import {
     FaStar // Icon cho mục EVALUATE
 } from 'react-icons/fa';
 import { FaFileContract, FaFileUpload, FaImage, FaChevronDown } from 'react-icons/fa';
+import {
+    createAccount,
+    createResident,
+    deleteAccountById,
+    deleteResidentById,
+    getAccounts,
+    getContractsByAccountId,
+    getResidents,
+    updateAccountById,
+    updateResidentById,
+} from "../services/adminResidentService";
 
 // FIX LỖI IMPORT Ở ĐÂY: XÓA ThrottledContainer ĐI LÀ HẾT TRẮNG TRANG
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
@@ -103,7 +114,7 @@ export const AdminRoleManager = () => {
 };
 
 // --- ADMIN LOCK RESIDENT (PHIÊN BẢN CẬP NHẬT: THÊM PASSWORD & NGÀY CẤP) ---
-export const AdminLockResident = () => {
+const AdminLockResidentLegacy = () => {
     const [residents, setResidents] = useState([
         { id: 'RES001', name: 'Trần Hùng', dob: '1996-11-19', phone: '0912345678', password: '••••••••', hometown: 'Nam Định', current: 'Vinhomes Ocean Park', apartment: 'VH-101', dateAdded: '2026-03-13' }
     ]);
@@ -205,6 +216,507 @@ export const AdminLockResident = () => {
                     <FaCheckCircle /> UPDATE SYSTEM
                 </button>
             </div>
+        </div>
+    );
+};
+
+export const AdminLockResident = () => {
+    const emptyForm = {
+        residentId: null,
+        accountId: null,
+        fullName: "",
+        gender: "",
+        dateOfBirth: "",
+        identityId: "",
+        email: "",
+        username: "",
+        password: "",
+        isActive: true,
+    };
+
+    const [residents, setResidents] = useState([]);
+    const [formData, setFormData] = useState(emptyForm);
+    const [isEditMode, setIsEditMode] = useState(false);
+    const [isLoading, setIsLoading] = useState(true);
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [searchTerm, setSearchTerm] = useState("");
+    const [feedback, setFeedback] = useState({ type: "", message: "" });
+
+    const resetForm = () => {
+        setFormData(emptyForm);
+        setIsEditMode(false);
+    };
+
+    const normalizeResidentRecord = (resident, accountMap, contractsMap) => {
+        const accountId = resident?.account?.id ?? resident?.accountId ?? null;
+        const account = accountMap.get(accountId) ?? resident?.account ?? null;
+        const contracts = contractsMap.get(accountId) ?? [];
+
+        return {
+            residentId: resident?.id ?? null,
+            accountId,
+            fullName: resident?.fullName ?? "",
+            gender: resident?.gender ?? "",
+            dateOfBirth: resident?.dateOfBirth ?? "",
+            identityId: resident?.identityId ?? "",
+            email: account?.email ?? "",
+            username: account?.username ?? "",
+            roleName: account?.role?.roleName ?? "RESIDENT",
+            isActive: account?.isActive ?? false,
+            apartments: contracts.map((contract) => ({
+                contractId: contract?.id,
+                roomNumber: contract?.apartment?.roomNumber ?? contract?.apartmentId ?? "N/A",
+                floorNumber: contract?.apartment?.floorNumber ?? null,
+                contractType: contract?.contractType ?? "Unknown",
+                status: contract?.status,
+            })),
+        };
+    };
+
+    const loadResidentData = async () => {
+        setIsLoading(true);
+
+        try {
+            const [residentList, accountList] = await Promise.all([getResidents(), getAccounts()]);
+            const accountMap = new Map(accountList.map((account) => [account.id, account]));
+
+            const contractResponses = await Promise.all(
+                residentList.map(async (resident) => {
+                    const accountId = resident?.account?.id ?? resident?.accountId;
+
+                    if (!accountId) {
+                        return [null, []];
+                    }
+
+                    try {
+                        const contracts = await getContractsByAccountId(accountId);
+                        return [accountId, contracts];
+                    } catch (error) {
+                        return [accountId, []];
+                    }
+                })
+            );
+
+            const contractsMap = new Map(
+                contractResponses.filter(([accountId]) => accountId !== null)
+            );
+
+            setResidents(
+                residentList.map((resident) =>
+                    normalizeResidentRecord(resident, accountMap, contractsMap)
+                )
+            );
+            setFeedback({ type: "", message: "" });
+        } catch (error) {
+            setFeedback({
+                type: "error",
+                message: error?.response?.data?.message || "Khong the tai danh sach resident tu backend.",
+            });
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        loadResidentData();
+    }, []);
+
+    const handleInputChange = (field, value) => {
+        setFormData((prev) => ({ ...prev, [field]: value }));
+    };
+
+    const handleEditClick = (resident) => {
+        setFormData({
+            residentId: resident.residentId,
+            accountId: resident.accountId,
+            fullName: resident.fullName,
+            gender: resident.gender,
+            dateOfBirth: resident.dateOfBirth,
+            identityId: resident.identityId,
+            email: resident.email,
+            username: resident.username,
+            password: "",
+            isActive: resident.isActive,
+        });
+        setIsEditMode(true);
+        setFeedback({ type: "", message: "" });
+        window.scrollTo({ top: 0, behavior: "smooth" });
+    };
+
+    const validateForm = () => {
+        if (!formData.fullName || !formData.dateOfBirth || !formData.identityId || !formData.email || !formData.username) {
+            setFeedback({
+                type: "error",
+                message: "Vui long nhap day du ho ten, ngay sinh, CCCD, email va username.",
+            });
+            return false;
+        }
+
+        if (!isEditMode && !formData.password) {
+            setFeedback({
+                type: "error",
+                message: "Tao moi resident can co password cho account.",
+            });
+            return false;
+        }
+
+        return true;
+    };
+
+    const handleAddOrUpdate = async () => {
+        if (!validateForm()) {
+            return;
+        }
+
+        setIsSubmitting(true);
+        setFeedback({ type: "", message: "" });
+
+        try {
+            if (isEditMode) {
+                const accountPayload = {
+                    email: formData.email,
+                    username: formData.username,
+                    isActive: formData.isActive,
+                };
+
+                if (formData.password) {
+                    accountPayload.password = formData.password;
+                }
+
+                await updateAccountById(formData.accountId, accountPayload);
+                await updateResidentById(formData.residentId, {
+                    fullName: formData.fullName,
+                    gender: formData.gender || null,
+                    dateOfBirth: formData.dateOfBirth,
+                    identityId: formData.identityId,
+                });
+
+                setFeedback({
+                    type: "success",
+                    message: "Da cap nhat thong tin resident va account thanh cong.",
+                });
+            } else {
+                const account = await createAccount({
+                    email: formData.email,
+                    username: formData.username,
+                    password: formData.password,
+                    isActive: formData.isActive,
+                });
+
+                await createResident({
+                    fullName: formData.fullName,
+                    gender: formData.gender || null,
+                    dateOfBirth: formData.dateOfBirth,
+                    identityId: formData.identityId,
+                    accountId: account.id,
+                });
+
+                setFeedback({
+                    type: "success",
+                    message: "Da tao resident moi va lien ket account thanh cong.",
+                });
+            }
+
+            resetForm();
+            await loadResidentData();
+        } catch (error) {
+            setFeedback({
+                type: "error",
+                message: error?.response?.data?.message || "Co loi xay ra khi luu du lieu resident.",
+            });
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
+
+    const handleRemove = async (resident) => {
+        if (!window.confirm(`Ban co chac chan muon xoa resident ${resident.fullName}?`)) {
+            return;
+        }
+
+        setIsSubmitting(true);
+        setFeedback({ type: "", message: "" });
+
+        try {
+            await deleteResidentById(resident.residentId);
+
+            if (resident.accountId) {
+                await deleteAccountById(resident.accountId);
+            }
+
+            setFeedback({
+                type: "success",
+                message: "Da xoa resident va account lien ket.",
+            });
+
+            if (formData.residentId === resident.residentId) {
+                resetForm();
+            }
+
+            await loadResidentData();
+        } catch (error) {
+            setFeedback({
+                type: "error",
+                message: error?.response?.data?.message || "Khong the xoa resident nay.",
+            });
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
+
+    const handleToggleLock = async (resident) => {
+        if (!resident.accountId) {
+            setFeedback({
+                type: "error",
+                message: "Resident nay chua co account de lock/unlock.",
+            });
+            return;
+        }
+
+        setIsSubmitting(true);
+        setFeedback({ type: "", message: "" });
+
+        try {
+            await updateAccountById(resident.accountId, {
+                email: resident.email,
+                username: resident.username,
+                isActive: !resident.isActive,
+            });
+
+            setFeedback({
+                type: "success",
+                message: resident.isActive
+                    ? "Da khoa account cua resident."
+                    : "Da mo khoa account cua resident.",
+            });
+
+            await loadResidentData();
+        } catch (error) {
+            setFeedback({
+                type: "error",
+                message: error?.response?.data?.message || "Khong the doi trang thai account.",
+            });
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
+
+    const filteredResidents = residents.filter((resident) => {
+        const keyword = searchTerm.trim().toLowerCase();
+
+        if (!keyword) {
+            return true;
+        }
+
+        return [
+            resident.fullName,
+            resident.email,
+            resident.username,
+            resident.identityId,
+            ...resident.apartments.map((apartment) => String(apartment.roomNumber)),
+        ]
+            .filter(Boolean)
+            .some((value) => String(value).toLowerCase().includes(keyword));
+    });
+
+    return (
+        <div className="admin-lock-resident-container">
+            <div className="resident-stats-banner">
+                <div className="stats-icon-box"><FaUsers /></div>
+                <div className="stats-info">
+                    <p>Resident access control</p>
+                    <h3>{residents.length} <span>Residents from backend API</span></h3>
+                </div>
+            </div>
+
+            <section className="resident-form-section">
+                <div className="admin-lock-header-row">
+                    <div className="form-header admin-lock-form-title" style={{ color: isEditMode ? '#ed8936' : '#3182ce', marginBottom: 0 }}>
+                        {isEditMode ? <FaEdit /> : <FaUserPlus />}
+                        <span>{isEditMode ? "Edit Resident" : "Create Resident"}</span>
+                    </div>
+                    <button className="btn-pay-refresh" type="button" onClick={loadResidentData} disabled={isLoading || isSubmitting}>
+                        <FaSyncAlt size={14} /> Refresh data
+                    </button>
+                </div>
+
+                {feedback.message && (
+                    <div className={`admin-feedback ${feedback.type === "error" ? "error" : "success"}`}>
+                        {feedback.message}
+                    </div>
+                )}
+
+                <div className="resident-grid-form admin-lock-form-grid">
+                    <div className="form-group">
+                        <label>Full Name</label>
+                        <input type="text" value={formData.fullName} placeholder="Nhap ho ten..." onChange={(e) => handleInputChange("fullName", e.target.value)} />
+                    </div>
+                    <div className="form-group">
+                        <label>Gender</label>
+                        <select value={formData.gender} onChange={(e) => handleInputChange("gender", e.target.value)}>
+                            <option value="">Chon gioi tinh</option>
+                            <option value="Male">Male</option>
+                            <option value="Female">Female</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                    <div className="form-group">
+                        <label>Date of Birth</label>
+                        <input type="date" value={formData.dateOfBirth} onChange={(e) => handleInputChange("dateOfBirth", e.target.value)} />
+                    </div>
+                    <div className="form-group">
+                        <label>Identity ID</label>
+                        <input type="text" value={formData.identityId} placeholder="CCCD / Passport" onChange={(e) => handleInputChange("identityId", e.target.value)} />
+                    </div>
+                    <div className="form-group">
+                        <label>Email</label>
+                        <input type="email" value={formData.email} placeholder="resident@email.com" onChange={(e) => handleInputChange("email", e.target.value)} />
+                    </div>
+                    <div className="form-group">
+                        <label>Username</label>
+                        <input type="text" value={formData.username} placeholder="username" onChange={(e) => handleInputChange("username", e.target.value)} />
+                    </div>
+                    {!isEditMode && (
+                        <div className="form-group">
+                            <label>Password</label>
+                            <input type="password" value={formData.password} placeholder="Mat khau" onChange={(e) => handleInputChange("password", e.target.value)} />
+                        </div>
+                    )}
+                    <div className="form-group">
+                        <label>Account Status</label>
+                        <select value={String(formData.isActive)} onChange={(e) => handleInputChange("isActive", e.target.value === "true")}>
+                            <option value="true">Active</option>
+                            <option value="false">Locked</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div className="admin-lock-actions">
+                    <button className={`admin-btn-add ${isEditMode ? 'mode-edit' : ''}`} onClick={handleAddOrUpdate} disabled={isSubmitting}>
+                        {isSubmitting ? "Processing..." : isEditMode ? "Save Changes" : "Create Resident"}
+                    </button>
+                    {isEditMode && (
+                        <button className="btn-table-delete" type="button" onClick={resetForm} disabled={isSubmitting}>
+                            Cancel edit
+                        </button>
+                    )}
+                </div>
+            </section>
+
+            <section className="admin-table-wrapper">
+                <div className="admin-lock-header-row admin-lock-list-header">
+                    <h3 className="admin-lock-section-title">Resident Directory</h3>
+                    <div className="admin-lock-search">
+                        <FaSearch />
+                        <input
+                            type="text"
+                            placeholder="Tim theo ten, email, username, CCCD, can ho..."
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                        />
+                    </div>
+                </div>
+
+                <div className="admin-table-scroll">
+                    <table className="admin-custom-table bordered">
+                        <thead>
+                            <tr>
+                                <th>Resident</th>
+                                <th>Gender</th>
+                                <th>Date of Birth</th>
+                                <th>Identity ID</th>
+                                <th>Email</th>
+                                <th>Username</th>
+                                <th>Owned Apartments</th>
+                                <th>Status</th>
+                                <th style={{ textAlign: 'center' }}>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {isLoading ? (
+                                <tr>
+                                    <td colSpan="9" className="admin-table-empty">Dang tai du lieu tu backend...</td>
+                                </tr>
+                            ) : filteredResidents.length === 0 ? (
+                                <tr>
+                                    <td colSpan="9" className="admin-table-empty">Khong tim thay resident phu hop.</td>
+                                </tr>
+                            ) : (
+                                filteredResidents.map((resident, index) => (
+                                    <tr key={resident.residentId}>
+                                        <td>
+                                            <div className="admin-resident-stack">
+                                                <strong>{resident.fullName}</strong>
+                                                <span>Resident ID: {resident.residentId}</span>
+                                            </div>
+                                        </td>
+                                        <td className="admin-cell-compact">{resident.gender || "N/A"}</td>
+                                        <td className="admin-cell-compact">{resident.dateOfBirth || "N/A"}</td>
+                                        <td className="admin-cell-compact">{resident.identityId || "N/A"}</td>
+                                        <td className="admin-cell-compact">{resident.email || "N/A"}</td>
+                                        <td className="admin-cell-compact">{resident.username || "N/A"}</td>
+                                        <td>
+                                            {resident.apartments.length > 0 ? (
+                                                <div className="admin-apartment-list">
+                                                    {resident.apartments.map((apartment) => (
+                                                        <div key={`${resident.residentId}-${apartment.contractId}`} className="admin-apartment-detail">
+                                                            <span className="apartment-tag">
+                                                                {apartment.roomNumber}
+                                                                {apartment.floorNumber ? ` / Floor ${apartment.floorNumber}` : ""}
+                                                            </span>
+                                                            <span className="admin-apartment-meta">
+                                                                {apartment.contractType} | status: {apartment.status ?? "N/A"}
+                                                            </span>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            ) : (
+                                                <span className="admin-subtle-text">Chua co can ho lien ket</span>
+                                            )}
+                                        </td>
+                                        <td>
+                                            <span className={`status-badge ${resident.isActive ? "active" : "locked"}`}>
+                                                {resident.isActive ? "Active" : "Locked"}
+                                            </span>
+                                        </td>
+                                        <td style={{ textAlign: 'center' }}>
+                                            <div className="action-flex admin-lock-table-actions">
+                                                <button
+                                                    className="admin-icon-btn edit"
+                                                    onClick={() => handleEditClick(resident)}
+                                                    disabled={isSubmitting}
+                                                    title="Edit"
+                                                    aria-label={`Edit ${resident.fullName}`}
+                                                >
+                                                    <FaEdit />
+                                                </button>
+                                                <button
+                                                    className="admin-icon-btn lock"
+                                                    onClick={() => handleToggleLock(resident)}
+                                                    disabled={isSubmitting}
+                                                    title={resident.isActive ? "Lock" : "Unlock"}
+                                                    aria-label={`${resident.isActive ? "Lock" : "Unlock"} ${resident.fullName}`}
+                                                >
+                                                    <FaLock />
+                                                </button>
+                                                <button
+                                                    className="admin-icon-btn delete"
+                                                    onClick={() => handleRemove(resident)}
+                                                    disabled={isSubmitting}
+                                                    title="Delete"
+                                                    aria-label={`Delete ${resident.fullName}`}
+                                                >
+                                                    <FaTrashAlt />
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                ))
+                            )}
+                        </tbody>
+                    </table>
+                </div>
+            </section>
         </div>
     );
 };

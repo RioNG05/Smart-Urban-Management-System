@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../auth/AuthContext";
-import { serviceCatalog } from "../../../data/serviceCatalog";
+import { getServices } from "../../../services/serviceService";
 
 export default function ServiceList() {
   const { user } = useAuth();
@@ -14,9 +14,9 @@ export default function ServiceList() {
     const fetchServices = async () => {
       try {
         setIsLoading(true);
-
-        // Replace with API integration when the backend is ready.
-        setServices(serviceCatalog);
+        setError(null);
+        const serviceData = await getServices();
+        setServices(serviceData);
         setIsLoading(false);
       } catch (err) {
         console.error("Error fetching services:", err);
@@ -57,11 +57,14 @@ export default function ServiceList() {
           <div className="service-grid">
             {services.map((service) => (
               <div key={service.id} className="service-card">
-                <div className="service-image">
-                  <img src={service.image} alt={service.title} />
-                </div>
+                {service.image ? (
+                  <div className="service-image">
+                    <img src={service.image} alt={service.title} />
+                  </div>
+                ) : null}
                 <div className="service-content">
                   <h3 className="service-title">{service.title}</h3>
+                  {service.serviceCode ? <p className="service-desc">Code: {service.serviceCode}</p> : null}
                   <p className="service-desc">{service.desc}</p>
                 </div>
               </div>

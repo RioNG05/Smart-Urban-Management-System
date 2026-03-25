@@ -22,8 +22,7 @@ public class Role {
     @Enumerated(EnumType.STRING)
     private RoleEnum roleName;
 
-    @Column(name = "ContextPath", nullable = false)
-    private String contextPath;
+   
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
