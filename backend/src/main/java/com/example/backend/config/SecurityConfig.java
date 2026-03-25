@@ -46,7 +46,7 @@ public class SecurityConfig {
                                 "/api/auth/**",
                                 "/oauth2/**",
                                 "/login/**").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/apartments/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/apartments/**", "/api/news/**").permitAll()
                         .anyRequest().permitAll()
                 )
                 .oauth2Login(oauth -> oauth.successHandler(oAuth2SuccessHandler))
