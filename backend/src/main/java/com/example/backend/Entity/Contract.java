@@ -40,4 +40,7 @@ public class Contract {
 
     @Column(name = "CreatedAt", insertable = false, updatable = false)
     private LocalDateTime createdAt;
+
+    @Column(name = "CreatedById", nullable = false)
+    private Integer createdById;                     // id của staff tạo ra cái hợp đồng này
 }

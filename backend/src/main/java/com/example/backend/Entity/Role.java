@@ -1,10 +1,17 @@
 package com.example.backend.Entity;
+import com.example.backend.Enum.RoleEnum;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
+import org.springframework.security.core.parameters.P;
+
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Table(name = "Roles")
 @Getter @Setter @NoArgsConstructor @AllArgsConstructor
+@Builder
 public class Role {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -12,5 +19,18 @@ public class Role {
     private Integer id;
 
     @Column(name = "RoleName", nullable = false, unique = true, length = 50)
-    private String roleName;
+    @Enumerated(EnumType.STRING)
+    private RoleEnum roleName;
+
+    @Column(name = "ContextPath", nullable = false)
+    private String contextPath;
+
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(
+            name="Authorities",
+            joinColumns = @JoinColumn(name = "RoleId"),
+            inverseJoinColumns = @JoinColumn(name = "PermissionId")
+    )
+    @JsonIgnore
+    private Set<Permission> permissions = new HashSet<>();
 }

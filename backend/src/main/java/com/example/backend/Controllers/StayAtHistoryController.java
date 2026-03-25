@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/stay_at_history")
+@RequestMapping("/api/stay-at-history")
 public class StayAtHistoryController {
 
     @Autowired
@@ -39,6 +39,26 @@ public class StayAtHistoryController {
         response.setCode(200);
         response.setMessage("Thông tin lịch sử lưu trú id: " + id);
         response.setResult(service.findById(id));
+        return response;
+    }
+
+    @GetMapping("/resident/{residentId}")
+    ApiResponse<List<StayAtHistory>> getByResidentID(@PathVariable("residentId") Integer residentId){
+        ApiResponse<List<StayAtHistory>> response = new ApiResponse<>();
+
+        response.setCode(200);
+        response.setMessage("Thông tin lịch sử lưu trú của cư dân với id: " + residentId);
+        response.setResult(service.findAllByResidentId(residentId));
+        return response;
+    }
+
+    @GetMapping("/apartment/{apartmentId}")
+    ApiResponse<List<StayAtHistory>> getByApartmentId(@PathVariable("apartmentId") Integer apartmentId){
+        ApiResponse<List<StayAtHistory>> response = new ApiResponse<>();
+
+        response.setCode(200);
+        response.setMessage("Thông tin lịch sử lưu trú của căn hộ id: " + apartmentId);
+        response.setResult(service.findAllByApartmentId(apartmentId));
         return response;
     }
 

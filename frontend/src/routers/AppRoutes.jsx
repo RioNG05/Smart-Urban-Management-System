@@ -23,6 +23,11 @@ import {
   AdminLockResident,
   AdminCreateContract,
   AdminPropertyManager,
+  AdminPaymentManager,
+  AdminApartmentLayout,
+  AdminRepairManager,
+  AdminMaintenanceManager,
+  AdminEvaluateManager, // THÊM MỚI Ở ĐÂY ĐỂ ĐỒNG BỘ MỤC EVALUATE
 } from "../admin/AdminManagement";
 import AdminReports from "../admin/AdminReports";
 import AdminAccountLock from "../admin/AdminAccountLock";
@@ -31,7 +36,7 @@ import StaffApartment from "../staff/StaffApartment";
 import StaffSecurity from "../staff/StaffSecurity";
 import StaffService from "../staff/StaffService";
 
-export default function AppRoutes() {
+function AppRoutes() {
   return (
     <BrowserRouter>
       <Routes>
@@ -98,6 +103,14 @@ export default function AppRoutes() {
           <Route path="lock-resident" element={<AdminLockResident />} />
           <Route path="contracts/create" element={<AdminCreateContract />} />
           <Route path="contracts/view" element={<AdminPropertyManager />} />
+          <Route path="pay" element={<AdminPaymentManager />} />
+          <Route path="apartment-layout" element={<AdminApartmentLayout />} />
+          <Route path="repair" element={<AdminRepairManager />} />
+          <Route path="maintenance" element={<AdminMaintenanceManager />} />
+          
+          {/* THÊM ROUTE CHO EVALUATE Ở ĐÂY ĐỂ HẾT LỖI TRẮNG TRANG */}
+          <Route path="evaluate" element={<AdminEvaluateManager />} />
+
           <Route path="reports/revenue" element={<AdminReports />} />
           <Route path="reports/residents" element={<AdminReports />} />
           <Route path="reports/payments" element={<AdminReports />} />
@@ -117,3 +130,5 @@ export default function AppRoutes() {
     </BrowserRouter>
   );
 }
+
+export default AppRoutes;

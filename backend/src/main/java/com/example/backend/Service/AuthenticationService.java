@@ -96,9 +96,4 @@ public class AuthenticationService {
         return signedJWT.getJWTClaimsSet().getSubject();
     }
 
-    public String extractRole(String token) throws ParseException {
-        SignedJWT signedJWT = SignedJWT.parse(token);
-        return signedJWT.getJWTClaimsSet().getStringClaim("role");
-    }
-
 }

@@ -4,7 +4,6 @@ import com.example.backend.DTO.Request.contract.ContractCreateRequest;
 import com.example.backend.DTO.Request.contract.ContractUpdateRequest;
 import com.example.backend.DTO.Response.ApiResponse;
 import com.example.backend.Entity.Contract;
-import com.example.backend.Entity.Resident;
 import com.example.backend.Service.ContractService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +19,7 @@ public class ContractController {
     private ContractService service;
 
     @GetMapping
+//    @PreAuthorize("hasAuthority('Contracts_R_01')")
     ApiResponse<List<Contract>> get(){
         ApiResponse<List<Contract>> response = new ApiResponse<>();
 
@@ -30,12 +30,34 @@ public class ContractController {
     }
 
     @GetMapping("/{id}")
+//    @PreAuthorize("@accessValidate.canViewContract(#id, authentication)")
     ApiResponse<Contract> getByID(@PathVariable("id") Integer id){
         ApiResponse<Contract> response = new ApiResponse<>();
 
         response.setCode(200);
         response.setMessage("Thông tin hợp đồng id: " + id);
         response.setResult(service.findById(id));
+        return response;
+    }
+
+    @GetMapping("/list/account/{accountId}")
+//    @PreAuthorize("@accessValidate.isAllowed(#accountId, authentication)")
+    ApiResponse<List<Contract>> getAllByAccountId(@PathVariable("accountId") Integer accountId){
+        ApiResponse<List<Contract>> response = new ApiResponse<>();
+
+        response.setCode(200);
+        response.setMessage("Lấy danh sách hợp đồng thành công");
+        response.setResult(service.findAllByAccountId(accountId));
+        return response;
+    }
+    @GetMapping("/list/apartment/{apartmentId}")
+//    @PreAuthorize("@accessValidate.isAllowed(#accountId, authentication)")
+    ApiResponse<List<Contract>> getAllByApartmentId(@PathVariable("apartmentId") Integer apartmentId){
+        ApiResponse<List<Contract>> response = new ApiResponse<>();
+
+        response.setCode(200);
+        response.setMessage("Lấy danh sách hợp đồng thành công");
+        response.setResult(service.findAllByApartmentId(apartmentId));
         return response;
     }
 
@@ -70,4 +92,5 @@ public class ContractController {
 
         return response;
     }
+
 }

@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/utilities_invoice")
+@RequestMapping("/api/utilities-invoice")
 public class UtilitiesInvoiceController {
 
     @Autowired
@@ -39,6 +39,16 @@ public class UtilitiesInvoiceController {
         response.setCode(200);
         response.setMessage("Thông tin hóa đơn id: " + id);
         response.setResult(service.findById(id));
+        return response;
+    }
+
+    @GetMapping("/apartment/{id}")
+    ApiResponse<List<UtilitiesInvoice>> getByApartmentID(@PathVariable("id") Integer id){
+        ApiResponse<List<UtilitiesInvoice>> response = new ApiResponse<>();
+
+        response.setCode(200);
+        response.setMessage("Danh sách hóa đơn của căn hộ id: " + id);
+        response.setResult(service.findAllByAparmentId(id));
         return response;
     }
 

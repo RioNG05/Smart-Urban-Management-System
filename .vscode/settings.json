@@ -1,0 +1,6 @@
+{
+    "java.project.sourcePaths": [
+        "frontend"
+    ],
+    "java.compile.nullAnalysis.mode": "automatic"
+}

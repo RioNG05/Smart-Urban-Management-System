@@ -32,6 +32,15 @@
 | `/accounts/{id}` | PUT | Cập nhật account |
 | `/accounts/{id}` | DELETE | Xóa account |
 
+### 📄 GET /accounts — Danh Sách Tất Cả Account
+
+**Response**: `{ "code": 200, "message": "Lấy danh sách tài khoản thành công", "result": [...] }`
+
+### 📄 GET /accounts/{id} — Chi Tiết Account
+
+**Response**: `{ "code": 200, "message": "Thông tin tài khoản id: {id}", "result": { "id": 1, "email": "user@example.com", "username": "username", "role": {...}, ... } }`  
+**Errors**: `404` Account không tồn tại
+
 ### ➕ POST /accounts — Tạo Account
 
 ```json
@@ -53,8 +62,6 @@
 **Response**: `{ "code": 200, "message": "Tạo người dùng thành công!", "result": {...} }`  
 **Errors**: `400` Validation | `500` Email/Username trùng | `500` Role không tồn tại
 
----
-
 ### ✏️ PUT /accounts/{id} — Cập Nhật Account
 
 ```json
@@ -73,6 +80,15 @@
 | `/residents` | POST | Tạo resident |
 | `/residents/{id}` | PUT | Cập nhật resident |
 | `/residents/{id}` | DELETE | Xóa resident |
+
+### 📄 GET /residents — Danh Sách Tất Cả Resident
+
+**Response**: `{ "code": 200, "message": "Lấy danh sách người dân thành công!", "result": [...] }`
+
+### 📄 GET /residents/{id} — Chi Tiết Resident
+
+**Response**: `{ "code": 200, "message": "Thông tin người dân id: {id}", "result": { "id": 1, "fullName": "...", "gender": "Male", "dateOfBirth": "1990-05-15", "identityId": "001090012345", "account": {...}, ... } }`  
+**Errors**: `404` Resident không tồn tại
 
 ### ➕ POST /residents — Tạo Resident
 
@@ -160,9 +176,24 @@
 |----------|--------|-------|
 | `/contracts` | GET | Lấy tất cả contract |
 | `/contracts/{id}` | GET | Lấy 1 contract |
+| `/contracts/list/{accountId}` | GET | Lấy contract của account |
 | `/contracts` | POST | Tạo contract |
 | `/contracts/{id}` | PUT | Cập nhật contract |
 | `/contracts/{id}` | DELETE | Xóa contract |
+
+### 📄 GET /contracts — Danh Sách Tất Cả Contract
+
+**Response**: `{ "code": 200, "message": "Lấy danh sách hợp đồng thành công", "result": [...] }`
+
+### 📄 GET /contracts/{id} — Chi Tiết Contract
+
+**Response**: `{ "code": 200, "message": "Thông tin hợp đồng id: {id}", "result": { "id": 1, "apartmentId": 1, "accountId": 2, "contractType": "Residential", "startDate": "2024-01-01", "endDate": "2025-12-31", "monthlyRent": 5000000.00, "status": 1, ... } }`  
+**Errors**: `404` Contract không tồn tại
+
+### 📄 GET /contracts/list/{accountId} — Contract Của Account
+
+**Response**: `{ "code": 200, "message": "Lấy danh sách hợp đồng thành công", "result": [...] }`  
+**Errors**: `404` Account không tồn tại
 
 ### ➕ POST /contracts — Tạo Contract
 
@@ -209,6 +240,15 @@
 | `/apartments/type` | POST | Tạo loại |
 | `/apartments/type/{id}` | PUT | Cập nhật loại |
 | `/apartments/type/{id}` | DELETE | Xóa loại |
+
+### 📄 GET /apartments/type — Danh Sách Tất Cả Loại Căn Hộ
+
+**Response**: `{ "code": 200, "message": "Lấy danh sách kiểu căn hộ thành công!", "result": [...] }`
+
+### 📄 GET /apartments/type/{id} — Chi Tiết Loại Căn Hộ
+
+**Response**: `{ "code": 200, "message": "Thông tin kiểu căn hộ id: {id}", "result": { "id": 1, "name": "2 Bedrooms", "designSqrt": 75.50, "numberOfBedroom": 2, "numberOfBathroom": 2, "overview": "...", "commonPriceForBuying": 1800000000.00, "commonPriceForRent": 12000000.00, "furniture": 1, ... } }`  
+**Errors**: `404` Loại căn hộ không tồn tại
 
 ### ➕ POST /apartments/type — Tạo Loại Căn Hộ
 
@@ -258,6 +298,15 @@
 | `/apartments/{id}` | PUT | Cập nhật căn hộ |
 | `/apartments/{id}` | DELETE | Xóa căn hộ |
 
+### 📄 GET /apartments — Danh Sách Tất Cả Căn Hộ
+
+**Response**: `{ "code": 200, "message": "Lấy danh sách căn hộ thành công", "result": [...] }`
+
+### 📄 GET /apartments/{id} — Chi Tiết Căn Hộ
+
+**Response**: `{ "code": 200, "message": "Thông tin căn hộ id: {id}", "result": { "id": 1, "roomNumber": 101, "floorNumber": 1, "direction": "East", "status": 1, "apartmentTypeId": 1, ... } }`  
+**Errors**: `404` Căn hộ không tồn tại
+
 ### ➕ POST /apartments — Tạo Căn Hộ
 
 ```json
@@ -300,6 +349,15 @@
 | `/complaints/{id}` | PUT | Cập nhật khiếu nại |
 | `/complaints/{id}` | DELETE | Xóa khiếu nại |
 
+### 📄 GET /complaints — Danh Sách Tất Cả Khiếu Nại
+
+**Response**: `{ "code": 200, "result": [...] }`
+
+### 📄 GET /complaints/{id} — Chi Tiết Khiếu Nại
+
+**Response**: `{ "code": 200, "result": { "id": 1, "content": "...", "userId": 5, ... } }`  
+**Errors**: `404` Khiếu nại không tồn tại
+
 ### ➕ POST /complaints — Tạo Khiếu Nại
 
 ```json
@@ -335,7 +393,16 @@
 | `/replies` | POST | Tạo trả lời |
 | `/replies/{id}` | PUT | Cập nhật trả lời |
 | `/replies/{id}` | DELETE | Xóa trả lời |
-| `/replies/complaint/{complaintId}` | GET | Lấy trả lời của phàn nàn |
+| `/replies/complaint/{complaintId}` | GET | Lấy trả lời của khiếu nại |
+
+### 📄 GET /replies — Danh Sách Tất Cả Trả Lời
+
+**Response**: `{ "code": 200, "result": [...] }`
+
+### 📄 GET /replies/{id} — Chi Tiết Trả Lời
+
+**Response**: `{ "code": 200, "result": { "id": 1, "content": "...", "complaintId": 3, "userId": 2, ... } }`  
+**Errors**: `404` Trả lời không tồn tại
 
 ### ➕ POST /replies — Tạo Trả Lời
 
@@ -363,6 +430,11 @@
 ```
 *Tất cả trường optional*
 
+### 🔍 GET /replies/complaint/{complaintId} — Lấy Trả Lời Của Khiếu Nại
+
+**Response**: `{ "code": 200, "result": [...] }`  
+**Errors**: `404` Khiếu nại không tồn tại
+
 ---
 
 ## I. Services Routes
@@ -374,6 +446,15 @@
 | `/services` | POST | Tạo dịch vụ |
 | `/services/{id}` | PUT | Cập nhật dịch vụ |
 | `/services/{id}` | DELETE | Xóa dịch vụ |
+
+### 📄 GET /services — Danh Sách Tất Cả Dịch Vụ
+
+**Response**: `{ "code": 200, "message": "Lấy danh sách dịch vụ thành công!", "result": [...] }`
+
+### 📄 GET /services/{id} — Chi Tiết Dịch Vụ
+
+**Response**: `{ "code": 200, "message": "Thông tin dịch vụ id: {id}", "result": { "id": 1, "serviceName": "...", "serviceCode": "CLN001", ... } }`  
+**Errors**: `404` Dịch vụ không tồn tại
 
 ### ➕ POST /services — Tạo Dịch Vụ
 
@@ -409,13 +490,22 @@
 
 | Endpoint | Method | Mô Tả |
 |----------|--------|-------|
-| `/service_resource` | GET | Lấy tất cả tài nguyên |
-| `/service_resource/{id}` | GET | Lấy 1 tài nguyên |
-| `/service_resource` | POST | Tạo tài nguyên |
-| `/service_resource/{id}` | PUT | Cập nhật tài nguyên |
-| `/service_resource/{id}` | DELETE | Xóa tài nguyên |
+| `/service-resource` | GET | Lấy tất cả tài nguyên |
+| `/service-resource/{id}` | GET | Lấy 1 tài nguyên |
+| `/service-resource` | POST | Tạo tài nguyên |
+| `/service-resource/{id}` | PUT | Cập nhật tài nguyên |
+| `/service-resource/{id}` | DELETE | Xóa tài nguyên |
 
-### ➕ POST /service_resource — Tạo Tài Nguyên Dịch Vụ
+### 📄 GET /service-resource — Danh Sách Tất Cả Tài Nguyên Dịch Vụ
+
+**Response**: `{ "code": 200, "message": "Lấy danh sách tài nguyên dịch vụ thành công!", "result": [...] }`
+
+### 📄 GET /service-resource/{id} — Chi Tiết Tài Nguyên
+
+**Response**: `{ "code": 200, "message": "Thông tin tài nguyên dịch vụ id: {id}", "result": { "id": 1, "resourceCode": "RES001", "location": "...", "serviceId": 1, ... } }`  
+**Errors**: `404` Tài nguyên không tồn tại
+
+### ➕ POST /service-resource — Tạo Tài Nguyên Dịch Vụ
 
 ```json
 {
@@ -436,7 +526,7 @@
 **Response**: `{ "code": 200, "message": "Tạo tài nguyên dịch vụ mới thành công!", "result": {...} }`  
 **Errors**: `500` Service không tồn tại | `400` ResourceCode đã tồn tại
 
-### ✏️ PUT /service_resource/{id} — Cập Nhật Tài Nguyên
+### ✏️ PUT /service-resource/{id} — Cập Nhật Tài Nguyên
 
 ```json
 { "location": "Tầng 2 - Phòng vệ sinh", "isAvailable": false }
@@ -454,6 +544,15 @@
 | `/staff` | POST | Tạo nhân viên |
 | `/staff/{id}` | PUT | Cập nhật nhân viên |
 | `/staff/{id}` | DELETE | Xóa nhân viên |
+
+### 📄 GET /staff — Danh Sách Tất Cả Nhân Viên
+
+**Response**: `{ "code": 200, "result": [...] }`
+
+### 📄 GET /staff/{id} — Chi Tiết Nhân Viên
+
+**Response**: `{ "code": 200, "result": { "id": 1, "fullName": "Trần Văn B", "gender": "Male", "dateOfBirth": "1990-01-01", "identityId": "001990012345", "accountId": 8, ... } }`  
+**Errors**: `404` Nhân viên không tồn tại
 
 ### ➕ POST /staff — Tạo Nhân Viên
 
@@ -483,7 +582,7 @@
 ```json
 { "fullName": "...", "gender": "Female" }
 ```
-*Tất cả trường optional (trừ identityId)*
+*Tất cả trường optional*
 
 ---
 
@@ -491,13 +590,34 @@
 
 | Endpoint | Method | Mô Tả |
 |----------|--------|-------|
-| `/stay_at_history` | GET | Lấy tất cả lịch sử |
-| `/stay_at_history/{id}` | GET | Lấy 1 lịch sử |
-| `/stay_at_history` | POST | Tạo lịch sử |
-| `/stay_at_history/{id}` | PUT | Cập nhật lịch sử |
-| `/stay_at_history/{id}` | DELETE | Xóa lịch sử |
+| `/stay-at-history` | GET | Lấy tất cả lịch sử |
+| `/stay-at-history/{id}` | GET | Lấy 1 lịch sử |
+| `/stay-at-history/resident/{residentId}` | GET | Lấy lịch sử của cư dân |
+| `/stay-at-history/apartment/{apartmentId}` | GET | Lấy lịch sử của căn hộ |
+| `/stay-at-history` | POST | Tạo lịch sử |
+| `/stay-at-history/{id}` | PUT | Cập nhật lịch sử |
+| `/stay-at-history/{id}` | DELETE | Xóa lịch sử |
 
-### ➕ POST /stay_at_history — Tạo Lịch Sử Lưu Trú
+### 📄 GET /stay-at-history — Danh Sách Tất Cả Lịch Sử Lưu Trú
+
+**Response**: `{ "code": 200, "message": "Lấy danh sách lịch sử lưu trú thành công", "result": [...] }`
+
+### 📄 GET /stay-at-history/{id} — Chi Tiết Lịch Sử Lưu Trú
+
+**Response**: `{ "code": 200, "message": "Thông tin lịch sử lưu trú id: {id}", "result": { "id": 1, "residentId": 1, "apartmentId": 101, "moveIn": "2024-01-01", "moveOut": "2024-12-31", ... } }`  
+**Errors**: `404` Lịch sử không tồn tại
+
+### 📄 GET /stay-at-history/resident/{residentId} — Lịch Sử Lưu Trú Của Cư Dân
+
+**Response**: `{ "code": 200, "message": "Thông tin lịch sử lưu trú của cư dân với id: {residentId}", "result": [...] }`  
+**Errors**: `404` Cư dân không tồn tại
+
+### 📄 GET /stay-at-history/apartment/{apartmentId} — Lịch Sử Lưu Trú Của Căn Hộ
+
+**Response**: `{ "code": 200, "message": "Thông tin lịch sử lưu trú của căn hộ id: {apartmentId}", "result": [...] }`  
+**Errors**: `404` Căn hộ không tồn tại
+
+### ➕ POST /stay-at-history — Tạo Lịch Sử Lưu Trú
 
 ```json
 {
@@ -518,7 +638,7 @@
 **Response**: `{ "code": 200, "message": "Tạo lịch sử lưu trú thành công!", "result": {...} }`  
 **Errors**: `500` Resident/Apartment không tồn tại
 
-### ✏️ PUT /stay_at_history/{id} — Cập Nhật Lịch Sử
+### ✏️ PUT /stay-at-history/{id} — Cập Nhật Lịch Sử
 
 ```json
 { "moveOut": "2025-06-30" }
@@ -531,13 +651,28 @@
 
 | Endpoint | Method | Mô Tả |
 |----------|--------|-------|
-| `/utilities_invoice` | GET | Lấy tất cả hóa đơn |
-| `/utilities_invoice/{id}` | GET | Lấy 1 hóa đơn |
-| `/utilities_invoice` | POST | Tạo hóa đơn |
-| `/utilities_invoice/{id}` | PUT | Cập nhật hóa đơn |
-| `/utilities_invoice/{id}` | DELETE | Xóa hóa đơn |
+| `/utilities-invoice` | GET | Lấy tất cả hóa đơn |
+| `/utilities-invoice/{id}` | GET | Lấy 1 hóa đơn |
+| `/utilities-invoice/apartment/{id}` | GET | Lấy hóa đơn của căn hộ |
+| `/utilities-invoice` | POST | Tạo hóa đơn |
+| `/utilities-invoice/{id}` | PUT | Cập nhật hóa đơn |
+| `/utilities-invoice/{id}` | DELETE | Xóa hóa đơn |
 
-### ➕ POST /utilities_invoice — Tạo Hóa Đơn Tiện Ích
+### 📄 GET /utilities-invoice — Danh Sách Tất Cả Hóa Đơn
+
+**Response**: `{ "code": 200, "message": "Lấy danh sách hóa đơn thành công", "result": [...] }`
+
+### 📄 GET /utilities-invoice/{id} — Chi Tiết Hóa Đơn
+
+**Response**: `{ "code": 200, "message": "Thông tin hóa đơn id: {id}", "result": { "id": 1, "apartmentId": 101, "billingMonth": 1, "billingYear": 2024, "totalElectricUsed": 250, "totalWaterUsed": 15, "status": 0, ... } }`  
+**Errors**: `404` Hóa đơn không tồn tại
+
+### 📄 GET /utilities-invoice/apartment/{id} — Hóa Đơn Của Căn Hộ
+
+**Response**: `{ "code": 200, "message": "Danh sách hóa đơn của căn hộ id: {id}", "result": [...] }`  
+**Errors**: `404` Căn hộ không tồn tại
+
+### ➕ POST /utilities-invoice — Tạo Hóa Đơn Tiện Ích
 
 ```json
 {
@@ -562,7 +697,7 @@
 **Response**: `{ "code": 200, "message": "Tạo hóa đơn thành công!", "result": {...} }`  
 **Errors**: `500` Apartment không tồn tại | `400` Hóa đơn tháng năm này đã tồn tại
 
-### ✏️ PUT /utilities_invoice/{id} — Cập Nhật Hóa Đơn
+### ✏️ PUT /utilities-invoice/{id} — Cập Nhật Hóa Đơn
 
 ```json
 { "totalElectricUsed": 280, "status": 1 }
@@ -581,7 +716,16 @@
 | `/visitors/{id}` | PUT | Cập nhật thông tin khách |
 | `/visitors/{id}` | DELETE | Xóa thông tin khách |
 
-### ➕ POST /visitors — Tạo Thông Tin Khách Tham quan
+### 📄 GET /visitors — Danh Sách Tất Cả Khách Tham Quan
+
+**Response**: `{ "code": 200, "result": [...] }`
+
+### 📄 GET /visitors/{id} — Chi Tiết Khách Tham Quan
+
+**Response**: `{ "code": 200, "result": { "id": 1, "visitorName": "Đinh Văn C", "phoneNumber": "0901234567", "apartmentId": 101, "staffId": 1, "note": "Khách tham quan căn hộ mẫu", ... } }`  
+**Errors**: `404` Khách tham quan không tồn tại
+
+### ➕ POST /visitors — Tạo Thông Tin Khách Tham Quan
 
 ```json
 {
@@ -609,7 +753,7 @@
 ```json
 { "note": "Khách có hứng thú mua căn hộ" }
 ```
-*Tất cả trường optional (trừ visitorName, phoneNumber)*
+*Tất cả trường optional*
 
 ---
 
@@ -699,4 +843,3 @@
   - 404 = Not Found
   - 500 = Internal Server Error
 
- 
