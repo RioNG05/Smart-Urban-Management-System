@@ -19,7 +19,11 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 @Configuration
 @EnableWebSecurity
+<<<<<<< HEAD
+@EnableMethodSecurity
+=======
 @EnableMethodSecurity(prePostEnabled = false)
+>>>>>>> dev
 public class SecurityConfig {
 
     private final OAuth2SuccessHandler oAuth2SuccessHandler;

@@ -1,4 +1,4 @@
-const DEFAULT_LOCATION = "Vinhomes Ocean Park, Gia Lam, Ha Noi";
+const DEFAULT_MAP_LOCATION = "Vinhomes Ocean Park, Gia Lam, Ha Noi";
 
 export const formatPrice = (value) => {
   const numericValue = Number(value);
@@ -52,6 +52,34 @@ const normalizeStatus = (status) => {
   return "Dang cap nhat";
 };
 
+const formatPostedDate = (createdAt) => {
+  if (!createdAt) {
+    return "Dang cap nhat";
+  }
+
+  const parsedDate = new Date(createdAt);
+
+  if (Number.isNaN(parsedDate.getTime())) {
+    return "Dang cap nhat";
+  }
+
+  return new Intl.DateTimeFormat("vi-VN").format(parsedDate);
+};
+
+const buildLocationLabel = (roomNumber, floorNumber) => {
+  const parts = [];
+
+  if (roomNumber !== undefined && roomNumber !== null) {
+    parts.push(`Phong ${roomNumber}`);
+  }
+
+  if (floorNumber !== undefined && floorNumber !== null) {
+    parts.push(`Tang ${floorNumber}`);
+  }
+
+  return parts.length ? parts.join(", ") : "Dang cap nhat";
+};
+
 export const mapApartmentToProperty = (apartment = {}, apartmentType = {}) => {
   const buyPrice =
     apartment.specificPriceForBuying ?? apartmentType.commonPriceForBuying;
@@ -63,12 +91,18 @@ export const mapApartmentToProperty = (apartment = {}, apartmentType = {}) => {
     displayPrice && area > 0 ? Math.round(Number(displayPrice) / area) : null;
   const title =
     apartmentType.name || `Can ho ${apartment.roomNumber ?? apartment.id}`;
+  const image = getImageByTypeName(apartmentType.name);
+  const locationLabel = buildLocationLabel(
+    apartment.roomNumber ?? apartment.id,
+    apartment.floorNumber,
+  );
+  const fullLocation = `${locationLabel}, ${DEFAULT_MAP_LOCATION}`;
 
   return {
     id: apartment.id,
     title,
-    location: `Tang ${apartment.floorNumber ?? "?"}, ${DEFAULT_LOCATION}`,
-    fullLocation: DEFAULT_LOCATION,
+    location: locationLabel,
+    fullLocation,
     bedrooms: apartmentType.numberOfBedroom ?? 0,
     bathrooms: apartmentType.numberOfBathroom ?? 0,
     area,
@@ -76,7 +110,8 @@ export const mapApartmentToProperty = (apartment = {}, apartmentType = {}) => {
     rawPrice: Number(displayPrice ?? 0),
     rentPrice: formatPrice(rentPrice),
     buyPrice: formatPrice(buyPrice),
-    image: getImageByTypeName(apartmentType.name),
+    image,
+    images: [image],
     statusLabel: normalizeStatus(apartment.status),
     rawStatus: apartment.status,
     isAvailable: apartment.status === 0,
@@ -85,12 +120,11 @@ export const mapApartmentToProperty = (apartment = {}, apartmentType = {}) => {
     floorNumber: apartment.floorNumber ?? "Dang cap nhat",
     direction: apartment.direction || "Dang cap nhat",
     propertyType: "Apartment",
-    overview:
-      apartmentType.overview ||
-      `Can ho so ${apartment.roomNumber ?? apartment.id} tai ${DEFAULT_LOCATION}.`,
+    overview: apartmentType.overview || "Dang cap nhat",
     furniture: normalizeFurniture(apartmentType.furniture),
-    legalStatus: "So hong/san sang giao dich",
+    legalStatus: "Dang cap nhat",
     pricePerSquareMeter: formatPrice(pricePerSquareMeter),
-    postedDate: new Intl.DateTimeFormat("vi-VN").format(new Date()),
+    postedDate: formatPostedDate(apartmentType.createdAt),
+    hasMapLocation: true,
   };
 };

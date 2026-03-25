@@ -1,21 +1,74 @@
+import { useEffect, useState } from "react";
 import Navbar from "../components/layout/Navbar";
 import Footer from "../components/layout/Footer";
-
 import Hero from "../components/sections/Hero";
 import AboutSection from "../components/sections/AboutSection";
 import ProjectsSection from "../components/sections/ProjectsSection";
 import NewsSection from "../components/sections/NewsSection";
+import ServicesSection from "../components/sections/ServicesSection";
 import ContactSection from "../components/sections/ContactSection";
+import { serviceCatalog } from "../data/serviceCatalog";
+import { getApartmentTypes } from "../services/apartmentService";
+import { getNewsList } from "../services/newsService";
+import { getImageByTypeName } from "../services/propertyMapper";
+
+const sortByNewest = (items = [], dateKey) =>
+  [...items].sort((a, b) => {
+    const aTime = new Date(a?.[dateKey] ?? 0).getTime();
+    const bTime = new Date(b?.[dateKey] ?? 0).getTime();
+
+    if (Number.isNaN(aTime) || Number.isNaN(bTime) || aTime === bTime) {
+      return Number(b?.id ?? 0) - Number(a?.id ?? 0);
+    }
+
+    return bTime - aTime;
+  });
+
+const normalizeApartmentType = (apartmentType = {}) => ({
+  id: apartmentType.id,
+  name: apartmentType.name || "Apartment type",
+  description: apartmentType.overview || "Thong tin dang duoc cap nhat.",
+  image: getImageByTypeName(apartmentType.name),
+  bedrooms: apartmentType.numberOfBedroom ?? 0,
+  bathrooms: apartmentType.numberOfBathroom ?? 0,
+  area: apartmentType.designSqrt ?? null,
+});
 
 export default function Home() {
+  const [featuredTypes, setFeaturedTypes] = useState([]);
+  const [latestNews, setLatestNews] = useState([]);
+
+  useEffect(() => {
+    const fetchHomeData = async () => {
+      try {
+        const [apartmentTypes, newsItems] = await Promise.all([
+          getApartmentTypes(),
+          getNewsList(),
+        ]);
+
+        setFeaturedTypes(
+          sortByNewest(apartmentTypes, "createdAt")
+            .slice(0, 3)
+            .map(normalizeApartmentType),
+        );
+        setLatestNews(sortByNewest(newsItems, "lastUpdateRaw").slice(0, 3));
+      } catch (error) {
+        console.error("Failed to load home page data:", error);
+      }
+    };
+
+    fetchHomeData();
+  }, []);
+
   return (
     <>
       <Navbar />
 
       <Hero />
       <AboutSection />
-      <ProjectsSection />
-      <NewsSection />
+      <ProjectsSection apartmentTypes={featuredTypes} />
+      <NewsSection newsItems={latestNews} />
+      <ServicesSection services={serviceCatalog.slice(0, 5)} />
       <ContactSection />
 
       <Footer />

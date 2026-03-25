@@ -3,18 +3,17 @@ import { useState } from "react";
 const Description = ({ property }) => {
   const [expanded, setExpanded] = useState(false);
 
-  const content = `
-${property.overview}
+  const sections = [
+    property.overview !== "Dang cap nhat" ? property.overview : null,
+    `So phong: ${property.roomNumber}`,
+    `Tang: ${property.floorNumber}`,
+    `Dien tich: ${property.area} m2`,
+    `${property.bedrooms} phong ngu va ${property.bathrooms} phong tam`,
+    `Huong can ho: ${property.direction}`,
+    `Noi that: ${property.furniture}`,
+  ].filter(Boolean);
 
-- So phong: ${property.roomNumber}
-- Tang: ${property.floorNumber}
-- Dien tich: ${property.area} m2
-- ${property.bedrooms} phong ngu va ${property.bathrooms} phong tam
-- Huong can ho: ${property.direction}
-- Noi that: ${property.furniture}
-
-Day la thong tin chi tiet duoc ghep tu san pham rao ban va loai can ho de hien thi day du hon tren trang chi tiet.
-  `;
+  const content = sections.join("\n\n");
 
   const shortText = content.slice(0, 350);
 
