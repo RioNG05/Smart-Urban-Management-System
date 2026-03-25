@@ -1245,7 +1245,7 @@ CREATE TABLE Accounts (
     Email VARCHAR(100) NOT NULL UNIQUE,     -- email 
     Username VARCHAR(50) NOT NULL UNIQUE,   -- username
     Password VARCHAR(255) NOT NULL,         -- password (nên lưu dưới dạng Hash như BCrypt)
-    PhoneNumber VARCHAR(15) NULL,           -- số điện thoại (cho phép null)
+
     RoleId INT NOT NULL,                    -- role id (FK)
     IsActive BIT DEFAULT 1,                 -- Trạng thái tài khoản (1: Hoạt động, 0: Khóa)
 
@@ -1301,6 +1301,7 @@ CREATE TABLE Residents (
     Gender NVARCHAR(10),                  -- gender (Vd: Male, Female, Other)
     DateOfBirth DATE,                     -- dob
     IdentityId VARCHAR(20) NOT NULL,      -- identity_id (Natural Key - Unique)
+	PhoneNumber VARCHAR(15) NULL,           -- số điện thoại (cho phép null)
     AccountId INT NULL,                   -- Account id (FK, để Nullable nếu cư dân chưa lập acc)
 
     -- Đảm bảo không trùng số định danh (CCCD/Passport)
