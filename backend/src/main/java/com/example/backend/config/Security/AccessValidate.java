@@ -2,24 +2,26 @@ package com.example.backend.config.Security;
 
 import com.example.backend.Entity.*;
 import com.example.backend.Repository.*;
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
 import org.jspecify.annotations.NonNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 
 @Component("accessValidate")
+@FieldDefaults(level = AccessLevel.PRIVATE)
+@RequiredArgsConstructor
 public class AccessValidate {
 
-    @Autowired
-    private ContractRepository contractRepository;
-    @Autowired
-    private ResidentRepository residentRepository;
-    @Autowired
-    private BookingServiceRepository bookingServiceRepository;
-    @Autowired
-    private ComplaintRepository complaintRepository;
-    @Autowired
-    private ReplyRepository replyRepository;
+    ContractRepository contractRepository;
+    ResidentRepository residentRepository;
+    BookingServiceRepository bookingServiceRepository;
+    ComplaintRepository complaintRepository;
+    ReplyRepository replyRepository;
+    ServiceInvoiceRepository serviceInvoiceRepository;
+
 
     /**
      * Check xem user có được truy cập vào api của contract không
@@ -142,5 +144,31 @@ public class AccessValidate {
             return false;
         }
         return complaint.getMadeByUser().getId().equals(account.getId());
+    }
+
+    /**
+     * Check xem account co xem duoc service invoice khong
+     * @param serviceInvoiceId service invoice id dang duoc xem
+     * @param auth authentication header
+     * @return true neu co, false neu khong
+     */
+    public boolean canViewServiceInvoice(Integer serviceInvoiceId, Authentication auth){
+        Object principal = auth.getPrincipal();
+        if(!(principal instanceof Account account)){
+            throw new RuntimeException("Invalid principal");
+        }
+
+        ServiceInvoice serviceInvoice = serviceInvoiceRepository.findById(serviceInvoiceId).orElse(null);
+        if(serviceInvoice == null){
+            return false;
+        }
+
+        BookingService bookingService = bookingServiceRepository.findById(serviceInvoice.getBookingService().getId()).orElse(null);
+        if(bookingService == null){
+            return false;
+        }
+
+        return bookingService.getAccount().getId().equals(account.getId());
+
     }
 }
