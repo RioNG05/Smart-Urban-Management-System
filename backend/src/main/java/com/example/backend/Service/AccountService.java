@@ -5,10 +5,7 @@ import com.example.backend.DTO.Request.account.AccountUpdateRequest;
 import com.example.backend.DTO.Response.AccountsResponse;
 import com.example.backend.Entity.Account;
 import com.example.backend.Entity.Role;
-<<<<<<< HEAD
 import com.example.backend.Enum.RoleEnum;
-=======
->>>>>>> c6f5a04 (Sửa hiển thị role trong api)
 import com.example.backend.Repository.AccountRepository;
 import com.example.backend.Repository.RoleRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,15 +20,11 @@ public class AccountService {
     @Autowired
     private AccountRepository repository;
     @Autowired
-<<<<<<< HEAD
     private RoleRepository roleRepository;
     @Autowired
     private RoleService roleService;
 
     private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(10);
-=======
-    private RoleService roleService;
->>>>>>> c6f5a04 (Sửa hiển thị role trong api)
 
     public List<Account> findAll() {
         return repository.findAll();
@@ -50,25 +43,17 @@ public class AccountService {
     public Account create(AccountCreateRequest req) {
         Account account =new Account();
         PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(10);
-<<<<<<< HEAD
         Role role =  roleRepository.findByRoleName(RoleEnum.USER).orElseThrow(() -> new RuntimeException("Không tìm thấy role tên USER"));
-=======
->>>>>>> c6f5a04 (Sửa hiển thị role trong api)
 
         account.setEmail(req.getEmail());
         account.setUsername(req.getUsername());
         account.setPassword(passwordEncoder.encode(req.getPassword()));
-<<<<<<< HEAD
-=======
-        Role role = roleService.findById(req.getRoleId());
->>>>>>> c6f5a04 (Sửa hiển thị role trong api)
         account.setRole(role);
         account.setIsActive(req.getActive());
 
         return repository.save(account);
     }
 
-<<<<<<< HEAD
     public Account update(Integer id, AccountUpdateRequest req) {
         Account account = findById(id);
 
@@ -105,26 +90,4 @@ public class AccountService {
         account.setRole(role);
     }
 
-=======
-    public Account update(java.lang.Integer id, AccountUpdateRequest req) {
-        // Kiểm tra xem record có tồn tại không trước khi update
-        Account account = findById(id);
-
-        account.setEmail(req.getEmail());
-        account.setUsername(req.getUsername());
-        account.setPassword(req.getPassword());
-        Role role = roleService.findById(req.getRoleId());
-        account.setRole(role);
-        account.setIsActive(req.getActive());
-        
-        return repository.save(account);
-    }
-
-    public void delete(java.lang.Integer id) {
-        // Kiểm tra tồn tại trước khi xóa
-        findById(id); 
-        repository.deleteById(id);
-    }
-
->>>>>>> c6f5a04 (Sửa hiển thị role trong api)
 }
