@@ -14,4 +14,6 @@ public class ResidentUpdateRequest {
     String fullName;
     String gender;
     LocalDate dateOfBirth;
+    String phoneNumber;
+    String identityId;
 }

@@ -43,6 +43,7 @@ public class ResidentService {
                 .gender(request.getGender())
                 .dateOfBirth(request.getDateOfBirth())
                 .identityId(request.getIdentityId())
+                .phoneNumber(request.getPhoneNumber())
                 .account(account)
                 .build();
 
@@ -62,6 +63,12 @@ public class ResidentService {
         if(req.getDateOfBirth() != null)
             resident.setDateOfBirth(req.getDateOfBirth());
 
+        if(req.getPhoneNumber() != null)
+            resident.setPhoneNumber(req.getPhoneNumber());
+
+        if(req.getIdentityId() != null){
+            resident.setIdentityId(req.getIdentityId());
+        }
         return residentRepository.save(resident);
     }
 
