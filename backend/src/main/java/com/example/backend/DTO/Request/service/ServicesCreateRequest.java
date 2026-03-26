@@ -1,6 +1,8 @@
 package com.example.backend.DTO.Request.service;
 
+import jakarta.persistence.Column;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -20,4 +22,10 @@ public class ServicesCreateRequest {
     BigDecimal feePerUnit;
     @NotBlank(message = "Không được để trống đơn vị")
     String unitType;
+    @NotBlank(message = "Không được để trống miêu tả")
+    String description;
+    @NotBlank(message = "Không được để trống url ảnh")
+    String imageUrl;
+    @NotNull(message = "Không được để trống trạng thái")
+    boolean isBookable;
 }
