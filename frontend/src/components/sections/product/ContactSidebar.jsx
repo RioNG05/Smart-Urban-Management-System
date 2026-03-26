@@ -1,17 +1,10 @@
 const ContactSidebar = ({ property }) => {
   return (
     <div className="contact-sidebar">
-      <div className="agent-info">
-        <img
-          src="https://i.pravatar.cc/100"
-          alt="agent"
-          className="agent-avatar"
-        />
-
-        <div className="agent-details">
-          <div className="agent-name">Sales Office</div>
-          <div className="agent-status">Dang hoat dong</div>
-        </div>
+      <div className="agent-details">
+        <div className="agent-name">Product Consultation</div>
+        <div className="agent-status">{property.title}</div>
+        <div className="agent-status">Phong {property.roomNumber}</div>
       </div>
 
       <button className="btn-call">Goi dien</button>

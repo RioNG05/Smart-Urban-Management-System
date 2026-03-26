@@ -26,4 +26,13 @@ public class Services {
 
     @Column(name = "UnitType", length = 50)
     private String unitType;
+
+    @Column(name = "Description", length = Integer.MAX_VALUE)
+    private String description;
+
+    @Column(name = "ImageUrl", length = Integer.MAX_VALUE)
+    private String imageUrl;
+
+    @Column(name = "IsBookable")
+    private boolean isBookable;
 }

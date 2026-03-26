@@ -1,36 +1,17 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom'; // Thêm useNavigate để điều hướng
+import { useNavigate } from 'react-router-dom';
 import {
     FaBars, FaUserCircle, FaUser, FaHistory, FaCalendarCheck,
-    FaMoneyBillWave, FaFileInvoice, FaNewspaper, FaComments,
-    FaBuilding
+    FaComments, FaBuilding
 } from 'react-icons/fa';
 import StaffApartmentMainContent from './StaffApartmentMainContent';
 import '../styles/staff.css';
 
 const StaffApartment = () => {
-    const navigate = useNavigate(); // Hook điều hướng
+    const navigate = useNavigate();
     const [sidebarOpen, setSidebarOpen] = useState(true);
     const [showIdCard, setShowIdCard] = useState(false);
     const [activeTab, setActiveTab] = useState('accounts');
-
-    // [BACKEND_NOTE]: Tạo state để lưu thông tin profile từ API
-    // const [staffProfile, setStaffProfile] = useState({});
-
-    // [BACKEND_NOTE]: Gọi API lấy thông tin profile và danh sách các bảng khi mới vào trang
-    // useEffect(() => {
-    //     const fetchData = async () => {
-    //         // const profileData = await axios.get('/api/staff/profile');
-    //         // setStaffProfile(profileData.data);
-    //
-    //         // const accountsData = await axios.get('/api/staff/accounts');
-    //         // setResidentAccounts(accountsData.data);
-    //
-    //         // const complaintsData = await axios.get('/api/staff/complaints');
-    //         // setComplaints(complaintsData.data);
-    //     };
-    //     fetchData();
-    // }, []);
 
     // --- LOGIC QUẢN LÝ TÀI KHOẢN ---
     const [formData, setFormData] = useState({
@@ -72,24 +53,18 @@ const StaffApartment = () => {
 
     const handleAddAccount = () => {
         if (!formData.username || !formData.owner || !formData.room) {
-            alert("Mày phải nhập ít nhất là Username, Tên chủ hộ và Số phòng!");
+            alert("Please enter at least Username, Owner, and Room number!");
             return;
         }
         if (editIndex !== null) {
-            // [BACKEND_NOTE]: Gọi API (PUT/PATCH) để cập nhật thông tin tài khoản trên Database
-            // await axios.put(`/api/staff/accounts/${formData.id}`, formData);
-
             const updatedList = [...residentAccounts];
             updatedList[editIndex] = formData;
             setResidentAccounts(updatedList);
             setEditIndex(null);
-            alert("Đã cập nhật tài khoản!");
+            alert("Account updated!");
         } else {
-            // [BACKEND_NOTE]: Gọi API (POST) để lưu tài khoản mới xuống Database
-            // await axios.post('/api/staff/accounts', formData);
-
             setResidentAccounts([...residentAccounts, { ...formData, status: 'Active' }]);
-            alert("Đã cấp tài khoản thành công!");
+            alert("Account issued successfully!");
         }
         setFormData({ username: '', gender: '', owner: '', dob: '', idCard: '', room: '' });
     };
@@ -104,100 +79,86 @@ const StaffApartment = () => {
         const account = residentAccounts[index];
         const newStatus = account.status === 'Active' ? 'Blocked' : 'Active';
 
-        // [BACKEND_NOTE]: 
-        // 1. Khi Mở khóa (Unblock), cần đối chiếu với Database để kiểm tra Resident còn Hợp đồng (Contract) hiệu lực không.
-        // 2. Chỉ cho phép Unblock nếu có Hợp đồng Thuê/Mua bán hợp lệ.
-        if (window.confirm(`Mày có chắc muốn ${newStatus === 'Blocked' ? 'Khóa' : 'Mở khóa'} tài khoản này không?`)) {
-            // [BACKEND_NOTE]: Gọi API (PATCH/PUT) để cập nhật status tài khoản trong Database
-            // const accountId = residentAccounts[index].id;
-            // await axios.patch(`/api/staff/accounts/${accountId}/status`, { status: newStatus });
-
+        if (window.confirm(`Are you sure you want to ${newStatus === 'Blocked' ? 'Lock' : 'Unlock'} this account?`)) {
             const updatedList = [...residentAccounts];
             updatedList[index] = { ...account, status: newStatus };
             setResidentAccounts(updatedList);
-            alert(`Đã ${newStatus === 'Blocked' ? 'Khóa' : 'Mở khóa'} tài khoản thành công!`);
+            alert(`Account ${newStatus === 'Blocked' ? 'Locked' : 'Unlocked'} successfully!`);
         }
     };
 
-    // --- LOGIC KHIẾU NẠI ---
+    // --- LOGIC COMPLAINTS ---
     const [selectedComplaint, setSelectedComplaint] = useState(null);
     const [replyNote, setReplyNote] = useState("");
     const [complaints, setComplaints] = useState([
-        { id: 1, name: "Tran Phu Thanh Hung", room: "A-505", note: "Điều hòa kêu to quá không ngủ được!", time: "15:30 - 12/03/2026", status: "Pending" },
-        { id: 2, name: "Minh Son Thanh", room: "B-101", note: "Cửa thoát hiểm bị kẹt, staff xem lại", time: "09:15 - 13/03/2026", status: "Pending" },
-        { id: 3, name: "Nguyen Thi Lan", room: "C-202", note: "Bể bơi tầng 5 nước có vẻ hơi đục", time: "10:00 - 14/03/2026", status: "Approved" },
-        { id: 4, name: "Vu Hoang Cuong", room: "D-808", note: "Hệ thống đèn hành lang bị hỏng", time: "20:00 - 15/03/2026", status: "Rejected" },
-        { id: 5, name: "Le Thi Mai", room: "A-102", note: "Hàng xóm làm ồn lúc nửa đêm", time: "23:45 - 15/03/2026", status: "Pending" },
-        { id: 6, name: "Nguyen Van Dung", room: "B-304", note: "Vòi nước bồn rửa bát bị rò rỉ", time: "08:30 - 16/03/2026", status: "Approved" },
-        { id: 7, name: "Trinh Thi Hoa", room: "C-1102", note: "Thang máy số 3 di chuyển rất chậm", time: "14:20 - 16/03/2026", status: "Pending" },
-        { id: 8, name: "An Ngoc Tuan", room: "D-1506", note: "Có mùi lạ ở khu vực đổ rác", time: "17:10 - 16/03/2026", status: "Approved" },
-        { id: 9, name: "Phan Hoang Linh", room: "A-703", note: "Wifi khu vực sảnh yếu quá", time: "11:55 - 17/03/2026", status: "Pending" },
-        { id: 10, name: "Bui Quoc Thanh", room: "B-910", note: "Cần kiểm tra lại hóa đơn nước tháng này", time: "16:40 - 17/03/2026", status: "Pending" },
-        { id: 11, name: "Ngo Thu Quynh", room: "C-405", note: "Khu vui chơi trẻ em có thiết bị hỏng", time: "09:30 - 18/03/2026", status: "Approved" },
-        { id: 12, name: "Do Van Dat", room: "D-1201", note: "Bảo vệ ca đêm ngủ gật", time: "02:15 - 18/03/2026", status: "Rejected" },
-        { id: 13, name: "Hoang Thi Yen", room: "A-312", note: "Cửa sổ bị thấm nước khi trời mưa", time: "13:00 - 18/03/2026", status: "Pending" },
-        { id: 14, name: "Pham Quoc Khanh", room: "B-508", note: "Máy tập gym hỏng dây cáp", time: "18:25 - 18/03/2026", status: "Approved" },
-        { id: 15, name: "Phan Thu Ngoc", room: "C-801", note: "Có côn trùng trong hầm gửi xe", time: "21:50 - 18/03/2026", status: "Pending" },
-        { id: 16, name: "Hoang Van Long", room: "D-203", note: "Đèn cảm biến cầu thang không sáng", time: "20:30 - 19/03/2026", status: "Approved" },
-        { id: 17, name: "Nguyen Thu Trang", room: "A-1405", note: "Yêu cầu phun thuốc muỗi định kỳ", time: "10:15 - 19/03/2026", status: "Pending" },
-        { id: 18, name: "Nguyen Huu Thang", room: "B-702", note: "Hệ thống báo cháy kêu nhầm", time: "15:45 - 19/03/2026", status: "Rejected" },
-        { id: 19, name: "Tran Thi Diem", room: "C-1204", note: "Ống thoát nước ban công bị tắc", time: "07:20 - 20/03/2026", status: "Pending" },
-        { id: 20, name: "Vu Quoc Binh", room: "D-510", note: "Nhân viên vệ sinh dọn dẹp chưa sạch", time: "16:30 - 20/03/2026", status: "Approved" },
-        { id: 21, name: "Ha Thi Thu", room: "A-908", note: "Cần hỗ trợ chuyển đồ cồng kềnh", time: "09:00 - 21/03/2026", status: "Pending" },
-        { id: 22, name: "Nguyen Minh Quan", room: "B-1005", note: "Thẻ từ thang máy không nhận", time: "11:10 - 21/03/2026", status: "Approved" },
-        { id: 23, name: "Truong Thi Vy", room: "C-306", note: "Bình nóng lạnh có vấn đề", time: "22:00 - 21/03/2026", status: "Pending" },
-        { id: 24, name: "Dang Hoang Phuc", room: "D-111", note: "Gạch lát sảnh bị bong tróc", time: "08:45 - 22/03/2026", status: "Pending" },
-        { id: 25, name: "Bui Thi An", room: "A-607", note: "Chuông cửa không hoạt động", time: "14:15 - 22/03/2026", status: "Approved" },
-        { id: 26, name: "Tran Van Minh", room: "B-212", note: "Có xe đậu sai vị trí thường xuyên", time: "19:30 - 22/03/2026", status: "Pending" },
-        { id: 27, name: "Do Kim Huong", room: "C-1502", note: "Wifi công cộng quá chậm", time: "10:00 - 23/03/2026", status: "Approved" },
-        { id: 28, name: "Pham Van Thinh", room: "D-404", note: "Yêu cầu thay pin khóa cửa điện tử", time: "13:40 - 23/03/2026", status: "Pending" },
-        { id: 29, name: "Trinh Thu Giang", room: "A-1210", note: "Máy lọc nước khu vực chung hết hạn thay lõi", time: "15:10 - 23/03/2026", status: "Approved" },
-        { id: 30, name: "Nguyen Minh Hieu", room: "B-808", note: "Có người hút thuốc trong thang máy", time: "17:55 - 23/03/2026", status: "Pending" }
-
+        { id: 1, name: "Tran Phu Thanh Hung", room: "A-505", note: "AC is too loud, can't sleep!", time: "15:30 - 12/03/2026", status: "Pending" },
+        { id: 2, name: "Minh Son Thanh", room: "B-101", note: "Emergency exit stuck, please check", time: "09:15 - 13/03/2026", status: "Pending" },
+        { id: 3, name: "Nguyen Thi Lan", room: "C-202", note: "Pool on 5th floor water seems cloudy", time: "10:00 - 14/03/2026", status: "Approved" },
+        { id: 4, name: "Vu Hoang Cuong", room: "D-808", note: "Hallway lighting system broken", time: "20:00 - 15/03/2026", status: "Rejected" },
+        { id: 5, name: "Le Thi Mai", room: "A-102", note: "Neighbors making noise at midnight", time: "23:45 - 15/03/2026", status: "Pending" },
+        { id: 6, name: "Nguyen Van Dung", room: "B-304", note: "Kitchen sink faucet leaking", time: "08:30 - 16/03/2026", status: "Approved" },
+        { id: 7, name: "Trinh Thi Hoa", room: "C-1102", note: "Elevator #3 is very slow", time: "14:20 - 16/03/2026", status: "Pending" },
+        { id: 8, name: "An Ngoc Tuan", room: "D-1506", note: "Strange smell in trash area", time: "17:10 - 16/03/2026", status: "Approved" },
+        { id: 9, name: "Phan Hoang Linh", room: "A-703", note: "Lobby Wifi is too weak", time: "11:55 - 17/03/2026", status: "Pending" },
+        { id: 10, name: "Bui Quoc Thanh", room: "B-910", note: "Need to re-check this month water bill", time: "16:40 - 17/03/2026", status: "Pending" },
+        { id: 11, name: "Ngo Thu Quynh", room: "C-405", note: "Broken equipment in playground", time: "09:30 - 18/03/2026", status: "Approved" },
+        { id: 12, name: "Do Van Dat", room: "D-1201", note: "Night guard fell asleep on duty", time: "02:15 - 18/03/2026", status: "Rejected" },
+        { id: 13, name: "Hoang Thi Yen", room: "A-312", note: "Window leaking when it rains", time: "13:00 - 18/03/2026", status: "Pending" },
+        { id: 14, name: "Pham Quoc Khanh", room: "B-508", note: "Gym machine cable is broken", time: "18:25 - 18/03/2026", status: "Approved" },
+        { id: 15, name: "Phan Thu Ngoc", room: "C-801", note: "Insects found in parking basement", time: "21:50 - 18/03/2026", status: "Pending" },
+        { id: 16, name: "Hoang Van Long", room: "D-203", note: "Stair sensor light not working", time: "20:30 - 19/03/2026", status: "Approved" },
+        { id: 17, name: "Nguyen Thu Trang", room: "A-1405", note: "Request regular mosquito spraying", time: "10:15 - 19/03/2026", status: "Pending" },
+        { id: 18, name: "Nguyen Huu Thang", room: "B-702", note: "Fire alarm triggered falsely", time: "15:45 - 19/03/2026", status: "Rejected" },
+        { id: 19, name: "Tran Thi Diem", room: "C-1204", note: "Balcony drain is clogged", time: "07:20 - 20/03/2026", status: "Pending" },
+        { id: 20, name: "Vu Quoc Binh", room: "D-510", note: "Cleaning staff did not clean well", time: "16:30 - 20/03/2026", status: "Approved" },
+        { id: 21, name: "Ha Thi Thu", room: "A-908", note: "Need help moving bulky items", time: "09:00 - 21/03/2026", status: "Pending" },
+        { id: 22, name: "Nguyen Minh Quan", room: "B-1005", note: "Elevator card not recognized", time: "11:10 - 21/03/2026", status: "Approved" },
+        { id: 23, name: "Truong Thi Vy", room: "C-306", note: "Water heater problem", time: "22:00 - 21/03/2026", status: "Pending" },
+        { id: 24, name: "Dang Hoang Phuc", room: "D-111", note: "Lobby floor tiles are peeling", time: "08:45 - 22/03/2026", status: "Pending" },
+        { id: 25, name: "Bui Thi An", room: "A-607", note: "Doorbell not working", time: "14:15 - 22/03/2026", status: "Approved" },
+        { id: 26, name: "Tran Van Minh", room: "B-212", note: "Cars frequently parked wrongly", time: "19:30 - 22/03/2026", status: "Pending" },
+        { id: 27, name: "Do Kim Huong", room: "C-1502", note: "Public Wifi is too slow", time: "10:00 - 23/03/2026", status: "Approved" },
+        { id: 28, name: "Pham Van Thinh", room: "D-404", note: "Request battery change for e-lock", time: "13:40 - 23/03/2026", status: "Pending" },
+        { id: 29, name: "Trinh Thu Giang", room: "A-1210", note: "Common area water filter expired", time: "15:10 - 23/03/2026", status: "Approved" },
+        { id: 30, name: "Nguyen Minh Hieu", room: "B-808", note: "Person smoking in elevator", time: "17:55 - 23/03/2026", status: "Pending" }
     ]);
 
     const handleAction = (id, type) => {
-        // [BACKEND_NOTE]: Gọi API (PUT/PATCH) để cập nhật trạng thái khiếu nại (Approved/Rejected) trên Database
-        // await axios.patch(`/api/staff/complaints/${id}/status`, { status: type });
-
         setComplaints(complaints.map(c => c.id === id ? { ...c, status: type } : c));
-        alert(`Đã ${type === 'Approved' ? 'Phê duyệt' : 'Từ chối'} phản ánh!`);
+        alert(`Complaint ${type === 'Approved' ? 'Approved' : 'Rejected'}!`);
     };
 
     return (
         <div className="staff-wrapper">
-            {/* SIDEBAR */}
             <aside className={`staff-sidebar ${sidebarOpen ? '' : 'closed'}`}>
-                <div style={{ padding: '25px', display: 'flex', alignItems: 'center' }}>
-                    <FaBars onClick={() => setSidebarOpen(!sidebarOpen)} style={{ cursor: 'pointer' }} />
+                <div style={{ padding: '25px', display: 'flex', alignItems: 'center', justifyContent: sidebarOpen ? 'flex-start' : 'center' }}>
+                    <FaBars onClick={() => setSidebarOpen(!sidebarOpen)} style={{ cursor: 'pointer', fontSize: '1.2rem' }} />
                     {sidebarOpen && <span style={{ marginLeft: '15px', fontWeight: '800' }}>APARTMENT HUB</span>}
                 </div>
 
                 <nav className="staff-sidebar-nav">
-                    <div className={`staff-nav-item ${activeTab === 'accounts' ? 'active' : ''}`} onClick={() => { setActiveTab('accounts'); setSelectedComplaint(null) }}>
-                        <FaUserCircle /> {sidebarOpen && "Resident Accounts"}
+                    <div className={`staff-nav-item ${activeTab === 'accounts' ? 'active' : ''}`} onClick={() => { setActiveTab('accounts'); setSelectedComplaint(null) }} style={{ justifyContent: sidebarOpen ? 'flex-start' : 'center', padding: sidebarOpen ? '12px 15px' : '15px 0' }}>
+                        <FaUserCircle style={{ marginRight: sidebarOpen ? '15px' : '0' }} /> {sidebarOpen && "Resident Account"}
                     </div>
-                    <div className={`staff-nav-item ${activeTab === 'complaints' ? 'active' : ''}`} onClick={() => setActiveTab('complaints')}>
-                        <FaComments /> {sidebarOpen && "Complaints & Replies"}
+                    <div className={`staff-nav-item ${activeTab === 'complaints' ? 'active' : ''}`} onClick={() => setActiveTab('complaints')} style={{ justifyContent: sidebarOpen ? 'flex-start' : 'center', padding: sidebarOpen ? '12px 15px' : '15px 0' }}>
+                        <FaComments style={{ marginRight: sidebarOpen ? '15px' : '0' }} /> {sidebarOpen && "Complaint & Reply"}
                     </div>
-                    <div className={`staff-nav-item ${activeTab === 'apartment_management' ? 'active' : ''}`} onClick={() => { setActiveTab('apartment_management'); setSelectedComplaint(null) }}>
-                        <FaBuilding /> {sidebarOpen && "Apartment Management"}
+                    <div className={`staff-nav-item ${activeTab === 'apartment_management' ? 'active' : ''}`} onClick={() => { setActiveTab('apartment_management'); setSelectedComplaint(null) }} style={{ justifyContent: sidebarOpen ? 'flex-start' : 'center', padding: sidebarOpen ? '12px 15px' : '15px 0' }}>
+                        <FaBuilding style={{ marginRight: sidebarOpen ? '15px' : '0' }} /> {sidebarOpen && "Management"}
                     </div>
-                    <div className={`staff-nav-item ${activeTab === 'history' ? 'active' : ''}`} onClick={() => setActiveTab('history')}>
-                        <FaHistory /> {sidebarOpen && "Stay At History"}
+                    <div className={`staff-nav-item ${activeTab === 'history' ? 'active' : ''}`} onClick={() => setActiveTab('history')} style={{ justifyContent: sidebarOpen ? 'flex-start' : 'center', padding: sidebarOpen ? '12px 15px' : '15px 0' }}>
+                        <FaHistory style={{ marginRight: sidebarOpen ? '15px' : '0' }} /> {sidebarOpen && "Stay At History"}
                     </div>
-                    <div className={`staff-nav-item ${activeTab === 'appointments' ? 'active' : ''}`} onClick={() => setActiveTab('appointments')}>
-                        <FaCalendarCheck /> {sidebarOpen && "Appointments"}
-                    </div>
-                    <div className="staff-nav-item" onClick={() => navigate('/news')}>
-                        <FaNewspaper /> {sidebarOpen && "News Manager"}
+                    <div className={`staff-nav-item ${activeTab === 'appointments' ? 'active' : ''}`} onClick={() => setActiveTab('appointments')} style={{ justifyContent: sidebarOpen ? 'flex-start' : 'center', padding: sidebarOpen ? '12px 15px' : '15px 0' }}>
+                        <FaCalendarCheck style={{ marginRight: sidebarOpen ? '15px' : '0' }} /> {sidebarOpen && "Appointments"}
                     </div>
                 </nav>
             </aside>
 
             <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
                 <header className="staff-topbar" style={{ justifyContent: 'space-between' }}>
-                    <nav className="staff-main-nav" style={{ marginRight: 0 }}>
+                    <nav className="staff-main-nav" style={{ marginRight: 0, alignItems: 'center' }}>
+                        <a href="/admin">Admin</a>
                         <a href="/staff/apartment" className="active">Staff Apartment</a>
                         <a href="/staff/service">Staff Service</a>
                         <a href="/staff/security">Staff Security</a>
@@ -215,14 +176,6 @@ const StaffApartment = () => {
                             </div>
                             {showIdCard && (
                                 <div className="staff-id-card">
-                                    {/* [BACKEND_NOTE]: Lấy dữ liệu từ Backend, thay thế các giá trị cứng bên dưới bằng các biến State. Ví dụ:
-                                    - <div className="staff-avatar-circle">{staffProfile.shortName}</div>
-                                    - <h3>{staffProfile.fullName}</h3>
-                                    - <p>{staffProfile.role} | ID: {staffProfile.id}</p>
-                                    - <p><strong>Department:</strong> {staffProfile.department}</p>
-                                    - <p><strong>Join Date:</strong> {staffProfile.joinDate}</p>
-                                    - <p><strong>Shift:</strong> {staffProfile.shift}</p>
-                                */}
                                     <div className="id-card-header">
                                         <div className="staff-avatar-circle">SA</div>
                                         <h3 style={{ margin: 0 }}>Staff Apartment</h3>

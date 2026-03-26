@@ -14,6 +14,7 @@ import ServicePage from "../pages/ServicePage";
 import ContactPage from "../pages/ContactPage";
 import PrivateRoute from "./PrivateRoute";
 import BillingPage from "../pages/BillingPage";
+import BookingPage from "../pages/BookingPage";
 
 // --- ADMIN SYSTEM ---
 import { AdminLayout, AdminDashboard } from "../admin/AdminCore";
@@ -22,14 +23,12 @@ import {
   AdminLockResident,
   AdminCreateContract,
   AdminPropertyManager,
-  AdminPaymentManager,
   AdminApartmentLayout,
-  AdminRepairManager,
-  AdminMaintenanceManager,
-  AdminEvaluateManager, // THÊM MỚI Ở ĐÂY ĐỂ ĐỒNG BỘ MỤC EVALUATE
+  AdminBookingManager,
+  AdminServiceFeeStats,
+  AdminVisitorManager
 } from "../admin/AdminManagement";
-import AdminReports from "../admin/AdminReports";
-import AdminAccountLock from "../admin/AdminAccountLock";
+
 
 import StaffApartment from "../staff/StaffApartment";
 import StaffSecurity from "../staff/StaffSecurity";
@@ -45,9 +44,19 @@ function AppRoutes() {
         <Route path="/auth" element={<AuthPage />} />
         <Route path="/news" element={<NewsPage />} />
         <Route path="/news/:id" element={<NewsDetailPage />} />
-        <Route path="/billing" element={<BillingPage />} />
+        <Route
+          path="/billing"
+          element={
+            <PrivateRoute roles={["resident"]}>
+              <BillingPage />
+            </PrivateRoute>
+          }
+        />
+        <Route path="/service" element={<ServicePage />} />
         <Route path="/services" element={<ServicePage />} />
+        <Route path="/booking" element={<BookingPage />} />
         <Route path="/market" element={<MarketPage />} />
+        <Route path="/contact" element={<ContactPage />} />
         <Route path="/product/:id" element={<Product />} />
 
         {/* SECURE PAGES */}
@@ -89,24 +98,17 @@ function AppRoutes() {
         <Route path="/admin" element={<AdminLayout />}>
           <Route index element={<AdminDashboard />} />
           <Route path="roles" element={<AdminRoleManager />} />
-          <Route path="lock-resident" element={<AdminLockResident />} />
+          <Route path="resident-account" element={<AdminLockResident />} />
           <Route path="contracts/create" element={<AdminCreateContract />} />
           <Route path="contracts/view" element={<AdminPropertyManager />} />
-          <Route path="pay" element={<AdminPaymentManager />} />
           <Route path="apartment-layout" element={<AdminApartmentLayout />} />
-          <Route path="repair" element={<AdminRepairManager />} />
-          <Route path="maintenance" element={<AdminMaintenanceManager />} />
-          
-          {/* THÊM ROUTE CHO EVALUATE Ở ĐÂY ĐỂ HẾT LỖI TRẮNG TRANG */}
-          <Route path="evaluate" element={<AdminEvaluateManager />} />
 
-          <Route path="reports/revenue" element={<AdminReports />} />
-          <Route path="reports/residents" element={<AdminReports />} />
-          <Route path="reports/payments" element={<AdminReports />} />
-          <Route
-            path="account-lock"
-            element={<AdminAccountLock title="General Accounts" />}
-          />
+          {/* Service & Security routes */}
+          <Route path="bookings" element={<AdminBookingManager />} />
+          <Route path="service-fees" element={<AdminServiceFeeStats />} />
+          <Route path="visitors" element={<AdminVisitorManager />} />
+
+
         </Route>
 
         {/* --- STAFF SYSTEM --- */}

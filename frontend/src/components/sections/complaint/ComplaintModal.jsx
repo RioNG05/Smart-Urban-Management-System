@@ -1,26 +1,39 @@
 import { useState } from "react";
 import axios from "axios";
+import { toast } from "react-toastify";
+import { useAuth } from "../auth/AuthContext";
 
 export default function ComplaintModal({ open, setOpen }) {
   const [content, setContent] = useState("");
-
-  const userId = 7; // sau này lấy từ auth context
+  const { user } = useAuth();
+  const userId = user?.id;
 
   const submitComplaint = async () => {
+    const trimmedContent = content.trim();
+
+    if (!trimmedContent) {
+      toast.warning("Vui long nhap noi dung complaint");
+      return;
+    }
+
+    if (!userId) {
+      toast.error("Khong tim thay thong tin nguoi dung");
+      return;
+    }
+
     try {
       await axios.post("http://localhost:8080/api/complaints", {
-        content,
+        content: trimmedContent,
         userId,
       });
 
-      alert("Complaint sent");
-
       setContent("");
       setOpen(false);
+      sessionStorage.setItem("billingComplaintToast", "success");
+      window.location.reload();
     } catch (err) {
       console.error(err);
-
-      alert("Failed to send complaint");
+      toast.error("Gui complaint that bai");
     }
   };
 

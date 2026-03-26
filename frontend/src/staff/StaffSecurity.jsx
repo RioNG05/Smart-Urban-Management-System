@@ -18,33 +18,31 @@ const StaffSecurity = () => {
         <div className="staff-wrapper">
             {/* SIDEBAR */}
             <aside className={`staff-sidebar ${sidebarOpen ? '' : 'closed'}`}>
-                <div style={{ padding: '25px', display: 'flex', alignItems: 'center' }}>
-                    <FaBars onClick={() => setSidebarOpen(!sidebarOpen)} style={{ cursor: 'pointer' }} />
+                <div style={{ padding: '25px', display: 'flex', alignItems: 'center', justifyContent: sidebarOpen ? 'flex-start' : 'center' }}>
+                    <FaBars onClick={() => setSidebarOpen(!sidebarOpen)} style={{ cursor: 'pointer', fontSize: '1.2rem' }} />
                     {sidebarOpen && <span style={{ marginLeft: '15px', fontWeight: '800' }}>SECURITY HUB</span>}
                 </div>
 
                 <nav className="staff-sidebar-nav">
-                    <div className={`staff-nav-item ${activeTab === 'visitors' ? 'active' : ''}`} onClick={() => setActiveTab('visitors')}>
-                        <FaUserCircle /> {sidebarOpen && "Visitor Management"}
+                    <div className={`staff-nav-item ${activeTab === 'visitors' ? 'active' : ''}`} onClick={() => setActiveTab('visitors')} style={{ justifyContent: sidebarOpen ? 'flex-start' : 'center', padding: sidebarOpen ? '12px 15px' : '15px 0' }}>
+                        <FaUserCircle style={{ marginRight: sidebarOpen ? '15px' : '0' }}/> {sidebarOpen && "Visitor Management"}
                     </div>
-                    <div className={`staff-nav-item ${activeTab === 'emergency' ? 'active' : ''}`} onClick={() => setActiveTab('emergency')}>
-                        <FaPhoneAlt /> {sidebarOpen && "Emergency & Alerts"}
+                    <div className={`staff-nav-item ${activeTab === 'emergency' ? 'active' : ''}`} onClick={() => setActiveTab('emergency')} style={{ justifyContent: sidebarOpen ? 'flex-start' : 'center', padding: sidebarOpen ? '12px 15px' : '15px 0' }}>
+                        <FaPhoneAlt style={{ marginRight: sidebarOpen ? '15px' : '0' }}/> {sidebarOpen && "Emergency & Alerts"}
                     </div>
-                    <div className={`staff-nav-item ${activeTab === 'incidents' ? 'active' : ''}`} onClick={() => setActiveTab('incidents')}>
-                        <FaExclamationTriangle /> {sidebarOpen && "Incident Reports"}
+                    <div className={`staff-nav-item ${activeTab === 'incidents' ? 'active' : ''}`} onClick={() => setActiveTab('incidents')} style={{ justifyContent: sidebarOpen ? 'flex-start' : 'center', padding: sidebarOpen ? '12px 15px' : '15px 0' }}>
+                        <FaExclamationTriangle style={{ marginRight: sidebarOpen ? '15px' : '0' }}/> {sidebarOpen && "Incident Reports"}
                     </div>
-                    <div className={`staff-nav-item ${activeTab === 'patrols' ? 'active' : ''}`} onClick={() => setActiveTab('patrols')}>
-                        <FaWalking /> {sidebarOpen && "Patrol Schedule"}
-                    </div>
-                    <div className="staff-nav-item" onClick={() => navigate('/news')}>
-                        <FaNewspaper /> {sidebarOpen && "News Manager"}
+                    <div className={`staff-nav-item ${activeTab === 'patrols' ? 'active' : ''}`} onClick={() => setActiveTab('patrols')} style={{ justifyContent: sidebarOpen ? 'flex-start' : 'center', padding: sidebarOpen ? '12px 15px' : '15px 0' }}>
+                        <FaWalking style={{ marginRight: sidebarOpen ? '15px' : '0' }}/> {sidebarOpen && "Patrol Schedule"}
                     </div>
                 </nav>
             </aside>
 
             <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
                 <header className="staff-topbar" style={{ justifyContent: 'space-between' }}>
-                    <nav className="staff-main-nav" style={{ marginRight: 0 }}>
+                    <nav className="staff-main-nav" style={{ marginRight: 0, alignItems: 'center' }}>
+                        <a href="/admin">Admin</a>
                         <a href="/staff/apartment">Staff Apartment</a>
                         <a href="/staff/service">Staff Service</a>
                         <a href="/staff/security" className="active">Staff Security</a>

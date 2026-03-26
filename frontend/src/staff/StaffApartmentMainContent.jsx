@@ -106,8 +106,8 @@ const StaffApartmentMainContent = ({
     // Logic test: Chỉ căn hộ số 01 của mỗi tầng là có chủ
     owner: (selectedApartment % 100 === 1) ? `Nguyen Van A` : null,
     residentCount: (selectedApartment % 100 === 1) ? 3 : 0,
-    currentMonthStatus: "Chưa thanh toán",
-    payerName: (selectedApartment % 100 === 1) ? "---" : "---", // Mặc định chưa thanh toán thì chưa có tên người trả
+    currentMonthStatus: "Unpaid",
+    payerName: (selectedApartment % 100 === 1) ? "---" : "---", // Default is unpaid so no payer name yet
     services: [
       { name: "Electricity", unitPrice: 3500, quantity: 150 },
       { name: "Water", unitPrice: 15000, quantity: 10 },
