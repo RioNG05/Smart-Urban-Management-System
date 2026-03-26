@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @FieldDefaults(level = AccessLevel.PRIVATE)
@@ -32,6 +33,9 @@ public class ServicesService {
                 .serviceName(request.getServiceName())
                 .feePerUnit(request.getFeePerUnit())
                 .unitType(request.getUnitType())
+                .description(request.getDescription())
+                .imageUrl(request.getImageUrl())
+                .isBookable(Optional.of(request.isBookable()).orElse(false))
                 .build();
 
         return repository.save(services);
@@ -56,6 +60,15 @@ public class ServicesService {
         if(req.getUnitType() != null) {
             services.setUnitType(req.getUnitType());
         }
+
+        if(req.getImageUrl() != null){
+            services.setImageUrl(req.getImageUrl());
+        }
+
+        if(req.getDescription() != null){
+            services.setDescription(req.getDescription());
+        }
+        services.setBookable(req.getIsBookable());
 
         return repository.save(services);
     }

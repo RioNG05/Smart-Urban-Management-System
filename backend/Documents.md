@@ -19,6 +19,11 @@
 - [L. Stay At History Routes](#l-stay-at-history-routes) — Lịch sử lưu trú
 - [M. Utilities Invoice Routes](#m-utilities-invoice-routes) — Hóa đơn tiện ích
 - [N. Visitor Log Routes](#n-visitor-log-routes) — Nhật ký khách tham quan
+- [O. Booking Service Routes](#o-booking-service-routes) — Đặt dịch vụ
+- [P. Cloudinary Routes](#p-cloudinary-routes) — Upload ảnh lên Cloudinary
+- [Q. Image Routes](#q-image-routes) — Upload ảnh cho căn hộ và dịch vụ
+- [R. News Routes](#r-news-routes) — Tin tức & Thông báo
+- [S. Service Invoice Routes](#s-service-invoice-routes) — Hóa đơn dịch vụ
 
 ---
 
@@ -757,6 +762,255 @@
 
 ---
 
+## O. Booking Service Routes
+
+| Endpoint | Method | Mô Tả |
+|----------|--------|-------|
+| `/bookings` | GET | Lấy tất cả đặt dịch vụ |
+| `/bookings/{id}` | GET | Lấy 1 đặt dịch vụ |
+| `/bookings/account/{accountId}` | GET | Lấy đặt dịch vụ của account |
+| `/bookings` | POST | Tạo đặt dịch vụ |
+| `/bookings/{id}` | PUT | Cập nhật đặt dịch vụ |
+| `/bookings/{id}` | DELETE | Xóa đặt dịch vụ |
+
+### 📄 GET /bookings — Danh Sách Tất Cả Đặt Dịch Vụ
+
+**Authorization**: `BookingServices_R_01`  
+**Response**: `{ "result": [ { "id": 1, "resourceId": 5, "accountId": 2, "bookFrom": "2024-01-15T09:00:00", "bookTo": "2024-01-15T12:00:00", "status": 1, "totalAmount": 150000.00, ... } ] }`
+
+### 📄 GET /bookings/{id} — Chi Tiết Đặt Dịch Vụ
+
+**Authorization**: `BookingServices_R_01` hoặc có quyền view booking này  
+**Response**: `{ "result": { "id": 1, "resourceId": 5, "accountId": 2, "bookFrom": "2024-01-15T09:00:00", "bookTo": "2024-01-15T12:00:00", "status": 1, ... } }`  
+**Errors**: `404` Đặt dịch vụ không tồn tại
+
+### 📄 GET /bookings/account/{accountId} — Đặt Dịch Vụ Của Account
+
+**Authorization**: Chỉ account chủ sở hữu hoặc có quyền `BookingServices_R_01`  
+**Response**: `{ "result": [ {...} ] }`  
+**Errors**: `404` Account không tồn tại
+
+### ➕ POST /bookings — Tạo Đặt Dịch Vụ
+
+**Authorization**: `BookingServices_C_01` hoặc là Resident
+
+```json
+{
+  "resourceId": 5,
+  "accountId": 2,
+  "bookFrom": "2024-01-15T09:00:00",
+  "bookTo": "2024-01-15T12:00:00",
+  "status": 1,
+  "totalAmount": 150000.00
+}
+```
+
+| Field | Type | Yêu cầu | Chi tiết |
+|-------|------|--------|---------|
+| resourceId | Integer | ✓ | ID tài nguyên dịch vụ |
+| accountId | Integer | ✓ | ID account đặt |
+| bookFrom | DateTime | ✓ | Thời gian bắt đầu (ISO 8601) |
+| bookTo | DateTime | ✓ | Thời gian kết thúc (ISO 8601) |
+| status | Integer | ✗ | 0=Pending, 1=Confirmed, 2=Cancelled, Default=1 |
+| totalAmount | Decimal | ✗ | Tổng tiền dịch vụ |
+
+**Response**: `{ "result": {...} }`  
+**Errors**: `500` Resource/Account không tồn tại
+
+### ✏️ PUT /bookings/{id} — Cập Nhật Đặt Dịch Vụ
+
+**Authorization**: `BookingServices_U_01` hoặc là chủ sở hữu booking
+
+```json
+{ "bookFrom": "2024-01-15T10:00:00", "bookTo": "2024-01-15T13:00:00", "status": 2 }
+```
+*Tất cả trường optional*
+
+### ❌ DELETE /bookings/{id} — Xóa Đặt Dịch Vụ
+
+**Authorization**: `BookingServices_D_01` hoặc là chủ sở hữu booking
+
+---
+
+## P. Cloudinary Routes
+
+| Endpoint | Method | Mô Tả |
+|----------|--------|-------|
+| `/image/upload` | POST | Upload ảnh lên Cloudinary |
+
+### 📤 POST /image/upload — Upload Ảnh Lên Cloudinary
+
+**Authorization**: Public (không cần token)  
+**Request Params**:
+- `file` (MultipartFile) - Tệp ảnh (ảnh JPG, PNG, GIF)
+- `name` (String) - Tên ảnh trong Cloudinary
+
+**Response**:
+```json
+{
+  "code": 200,
+  "message": "Upload thành công",
+  "result": {
+    "publicId": "smart-urban/apartment_type_001",
+    "url": "https://res.cloudinary.com/...cloudinary-url..."
+  }
+}
+```
+
+**Errors**: 
+- `400` File không hợp lệ hoặc không upload được
+- `500` Lỗi Cloudinary service
+
+---
+
+## Q. Image Routes
+
+| Endpoint | Method | Mô Tả |
+|----------|--------|-------|
+| `/images/apartment-type` | POST | Upload ảnh cho loại căn hộ |
+| `/images/service-resource` | POST | Upload ảnh cho tài nguyên dịch vụ |
+
+### 📤 POST /images/apartment-type — Upload Ảnh Loại Căn Hộ
+
+**Authorization**: Public (không cần token)  
+**Request Params**:
+- `apartmentTypeId` (Integer) - ID loại căn hộ
+- `file` (MultipartFile) - Ảnh loại căn hộ
+
+**Response**: `"https://res.cloudinary.com/...image-url..."`  
+**Errors**: `500` ApartmentType không tồn tại hoặc lỗi upload
+
+### 📤 POST /images/service-resource — Upload Ảnh Tài Nguyên Dịch Vụ
+
+**Authorization**: Public (không cần token)  
+**Request Params**:
+- `serviceResourceId` (Integer) - ID tài nguyên dịch vụ
+- `file` (MultipartFile) - Ảnh tài nguyên
+- `description` (String, optional) - Mô tả ảnh
+
+**Response**: `"https://res.cloudinary.com/...image-url..."`  
+**Errors**: `500` ServiceResource không tồn tại hoặc lỗi upload
+
+---
+
+## R. News Routes
+
+| Endpoint | Method | Mô Tả |
+|----------|--------|-------|
+| `/news` | GET | Lấy tất cả tin tức |
+| `/news/{id}` | GET | Lấy 1 tin tức |
+| `/news` | POST | Tạo tin tức |
+| `/news/{id}` | PUT | Cập nhật tin tức |
+| `/news/{id}` | DELETE | Xóa tin tức |
+
+### 📄 GET /news — Danh Sách Tất Cả Tin Tức
+
+**Authorization**: Public (không cần token)  
+**Response**: `{ "result": [ { "id": 1, "title": "Bảo trì hệ thống nước", "content": "...", "imageUrl": "...", "userId": 3, "createdAt": "2024-01-15", ... } ] }`
+
+### 📄 GET /news/{id} — Chi Tiết Tin Tức
+
+**Authorization**: Public  
+**Response**: `{ "result": { "id": 1, "title": "...", "content": "...", "imageUrl": "...", "userId": 3, ... } }`  
+**Errors**: `404` Tin tức không tồn tại
+
+### ➕ POST /news — Tạo Tin Tức
+
+**Authorization**: `News_C_01`
+
+```json
+{
+  "title": "Bảo trì hệ thống nước",
+  "content": "Định kỳ bảo trì hệ thống nước ngọt vào ngày 20/01/2024",
+  "imageUrl": "https://...",
+  "userId": 3
+}
+```
+
+| Field | Type | Yêu cầu | Chi tiết |
+|-------|------|--------|---------|
+| title | String | ✓ | Tiêu đề tin tức, not blank |
+| content | String | ✓ | Nội dung chi tiết, not blank |
+| imageUrl | String | ✗ | URL ảnh đại diện |
+| userId | Integer | ✓ | ID người đăng tin |
+
+**Response**: `{ "result": {...} }`  
+**Errors**: `500` User không tồn tại
+
+### ✏️ PUT /news/{id} — Cập Nhật Tin Tức
+
+**Authorization**: `News_U_01`
+
+```json
+{ "title": "...", "content": "...", "imageUrl": "..." }
+```
+*Tất cả trường optional*
+
+### ❌ DELETE /news/{id} — Xóa Tin Tức
+
+**Authorization**: `News_D_01`
+
+---
+
+## S. Service Invoice Routes
+
+| Endpoint | Method | Mô Tả |
+|----------|--------|-------|
+| `/service-invoice` | GET | Lấy tất cả hóa đơn dịch vụ |
+| `/service-invoice/{id}` | GET | Lấy 1 hóa đơn dịch vụ |
+| `/service-invoice` | POST | Tạo hóa đơn dịch vụ |
+| `/service-invoice/{id}` | PUT | Cập nhật hóa đơn dịch vụ |
+| `/service-invoice/{id}` | DELETE | Xóa hóa đơn dịch vụ |
+
+### 📄 GET /service-invoice — Danh Sách Tất Cả Hóa Đơn Dịch Vụ
+
+**Authorization**: `ServiceInvoices_R_01`  
+**Response**: `{ "code": 200, "message": "Lấy danh sách hóa đơn dịch vụ thành công", "result": [ { "id": 1, "bookingServiceId": 5, "amount": 150000.00, "status": 0, "paymentDate": "2024-01-20", ... } ] }`
+
+### 📄 GET /service-invoice/{id} — Chi Tiết Hóa Đơn Dịch Vụ
+
+**Authorization**: `ServiceInvoices_R_01` hoặc có quyền view  
+**Response**: `{ "code": 200, "message": "Thông tin hóa đơn dịch vụ id: {id}", "result": { "id": 1, "bookingServiceId": 5, "amount": 150000.00, "status": 0, "paymentDate": "2024-01-20", ... } }`  
+**Errors**: `404` Hóa đơn dịch vụ không tồn tại
+
+### ➕ POST /service-invoice — Tạo Hóa Đơn Dịch Vụ
+
+**Authorization**: `ServiceInvoices_C_01`
+
+```json
+{
+  "bookingServiceId": 5,
+  "amount": 150000.00,
+  "status": 0,
+  "paymentDate": "2024-01-20T10:00:00"
+}
+```
+
+| Field | Type | Yêu cầu | Chi tiết |
+|-------|------|--------|---------|
+| bookingServiceId | Integer | ✓ | ID booking dịch vụ |
+| amount | Decimal | ✓ | Số tiền hóa đơn |
+| status | Integer | ✗ | 0=Pending, 1=Paid, Default=0 |
+| paymentDate | DateTime | ✓ | Ngày thanh toán dự kiến (ISO 8601) |
+
+**Response**: `{ "code": 200, "message": "Tạo hóa đơn dịch vụ thành công!", "result": {...} }`  
+**Errors**: `500` BookingService không tồn tại | `400` Validation failed
+
+### ✏️ PUT /service-invoice/{id} — Cập Nhật Hóa Đơn Dịch Vụ
+
+**Authorization**: `ServiceInvoices_U_01`
+
+```json
+{ "amount": 160000.00, "status": 1, "paymentDate": "2024-01-25T15:00:00" }
+```
+*Tất cả trường optional*
+
+### ❌ DELETE /service-invoice/{id} — Xóa Hóa Đơn Dịch Vụ
+
+**Authorization**: `ServiceInvoices_D_01`
+
+---
+
 ## 📝 Notes
 
 ### Account & Authentication
@@ -827,6 +1081,36 @@
 - **Apartment**: Căn hộ nào được tham quan
 - **Contact**: Tên và số điện thoại khách bắt buộc
 - **Note**: Có thể ghi chú về khách (ý định mua, feedback, etc.)
+
+### Booking Service
+- **Tracking**: Ghi nhận đặt dịch vụ từ cư dân
+- **Resource**: Liên kết đến tài nguyên dịch vụ cụ thể
+- **Time Slot**: bookFrom và bookTo xác định khoảng thời gian booking
+- **Status**: 0=Pending, 1=Confirmed, 2=Cancelled
+- **Amount**: Tổng chi phí dịch vụ được tính khi booking
+- **Access Control**: Cư dân chỉ có thể xem booking của chính mình
+
+### Image Upload (Cloudinary & Local)
+- **Cloudinary**: Upload ảnh lên Cloudinary cloud storage
+- **Cloudinary Response**: Trả về `publicId` (identifier) và `url` (public link)
+- **Apartment Type Image**: Ảnh loại căn hộ để hiển thị cho khách hàng
+- **Service Resource Image**: Ảnh tài nguyên dịch vụ (máy móc, phòng, dụng cụ)
+- **File Support**: JPG, PNG, GIF
+- **No Auth Required**: Endpoints upload ảnh không cần xác thực
+
+### News
+- **Public Access**: Tin tức công khai, ai cũng có thể đọc
+- **Admin Post**: Chỉ admin (News_C_01) mới có thể tạo/sửa/xóa
+- **Media**: Hỗ trợ ảnh đại diện
+- **Timestamps**: Tự động record createdAt, updatedAt
+- **Content**: Tiêu đề và nội dung không được để trống
+
+### Service Invoice
+- **Linked**: Được tạo từ BookingService
+- **Status**: 0=Pending (chưa thanh toán), 1=Paid (đã thanh toán)
+- **Amount**: Số tiền cần thanh toán
+- **PaymentDate**: Dự kiến ngày thanh toán
+- **Tracking**: Theo dõi thanh toán dịch vụ từng booking
 
 ---
 

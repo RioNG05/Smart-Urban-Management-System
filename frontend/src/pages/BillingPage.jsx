@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { toast } from "react-toastify";
 
 import Navbar from "../components/layout/Navbar";
 
@@ -17,6 +18,15 @@ import "../styles/billing.css";
 export default function BillingPage() {
   const [apartment, setApartment] = useState("A101");
   const [month, setMonth] = useState("March");
+
+  useEffect(() => {
+    const complaintToast = sessionStorage.getItem("billingComplaintToast");
+
+    if (complaintToast === "success") {
+      toast.success("Gui complaint thanh cong");
+      sessionStorage.removeItem("billingComplaintToast");
+    }
+  }, []);
 
   return (
     <>

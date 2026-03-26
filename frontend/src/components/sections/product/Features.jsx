@@ -8,8 +8,8 @@ const Features = ({ property }) => {
     { label: "Interior Status", value: property.furniture },
     { label: "Floor", value: `${property.floorNumber}` },
     { label: "Room Number", value: `${property.roomNumber}` },
-    { label: "Legal Status", value: property.legalStatus },
     { label: "Posted Date", value: property.postedDate },
+    { label: "Ownership Status", value: property.statusLabel },
   ];
 
   return (

@@ -9,21 +9,44 @@ import {
     FaStar // Icon cho mục EVALUATE
 } from 'react-icons/fa';
 import { FaFileContract, FaFileUpload, FaImage, FaChevronDown } from 'react-icons/fa';
+import {
+    createAccount,
+    createResident,
+    deleteAccountById,
+    deleteResidentById,
+    getAccounts,
+    getContractsByAccountId,
+    getResidents,
+    updateAccountById,
+    updateResidentById,
+} from "../services/adminResidentService";
+import api from "../services/api";
+import { useAuth } from "../components/sections/auth/AuthContext";
 
 // FIX LỖI IMPORT Ở ĐÂY: XÓA ThrottledContainer ĐI LÀ HẾT TRẮNG TRANG
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
 // --- ADMIN ROLE MANAGER (GIỮ NGUYÊN) ---
 export const AdminRoleManager = () => {
-    const [roles, setRoles] = useState([
-        { id: 1, name: "ADMIN", permissions: ["READ", "CREATE", "UPDATE", "DELETE"], status: "Active" },
-        { id: 2, name: "USER", permissions: ["READ"], status: "Active" },
-        { id: 3, name: "MANAGER", permissions: ["READ", "CREATE", "UPDATE"], status: "Active" }
-    ]);
-    const [newRoleName, setNewRoleName] = useState("");
-    const [selectedPermissions, setSelectedPermissions] = useState([]);
-    const [error, setError] = useState("");
-    const permissionOptions = ["READ", "CREATE", "UPDATE", "DELETE"];
+  const [roles, setRoles] = useState([
+    {
+      id: 1,
+      name: "ADMIN",
+      permissions: ["READ", "CREATE", "UPDATE", "DELETE"],
+      status: "Active",
+    },
+    { id: 2, name: "USER", permissions: ["READ"], status: "Active" },
+    {
+      id: 3,
+      name: "MANAGER",
+      permissions: ["READ", "CREATE", "UPDATE"],
+      status: "Active",
+    },
+  ]);
+  const [newRoleName, setNewRoleName] = useState("");
+  const [selectedPermissions, setSelectedPermissions] = useState([]);
+  const [error, setError] = useState("");
+  const permissionOptions = ["READ", "CREATE", "UPDATE", "DELETE"];
 
     const handleCreateRole = () => {
         const isExist = roles.some(role => role.name.toUpperCase() === newRoleName.toUpperCase());
@@ -103,7 +126,7 @@ export const AdminRoleManager = () => {
 };
 
 // --- ADMIN LOCK RESIDENT (PHIÊN BẢN CẬP NHẬT: THÊM PASSWORD & NGÀY CẤP) ---
-export const AdminLockResident = () => {
+const AdminLockResidentLegacy = () => {
     const [residents, setResidents] = useState([
         { id: 'RES001', name: 'Trần Hùng', dob: '1996-11-19', phone: '0912345678', password: '••••••••', hometown: 'Nam Định', current: 'Vinhomes Ocean Park', apartment: 'VH-101', dateAdded: '2026-03-13' }
     ]);
@@ -127,10 +150,12 @@ export const AdminLockResident = () => {
         setFormData({ id: '', name: '', dob: '', phone: '', password: '', hometown: '', current: '', apartment: '', dateAdded: '' });
     };
 
-    const handleEditClick = (res) => {
-        setFormData(res); setIsEditMode(true); setEditingId(res.id);
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-    };
+  const handleEditClick = (res) => {
+    setFormData(res);
+    setIsEditMode(true);
+    setEditingId(res.id);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
 
     const handleRemove = (id) => {
         if (window.confirm("Bạn có chắc chắn muốn xóa cư dân này?")) {
@@ -209,88 +234,942 @@ export const AdminLockResident = () => {
     );
 };
 
-// --- THAO TÁC 1: TẠO HỢP ĐỒNG (GIỮ NGUYÊN) ---
-export const AdminCreateContract = () => {
-    const [contracts, setContracts] = useState([]);
-    const [formData, setFormData] = useState({ owner: '', date: '', type: '1. Sở hữu - Mua đứt' });
-    const handleAddContract = () => {
-        if (!formData.owner || !formData.date) { alert("Vui lòng nhập đầy đủ thông tin!"); return; }
-        const newContract = { id: `HD-${Date.now().toString().slice(-4)}`, ...formData };
-        setContracts([newContract, ...contracts]);
-        setFormData({ ...formData, owner: '' });
+export const AdminLockResident = () => {
+    const emptyForm = {
+        residentId: null,
+        accountId: null,
+        fullName: "",
+        gender: "",
+        dateOfBirth: "",
+        identityId: "",
+        email: "",
+        username: "",
+        password: "",
+        isActive: true,
     };
+
+    const [residents, setResidents] = useState([]);
+    const [formData, setFormData] = useState(emptyForm);
+    const [isEditMode, setIsEditMode] = useState(false);
+    const [isLoading, setIsLoading] = useState(true);
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [searchTerm, setSearchTerm] = useState("");
+    const [feedback, setFeedback] = useState({ type: "", message: "" });
+
+    const resetForm = () => {
+        setFormData(emptyForm);
+        setIsEditMode(false);
+    };
+
+    const normalizeResidentRecord = (resident, accountMap, contractsMap) => {
+        const accountId = resident?.account?.id ?? resident?.accountId ?? null;
+        const account = accountMap.get(accountId) ?? resident?.account ?? null;
+        const contracts = contractsMap.get(accountId) ?? [];
+
+        return {
+            residentId: resident?.id ?? null,
+            accountId,
+            fullName: resident?.fullName ?? "",
+            gender: resident?.gender ?? "",
+            dateOfBirth: resident?.dateOfBirth ?? "",
+            identityId: resident?.identityId ?? "",
+            email: account?.email ?? "",
+            username: account?.username ?? "",
+            roleName: account?.role?.roleName ?? "RESIDENT",
+            isActive: account?.isActive ?? false,
+            apartments: contracts.map((contract) => ({
+                contractId: contract?.id,
+                roomNumber: contract?.apartment?.roomNumber ?? contract?.apartmentId ?? "N/A",
+                floorNumber: contract?.apartment?.floorNumber ?? null,
+                contractType: contract?.contractType ?? "Unknown",
+                status: contract?.status,
+            })),
+        };
+    };
+
+    const loadResidentData = async () => {
+        setIsLoading(true);
+
+        try {
+            const [residentList, accountList] = await Promise.all([getResidents(), getAccounts()]);
+            const accountMap = new Map(accountList.map((account) => [account.id, account]));
+
+            const contractResponses = await Promise.all(
+                residentList.map(async (resident) => {
+                    const accountId = resident?.account?.id ?? resident?.accountId;
+
+                    if (!accountId) {
+                        return [null, []];
+                    }
+
+                    try {
+                        const contracts = await getContractsByAccountId(accountId);
+                        return [accountId, contracts];
+                    } catch (error) {
+                        return [accountId, []];
+                    }
+                })
+            );
+
+            const contractsMap = new Map(
+                contractResponses.filter(([accountId]) => accountId !== null)
+            );
+
+            setResidents(
+                residentList.map((resident) =>
+                    normalizeResidentRecord(resident, accountMap, contractsMap)
+                )
+            );
+            setFeedback({ type: "", message: "" });
+        } catch (error) {
+            setFeedback({
+                type: "error",
+                message: error?.response?.data?.message || "Khong the tai danh sach resident tu backend.",
+            });
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        loadResidentData();
+    }, []);
+
+    const handleInputChange = (field, value) => {
+        setFormData((prev) => ({ ...prev, [field]: value }));
+    };
+
+    const handleEditClick = (resident) => {
+        setFormData({
+            residentId: resident.residentId,
+            accountId: resident.accountId,
+            fullName: resident.fullName,
+            gender: resident.gender,
+            dateOfBirth: resident.dateOfBirth,
+            identityId: resident.identityId,
+            email: resident.email,
+            username: resident.username,
+            password: "",
+            isActive: resident.isActive,
+        });
+        setIsEditMode(true);
+        setFeedback({ type: "", message: "" });
+        window.scrollTo({ top: 0, behavior: "smooth" });
+    };
+
+    const validateForm = () => {
+        if (!formData.fullName || !formData.dateOfBirth || !formData.identityId || !formData.email || !formData.username) {
+            setFeedback({
+                type: "error",
+                message: "Vui long nhap day du ho ten, ngay sinh, CCCD, email va username.",
+            });
+            return false;
+        }
+
+        if (!isEditMode && !formData.password) {
+            setFeedback({
+                type: "error",
+                message: "Tao moi resident can co password cho account.",
+            });
+            return false;
+        }
+
+        return true;
+    };
+
+    const handleAddOrUpdate = async () => {
+        if (!validateForm()) {
+            return;
+        }
+
+        setIsSubmitting(true);
+        setFeedback({ type: "", message: "" });
+
+        try {
+            if (isEditMode) {
+                const accountPayload = {
+                    email: formData.email,
+                    username: formData.username,
+                    isActive: formData.isActive,
+                };
+
+                if (formData.password) {
+                    accountPayload.password = formData.password;
+                }
+
+                await updateAccountById(formData.accountId, accountPayload);
+                await updateResidentById(formData.residentId, {
+                    fullName: formData.fullName,
+                    gender: formData.gender || null,
+                    dateOfBirth: formData.dateOfBirth,
+                    identityId: formData.identityId,
+                });
+
+                setFeedback({
+                    type: "success",
+                    message: "Da cap nhat thong tin resident va account thanh cong.",
+                });
+            } else {
+                const account = await createAccount({
+                    email: formData.email,
+                    username: formData.username,
+                    password: formData.password,
+                    isActive: formData.isActive,
+                });
+
+                await createResident({
+                    fullName: formData.fullName,
+                    gender: formData.gender || null,
+                    dateOfBirth: formData.dateOfBirth,
+                    identityId: formData.identityId,
+                    accountId: account.id,
+                });
+
+                setFeedback({
+                    type: "success",
+                    message: "Da tao resident moi va lien ket account thanh cong.",
+                });
+            }
+
+            resetForm();
+            await loadResidentData();
+        } catch (error) {
+            setFeedback({
+                type: "error",
+                message: error?.response?.data?.message || "Co loi xay ra khi luu du lieu resident.",
+            });
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
+
+    const handleRemove = async (resident) => {
+        if (!window.confirm(`Ban co chac chan muon xoa resident ${resident.fullName}?`)) {
+            return;
+        }
+
+        setIsSubmitting(true);
+        setFeedback({ type: "", message: "" });
+
+        try {
+            await deleteResidentById(resident.residentId);
+
+            if (resident.accountId) {
+                await deleteAccountById(resident.accountId);
+            }
+
+            setFeedback({
+                type: "success",
+                message: "Da xoa resident va account lien ket.",
+            });
+
+            if (formData.residentId === resident.residentId) {
+                resetForm();
+            }
+
+            await loadResidentData();
+        } catch (error) {
+            setFeedback({
+                type: "error",
+                message: error?.response?.data?.message || "Khong the xoa resident nay.",
+            });
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
+
+    const handleToggleLock = async (resident) => {
+        if (!resident.accountId) {
+            setFeedback({
+                type: "error",
+                message: "Resident nay chua co account de lock/unlock.",
+            });
+            return;
+        }
+
+        setIsSubmitting(true);
+        setFeedback({ type: "", message: "" });
+
+        try {
+            await updateAccountById(resident.accountId, {
+                email: resident.email,
+                username: resident.username,
+                isActive: !resident.isActive,
+            });
+
+            setFeedback({
+                type: "success",
+                message: resident.isActive
+                    ? "Da khoa account cua resident."
+                    : "Da mo khoa account cua resident.",
+            });
+
+            await loadResidentData();
+        } catch (error) {
+            setFeedback({
+                type: "error",
+                message: error?.response?.data?.message || "Khong the doi trang thai account.",
+            });
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
+
+    const filteredResidents = residents.filter((resident) => {
+        const keyword = searchTerm.trim().toLowerCase();
+
+        if (!keyword) {
+            return true;
+        }
+
+        return [
+            resident.fullName,
+            resident.email,
+            resident.username,
+            resident.identityId,
+            ...resident.apartments.map((apartment) => String(apartment.roomNumber)),
+        ]
+            .filter(Boolean)
+            .some((value) => String(value).toLowerCase().includes(keyword));
+    });
+
     return (
         <div className="admin-lock-resident-container">
-            <div className="resident-stats-banner" style={{ background: 'linear-gradient(135deg, #1a202c 0%, #4a5568 100%)' }}>
-                <div className="stats-icon-box"><FaFileContract /></div>
-                <div className="stats-info"><p>Hệ thống Quản lý Đô thị</p><h3>Khởi tạo Hợp đồng Mới</h3></div>
+            <div className="resident-stats-banner">
+                <div className="stats-icon-box"><FaUsers /></div>
+                <div className="stats-info">
+                    <p>Resident access control</p>
+                    <h3>{residents.length} <span>Residents from backend API</span></h3>
+                </div>
             </div>
+
             <section className="resident-form-section">
-                <div className="form-header"><FaPlus /> <span>Biểu mẫu hợp đồng pháp lý</span></div>
-                <div className="resident-grid-form">
-                    <div className="form-group"><label>Tên chủ hộ</label><input type="text" value={formData.owner} onChange={(e) => setFormData({ ...formData, owner: e.target.value })} /></div>
-                    <div className="form-group"><label>Ngày làm hợp đồng</label><input type="date" value={formData.date} onChange={(e) => setFormData({ ...formData, date: e.target.value })} /></div>
-                    <div className="form-group"><label>Tình trạng hợp đồng</label>
-                        <select className="admin-contract-select" value={formData.type} onChange={(e) => setFormData({ ...formData, type: e.target.value })} >
-                            <option value="1. Sở hữu - Mua đứt">1. Sở hữu - Mua đứt</option>
-                            <option value="2. Cho thuê - Có hạn hợp đồng thuê nhà">2. Cho thuê - Có hạn hợp đồng thuê nhà</option>
+                <div className="admin-lock-header-row">
+                    <div className="form-header admin-lock-form-title" style={{ color: isEditMode ? '#ed8936' : '#3182ce', marginBottom: 0 }}>
+                        {isEditMode ? <FaEdit /> : <FaUserPlus />}
+                        <span>{isEditMode ? "Edit Resident" : "Create Resident"}</span>
+                    </div>
+                    <button className="btn-pay-refresh" type="button" onClick={loadResidentData} disabled={isLoading || isSubmitting}>
+                        <FaSyncAlt size={14} /> Refresh data
+                    </button>
+                </div>
+
+                {feedback.message && (
+                    <div className={`admin-feedback ${feedback.type === "error" ? "error" : "success"}`}>
+                        {feedback.message}
+                    </div>
+                )}
+
+                <div className="resident-grid-form admin-lock-form-grid">
+                    <div className="form-group">
+                        <label>Full Name</label>
+                        <input type="text" value={formData.fullName} placeholder="Nhap ho ten..." onChange={(e) => handleInputChange("fullName", e.target.value)} />
+                    </div>
+                    <div className="form-group">
+                        <label>Gender</label>
+                        <select value={formData.gender} onChange={(e) => handleInputChange("gender", e.target.value)}>
+                            <option value="">Chon gioi tinh</option>
+                            <option value="Male">Male</option>
+                            <option value="Female">Female</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                    <div className="form-group">
+                        <label>Date of Birth</label>
+                        <input type="date" value={formData.dateOfBirth} onChange={(e) => handleInputChange("dateOfBirth", e.target.value)} />
+                    </div>
+                    <div className="form-group">
+                        <label>Identity ID</label>
+                        <input type="text" value={formData.identityId} placeholder="CCCD / Passport" onChange={(e) => handleInputChange("identityId", e.target.value)} />
+                    </div>
+                    <div className="form-group">
+                        <label>Email</label>
+                        <input type="email" value={formData.email} placeholder="resident@email.com" onChange={(e) => handleInputChange("email", e.target.value)} />
+                    </div>
+                    <div className="form-group">
+                        <label>Username</label>
+                        <input type="text" value={formData.username} placeholder="username" onChange={(e) => handleInputChange("username", e.target.value)} />
+                    </div>
+                    {!isEditMode && (
+                        <div className="form-group">
+                            <label>Password</label>
+                            <input type="password" value={formData.password} placeholder="Mat khau" onChange={(e) => handleInputChange("password", e.target.value)} />
+                        </div>
+                    )}
+                    <div className="form-group">
+                        <label>Account Status</label>
+                        <select value={String(formData.isActive)} onChange={(e) => handleInputChange("isActive", e.target.value === "true")}>
+                            <option value="true">Active</option>
+                            <option value="false">Locked</option>
                         </select>
                     </div>
                 </div>
-                <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '20px' }}><button className="btn-add-resident" style={{ width: '200px' }} onClick={handleAddContract}>Add hợp đồng</button></div>
+
+                <div className="admin-lock-actions">
+                    <button className={`admin-btn-add ${isEditMode ? 'mode-edit' : ''}`} onClick={handleAddOrUpdate} disabled={isSubmitting}>
+                        {isSubmitting ? "Processing..." : isEditMode ? "Save Changes" : "Create Resident"}
+                    </button>
+                    {isEditMode && (
+                        <button className="btn-table-delete" type="button" onClick={resetForm} disabled={isSubmitting}>
+                            Cancel edit
+                        </button>
+                    )}
+                </div>
+            </section>
+
+            <section className="admin-table-wrapper">
+                <div className="admin-lock-header-row admin-lock-list-header">
+                    <h3 className="admin-lock-section-title">Resident Directory</h3>
+                    <div className="admin-lock-search">
+                        <FaSearch />
+                        <input
+                            type="text"
+                            placeholder="Tim theo ten, email, username, CCCD, can ho..."
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                        />
+                    </div>
+                </div>
+
+                <div className="admin-table-scroll">
+                    <table className="admin-custom-table bordered">
+                        <thead>
+                            <tr>
+                                <th>Resident</th>
+                                <th>Gender</th>
+                                <th>Date of Birth</th>
+                                <th>Identity ID</th>
+                                <th>Email</th>
+                                <th>Username</th>
+                                <th>Owned Apartments</th>
+                                <th>Status</th>
+                                <th style={{ textAlign: 'center' }}>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {isLoading ? (
+                                <tr>
+                                    <td colSpan="9" className="admin-table-empty">Dang tai du lieu tu backend...</td>
+                                </tr>
+                            ) : filteredResidents.length === 0 ? (
+                                <tr>
+                                    <td colSpan="9" className="admin-table-empty">Khong tim thay resident phu hop.</td>
+                                </tr>
+                            ) : (
+                                filteredResidents.map((resident, index) => (
+                                    <tr key={resident.residentId}>
+                                        <td>
+                                            <div className="admin-resident-stack">
+                                                <strong>{resident.fullName}</strong>
+                                                <span>Resident ID: {resident.residentId}</span>
+                                            </div>
+                                        </td>
+                                        <td className="admin-cell-compact">{resident.gender || "N/A"}</td>
+                                        <td className="admin-cell-compact">{resident.dateOfBirth || "N/A"}</td>
+                                        <td className="admin-cell-compact">{resident.identityId || "N/A"}</td>
+                                        <td className="admin-cell-compact">{resident.email || "N/A"}</td>
+                                        <td className="admin-cell-compact">{resident.username || "N/A"}</td>
+                                        <td>
+                                            {resident.apartments.length > 0 ? (
+                                                <div className="admin-apartment-list">
+                                                    {resident.apartments.map((apartment) => (
+                                                        <div key={`${resident.residentId}-${apartment.contractId}`} className="admin-apartment-detail">
+                                                            <span className="apartment-tag">
+                                                                {apartment.roomNumber}
+                                                                {apartment.floorNumber ? ` / Floor ${apartment.floorNumber}` : ""}
+                                                            </span>
+                                                            <span className="admin-apartment-meta">
+                                                                {apartment.contractType} | status: {apartment.status ?? "N/A"}
+                                                            </span>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            ) : (
+                                                <span className="admin-subtle-text">Chua co can ho lien ket</span>
+                                            )}
+                                        </td>
+                                        <td>
+                                            <span className={`status-badge ${resident.isActive ? "active" : "locked"}`}>
+                                                {resident.isActive ? "Active" : "Locked"}
+                                            </span>
+                                        </td>
+                                        <td style={{ textAlign: 'center' }}>
+                                            <div className="action-flex admin-lock-table-actions">
+                                                <button
+                                                    className="admin-icon-btn edit"
+                                                    onClick={() => handleEditClick(resident)}
+                                                    disabled={isSubmitting}
+                                                    title="Edit"
+                                                    aria-label={`Edit ${resident.fullName}`}
+                                                >
+                                                    <FaEdit />
+                                                </button>
+                                                <button
+                                                    className="admin-icon-btn lock"
+                                                    onClick={() => handleToggleLock(resident)}
+                                                    disabled={isSubmitting}
+                                                    title={resident.isActive ? "Lock" : "Unlock"}
+                                                    aria-label={`${resident.isActive ? "Lock" : "Unlock"} ${resident.fullName}`}
+                                                >
+                                                    <FaLock />
+                                                </button>
+                                                <button
+                                                    className="admin-icon-btn delete"
+                                                    onClick={() => handleRemove(resident)}
+                                                    disabled={isSubmitting}
+                                                    title="Delete"
+                                                    aria-label={`Delete ${resident.fullName}`}
+                                                >
+                                                    <FaTrashAlt />
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                ))
+                            )}
+                        </tbody>
+                    </table>
+                </div>
             </section>
         </div>
     );
 };
 
+// --- THAO TÁC 1: TẠO HỢP ĐỒNG (GIỮ NGUYÊN) ---
+export const AdminCreateContract = () => {
+  const { user } = useAuth();
+
+  const [apartmentInfo, setApartmentInfo] = useState(null);
+  const [formData, setFormData] = useState({
+    floorNumber: "",
+    roomNumber: "",
+    apartmentName: "",
+    apartmentId: null,
+    username: "",
+    accountId: null,
+    contractType: "Rent",
+    startDate: "",
+    endDate: "",
+    monthlyRent: "",
+  });
+
+  const handleAddContract = async () => {
+
+    console.log(user)
+    const payload = {
+      apartmentId: formData.apartmentId,
+      accountId: formData.accountId,
+      contractType: formData.contractType,
+      startDate: formData.startDate,
+      ...(formData.contractType === "Rent" && {
+        endDate: formData.endDate,
+        monthlyRent: Number(formData.monthlyRent),
+      }),
+      createdById: user.id,
+      status: 1,
+    };
+
+    try {
+      await api.post("/api/contracts", payload);
+      alert("Thêm hợp đồng thành công!");
+    } catch {
+      alert("Lỗi khi thêm hợp đồng!");
+    }
+  };
+
+  return (
+    <div className="admin-lock-resident-container">
+      <div
+        className="resident-stats-banner"
+        style={{
+          background: "linear-gradient(135deg, #1a202c 0%, #4a5568 100%)",
+        }}
+      >
+        <div className="stats-icon-box">
+          <FaFileContract />
+        </div>
+        <div className="stats-info">
+          <p>Hệ thống Quản lý Đô thị</p>
+          <h3>Khởi tạo Hợp đồng Mới</h3>
+        </div>
+      </div>
+      <section className="resident-form-section">
+        <div className="form-header">
+          <FaPlus /> <span>Biểu mẫu hợp đồng pháp lý</span>
+        </div>
+
+        {/* Contract Type - Radio */}
+        <div className="form-group" style={{ marginBottom: "20px" }}>
+          <label>Loại hợp đồng</label>
+          <div style={{ display: "flex", gap: "24px", marginTop: "8px" }}>
+            <label
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "8px",
+                cursor: "pointer",
+              }}
+            >
+              <input
+                type="radio"
+                name="contractType"
+                value="Rent"
+                checked={formData.contractType === "Rent"}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    contractType: e.target.value,
+                    endDate: "",
+                  })
+                }
+              />
+              Cho thuê (Rent)
+            </label>
+            <label
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "8px",
+                cursor: "pointer",
+              }}
+            >
+              <input
+                type="radio"
+                name="contractType"
+                value="Sale"
+                checked={formData.contractType === "Sale"}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    contractType: e.target.value,
+                    endDate: "",
+                  })
+                }
+              />
+              Mua bán (Sale)
+            </label>
+          </div>
+        </div>
+
+        <div className="resident-grid-form">
+          {/* Tầng */}
+          <div className="form-group">
+            <label>Tầng</label>
+            <input
+              type="number"
+              placeholder="Nhập số tầng..."
+              value={formData.floorNumber}
+              onChange={(e) => {
+                setFormData({
+                  ...formData,
+                  floorNumber: e.target.value,
+                  roomNumber: "",
+                  apartmentId: null,
+                });
+                setApartmentInfo(null);
+              }}
+            />
+          </div>
+
+          {/* Số phòng */}
+          <div className="form-group">
+            <label>Số phòng</label>
+            <input
+              type="number"
+              placeholder="Nhập số phòng..."
+              value={formData.roomNumber}
+              onChange={(e) =>
+                setFormData({
+                  ...formData,
+                  roomNumber: e.target.value,
+                  apartmentId: null,
+                })
+              }
+              onBlur={async () => {
+                if (!formData.floorNumber || !formData.roomNumber) return;
+                try {
+                  const res = await api.post("/apartments/search-by-number", {
+                    roomNumber: formData.roomNumber,
+                    floorNumber: formData.floorNumber,
+                  });
+                  console.log(res);
+                  setFormData((prev) => ({
+                    ...prev,
+                    apartmentId: res.data.result.id,
+                  }));
+                  setApartmentInfo(res.data.result);
+                } catch {
+                  alert("Không tìm thấy phòng!");
+                  setApartmentInfo(null);
+                }
+              }}
+            />
+          </div>
+
+          {apartmentInfo && (
+            <div
+              className="apartment-info-card"
+              style={{ gridColumn: "1 / -1" }}
+            >
+              <p>
+                ✔ Tìm thấy: <strong>{apartmentInfo.name}</strong> — Tầng{" "}
+                {apartmentInfo.floorNumber}, Phòng {apartmentInfo.roomNumber}
+              </p>
+              <p style={{ color: "green", fontSize: "13px" }}>
+                Apartment ID: {apartmentInfo.id}
+              </p>
+            </div>
+          )}
+
+          {/* Username → accountId */}
+          <div className="form-group">
+            <label>Tên tài khoản cư dân</label>
+            <input
+              type="text"
+              placeholder="Nhập username..."
+              value={formData.username}
+              onChange={(e) =>
+                setFormData({ ...formData, username: e.target.value })
+              }
+              onBlur={async () => {
+                if (!formData.username) return;
+                try {
+                  const res = await api.get(
+                    `/accounts/search-by-username/${formData.username}`,
+                  );
+                  console.log(res);
+                  if (res?.data.result.id) {
+                    setFormData((prev) => ({
+                      ...prev,
+                      accountId: res.data.result.id,
+                    }));
+                  } else {
+                    alert("Không tìm thấy tài khoản!");
+                  }
+                } catch {
+                  alert("Lỗi khi tìm tài khoản!");
+                }
+              }}
+            />
+            {formData.accountId && (
+              <small style={{ color: "green" }}>
+                ✔ Account ID: {formData.accountId}
+              </small>
+            )}
+          </div>
+
+          {/* Ngày bắt đầu */}
+          <div className="form-group">
+            <label>Ngày bắt đầu hợp đồng</label>
+            <input
+              type="date"
+              value={formData.startDate}
+              onChange={(e) =>
+                setFormData({ ...formData, startDate: e.target.value })
+              }
+            />
+          </div>
+
+          {/* Ngày kết thúc - chỉ hiện khi Rent */}
+          {formData.contractType === "Rent" && (
+            <div className="form-group">
+              <label>Ngày kết thúc hợp đồng</label>
+              <input
+                type="date"
+                value={formData.endDate}
+                onChange={(e) =>
+                  setFormData({ ...formData, endDate: e.target.value })
+                }
+              />
+            </div>
+          )}
+
+          {/* Tiền thuê hàng tháng - chỉ hiện khi Rent */}
+          {formData.contractType === "Rent" && (
+            <div className="form-group">
+              <label>Tiền thuê hàng tháng (VNĐ)</label>
+              <input
+                type="number"
+                placeholder="VD: 6000000"
+                value={formData.monthlyRent}
+                onChange={(e) =>
+                  setFormData({ ...formData, monthlyRent: e.target.value })
+                }
+              />
+            </div>
+          )}
+        </div>
+
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "flex-end",
+            marginTop: "20px",
+          }}
+        >
+          <button
+            className="btn-add-resident"
+            style={{ width: "200px" }}
+            onClick={handleAddContract}
+          >
+            Thêm hợp đồng
+          </button>
+        </div>
+      </section>
+    </div>
+  );
+};
+
 // --- THAO TÁC 2: XEM HỢP ĐỒNG (CARD) (GIỮ NGUYÊN) ---
 export const AdminPropertyManager = () => {
-    const [isEditMode, setIsEditMode] = useState(false);
-    const [editingId, setEditingId] = useState(null);
-    const [properties, setProperties] = useState([
-        { id: 'VH-101', owner: 'Trần Phu Thanh Hung', people: 4, type: 'Sở hữu', img: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=1000' },
-        { id: 'VH-202', owner: 'Nguyễn Thúy Hường', people: 2, type: 'Thuê nhà', img: 'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?q=80&w=1000' }
-    ]);
-    const triggerUpload = (id, type) => { document.getElementById(`file-${type}-${id}`).click(); };
-    const handleInputChange = (id, field, value) => { setProperties(properties.map(p => p.id === id ? { ...p, [field]: value } : p)); };
-
-    return (
-        <div className="admin-reports-container">
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-                <h2 className="admin-page-title" style={{ margin: 0 }}>Danh sách Căn nhà & Hợp đồng</h2>
-                <button className={`btn-edit-toggle ${isEditMode ? 'active' : ''}`} onClick={() => { setIsEditMode(!isEditMode); setEditingId(null); }}>{isEditMode ? "Cancel Edit" : "Edit"}</button>
-            </div>
-            <div className="admin-visual-grid">
-                {properties.map(item => (
-                    <div key={item.id} className="house-card" style={{ backgroundImage: `url(${item.img})` }}>
-                        {isEditMode && (<div className="edit-overlay-tag" onClick={() => setEditingId(item.id)}><div className="check-circle">✓</div><span>Chỉnh sửa</span></div>)}
-                        <div className="card-inner">
-                            <h3>Căn hộ: {item.id}</h3>
-                            <div className="card-details">
-                                {editingId === item.id ? (
-                                    <div className="edit-input-group">
-                                        <input type="text" value={item.owner} onChange={(e) => handleInputChange(item.id, 'owner', e.target.value)} />
-                                        <input type="number" value={item.people} onChange={(e) => handleInputChange(item.id, 'people', e.target.value)} />
-                                        <select value={item.type} onChange={(e) => handleInputChange(item.id, 'type', e.target.value)}>
-                                            <option value="Sở hữu">Sở hữu</option><option value="Thuê nhà">Thuê nhà</option>
-                                        </select>
-                                    </div>
-                                ) : (<><p>👤 Owner: <strong>{item.owner}</strong></p><p>👨‍👩‍👧‍👦 People: {item.people}</p><p>📄 Type: {item.type}</p></>)}
-                            </div>
-                            <div className="contract-toolbar">
-                                <div className="toolbar-left-icons">
-                                    <FaFileUpload onClick={() => triggerUpload(item.id, 'doc')} /><input type="file" id={`file-doc-${item.id}`} style={{ display: 'none' }} />
-                                    <FaImage onClick={() => triggerUpload(item.id, 'img')} /><input type="file" id={`file-img-${item.id}`} style={{ display: 'none' }} accept="image/*" />
-                                </div>
-                                <button className="toolbar-add-btn">add</button>
-                            </div>
-                        </div>
-                    </div>
-                ))}
-            </div>
-            {isEditMode && (<div style={{ display: 'flex', justifyContent: 'center', marginTop: '40px' }}><button className="btn-update-final" onClick={() => { alert("Updated!"); setIsEditMode(false); }}>UPDATE SYSTEM</button></div>)}
-        </div>
+  const [isEditMode, setIsEditMode] = useState(false);
+  const [editingId, setEditingId] = useState(null);
+  const [properties, setProperties] = useState([
+    {
+      id: "VH-101",
+      owner: "Trần Phu Thanh Hung",
+      people: 4,
+      type: "Sở hữu",
+      img: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=1000",
+    },
+    {
+      id: "VH-202",
+      owner: "Nguyễn Thúy Hường",
+      people: 2,
+      type: "Thuê nhà",
+      img: "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?q=80&w=1000",
+    },
+  ]);
+  const triggerUpload = (id, type) => {
+    document.getElementById(`file-${type}-${id}`).click();
+  };
+  const handleInputChange = (id, field, value) => {
+    setProperties(
+      properties.map((p) => (p.id === id ? { ...p, [field]: value } : p)),
     );
+  };
+
+  return (
+    <div className="admin-reports-container">
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          marginBottom: "20px",
+        }}
+      >
+        <h2 className="admin-page-title" style={{ margin: 0 }}>
+          Danh sách Căn nhà & Hợp đồng
+        </h2>
+        <button
+          className={`btn-edit-toggle ${isEditMode ? "active" : ""}`}
+          onClick={() => {
+            setIsEditMode(!isEditMode);
+            setEditingId(null);
+          }}
+        >
+          {isEditMode ? "Cancel Edit" : "Edit"}
+        </button>
+      </div>
+      <div className="admin-visual-grid">
+        {properties.map((item) => (
+          <div
+            key={item.id}
+            className="house-card"
+            style={{ backgroundImage: `url(${item.img})` }}
+          >
+            {isEditMode && (
+              <div
+                className="edit-overlay-tag"
+                onClick={() => setEditingId(item.id)}
+              >
+                <div className="check-circle">✓</div>
+                <span>Chỉnh sửa</span>
+              </div>
+            )}
+            <div className="card-inner">
+              <h3>Căn hộ: {item.id}</h3>
+              <div className="card-details">
+                {editingId === item.id ? (
+                  <div className="edit-input-group">
+                    <input
+                      type="text"
+                      value={item.owner}
+                      onChange={(e) =>
+                        handleInputChange(item.id, "owner", e.target.value)
+                      }
+                    />
+                    <input
+                      type="number"
+                      value={item.people}
+                      onChange={(e) =>
+                        handleInputChange(item.id, "people", e.target.value)
+                      }
+                    />
+                    <select
+                      value={item.type}
+                      onChange={(e) =>
+                        handleInputChange(item.id, "type", e.target.value)
+                      }
+                    >
+                      <option value="Sở hữu">Sở hữu</option>
+                      <option value="Thuê nhà">Thuê nhà</option>
+                    </select>
+                  </div>
+                ) : (
+                  <>
+                    <p>
+                      👤 Owner: <strong>{item.owner}</strong>
+                    </p>
+                    <p>👨‍👩‍👧‍👦 People: {item.people}</p>
+                    <p>📄 Type: {item.type}</p>
+                  </>
+                )}
+              </div>
+              <div className="contract-toolbar">
+                <div className="toolbar-left-icons">
+                  <FaFileUpload onClick={() => triggerUpload(item.id, "doc")} />
+                  <input
+                    type="file"
+                    id={`file-doc-${item.id}`}
+                    style={{ display: "none" }}
+                  />
+                  <FaImage onClick={() => triggerUpload(item.id, "img")} />
+                  <input
+                    type="file"
+                    id={`file-img-${item.id}`}
+                    style={{ display: "none" }}
+                    accept="image/*"
+                  />
+                </div>
+                <button className="toolbar-add-btn">add</button>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+      {isEditMode && (
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            marginTop: "40px",
+          }}
+        >
+          <button
+            className="btn-update-final"
+            onClick={() => {
+              alert("Updated!");
+              setIsEditMode(false);
+            }}
+          >
+            UPDATE SYSTEM
+          </button>
+        </div>
+      )}
+    </div>
+  );
 };
 
 // --- 5. ADMIN PAYMENT MANAGER (GIỮ NGUYÊN) ---

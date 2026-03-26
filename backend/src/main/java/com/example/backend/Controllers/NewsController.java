@@ -2,7 +2,7 @@ package com.example.backend.Controllers;
 
 import com.example.backend.DTO.Request.News.NewsCreateRequest;
 import com.example.backend.DTO.Request.News.NewsUpdateRequest;
-import com.example.backend.Entity.News;
+import com.example.backend.DTO.Response.NewsResponse;
 import com.example.backend.Service.NewsService;
 import jakarta.validation.Valid;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -21,24 +21,24 @@ public class NewsController {
     }
 
     @GetMapping
-    public List<News> getAll() {
+    public List<NewsResponse> getAll() {
         return service.findAll();
     }
 
     @GetMapping("/{id}")
-    public News getById(@PathVariable Integer id) {
+    public NewsResponse getById(@PathVariable Integer id) {
         return service.findById(id);
     }
 
     @PostMapping
     @PreAuthorize("hasAuthority('News_C_01')")
-    public News create(@Valid @RequestBody NewsCreateRequest request) {
+    public NewsResponse create(@Valid @RequestBody NewsCreateRequest request) {
         return service.create(request);
     }
 
     @PutMapping("/{id}")
     @PreAuthorize("hasAuthority('News_U_01')")
-    public News update(@PathVariable Integer id,
+    public NewsResponse update(@PathVariable Integer id,
                        @Valid @RequestBody NewsUpdateRequest request) {
         return service.update(id, request);
     }
