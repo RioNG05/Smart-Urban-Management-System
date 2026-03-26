@@ -21,12 +21,12 @@ public class Appointment {
 
     // Khách hàng
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "UserId", nullable = false)
+    @JoinColumn(name = "UserId", nullable = true)
     private Account user;
 
     // Nhân viên được giao
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "AssignedTo", nullable = false)
+    @JoinColumn(name = "AssignedTo", nullable = true)
     private Account assignedTo;
 
     // Người tạo

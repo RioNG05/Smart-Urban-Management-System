@@ -11,6 +11,8 @@ public class AppointmentUpdateRequest {
     private String location;
     private String title;
     private String note;
+    private Integer userId;
+    private Integer assignedTo;
     private LocalDate meetingDate;
     private LocalTime startTime;
     private LocalTime endTime;

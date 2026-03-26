@@ -9,10 +9,7 @@ import java.time.LocalTime;
 @Data
 public class AppointmentCreateRequest {
 
-    @NotNull
     private Integer userId;
-
-    @NotNull
     private Integer assignedTo;
 
     @NotNull
