@@ -1892,7 +1892,7 @@ CREATE TABLE VisitorLogs (
     -- Khóa ngoại nối tới bảng căn hộ
     CONSTRAINT FK_Visitor_Apartments FOREIGN KEY (ApartmentId) REFERENCES Apartments(Id),
     -- Khóa ngoại nối tới bảng nhân viên
-    CONSTRAINT FK_Visitor_Staff FOREIGN KEY (CreatedByStaffId) REFERENCES StaffInfo(Id)
+    CONSTRAINT FK_Visitor_Staff FOREIGN KEY (CreatedByStaffId) REFERENCES Accounts(Id)
 );
 
 -- 20 Appoinment
@@ -2326,7 +2326,7 @@ SELECT 7, Url, N'Phối cảnh sân tập Golf chuyên nghiệp tại dự án' 
 -- Chèn cho Làn tập số 2 (ID 8)
 INSERT INTO ServiceResourceImages (ServiceResourceId, ImageUrl, Description)
 SELECT 8, Url, N'Khu vực thảm tập và view hướng sân Golf xanh mát' FROM @GolfImages;
-GOs
+GO
 
 -- =============================================
 -- BATCH 26.5: GALLERY ẢNH SPA THƯ GIÃN 5 SAO
@@ -2624,7 +2624,7 @@ INSERT INTO VisitorLogs (VisitorName, IdentityCard, PhoneNumber, ApartmentId, Cr
 VALUES 
 -- CĂN 1 (Acc 2)
 (N'Nguyễn Văn Nam', '001095001234', '0912345678', 1, 5, '2026-01-05 09:30:00', N'Bạn chủ nhà đến chơi, mang theo túi trái cây.'),
-(N'Lê Thị Huệ', '038198004321', '0988776655', 1, 58, '2026-02-14 19:00:00', N'Ship hoa ngày Valentine, khách bảo chờ ở sảnh.'),
+(N'Lê Thị Huệ', '038198004321', '0988776655', 1, 58, '2026-02-14 19:00:00', N'Ship hoa ngày Valentine, khách bảo cF ở sảnh.'),
 (N'Nguyễn Tuấn Shipper', '001098005544', '0901223344', 1, 49, '2026-02-10 11:45:00', N'Giao cơm trưa ShopeeFood, khách xuống lấy tại sảnh.'),
 
 -- CĂN 2 (Acc 6)
