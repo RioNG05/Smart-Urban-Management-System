@@ -2385,7 +2385,7 @@ INNER JOIN Contracts c ON a.Id = c.ApartmentId
 WHERE c.Status = 1; -- Chỉ những hợp đồng còn hiệu lực
 GO
 
--- 2.1 Thêm Resident - ko cần nữa vì đã Fake data từ trước
+-- 2.1 Thêm 2 - ko cần nữa vì đã Fake data từ trước
 -- 3.1 add Stay At history Data 
 INSERT INTO StayAtHistory (ResidentId, ApartmentId, MoveIn, MoveOut)
 SELECT 
@@ -2686,4 +2686,38 @@ BEGIN
 END;
 GO
 
+CREATE TABLE ContactInquiries (
+    Id INT IDENTITY(1,1) PRIMARY KEY,
+    -- Thông tin khách hàng cung cấp
+    FullName NVARCHAR(100) NOT NULL,
+    Email VARCHAR(150) NOT NULL,
+    PhoneNumber VARCHAR(20) NOT NULL,
+    [Message] NVARCHAR(MAX) NOT NULL,
+    -- Audit log
+    CreatedAt DATETIME DEFAULT GETDATE()
+);
+GO
 
+INSERT INTO ContactInquiries (FullName, Email, PhoneNumber, [Message], CreatedAt)
+VALUES 
+-- 1. Khách hàng tiềm năng (Hàng xịn)
+(N'Trần Văn Chốt', 'chotdon.vinhomes@gmail.com', '0912345678', N'Tôi muốn xem thực tế căn Shophouse 17 vào sáng mai, hẹ hẹ.', '2026-03-25 09:00:00'),
+
+-- 2. Thằng cu nghịch Web (Spam phím)
+(N'Asdfghjkl', 'test1@gmail.com', '000000000', N'asdfghjklqwertyuiop1234567890', '2026-03-25 10:15:00'),
+
+-- 3. Thanh niên "Deep Web" (Test XSS/Injection nhẹ)
+(N'Hacker Lỏ', 'hacker@anonymous.vn', '0333444555', N'<script>alert("Hẹ hẹ, Web bảo mật kém quá!")</script>', '2026-03-25 11:30:00'),
+
+-- 4. Khách nhầm số
+(N'Chị Đại Quận 4', 'chidaiq4@yahoo.com', '0909999888', N'Bán cho 2 ký thịt bò nướng BBQ, giao gấp đến chung cư!', '2026-03-26 08:20:00'),
+
+-- 5. Nickname vô tri
+(N'Người Lạ Ơi', 'nguoila@outlook.com', '+84 111 222 333', N'Web đẹp đấy Nghĩa ơi, hẹ hẹ hẹ hẹ hẹ hẹ hẹ hẹ.', '2026-03-26 13:00:00'),
+
+-- 6. Spam quảng cáo
+(N'Dịch vụ SEO giá rẻ', 'seo.spam@marketing.com', '0123456789', N'Tăng 10.000 traffic cho web TEMS chỉ với 500k, liên hệ ngay!', '2026-03-26 14:15:00'),
+
+-- 7. Khách hàng "Ghost"
+(N'Nguyễn Văn Ẩn Danh', 'an.danh@gmail.com', '0777666555', N'.....................................................', '2026-03-26 14:45:00');
+GO
