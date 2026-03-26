@@ -1,4 +1,5 @@
 package com.example.backend.Entity;
+
 import com.example.backend.Enum.RoleEnum;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
@@ -10,7 +11,10 @@ import java.util.Set;
 
 @Entity
 @Table(name = "Roles")
-@Getter @Setter @NoArgsConstructor @AllArgsConstructor
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 @Builder
 public class Role {
     @Id
@@ -23,11 +27,7 @@ public class Role {
     private RoleEnum roleName;
 
     @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(
-            name="Authorities",
-            joinColumns = @JoinColumn(name = "RoleId"),
-            inverseJoinColumns = @JoinColumn(name = "PermissionId")
-    )
+    @JoinTable(name = "Authorities", joinColumns = @JoinColumn(name = "RoleId"), inverseJoinColumns = @JoinColumn(name = "PermissionId"))
     @JsonIgnore
     private Set<Permission> permissions = new HashSet<>();
 }
