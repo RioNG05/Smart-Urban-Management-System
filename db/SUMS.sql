@@ -2686,7 +2686,7 @@ BEGIN
 END;
 GO
 
-CREATE TABLE ContactInquiries (
+CREATE TABLE GetInTouch (
     Id INT IDENTITY(1,1) PRIMARY KEY,
     -- Thông tin khách hàng cung cấp
     FullName NVARCHAR(100) NOT NULL,
@@ -2698,26 +2698,56 @@ CREATE TABLE ContactInquiries (
 );
 GO
 
-INSERT INTO ContactInquiries (FullName, Email, PhoneNumber, [Message], CreatedAt)
-VALUES 
--- 1. Khách hàng tiềm năng (Hàng xịn)
-(N'Trần Văn Chốt', 'chotdon.vinhomes@gmail.com', '0912345678', N'Tôi muốn xem thực tế căn Shophouse 17 vào sáng mai, hẹ hẹ.', '2026-03-25 09:00:00'),
+-- =============================================
+-- BATCH 14.4: 50 RECORDS - DATA TEST CHUẨN CÔNG TY
+-- 20 Spam/Nghịch - 30 Khách hàng tiềm năng
+-- =============================================
 
--- 2. Thằng cu nghịch Web (Spam phím)
-(N'Asdfghjkl', 'test1@gmail.com', '000000000', N'asdfghjklqwertyuiop1234567890', '2026-03-25 10:15:00'),
+DECLARE @i INT = 1;
 
--- 3. Thanh niên "Deep Web" (Test XSS/Injection nhẹ)
-(N'Hacker Lỏ', 'hacker@anonymous.vn', '0333444555', N'<script>alert("Hẹ hẹ, Web bảo mật kém quá!")</script>', '2026-03-25 11:30:00'),
-
--- 4. Khách nhầm số
-(N'Chị Đại Quận 4', 'chidaiq4@yahoo.com', '0909999888', N'Bán cho 2 ký thịt bò nướng BBQ, giao gấp đến chung cư!', '2026-03-26 08:20:00'),
-
--- 5. Nickname vô tri
-(N'Người Lạ Ơi', 'nguoila@outlook.com', '+84 111 222 333', N'Web đẹp đấy Nghĩa ơi, hẹ hẹ hẹ hẹ hẹ hẹ hẹ hẹ.', '2026-03-26 13:00:00'),
-
--- 6. Spam quảng cáo
-(N'Dịch vụ SEO giá rẻ', 'seo.spam@marketing.com', '0123456789', N'Tăng 10.000 traffic cho web TEMS chỉ với 500k, liên hệ ngay!', '2026-03-26 14:15:00'),
-
--- 7. Khách hàng "Ghost"
-(N'Nguyễn Văn Ẩn Danh', 'an.danh@gmail.com', '0777666555', N'.....................................................', '2026-03-26 14:45:00');
+WHILE @i <= 50
+BEGIN
+    INSERT INTO ContactInquiries (FullName, Email, PhoneNumber, [Message], CreatedAt)
+    VALUES (
+        -- Tên khách hàng
+        CASE 
+            WHEN @i <= 20 THEN N'User_Test_' + CAST(@i AS NVARCHAR)
+            ELSE N'Nguyễn ' + 
+                 CASE WHEN @i % 3 = 0 THEN N'Văn ' WHEN @i % 3 = 1 THEN N'Thị ' ELSE N'Hoàng ' END + 
+                 CAST(@i AS NVARCHAR)
+        END,
+        
+        -- Email
+        CASE 
+            WHEN @i <= 20 THEN 'test.spam.' + CAST(@i AS VARCHAR) + '@trashmail.com'
+            ELSE 'khachhang.' + CAST(@i AS VARCHAR) + '@gmail.com'
+        END,
+        
+        -- Số điện thoại
+        CASE 
+            WHEN @i <= 20 THEN '000000000' + CAST(@i % 10 AS VARCHAR)
+            ELSE '09' + CAST(10000000 + @i AS VARCHAR)
+        END,
+        
+        -- Nội dung Message
+        CASE 
+            -- Nhóm 20 cái "Spam/Nghịch" (Giảm hài, tăng tính thực tế của rác hệ thống)
+            WHEN @i BETWEEN 1 AND 5 THEN N'asdfghjklqwertyuiop' -- Spam phím
+            WHEN @i BETWEEN 6 AND 10 THEN N'Check check 1 2 3...' -- Dev test
+            WHEN @i BETWEEN 11 AND 15 THEN N'Dịch vụ tăng like, tăng sub giá rẻ liên hệ 0123...' -- Quảng cáo rác
+            WHEN @i BETWEEN 16 AND 20 THEN N'................................' -- Khách ghost
+            
+            -- Nhóm 30 cái "Nghiêm túc" (Hẳn hoi)
+            WHEN @i BETWEEN 21 AND 30 THEN N'Tôi muốn nhận thông tin về phí quản lý hằng tháng của tòa S1.'
+            WHEN @i BETWEEN 31 AND 40 THEN N'Vui lòng gửi bảng báo giá các căn Studio hướng Đông cho tôi.'
+            WHEN @i BETWEEN 41 AND 45 THEN N'Sân Tennis số 3 khi nào bảo trì xong vậy admin?'
+            ELSE N'Tôi muốn đăng ký xem nhà thực tế căn Shophouse vào cuối tuần này.'
+        END,
+        
+        -- Thời gian
+        DATEADD(MINUTE, -@i * 30, GETDATE())
+    );
+    
+    SET @i = @i + 1;
+END
 GO
