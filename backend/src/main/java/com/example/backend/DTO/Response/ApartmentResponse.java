@@ -15,7 +15,6 @@ public class ApartmentResponse {
     String roomNumber;
     Integer floorNumber;
     String direction;
-    Integer furniture;
     Integer status;
     BigDecimal specificPriceForBuying;
     BigDecimal specificPriceForRenting;
