@@ -30,7 +30,7 @@ public class AccountService {
         return repository.findAll();
     }
 
-    public Account findById(Integer id) {
+    public Account findById(java.lang.Integer id) {
         return repository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy Account với ID: " + id));
     }
