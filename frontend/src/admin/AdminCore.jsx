@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Outlet, NavLink, useOutletContext, useNavigate } from 'react-router-dom';
+import { useAuth } from '../components/sections/auth/AuthContext';
 import {
     FaHome, FaUserShield, FaBuilding, FaNewspaper, FaBars,
     FaUserLock, FaChartPie, FaUsers,
@@ -17,7 +18,8 @@ import {
     FaChevronRight,
     FaLock,
     FaLayerGroup,
-    FaShieldAlt
+    FaShieldAlt,
+    FaSignOutAlt
 } from 'react-icons/fa';
 import { AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, Legend } from 'recharts';
 import "../styles/admin.css";
@@ -36,10 +38,10 @@ const AdminSidebar = ({ isOpen, setIsOpen, upcomingCount }) => {
     };
 
     const CategoryHeader = ({ title, menuKey, icon: Icon }) => (
-        <div 
+        <div
             onClick={() => toggleMenu(menuKey)}
             className={`staff-nav-item`}
-            style={{ 
+            style={{
                 cursor: 'pointer',
                 justifyContent: isOpen ? 'space-between' : 'center',
                 padding: isOpen ? '12px 15px' : '15px 0'
@@ -47,10 +49,10 @@ const AdminSidebar = ({ isOpen, setIsOpen, upcomingCount }) => {
             title={title}
         >
             <div style={{ display: 'flex', alignItems: 'center' }}>
-                <Icon style={{ marginRight: isOpen ? '15px' : '0' }}/>
+                <Icon style={{ marginRight: isOpen ? '15px' : '0' }} />
                 {isOpen && <span style={{ fontWeight: '700', fontSize: '13px' }}>{title}</span>}
             </div>
-            {isOpen && (openMenus[menuKey] ? <FaChevronDown style={{ fontSize: '12px' }}/> : <FaChevronRight style={{ fontSize: '12px' }}/>)}
+            {isOpen && (openMenus[menuKey] ? <FaChevronDown style={{ fontSize: '12px' }} /> : <FaChevronRight style={{ fontSize: '12px' }} />)}
         </div>
     );
 
@@ -62,7 +64,7 @@ const AdminSidebar = ({ isOpen, setIsOpen, upcomingCount }) => {
             </div>
 
             <nav className="staff-sidebar-nav">
-                
+
                 <NavLink to="/admin" end className="staff-nav-item" style={{ justifyContent: isOpen ? 'flex-start' : 'center', padding: isOpen ? '12px 15px' : '15px 0' }}>
                     <FaHome style={{ marginRight: isOpen ? '15px' : '0' }} /> {isOpen && "Dashboard Home"}
                 </NavLink>
@@ -80,16 +82,16 @@ const AdminSidebar = ({ isOpen, setIsOpen, upcomingCount }) => {
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '2px', paddingLeft: '20px', marginBottom: '10px' }}>
                         <NavLink to="/admin/contracts/create" className="staff-nav-item" style={{ padding: '8px 15px', fontSize: '13px' }}><FaFileContract style={{ marginRight: '10px' }} /> Create Contract</NavLink>
                         <NavLink to="/admin/contracts/view" className="staff-nav-item" style={{ padding: '8px 15px', fontSize: '13px' }}><FaClipboardList style={{ marginRight: '10px' }} /> View Contracts</NavLink>
-                        <NavLink to="/admin/apartment-layout" className="staff-nav-item" style={{ padding: '8px 15px', fontSize: '13px' }}><FaBuilding style={{ marginRight: '10px' }} /> Layout & Services</NavLink>
+                        <NavLink to="/admin/apartment-layout" className="staff-nav-item" style={{ padding: '8px 15px', fontSize: '13px' }}><FaBuilding style={{ marginRight: '10px' }} /> Apartment</NavLink>
                     </div>
                 )}
 
                 <CategoryHeader title="SERVICE & SECURITY" menuKey="service" icon={FaShieldAlt} />
                 {(isOpen && openMenus.service) && (
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '2px', paddingLeft: '20px', marginBottom: '10px' }}>
-                        <NavLink to="/admin/bookings" className="staff-nav-item" style={{ padding: '8px 15px', fontSize: '13px' }}><FaConciergeBell style={{ marginRight: '10px' }} /> Bookings</NavLink>
-                        <NavLink to="/admin/service-fees" className="staff-nav-item" style={{ padding: '8px 15px', fontSize: '13px' }}><FaCreditCard style={{ marginRight: '10px' }} /> Fee Stats</NavLink>
-                        <NavLink to="/admin/visitors" className="staff-nav-item" style={{ padding: '8px 15px', fontSize: '13px' }}><FaUserPlus style={{ marginRight: '10px' }} /> Visitors</NavLink>
+                        <NavLink to="/admin/bookings" className="staff-nav-item" style={{ padding: '8px 15px', fontSize: '13px' }}><FaConciergeBell style={{ marginRight: '10px' }} /> Booking Management</NavLink>
+                        <NavLink to="/admin/service-fees" className="staff-nav-item" style={{ padding: '8px 15px', fontSize: '13px' }}><FaCreditCard style={{ marginRight: '10px' }} /> Service Fee Stats</NavLink>
+                        <NavLink to="/admin/visitors" className="staff-nav-item" style={{ padding: '8px 15px', fontSize: '13px' }}><FaUserPlus style={{ marginRight: '10px' }} /> Visitor Management</NavLink>
                     </div>
                 )}
 
@@ -99,6 +101,7 @@ const AdminSidebar = ({ isOpen, setIsOpen, upcomingCount }) => {
 };
 
 export const AdminLayout = () => {
+    const { logout } = useAuth();
     const navigate = useNavigate();
     const [adminName, setAdminName] = useState('');
     const [isOpen, setIsOpen] = useState(true);
@@ -143,6 +146,11 @@ export const AdminLayout = () => {
                                         <p><strong>Role:</strong> Super Admin</p>
                                         <p><strong>Department:</strong> System Management</p>
                                     </div>
+                                    <div className="logout-btn-wrapper">
+                                        <button className="btn-logout-account" onClick={() => logout()}>
+                                            <FaSignOutAlt /> Logout Account
+                                        </button>
+                                    </div>
                                 </div>
                             )}
                         </div>
@@ -168,7 +176,7 @@ export const AdminDashboard = () => {
         { month: 'Jun', rent: 50000, utilities: 18000, management: 5500 },
         { month: 'Jul', rent: 52000, utilities: 19500, management: 5500 },
     ];
-    
+
     const serviceRevenueData = [
         { month: 'Jan', gym: 3000, bbq: 1200, sauna: 1500, hall: 800 },
         { month: 'Feb', gym: 3200, bbq: 1500, sauna: 1400, hall: 1000 },

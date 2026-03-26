@@ -1,13 +1,15 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../components/sections/auth/AuthContext';
 import {
     FaBars, FaUserCircle, FaUser, FaHistory, FaCalendarCheck,
-    FaComments, FaBuilding
+    FaComments, FaBuilding, FaSignOutAlt
 } from 'react-icons/fa';
 import StaffApartmentMainContent from './StaffApartmentMainContent';
 import '../styles/staff.css';
 
 const StaffApartment = () => {
+    const { logout } = useAuth();
     const navigate = useNavigate();
     const [sidebarOpen, setSidebarOpen] = useState(true);
     const [showIdCard, setShowIdCard] = useState(false);
@@ -185,6 +187,11 @@ const StaffApartment = () => {
                                         <p><strong>Department:</strong> Apartment Management</p>
                                         <p><strong>Join Date:</strong> 13/03/2026</p>
                                         <p><strong>Shift:</strong> 08:00 - 17:00</p>
+                                    </div>
+                                    <div className="logout-btn-wrapper">
+                                        <button className="btn-logout-account" onClick={() => logout()}>
+                                            <FaSignOutAlt /> Logout Account
+                                        </button>
                                     </div>
                                 </div>
                             )}
