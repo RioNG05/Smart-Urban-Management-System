@@ -3,6 +3,7 @@ package com.example.backend.Controllers;
 import com.example.backend.DTO.Request.News.NewsCreateRequest;
 import com.example.backend.DTO.Request.News.NewsUpdateRequest;
 import com.example.backend.DTO.Response.NewsResponse;
+import com.example.backend.Entity.News;
 import com.example.backend.Service.NewsService;
 import jakarta.validation.Valid;
 import org.springframework.security.access.prepost.PreAuthorize;
