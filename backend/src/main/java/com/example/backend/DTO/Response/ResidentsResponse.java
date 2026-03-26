@@ -16,6 +16,7 @@ public class ResidentsResponse {
     String fullName;
     String gender;
     LocalDate dateOfBirth;
+    String phoneNumber;
     String identityId;
     AccountsResponse account;
 }

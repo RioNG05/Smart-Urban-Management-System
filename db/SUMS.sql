@@ -2326,7 +2326,7 @@ SELECT 7, Url, N'Phối cảnh sân tập Golf chuyên nghiệp tại dự án' 
 -- Chèn cho Làn tập số 2 (ID 8)
 INSERT INTO ServiceResourceImages (ServiceResourceId, ImageUrl, Description)
 SELECT 8, Url, N'Khu vực thảm tập và view hướng sân Golf xanh mát' FROM @GolfImages;
-GOs
+GO
 
 -- =============================================
 -- BATCH 26.5: GALLERY ẢNH SPA THƯ GIÃN 5 SAO
