@@ -17,17 +17,17 @@ const StaffService = () => {
         <div className="staff-wrapper">
             {/* SIDEBAR */}
             <aside className={`staff-sidebar ${sidebarOpen ? '' : 'closed'}`}>
-                <div style={{ padding: '25px', display: 'flex', alignItems: 'center' }}>
-                    <FaBars onClick={() => setSidebarOpen(!sidebarOpen)} style={{ cursor: 'pointer' }} />
+                <div style={{ padding: '25px', display: 'flex', alignItems: 'center', justifyContent: sidebarOpen ? 'flex-start' : 'center' }}>
+                    <FaBars onClick={() => setSidebarOpen(!sidebarOpen)} style={{ cursor: 'pointer', fontSize: '1.2rem' }} />
                     {sidebarOpen && <span style={{ marginLeft: '15px', fontWeight: '800' }}>SERVICE HUB</span>}
                 </div>
 
                 <nav className="staff-sidebar-nav">
-                    <div className={`staff-nav-item ${activeTab === 'bookings' ? 'active' : ''}`} onClick={() => setActiveTab('bookings')}>
-                        <FaConciergeBell /> {sidebarOpen && "Booking Management"}
+                    <div className={`staff-nav-item ${activeTab === 'bookings' ? 'active' : ''}`} onClick={() => setActiveTab('bookings')} style={{ justifyContent: sidebarOpen ? 'flex-start' : 'center', padding: sidebarOpen ? '12px 15px' : '15px 0' }}>
+                        <FaConciergeBell style={{ marginRight: sidebarOpen ? '15px' : '0' }} /> {sidebarOpen && "Booking Management"}
                     </div>
-                    <div className={`staff-nav-item ${activeTab === 'fees' ? 'active' : ''}`} onClick={() => setActiveTab('fees')}>
-                        <FaCreditCard /> {sidebarOpen && "Service Fee Stats"}
+                    <div className={`staff-nav-item ${activeTab === 'fees' ? 'active' : ''}`} onClick={() => setActiveTab('fees')} style={{ justifyContent: sidebarOpen ? 'flex-start' : 'center', padding: sidebarOpen ? '12px 15px' : '15px 0' }}>
+                        <FaCreditCard style={{ marginRight: sidebarOpen ? '15px' : '0' }} /> {sidebarOpen && "Service Fee Stats"}
                     </div>
                 </nav>
             </aside>

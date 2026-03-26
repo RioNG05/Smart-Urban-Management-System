@@ -131,26 +131,26 @@ const StaffApartment = () => {
     return (
         <div className="staff-wrapper">
             <aside className={`staff-sidebar ${sidebarOpen ? '' : 'closed'}`}>
-                <div style={{ padding: '25px', display: 'flex', alignItems: 'center' }}>
-                    <FaBars onClick={() => setSidebarOpen(!sidebarOpen)} style={{ cursor: 'pointer' }} />
+                <div style={{ padding: '25px', display: 'flex', alignItems: 'center', justifyContent: sidebarOpen ? 'flex-start' : 'center' }}>
+                    <FaBars onClick={() => setSidebarOpen(!sidebarOpen)} style={{ cursor: 'pointer', fontSize: '1.2rem' }} />
                     {sidebarOpen && <span style={{ marginLeft: '15px', fontWeight: '800' }}>APARTMENT HUB</span>}
                 </div>
 
                 <nav className="staff-sidebar-nav">
-                    <div className={`staff-nav-item ${activeTab === 'accounts' ? 'active' : ''}`} onClick={() => { setActiveTab('accounts'); setSelectedComplaint(null) }}>
-                        <FaUserCircle /> {sidebarOpen && "Resident Accounts"}
+                    <div className={`staff-nav-item ${activeTab === 'accounts' ? 'active' : ''}`} onClick={() => { setActiveTab('accounts'); setSelectedComplaint(null) }} style={{ justifyContent: sidebarOpen ? 'flex-start' : 'center', padding: sidebarOpen ? '12px 15px' : '15px 0' }}>
+                        <FaUserCircle style={{ marginRight: sidebarOpen ? '15px' : '0' }} /> {sidebarOpen && "Resident Account"}
                     </div>
-                    <div className={`staff-nav-item ${activeTab === 'complaints' ? 'active' : ''}`} onClick={() => setActiveTab('complaints')}>
-                        <FaComments /> {sidebarOpen && "Complaints & Replies"}
+                    <div className={`staff-nav-item ${activeTab === 'complaints' ? 'active' : ''}`} onClick={() => setActiveTab('complaints')} style={{ justifyContent: sidebarOpen ? 'flex-start' : 'center', padding: sidebarOpen ? '12px 15px' : '15px 0' }}>
+                        <FaComments style={{ marginRight: sidebarOpen ? '15px' : '0' }} /> {sidebarOpen && "Complaint & Reply"}
                     </div>
-                    <div className={`staff-nav-item ${activeTab === 'apartment_management' ? 'active' : ''}`} onClick={() => { setActiveTab('apartment_management'); setSelectedComplaint(null) }}>
-                        <FaBuilding /> {sidebarOpen && "Apartment Management"}
+                    <div className={`staff-nav-item ${activeTab === 'apartment_management' ? 'active' : ''}`} onClick={() => { setActiveTab('apartment_management'); setSelectedComplaint(null) }} style={{ justifyContent: sidebarOpen ? 'flex-start' : 'center', padding: sidebarOpen ? '12px 15px' : '15px 0' }}>
+                        <FaBuilding style={{ marginRight: sidebarOpen ? '15px' : '0' }} /> {sidebarOpen && "Management"}
                     </div>
-                    <div className={`staff-nav-item ${activeTab === 'history' ? 'active' : ''}`} onClick={() => setActiveTab('history')}>
-                        <FaHistory /> {sidebarOpen && "Stay At History"}
+                    <div className={`staff-nav-item ${activeTab === 'history' ? 'active' : ''}`} onClick={() => setActiveTab('history')} style={{ justifyContent: sidebarOpen ? 'flex-start' : 'center', padding: sidebarOpen ? '12px 15px' : '15px 0' }}>
+                        <FaHistory style={{ marginRight: sidebarOpen ? '15px' : '0' }} /> {sidebarOpen && "Stay At History"}
                     </div>
-                    <div className={`staff-nav-item ${activeTab === 'appointments' ? 'active' : ''}`} onClick={() => setActiveTab('appointments')}>
-                        <FaCalendarCheck /> {sidebarOpen && "Appointments"}
+                    <div className={`staff-nav-item ${activeTab === 'appointments' ? 'active' : ''}`} onClick={() => setActiveTab('appointments')} style={{ justifyContent: sidebarOpen ? 'flex-start' : 'center', padding: sidebarOpen ? '12px 15px' : '15px 0' }}>
+                        <FaCalendarCheck style={{ marginRight: sidebarOpen ? '15px' : '0' }} /> {sidebarOpen && "Appointments"}
                     </div>
                 </nav>
             </aside>

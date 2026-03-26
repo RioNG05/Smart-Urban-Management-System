@@ -114,6 +114,9 @@
   flex-direction: column;
   box-shadow: 4px 0 24px rgba(0, 0, 0, 0.15);
   z-index: 100;
+  position: sticky;
+  top: 0;
+  overflow-y: auto;
 }
 
 .admin-sidebar.open {
@@ -480,13 +483,16 @@
 
 .admin-visual-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-  gap: 30px;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 20px;
   margin-top: 20px;
 }
 
 .house-card {
-  height: 350px;
+  min-height: 250px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
   border-radius: var(--admin-radius-lg);
   background-size: cover;
   background-position: center;
@@ -525,10 +531,8 @@
 }
 
 .card-inner {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  padding: 35px;
+  position: relative;
+  padding: 20px;
   width: 100%;
   z-index: 10;
   color: var(--admin-text-white);

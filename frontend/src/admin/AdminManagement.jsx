@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useOutletContext } from "react-router-dom"; // THÊM NÀY ĐỂ KẾT NỐI VỚI SIDEBAR
+import StaffServiceMainContent from '../staff/StaffServiceMainContent';
+import StaffSecurityMainContent from '../staff/StaffSecurityMainContent';
 import "../styles/admin.css";
 import {
   FaUsers, FaUserPlus, FaSearch, FaTrashAlt, FaEdit, FaCheckCircle, FaLock, FaCalendarAlt,
@@ -124,114 +126,6 @@ export const AdminRoleManager = () => {
 };
 
 // --- ADMIN LOCK RESIDENT ---
-const AdminLockResidentLegacy = () => {
-  const [residents, setResidents] = useState([
-    { id: 'RES001', name: 'Trần Hùng', dob: '1996-11-19', phone: '0912345678', password: '••••••••', hometown: 'Nam Định', current: 'Vinhomes Ocean Park', apartment: 'VH-101', dateAdded: '2026-03-13' }
-  ]);
-  const [formData, setFormData] = useState({ id: '', name: '', dob: '', phone: '', password: '', hometown: '', current: '', apartment: '', dateAdded: '' });
-  const [isEditMode, setIsEditMode] = useState(false);
-  const [editingId, setEditingId] = useState(null);
-
-  const handleAddOrUpdate = () => {
-    if (!formData.id || !formData.name || !formData.apartment) {
-      alert("Please enter all required fields (ID, Name, Apartment)!"); return;
-    }
-    if (isEditMode) {
-      setResidents(residents.map(res => (res.id === editingId ? { ...formData } : res)));
-      setIsEditMode(false); setEditingId(null);
-      alert("Resident information updated!");
-    } else {
-      if (residents.some(res => res.id === formData.id)) { alert("This ID already exists!"); return; }
-      setResidents([...residents, { ...formData }]);
-      alert("New resident added!");
-    }
-    setFormData({ id: '', name: '', dob: '', phone: '', password: '', hometown: '', current: '', apartment: '', dateAdded: '' });
-  };
-
-  const handleEditClick = (res) => {
-    setFormData(res);
-    setIsEditMode(true);
-    setEditingId(res.id);
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  };
-
-  const handleRemove = (id) => {
-    if (window.confirm("Are you sure you want to delete this resident?")) {
-      setResidents(residents.filter(res => res.id !== id));
-    }
-  };
-
-  return (
-    <div className="admin-lock-resident-container">
-      <div className="resident-stats-banner">
-        <div className="stats-icon-box"><FaUsers /></div>
-        <div className="stats-info">
-          <p>CƠ SỞ DỮ LIỆU CƯ DÂN (ADMIN CONTROL)</p>
-          <h3>{residents.length} <span>Residents</span></h3>
-        </div>
-      </div>
-
-      <section className="resident-form-section">
-        <div className="form-header" style={{ color: isEditMode ? '#ed8936' : '#3182ce' }}>
-          {isEditMode ? <FaEdit /> : <FaUserPlus />}
-          <span>{isEditMode ? "Update Resident Info" : "Resident Registration"}</span>
-        </div>
-        <div className="resident-grid-form" style={{ gridTemplateColumns: 'repeat(3, 1fr)' }}>
-          <div className="form-group"><label>Resident ID</label><input type="text" value={formData.id} disabled={isEditMode} placeholder="E.g., RES001" onChange={(e) => setFormData({ ...formData, id: e.target.value })} /></div>
-          <div className="form-group"><label>Full Name</label><input type="text" value={formData.name} placeholder="Enter name..." onChange={(e) => setFormData({ ...formData, name: e.target.value })} /></div>
-          <div className="form-group"><label>Password</label><input type="password" value={formData.password} placeholder="••••••••" onChange={(e) => setFormData({ ...formData, password: e.target.value })} /></div>
-          <div className="form-group"><label>Date of Birth</label><input type="date" value={formData.dob} onChange={(e) => setFormData({ ...formData, dob: e.target.value })} /></div>
-          <div className="form-group"><label>Phone Number</label><input type="text" value={formData.phone} placeholder="09xxx..." onChange={(e) => setFormData({ ...formData, phone: e.target.value })} /></div>
-          <div className="form-group"><label>Date Added</label><input type="date" value={formData.dateAdded} onChange={(e) => setFormData({ ...formData, dateAdded: e.target.value })} /></div>
-          <div className="form-group"><label>Permanent Address</label><input type="text" value={formData.hometown} placeholder="Origin..." onChange={(e) => setFormData({ ...formData, hometown: e.target.value })} /></div>
-          <div className="form-group"><label>Current Address</label><input type="text" value={formData.current} placeholder="Current address..." onChange={(e) => setFormData({ ...formData, current: e.target.value })} /></div>
-          <div className="form-group"><label>Apartment No.</label><input type="text" value={formData.apartment} placeholder="E.g., VH-101" onChange={(e) => setFormData({ ...formData, apartment: e.target.value })} /></div>
-        </div>
-        <button className={`btn-add-resident ${isEditMode ? 'mode-edit' : ''}`} onClick={handleAddOrUpdate}>
-          {isEditMode ? "CONFIRM CHANGES" : "ADD TO SYSTEM"}
-        </button>
-      </section>
-
-      <div className="resident-table-wrapper" style={{ marginTop: '30px' }}>
-        <table className="admin-custom-table bordered">
-          <thead>
-            <tr>
-              <th>ID</th><th>Full Name</th><th>Password</th><th>Date of Birth</th><th>Phone</th><th>Permanent Address</th><th>Current Address</th><th>Apartment</th><th>Issued Date</th><th style={{ textAlign: 'center' }}>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {residents.map((res, index) => (
-              <tr key={res.id}>
-                <td><span className="res-id-badge">{String(index + 1).padStart(2, '0')}</span></td>
-                <td><strong>{res.name}</strong></td>
-                <td style={{ color: '#94a3b8', fontSize: '12px' }}><FaLock size={10} /> {res.password ? '••••••••' : 'N/A'}</td>
-                <td>{res.dob}</td>
-                <td>{res.phone}</td>
-                <td>{res.hometown}</td>
-                <td>{res.current}</td>
-                <td><span className="apartment-tag">{res.apartment}</span></td>
-                <td style={{ fontSize: '12px', color: '#64748b' }}><FaCalendarAlt size={10} /> {res.dateAdded}</td>
-                <td style={{ textAlign: 'center' }}>
-                  <div className="action-flex">
-                    <button className="btn-edit-small" onClick={() => handleEditClick(res)}><FaEdit /> Edit</button>
-                    <button className="btn-remove-small" onClick={() => handleRemove(res.id)}><FaTrashAlt /> Delete</button>
-                  </div>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-
-      <div style={{ display: 'flex', justifyContent: 'center', marginTop: '40px', paddingBottom: '40px' }}>
-        <button className="btn-update-final" onClick={() => alert("System data synchronized!")}>
-          <FaCheckCircle /> UPDATE SYSTEM
-        </button>
-      </div>
-    </div>
-  );
-};
-
 export const AdminLockResident = () => {
   const emptyForm = {
     residentId: null,
@@ -986,7 +880,7 @@ export const AdminCreateContract = () => {
 
 // --- XEM HỢP ĐỒNG (CARD) ---
 export const AdminPropertyManager = () => {
-  const [isEditMode, setIsEditMode] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
   const [editingId, setEditingId] = useState(null);
   const [properties, setProperties] = useState([
     {
@@ -1004,14 +898,25 @@ export const AdminPropertyManager = () => {
       img: "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?q=80&w=1000",
     },
   ]);
+
   const triggerUpload = (id, type) => {
     document.getElementById(`file-${type}-${id}`).click();
   };
+
   const handleInputChange = (id, field, value) => {
     setProperties(
       properties.map((p) => (p.id === id ? { ...p, [field]: value } : p)),
     );
   };
+
+  const handleSave = (id) => {
+    alert(`Contract for apartment ${id} has been updated successfully!`);
+    setEditingId(null);
+  };
+
+  const filteredProperties = properties.filter((p) =>
+    p.id.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   return (
     <div className="admin-reports-container">
@@ -1020,184 +925,150 @@ export const AdminPropertyManager = () => {
           display: "flex",
           justifyContent: "space-between",
           alignItems: "center",
-          marginBottom: "20px",
+          marginBottom: "25px",
+          flexWrap: "wrap",
+          gap: "15px"
         }}
       >
         <h2 className="admin-page-title" style={{ margin: 0 }}>
           Apartment & Contract List
         </h2>
-        <button
-          className={`btn-edit-toggle ${isEditMode ? "active" : ""}`}
-          onClick={() => {
-            setIsEditMode(!isEditMode);
-            setEditingId(null);
-          }}
-        >
-          {isEditMode ? "Cancel Edit" : "Edit"}
-        </button>
+        
+        <div className="admin-lock-search" style={{ margin: 0, minWidth: '320px' }}>
+          <FaSearch style={{ color: '#94a3b8' }} />
+          <input
+            type="text"
+            placeholder="Search by Apartment (e.g. VH-101)..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            style={{ border: 'none', background: 'transparent', outline: 'none', width: '100%', marginLeft: '10px' }}
+          />
+        </div>
       </div>
+
       <div className="admin-visual-grid">
-        {properties.map((item) => (
-          <div
-            key={item.id}
-            className="house-card"
-            style={{ backgroundImage: `url(${item.img})` }}
-          >
-            {isEditMode && (
-              <div
-                className="edit-overlay-tag"
-                onClick={() => setEditingId(item.id)}
-              >
-                <div className="check-circle">✓</div>
-                <span>Edit Info</span>
-              </div>
-            )}
-            <div className="card-inner">
-              <h3>Apartment: {item.id}</h3>
-              <div className="card-details">
-                {editingId === item.id ? (
-                  <div className="edit-input-group">
-                    <input
-                      type="text"
-                      value={item.owner}
-                      onChange={(e) =>
-                        handleInputChange(item.id, "owner", e.target.value)
-                      }
-                    />
-                    <input
-                      type="number"
-                      value={item.people}
-                      onChange={(e) =>
-                        handleInputChange(item.id, "people", e.target.value)
-                      }
-                    />
-                    <select
-                      value={item.type}
-                      onChange={(e) =>
-                        handleInputChange(item.id, "type", e.target.value)
-                      }
+        {filteredProperties.length === 0 ? (
+          <p style={{ color: '#64748b', fontSize: '15px' }}>No contracts found matching "{searchTerm}".</p>
+        ) : (
+          filteredProperties.map((item) => (
+            <div
+              key={item.id}
+              className="house-card hover-lift"
+              style={{ backgroundImage: `url(${item.img})` }}
+            >
+              <div className="card-inner">
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
+                  <h3 style={{ margin: 0, fontSize: '1.2rem', color: 'white' }}>Apt: {item.id}</h3>
+                  {editingId !== item.id && (
+                    <button
+                      onClick={() => setEditingId(item.id)}
+                      style={{
+                        background: 'rgba(255,255,255,0.15)',
+                        border: '1px solid rgba(255,255,255,0.3)',
+                        color: 'white',
+                        padding: '6px 14px',
+                        borderRadius: '6px',
+                        cursor: 'pointer',
+                        fontSize: '13px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '6px',
+                        fontWeight: '600',
+                        transition: 'background 0.2s'
+                      }}
+                      onMouseEnter={(e) => e.target.style.background = 'rgba(255,255,255,0.25)'}
+                      onMouseLeave={(e) => e.target.style.background = 'rgba(255,255,255,0.15)'}
                     >
-                      <option value="Ownership">Ownership</option>
-                      <option value="Rental">Rental</option>
-                    </select>
+                      <FaEdit /> Edit
+                    </button>
+                  )}
+                </div>
+
+                <div className="card-details">
+                  {editingId === item.id ? (
+                    <div className="edit-input-group" style={{ background: 'rgba(255,255,255,0.1)', padding: '15px', borderRadius: '8px', marginBottom: '15px', border: '1px solid rgba(255,255,255,0.2)' }}>
+                      <label style={{ display: 'block', color: '#cbd5e1', fontSize: '12px', marginBottom: '6px', fontWeight: '600' }}>OWNER / TENANT NAME</label>
+                      <input
+                        type="text"
+                        value={item.owner}
+                        style={{ width: '100%', marginBottom: '15px', padding: '10px', borderRadius: '6px', border: 'none', background: 'white', color: '#0f172a' }}
+                        onChange={(e) => handleInputChange(item.id, "owner", e.target.value)}
+                      />
+                      
+                      <div style={{ display: 'flex', gap: '15px', marginBottom: '20px' }}>
+                        <div style={{ flex: 1 }}>
+                          <label style={{ display: 'block', color: '#cbd5e1', fontSize: '12px', marginBottom: '6px', fontWeight: '600' }}>RESIDENTS</label>
+                          <input
+                            type="number"
+                            value={item.people}
+                            style={{ width: '100%', padding: '10px', borderRadius: '6px', border: 'none', background: 'white', color: '#0f172a' }}
+                            onChange={(e) => handleInputChange(item.id, "people", e.target.value)}
+                          />
+                        </div>
+                        <div style={{ flex: 1 }}>
+                          <label style={{ display: 'block', color: '#cbd5e1', fontSize: '12px', marginBottom: '6px', fontWeight: '600' }}>TYPE</label>
+                          <select
+                            value={item.type}
+                            style={{ width: '100%', padding: '10px', borderRadius: '6px', border: 'none', background: 'white', color: '#0f172a' }}
+                            onChange={(e) => handleInputChange(item.id, "type", e.target.value)}
+                          >
+                            <option value="Ownership">Ownership</option>
+                            <option value="Rental">Rental</option>
+                          </select>
+                        </div>
+                      </div>
+                      
+                      <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
+                        <button onClick={() => setEditingId(null)} style={{ padding: '8px 16px', background: 'transparent', border: '1px solid white', color: 'white', borderRadius: '6px', cursor: 'pointer', fontWeight: '600' }}>Cancel</button>
+                        <button onClick={() => handleSave(item.id)} style={{ padding: '8px 16px', background: '#10b981', border: 'none', color: 'white', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold' }}>Save Changes</button>
+                      </div>
+                    </div>
+                  ) : (
+                    <>
+                      <p style={{ color: 'white', marginBottom: '10px', fontSize: '15px' }}>
+                        👤 Owner: <strong>{item.owner}</strong>
+                      </p>
+                      <p style={{ color: '#cbd5e1', marginBottom: '10px' }}>👨‍👩‍👧‍👦 Residents: {item.people} people</p>
+                      <p style={{ color: '#cbd5e1', marginBottom: '20px' }}>
+                        📄 Type: <span style={{ padding: '4px 10px', background: item.type === 'Ownership' ? 'rgba(59, 130, 246, 0.2)' : 'rgba(200, 155, 60, 0.2)', color: item.type === 'Ownership' ? '#93c5fd' : '#fde047', borderRadius: '6px', fontSize: '12px', fontWeight: '800' }}>{item.type}</span>
+                      </p>
+                    </>
+                  )}
+                </div>
+
+                {editingId !== item.id && (
+                  <div className="contract-toolbar" style={{ borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '15px' }}>
+                    <div className="toolbar-left-icons">
+                      <FaFileUpload title="Upload Contract Document" style={{ cursor: 'pointer', color: '#cbd5e1', fontSize: '18px', transition: 'color 0.2s' }} onMouseEnter={(e) => e.target.style.color='white'} onMouseLeave={(e) => e.target.style.color='#cbd5e1'} onClick={() => triggerUpload(item.id, "doc")} />
+                      <input
+                        type="file"
+                        id={`file-doc-${item.id}`}
+                        style={{ display: "none" }}
+                      />
+                      <FaImage title="Upload Related Images" style={{ cursor: 'pointer', color: '#cbd5e1', fontSize: '18px', transition: 'color 0.2s' }} onMouseEnter={(e) => e.target.style.color='white'} onMouseLeave={(e) => e.target.style.color='#cbd5e1'} onClick={() => triggerUpload(item.id, "img")} />
+                      <input
+                        type="file"
+                        id={`file-img-${item.id}`}
+                        style={{ display: "none" }}
+                        accept="image/*"
+                      />
+                    </div>
+                    <button className="toolbar-add-btn" style={{ background: 'white', color: '#0f172a', fontWeight: '800', padding: '6px 16px', borderRadius: '6px' }}>View Details</button>
                   </div>
-                ) : (
-                  <>
-                    <p>
-                      👤 Owner: <strong>{item.owner}</strong>
-                    </p>
-                    <p>👨‍👩‍👧‍👦 People: {item.people}</p>
-                    <p>📄 Type: {item.type}</p>
-                  </>
                 )}
               </div>
-              <div className="contract-toolbar">
-                <div className="toolbar-left-icons">
-                  <FaFileUpload onClick={() => triggerUpload(item.id, "doc")} />
-                  <input
-                    type="file"
-                    id={`file-doc-${item.id}`}
-                    style={{ display: "none" }}
-                  />
-                  <FaImage onClick={() => triggerUpload(item.id, "img")} />
-                  <input
-                    type="file"
-                    id={`file-img-${item.id}`}
-                    style={{ display: "none" }}
-                    accept="image/*"
-                  />
-                </div>
-                <button className="toolbar-add-btn">add</button>
-              </div>
             </div>
-          </div>
-        ))}
+          ))
+        )}
       </div>
-      {isEditMode && (
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "center",
-            marginTop: "40px",
-          }}
-        >
-          <button
-            className="btn-update-final"
-            onClick={() => {
-              alert("Updated!");
-              setIsEditMode(false);
-            }}
-          >
-            UPDATE SYSTEM
-          </button>
-        </div>
-      )}
     </div>
   );
 };
 
-// --- ADMIN PAYMENT MANAGER  ---
-export const AdminPaymentManager = () => {
-  const [activeSubTab, setActiveSubTab] = useState('payments');
-  const [counts] = useState({ payments: 17, vnpay: 5 });
-  const [paymentList] = useState([
-    { id: '#7', invoice: 'HD-202512-001', floor: '1001', name: 'Trần Phu Thanh Hung', amount: '2.940.000 VNĐ', method: 'VNPay', date: '30/11/2025' },
-    { id: '#8', invoice: 'HD-202601-002', floor: '904', name: 'Lê Văn Tám', amount: '1.200.000 VNĐ', method: 'Cash', date: '01/01/2026' }
-  ]);
-
-  return (
-    <div className="admin-pay-wrapper">
-      <div className="pay-header-main">
-        <div className="pay-title-left"><h2>Payment management</h2></div>
-        <div className="pay-refresh-right">
-          <button className="btn-pay-refresh" onClick={() => window.location.reload()}>
-            <FaSyncAlt size={14} /> Refresh
-          </button>
-        </div>
-      </div>
-      <div className="pay-tab-navigation">
-        <button className={`pay-tab-btn ${activeSubTab === 'payments' ? 'active' : ''}`} onClick={() => setActiveSubTab('payments')}>
-          Payments <span className="tab-count">({counts.payments})</span>
-        </button>
-        <button className={`pay-tab-btn ${activeSubTab === 'vnpay' ? 'active' : ''}`} onClick={() => setActiveSubTab('vnpay')}>
-          VNPay transactions <span className="tab-count">({counts.vnpay})</span>
-        </button>
-      </div>
-      {activeSubTab === 'payments' && (
-        <div className="payments-content-container">
-          <div className="payment-filter-card-raised">
-            <div className="filter-title"><FaFilter color="#f59e0b" /> <span>Filter</span></div>
-            <div className="resident-grid-form" style={{ gridTemplateColumns: 'repeat(4, 1fr)', marginTop: '15px' }}>
-              <div className="form-group"><label>Room</label><input type="text" placeholder="All" /></div>
-              <div className="form-group"><label>Tenant</label><input type="text" placeholder="All" /></div>
-              <div className="form-group"><label>From</label><input type="date" /></div>
-              <div className="form-group"><label>To</label><input type="date" /></div>
-            </div>
-          </div>
-          <div className="resident-table-wrapper" style={{ marginTop: '25px', background: 'white', padding: '20px', borderRadius: '12px' }}>
-            <table className="admin-custom-table bordered">
-              <thead>
-                <tr>
-                  <th>Payment ID</th><th>Invoice</th><th>Floor (Room)</th><th>Name of Person</th><th>Amount</th><th>Method</th><th>Date</th><th style={{ textAlign: 'center' }}>Action</th>
-                </tr>
-              </thead>
-              <tbody>
-                {paymentList.map((item, idx) => (
-                  <tr key={idx}>
-                    <td>{item.id}</td><td style={{ color: '#3182ce', fontWeight: 'bold' }}>{item.invoice}</td>
-                    <td><span className="floor-badge">{item.floor}</span></td><td><strong>{item.name}</strong></td>
-                    <td style={{ color: '#2f855a', fontWeight: 'bold' }}>{item.amount}</td><td>{item.method}</td><td>{item.date}</td>
-                    <td style={{ textAlign: 'center' }}><FaEye style={{ cursor: 'pointer', color: '#64748b' }} /></td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      )}
-    </div>
-  );
-};
+// --- SERVICE & SECURITY MODULES (Reused from Staff) ---
+export const AdminBookingManager = () => <div className="admin-reports-container"><StaffServiceMainContent activeTab="bookings" /></div>;
+export const AdminServiceFeeStats = () => <div className="admin-reports-container"><StaffServiceMainContent activeTab="fees" /></div>;
+export const AdminVisitorManager = () => <div className="admin-reports-container"><StaffSecurityMainContent activeTab="visitors" /></div>;
 
 // --- ADMIN APARTMENT MANAGEMENT ---
 export const AdminApartmentLayout = () => {
@@ -1279,7 +1150,7 @@ export const AdminApartmentLayout = () => {
             <p><strong>Current Residents:</strong> {mockAptDetail.residentCount} people</p>
           </div>
 
-          {hasOwner && (
+          {hasOwner ? (
             <>
               <h4 style={{ marginTop: '35px', marginBottom: '20px', fontWeight: '800', color: '#1e293b' }}>Current Month Services Table</h4>
               <div className="admin-table-wrapper" style={{ padding: 0, border: 'none', boxShadow: 'none' }}>
@@ -1324,6 +1195,13 @@ export const AdminApartmentLayout = () => {
                 </table>
               </div>
             </>
+          ) : (
+            <>
+              <h4 style={{ marginTop: '35px', marginBottom: '20px', fontWeight: '800', color: '#1e293b' }}>Current Month Services Table</h4>
+              <div style={{ padding: '25px', background: '#f8fafc', border: '1px dashed #cbd5e1', borderRadius: '8px', textAlign: 'center', color: '#64748b' }}>
+                Apartment is currently empty - No current service data available.
+              </div>
+            </>
           )}
 
           <h4 style={{ marginTop: '45px', marginBottom: '20px', fontWeight: '800', color: '#1e293b' }}>Service Transaction History</h4>
@@ -1361,178 +1239,4 @@ export const AdminApartmentLayout = () => {
   );
 };
 
-// --- ADMIN REPAIR MANAGER ---
-export const AdminRepairManager = () => {
-  const [repairList] = useState([
-    { floor: '101', name: 'Nguyễn Văn A', type: 'Electricity', reg: 'Registered', date: '19/03/2026', status: 'Pending processing' },
-    { floor: '504', name: 'Lê Thị B', type: 'Water', reg: 'Registered', date: '18/03/2026', status: 'Processed' }
-  ]);
-  const floors = [];
-  for (let i = 1; i <= 10; i++) { for (let j = 1; j <= 7; j++) { floors.push(i * 100 + j); } }
-  return (
-    <div className="admin-repair-wrapper">
-      <div className="pay-header-main"><div className="pay-title-left"><h2>Repair management</h2></div><div className="pay-refresh-right"><button className="btn-pay-refresh" onClick={() => window.location.reload()}><FaSyncAlt size={14} /> Refresh</button></div></div>
-      <div className="payment-filter-card-raised">
-        <div className="filter-title"><FaFilter color="#f59e0b" /> <span>Filter</span></div>
-        <div className="resident-grid-form" style={{ gridTemplateColumns: 'repeat(3, 1fr)', marginTop: '15px' }}>
-          <div className="form-group"><label>Status</label><select className="admin-contract-select"><option>All status</option><option>Processed</option><option>Pending processing</option></select></div>
-          <div className="form-group"><label>Incident Type</label><select className="admin-contract-select"><option>All types</option><option>Electricity</option><option>Water</option><option>Other equipment</option></select></div>
-          <div className="form-group"><label>Floor</label><select className="admin-contract-select"><option>All floors</option>{floors.map(f => <option key={f}>{f}</option>)}</select></div>
-        </div>
-      </div>
-      <div className="resident-table-wrapper" style={{ marginTop: '25px', background: 'white', padding: '20px', borderRadius: '12px' }}>
-        <table className="admin-custom-table bordered">
-          <thead><tr><th>Floor</th><th>Household name</th><th>Type of incident</th><th>Residence registration</th><th>Creation date</th><th>Status</th><th style={{ textAlign: 'center' }}>Operation</th></tr></thead>
-          <tbody>{repairList.map((item, idx) => (
-            <tr key={idx}><td><span className="floor-badge">{item.floor}</span></td><td><strong>{item.name}</strong></td><td>{item.type}</td><td>{item.reg}</td><td>{item.date}</td><td><span className={`status-badge ${item.status === 'Processed' ? 'active' : 'locked'}`}>{item.status}</span></td><td style={{ textAlign: 'center' }}><div className="action-flex"><FaEye className="icon-view-action" /><FaSyncAlt className="icon-edit-action" style={{ color: '#f59e0b', cursor: 'pointer' }} /></div></td></tr>
-          ))}</tbody>
-        </table>
-      </div>
-    </div>
-  );
-};
 
-// --- ADMIN MAINTENANCE MANAGER ---
-export const AdminMaintenanceManager = () => {
-  const context = useOutletContext();
-  const setUpcomingCount = context ? context.setUpcomingCount : null;
-
-  const [showModal, setShowModal] = useState(false);
-  const [maintenanceList, setMaintenanceList] = useState([]);
-  const [isEditMode, setIsEditMode] = useState(false);
-  const [editId, setEditId] = useState(null);
-  const [form, setForm] = useState({
-    title: '', desc: '', type: 'Hallway lighting system', floor: 'All', start: '', end: '', status: 'upcoming'
-  });
-
-  useEffect(() => {
-    if (setUpcomingCount) {
-      const count = maintenanceList.filter(item => item.status === 'upcoming').length;
-      setUpcomingCount(count);
-    }
-  }, [maintenanceList, setUpcomingCount]);
-
-  const handleCreateOrUpdate = () => {
-    if (!form.title) { alert("Title is mandatory!"); return; }
-    if (isEditMode) {
-      setMaintenanceList(maintenanceList.map(item => item.id === editId ? { ...form, id: editId } : item));
-      setIsEditMode(false); setEditId(null);
-    } else {
-      const newItem = { ...form, id: Date.now() };
-      setMaintenanceList([newItem, ...maintenanceList]);
-    }
-    setShowModal(false);
-    setForm({ title: '', desc: '', type: 'Hallway lighting system', floor: 'All', start: '', end: '', status: 'upcoming' });
-  };
-
-  const handleEdit = (item) => {
-    setForm(item);
-    setIsEditMode(true);
-    setEditId(item.id);
-    setShowModal(true);
-  };
-
-  const handleRemove = (id) => {
-    if (window.confirm("Are you sure to remove this schedule?")) setMaintenanceList(maintenanceList.filter(item => item.id !== id));
-  };
-
-  return (
-    <div className="admin-maintenance-wrapper">
-      <div className="pay-header-main">
-        <div className="pay-title-left"><h2>Maintenance schedule</h2></div>
-        <div className="pay-refresh-right">
-          <button className="btn-create-maintenance" onClick={() => { setIsEditMode(false); setShowModal(true); }}>
-            <FaPlus /> Create maintenance schedule
-          </button>
-        </div>
-      </div>
-
-      <div className="payment-filter-card-raised">
-        <div className="resident-grid-form" style={{ gridTemplateColumns: 'repeat(3, 1fr)', alignItems: 'flex-end' }}>
-          <div className="form-group"><label>Status</label><select className="admin-contract-select"><option>upcoming</option><option>under maintenance</option><option>maintenance completed</option></select></div>
-          <div className="form-group"><label>Maintenance Type</label><select className="admin-contract-select"><option>Corridor lighting system</option><option>elevators</option><option>fire protection system</option><option>window cleaning service</option><option>water tanks</option><option>waste treatment system</option><option>camera system</option><option>air conditioning system</option></select></div>
-          <div className="form-group"><button className="btn-pay-refresh" style={{ width: '100%' }} onClick={() => window.location.reload()}><FaSyncAlt /> Refresh</button></div>
-        </div>
-      </div>
-
-      <div className="resident-table-wrapper" style={{ marginTop: '30px', background: 'white', padding: '20px', borderRadius: '12px' }}>
-        <table className="admin-custom-table bordered">
-          <thead>
-            <tr><th>Title</th><th>Description</th><th>Type</th><th>Start Date</th><th>End Date</th><th>Status</th><th style={{ textAlign: 'center' }}>Actions</th></tr>
-          </thead>
-          <tbody>
-            {maintenanceList.length === 0 ? (
-              <tr><td colSpan="7" style={{ textAlign: 'center', padding: '30px', color: '#94a3b8' }}>No maintenance schedule found.</td></tr>
-            ) : (
-              maintenanceList.map((item) => (
-                <tr key={item.id}>
-                  <td><strong>{item.title}</strong></td><td>{item.desc}</td><td><span className="floor-badge">{item.type}</span></td><td>{item.start}</td><td>{item.end}</td><td><span className="status-badge active">{item.status}</span></td>
-                  <td style={{ textAlign: 'center' }}><div className="action-flex" style={{ justifyContent: 'center' }}><FaEdit style={{ color: '#f59e0b', cursor: 'pointer' }} title="Edit" onClick={() => handleEdit(item)} /><FaTrashAlt style={{ color: '#ef4444', cursor: 'pointer' }} title="Remove" onClick={() => handleRemove(item.id)} /></div></td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </div>
-
-      {showModal && (
-        <div className="invoice-modal-overlay">
-          <div className="invoice-modal-content" style={{ width: '600px' }}>
-            <div className="modal-header"><h3>{isEditMode ? 'Edit Maintenance Schedule' : 'Create a new maintenance schedule'}</h3><FaTimes className="close-btn" onClick={() => setShowModal(false)} /></div>
-            <div className="modal-body-scroll">
-              <div className="form-group"><label>Title <span style={{ color: 'red' }}>*</span></label><input type="text" placeholder="Title..." value={form.title} onChange={e => setForm({ ...form, title: e.target.value })} /></div>
-              <div className="form-group" style={{ marginTop: '15px' }}><label>Description</label><textarea rows="3" placeholder="Details..." value={form.desc} onChange={e => setForm({ ...form, desc: e.target.value })} style={{ width: '100%', borderRadius: '8px', padding: '10px', border: '1px solid #e2e8f0' }}></textarea></div>
-              <div className="staff-grid" style={{ gridTemplateColumns: '1fr 1fr', gap: '15px', marginTop: '15px' }}>
-                <div className="form-group"><label>Type</label><select className="admin-contract-select" value={form.type} onChange={e => setForm({ ...form, type: e.target.value })}><option>Hallway lighting system</option><option>elevators</option><option>fire protection system</option><option>window cleaning service</option><option>water tanks</option><option>waste treatment system</option><option>camera system</option><option>air conditioning system</option></select></div>
-                <div className="form-group"><label>Floor</label><select className="admin-contract-select" value={form.floor} onChange={e => setForm({ ...form, floor: e.target.value })}><option>All</option><option>Basement B1</option>{[...Array(10)].map((_, i) => <option key={i + 1}>Floor {i + 1}</option>)}</select></div>
-              </div>
-              <div className="staff-grid" style={{ gridTemplateColumns: '1fr 1fr', gap: '15px', marginTop: '15px' }}>
-                <div className="form-group">
-                  <label>Status</label>
-                  <select className="admin-contract-select" value={form.status} onChange={e => setForm({ ...form, status: e.target.value })}>
-                    <option value="upcoming">upcoming</option>
-                    <option value="under maintenance">under maintenance</option>
-                    <option value="maintenance completed">maintenance completed</option>
-                  </select>
-                </div>
-              </div>
-              <div className="staff-grid" style={{ gridTemplateColumns: '1fr 1fr', gap: '15px', marginTop: '15px' }}><div className="form-group"><label>Start Date</label><input type="date" value={form.start} onChange={e => setForm({ ...form, start: e.target.value })} /></div><div className="form-group"><label>End Date</label><input type="date" value={form.end} onChange={(e) => setForm({ ...form, end: e.target.value })} /></div></div>
-            </div>
-            <div className="modal-footer"><button className="btn-cancel" onClick={() => setShowModal(false)}>Cancel</button><button className="btn-gold" onClick={handleCreateOrUpdate}>{isEditMode ? 'Update schedule' : 'Create schedule'}</button></div>
-          </div>
-        </div>
-      )}
-    </div>
-  );
-};
-
-// --- ADMIN EVALUATE MANAGER ---
-export const AdminEvaluateManager = () => {
-  const data = [
-    { name: 'Mon', rating: 0 }, { name: 'Tue', rating: 0 }, { name: 'Wed', rating: 0 },
-    { name: 'Thu', rating: 0 }, { name: 'Fri', rating: 0 }, { name: 'Sat', rating: 0 }, { name: 'Sun', rating: 0 },
-  ];
-  return (
-    <div className="admin-evaluate-wrapper">
-      <div className="pay-header-main"><div className="pay-title-left"><h2>Review management</h2></div><div className="pay-refresh-right"><button className="btn-pay-refresh" onClick={() => window.location.reload()}><FaSyncAlt size={14} /> Refresh</button></div></div>
-      <div className="evaluate-stats-grid">
-        <div className="evaluate-stat-card"><p>Overall Rating</p><h3>0</h3><span>Total reviews</span></div>
-        <div className="evaluate-stat-card"><p>Average Score</p><h3>0.0 <FaStar style={{ color: '#f59e0b', fontSize: '18px' }} /></h3><span>out of 5.0</span></div>
-      </div>
-      <div className="evaluate-chart-container">
-        <h4>Resident Review Trends</h4>
-        <div style={{ width: '100%', height: 300, marginTop: '20px' }}>
-          <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={data}>
-              <CartesianGrid strokeDasharray="3 3" vertical={false} />
-              <XAxis dataKey="name" axisLine={false} tickLine={false} />
-              <YAxis axisLine={false} tickLine={false} domain={[0, 5]} />
-              <Tooltip />
-              <Line type="monotone" dataKey="rating" stroke="#f59e0b" strokeWidth={3} dot={{ r: 6, fill: '#f59e0b' }} activeDot={{ r: 8 }} />
-            </LineChart>
-          </ResponsiveContainer>
-        </div>
-      </div>
-    </div>
-  );
-};
