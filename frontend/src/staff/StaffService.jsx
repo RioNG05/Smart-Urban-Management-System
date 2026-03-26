@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
-    FaBars, FaUserCircle, FaUser, FaClipboardList, 
+    FaBars, FaUserCircle, FaUser, FaClipboardList,
     FaCreditCard, FaNewspaper, FaConciergeBell
 } from 'react-icons/fa';
 import StaffServiceMainContent from './StaffServiceMainContent';
@@ -29,15 +29,13 @@ const StaffService = () => {
                     <div className={`staff-nav-item ${activeTab === 'fees' ? 'active' : ''}`} onClick={() => setActiveTab('fees')}>
                         <FaCreditCard /> {sidebarOpen && "Service Fee Stats"}
                     </div>
-                    <div className="staff-nav-item" onClick={() => navigate('/news')}>
-                        <FaNewspaper /> {sidebarOpen && "News Manager"}
-                    </div>
                 </nav>
             </aside>
 
             <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
                 <header className="staff-topbar" style={{ justifyContent: 'space-between' }}>
-                    <nav className="staff-main-nav" style={{ marginRight: 0 }}>
+                    <nav className="staff-main-nav" style={{ marginRight: 0, alignItems: 'center' }}>
+                        <a href="/admin">Admin</a>
                         <a href="/staff/apartment">Staff Apartment</a>
                         <a href="/staff/service" className="active">Staff Service</a>
                         <a href="/staff/security">Staff Security</a>

@@ -1,185 +1,101 @@
 import React, { useState, useEffect } from 'react';
-import { Outlet, NavLink, useOutletContext } from 'react-router-dom';
+import { Outlet, NavLink, useOutletContext, useNavigate } from 'react-router-dom';
 import {
     FaHome, FaUserShield, FaBuilding, FaNewspaper, FaBars,
-    FaUserLock, FaChartPie, FaChevronDown, FaUsers,
+    FaUserLock, FaChartPie, FaUsers,
     FaFileContract,
-    FaMoneyBillWave, // Thêm icon cho mục PAY
-    FaWrench, // Thêm icon cho mục REPAIR
-    FaCalendarAlt, // Icon cuốn lịch cho mục MAINTENANCE
-    FaStar // Thêm icon cho mục EVALUATE
+    FaMoneyBillWave,
+    FaWrench,
+    FaCalendarAlt,
+    FaStar,
+    FaUser
 } from 'react-icons/fa';
 import "../styles/admin.css";
-import logoImg from '../assets/logo.jpg';
+import "../styles/staff.css";
 
-// Component Sidebar nhận số lượng bảo trì từ Layout cha
 const AdminSidebar = ({ isOpen, setIsOpen, upcomingCount }) => {
-    const [openAccess, setOpenAccess] = useState(false);
-    const [openReports, setOpenReports] = useState(false);
-    const [openContract, setOpenContract] = useState(false);
-
-    const handleGroupClick = (setter, currentState) => {
-        if (!isOpen) setIsOpen(true);
-        setter(!currentState);
-    };
-
     return (
-        <div className={`admin-sidebar ${isOpen ? 'open' : 'closed'}`}>
-            <div className="sidebar-header">
-                <FaBars className="menu-toggle-icon" onClick={() => setIsOpen(!isOpen)} />
-                {isOpen && <span className="logo-text">VINAHOUSE</span>}
+        <aside className={`staff-sidebar ${isOpen ? '' : 'closed'}`}>
+            <div style={{ padding: '25px', display: 'flex', alignItems: 'center' }}>
+                <FaBars onClick={() => setIsOpen(!isOpen)} style={{ cursor: 'pointer' }} />
+                {isOpen && <span style={{ marginLeft: '15px', fontWeight: '800' }}>ADMIN HUB</span>}
             </div>
 
-            <nav className="sidebar-nav">
-                <NavLink to="/admin" end className="nav-item">
-                    <FaHome /> {isOpen && <span>Dashboard</span>}
-                </NavLink>
-
-                {/* --- ACCESS CONTROL --- */}
-                <div className="menu-group">
-                    <div className="menu-item-title" onClick={() => handleGroupClick(setOpenAccess, openAccess)}>
-                        <FaUserShield />
-                        {isOpen && <span>Access Control</span>}
-                        {isOpen && <FaChevronDown className={`arrow ${openAccess ? 'rotate' : ''}`} />}
-                    </div>
-                    {isOpen && openAccess && (
-                        <div className="submenu">
-                            <NavLink to="/admin/roles">Permissions</NavLink>
-                            <NavLink to="/admin/lock-resident">Lock Resident</NavLink>
-                        </div>
-                    )}
+            <nav className="staff-sidebar-nav">
+                <div style={{ padding: isOpen ? '15px 20px 5px' : '15px 0 5px', fontSize: '11px', color: '#64748b', fontWeight: '800', textAlign: isOpen ? 'left' : 'center', marginTop: '10px' }}>
+                    {isOpen ? "ACCESS CONTROL" : "---"}
                 </div>
+                <NavLink to="/admin/roles" className="staff-nav-item"><FaUserShield /> {isOpen && "Permissions"}</NavLink>
+                <NavLink to="/admin/lock-resident" className="staff-nav-item"><FaUserLock /> {isOpen && "Lock Resident"}</NavLink>
 
-                {/* --- APARTMENT & CONTRACT --- */}
-                <div className="menu-group">
-                    <div className="menu-item-title" onClick={() => handleGroupClick(setOpenContract, openContract)}>
-                        <FaFileContract />
-                        {isOpen && <span>Apartment & Contract</span>}
-                        {isOpen && <FaChevronDown className={`arrow ${openContract ? 'rotate' : ''}`} />}
-                    </div>
-                    {isOpen && openContract && (
-                        <div className="submenu">
-                            <NavLink to="/admin/contracts/create">Create Contract</NavLink>
-                            <NavLink to="/admin/contracts/view">View Contracts</NavLink>
-                        </div>
-                    )}
+                <div style={{ padding: isOpen ? '15px 20px 5px' : '15px 0 5px', fontSize: '11px', color: '#64748b', fontWeight: '800', textAlign: isOpen ? 'left' : 'center', marginTop: '10px' }}>
+                    {isOpen ? "APARTMENT & CONTRACT" : "---"}
                 </div>
+                <NavLink to="/admin/contracts/create" className="staff-nav-item"><FaFileContract /> {isOpen && "Create Contract"}</NavLink>
+                <NavLink to="/admin/contracts/view" className="staff-nav-item"><FaBuilding /> {isOpen && "View Contracts"}</NavLink>
+                <NavLink to="/admin/apartment-layout" className="staff-nav-item"><FaBuilding /> {isOpen && "Apartment Management"}</NavLink>
 
-                {/* --- REPORTS & STATS --- */}
-                <div className="menu-group">
-                    <div className="menu-item-title" onClick={() => handleGroupClick(setOpenReports, openReports)}>
-                        <FaChartPie />
-                        {isOpen && <span>Reports & Stats</span>}
-                        {isOpen && <FaChevronDown className={`arrow ${openReports ? 'rotate' : ''}`} />}
-                    </div>
-                    {isOpen && openReports && (
-                        <div className="submenu">
-                            <NavLink to="/admin/reports/revenue">Monthly Revenue</NavLink>
-                            <NavLink to="/admin/reports/residents">Resident Count</NavLink>
-                            <NavLink to="/admin/reports/payments">Payment Rate</NavLink>
-                            <NavLink to="/admin/reports/services">Service Usage</NavLink>
-                        </div>
-                    )}
+                <div style={{ padding: isOpen ? '15px 20px 5px' : '15px 0 5px', fontSize: '11px', color: '#64748b', fontWeight: '800', textAlign: isOpen ? 'left' : 'center', marginTop: '10px' }}>
+                    {isOpen ? "REPORTS" : "---"}
                 </div>
-
-                {/* --- MỤC PAY --- */}
-                <NavLink to="/admin/pay" className="nav-item">
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                            <FaMoneyBillWave />
-                            {isOpen && <span>PAY</span>}
-                        </div>
-                        {isOpen && <span className="nav-badge">17</span>}
-                    </div>
-                </NavLink>
-
-                {/* --- MỤC APARTMENT MANAGEMENT --- */}
-                <NavLink to="/admin/apartment-layout" className="nav-item">
-                    <FaBuilding /> {isOpen && <span>Apartment Management</span>}
-                </NavLink>
-
-                {/* --- MỤC REPAIR --- */}
-                <NavLink to="/admin/repair" className="nav-item">
-                    <FaWrench /> {isOpen && <span>REPAIR</span>}
-                </NavLink>
-
-                {/* --- MỤC MAINTENANCE --- */}
-                <NavLink to="/admin/maintenance" className="nav-item">
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                            <FaCalendarAlt />
-                            {isOpen && <span>MAINTENANCE</span>}
-                        </div>
-                        {/* Chỉ hiện badge đỏ khi có số lượng thiết bị đến hạn */}
-                        {isOpen && upcomingCount > 0 && (
-                            <span className="nav-badge" style={{ background: '#ff0000', boxShadow: '0 0 10px rgba(255,0,0,0.3)' }}>
-                                {upcomingCount}
-                            </span>
-                        )}
-                    </div>
-                </NavLink>
-
-                {/* --- MỤC EVALUATE (MỚI THÊM) --- */}
-                <NavLink to="/admin/evaluate" className="nav-item">
-                    <FaStar /> {isOpen && <span>EVALUATE</span>}
-                </NavLink>
-
-                <NavLink to="/market" className="nav-item"><FaBuilding /> {isOpen && "Edit Properties"}</NavLink>
-                <NavLink to="/news" className="nav-item"><FaNewspaper /> {isOpen && "News Manager"}</NavLink>
+                <NavLink to="/admin/reports/revenue" className="staff-nav-item"><FaChartPie /> {isOpen && "Monthly Revenue"}</NavLink>
             </nav>
-        </div>
+        </aside>
     );
 };
 
 export const AdminLayout = () => {
+    const navigate = useNavigate();
     const [adminName, setAdminName] = useState('');
     const [isOpen, setIsOpen] = useState(true);
+    const [showIdCard, setShowIdCard] = useState(false);
     // Quản lý số lượng bảo trì toàn cục
-    const [upcomingCount, setUpcomingCount] = useState(0); 
+    const [upcomingCount, setUpcomingCount] = useState(0);
 
     useEffect(() => {
-        setAdminName('Super Admin'); 
-        // Gọi API Backend để lấy thông tin Admin đang đăng nhập tại đây
-        // fetch('/api/admin/profile', {
-        //     headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-        // })
-        // .then(res => res.json())
-        // .then(data => setAdminName(data.name))
-        // .catch(err => console.error(err));
-
-        // Tạm thời giả lập dữ liệu tĩnh để test UI (xóa khi có API thật)
+        setAdminName('Super Admin');
     }, []);
 
     return (
-        <div className="admin-page-wrapper">
+        <div className="staff-wrapper">
             <AdminSidebar isOpen={isOpen} setIsOpen={setIsOpen} upcomingCount={upcomingCount} />
-            <div className="admin-main-container">
-                <div className="admin-topbar">
-                    <div className="vinahouse-header-brand">
-                        <img src={logoImg} alt="Logo" className="header-logo-img" />
-                        <span className="header-brand-name">ADMIN: {adminName}</span>
-                    </div>
+            <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+                <header className="staff-topbar" style={{ justifyContent: 'space-between' }}>
+                    <nav className="staff-main-nav" style={{ marginRight: 0, alignItems: 'center' }}>
+                        <a href="/admin" className="active">Admin</a>
+                        <a href="/staff/apartment">Staff Apartment</a>
+                        <a href="/staff/service">Staff Service</a>
+                        <a href="/staff/security">Staff Security</a>
+                    </nav>
 
-                    {/* Lấy dữ liệu account từ database */}
-
-                    <div className="topbar-right">
-                        <NavLink to="/" className="topbar-home-link">
-                            <FaHome /> <span>Home</span>
-                        </NavLink>
-                        <div className="topbar-profile">
-                            <div className="profile-info">
-                                <span className="profile-name">Admin Name</span>
-                                <span className="profile-role">Administrator</span>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+                        <button className="btn-header-home" onClick={() => navigate('/')}>
+                            Home
+                        </button>
+                        <div className="staff-profile-trigger" onClick={() => setShowIdCard(!showIdCard)}>
+                            <div className="profile-icon-wrapper">
+                                <div className="profile-icon-inner">
+                                    <FaUser />
+                                </div>
                             </div>
-                            <img
-                                src="https://ui-avatars.com/api/?name=Admin&background=0f172a&color=fff"
-                                alt="Admin Profile"
-                                className="profile-avatar"
-                            />
+                            {showIdCard && (
+                                <div className="staff-id-card">
+                                    <div className="id-card-header">
+                                        <div className="staff-avatar-circle" style={{ background: '#0f172a' }}>SA</div>
+                                        <h3 style={{ margin: 0 }}>{adminName}</h3>
+                                        <p style={{ fontSize: '12px', color: '#64748b' }}>System Administrator</p>
+                                    </div>
+                                    <div style={{ fontSize: '13px' }}>
+                                        <p><strong>Role:</strong> Super Admin</p>
+                                        <p><strong>Department:</strong> System Management</p>
+                                    </div>
+                                </div>
+                            )}
                         </div>
                     </div>
-                </div>
-                <div className="admin-content-area">
+                </header>
+
+                <div className="staff-content-area">
                     {/* Truyền hàm cập nhật số lượng xuống các trang con */}
                     <Outlet context={{ setUpcomingCount }} />
                 </div>
@@ -190,25 +106,26 @@ export const AdminLayout = () => {
 
 export const AdminDashboard = () => {
     return (
-        <div className="dashboard-content">
-            <header className="content-header">
+        <div className="dashboard-content staff-form-container">
+            <header className="content-header" style={{ marginBottom: '20px' }}>
                 <h2>Overview of the Management System</h2>
+                <p style={{ color: '#c89b3c', fontWeight: 'bold' }}>Quick actions and metrics</p>
             </header>
 
             <div className="admin-visual-grid">
-                <div className="house-card" style={{ backgroundImage: "url('https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=1000')" }}>
-                    <div className="card-inner">
-                        <h3>Modify the Homepage interface.</h3>
-                        <p>Edit banners, featured areas, and contact information.</p>
-                        <button onClick={() => window.location.href = '/'}>Go to the Home page</button>
+                <div className="house-card" style={{ backgroundImage: "url('https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=1000')", height: '250px' }}>
+                    <div className="card-inner" style={{ padding: '20px' }}>
+                        <h3 style={{ fontSize: '1.2rem' }}>Modify the Homepage interface.</h3>
+                        <p style={{ marginBottom: '10px' }}>Edit banners, featured areas, and contact information.</p>
+                        <button style={{ padding: '8px 15px' }} onClick={() => window.location.href = '/'}>Go to the Home page</button>
                     </div>
                 </div>
 
-                <div className="house-card" style={{ backgroundImage: "url('https://images.unsplash.com/photo-1512917774080-9991f1c4c750?q=80&w=1000')" }}>
-                    <div className="card-inner">
-                        <h3>Exchange Management</h3>
-                        <p>Updated prices, photos, and status of VinaHouse apartments.</p>
-                        <button onClick={() => window.location.href = '/market'}>Edit Products</button>
+                <div className="house-card" style={{ backgroundImage: "url('https://images.unsplash.com/photo-1512917774080-9991f1c4c750?q=80&w=1000')", height: '250px' }}>
+                    <div className="card-inner" style={{ padding: '20px' }}>
+                        <h3 style={{ fontSize: '1.2rem' }}>Exchange Management</h3>
+                        <p style={{ marginBottom: '10px' }}>Updated prices, photos, and status of VinaHouse apartments.</p>
+                        <button style={{ padding: '8px 15px' }} onClick={() => window.location.href = '/market'}>Edit Products</button>
                     </div>
                 </div>
             </div>

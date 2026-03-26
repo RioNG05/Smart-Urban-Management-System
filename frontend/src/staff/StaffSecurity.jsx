@@ -36,15 +36,13 @@ const StaffSecurity = () => {
                     <div className={`staff-nav-item ${activeTab === 'patrols' ? 'active' : ''}`} onClick={() => setActiveTab('patrols')}>
                         <FaWalking /> {sidebarOpen && "Patrol Schedule"}
                     </div>
-                    <div className="staff-nav-item" onClick={() => navigate('/news')}>
-                        <FaNewspaper /> {sidebarOpen && "News Manager"}
-                    </div>
                 </nav>
             </aside>
 
             <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
                 <header className="staff-topbar" style={{ justifyContent: 'space-between' }}>
-                    <nav className="staff-main-nav" style={{ marginRight: 0 }}>
+                    <nav className="staff-main-nav" style={{ marginRight: 0, alignItems: 'center' }}>
+                        <a href="/admin">Admin</a>
                         <a href="/staff/apartment">Staff Apartment</a>
                         <a href="/staff/service">Staff Service</a>
                         <a href="/staff/security" className="active">Staff Security</a>
