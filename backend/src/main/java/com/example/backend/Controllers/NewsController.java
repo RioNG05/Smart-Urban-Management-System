@@ -32,13 +32,13 @@ public class NewsController {
 
     @PostMapping
     @PreAuthorize("hasAuthority('News_C_01')")
-    public News create(@Valid @RequestBody NewsCreateRequest request) {
+    public NewsResponse create(@Valid @RequestBody NewsCreateRequest request) {
         return service.create(request);
     }
 
     @PutMapping("/{id}")
     @PreAuthorize("hasAuthority('News_U_01')")
-    public News update(@PathVariable Integer id,
+    public NewsResponse update(@PathVariable Integer id,
                        @Valid @RequestBody NewsUpdateRequest request) {
         return service.update(id, request);
     }
