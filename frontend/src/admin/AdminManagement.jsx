@@ -486,13 +486,13 @@ export const AdminLockResident = () => {
           </div>
         </div>
 
-        <div className="admin-lock-actions">
+        <div className="admin-lock-actions" style={{ display: 'flex', gap: '15px' }}>
           <button className="btn-add-resident" onClick={handleAddOrUpdate} disabled={isSubmitting}>
             {isSubmitting ? "PROCESSING..." : isEditMode ? "CONFIRM UPDATE" : "ISSUE ACCOUNT"}
           </button>
           {isEditMode && (
-            <button className="btn-table-delete" type="button" onClick={resetForm} disabled={isSubmitting}>
-              Cancel
+            <button className="btn-cancel-resident" type="button" onClick={resetForm} disabled={isSubmitting}>
+              CANCEL
             </button>
           )}
         </div>
@@ -959,12 +959,12 @@ export const AdminPropertyManager = () => {
               <div className="card-inner">
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
                   <h3 style={{ margin: 0, fontSize: '1.2rem', color: 'white' }}>Apt: {item.id}</h3>
-                  {editingId !== item.id && (
+                    {editingId !== item.id && (
                     <button
                       onClick={() => setEditingId(item.id)}
                       style={{
-                        background: 'rgba(255,255,255,0.15)',
-                        border: '1px solid rgba(255,255,255,0.3)',
+                        background: '#c89b3c',
+                        border: 'none',
                         color: 'white',
                         padding: '6px 14px',
                         borderRadius: '6px',
@@ -973,11 +973,20 @@ export const AdminPropertyManager = () => {
                         display: 'flex',
                         alignItems: 'center',
                         gap: '6px',
-                        fontWeight: '600',
-                        transition: 'background 0.2s'
+                        fontWeight: '700',
+                        transition: 'all 0.2s',
+                        boxShadow: '0 4px 6px rgba(200, 155, 60, 0.2)'
                       }}
-                      onMouseEnter={(e) => e.target.style.background = 'rgba(255,255,255,0.25)'}
-                      onMouseLeave={(e) => e.target.style.background = 'rgba(255,255,255,0.15)'}
+                      onMouseEnter={(e) => {
+                        e.target.style.background = '#b08630';
+                        e.target.style.transform = 'translateY(-1px)';
+                        e.target.style.boxShadow = '0 6px 12px rgba(176, 134, 48, 0.3)';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.target.style.background = '#c89b3c';
+                        e.target.style.transform = 'translateY(0)';
+                        e.target.style.boxShadow = '0 4px 6px rgba(200, 155, 60, 0.2)';
+                      }}
                     >
                       <FaEdit /> Edit
                     </button>
@@ -1019,8 +1028,22 @@ export const AdminPropertyManager = () => {
                       </div>
                       
                       <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
-                        <button onClick={() => setEditingId(null)} style={{ padding: '8px 16px', background: 'transparent', border: '1px solid white', color: 'white', borderRadius: '6px', cursor: 'pointer', fontWeight: '600' }}>Cancel</button>
-                        <button onClick={() => handleSave(item.id)} style={{ padding: '8px 16px', background: '#10b981', border: 'none', color: 'white', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold' }}>Save Changes</button>
+                        <button 
+                          onClick={() => setEditingId(null)} 
+                          style={{ padding: '8px 16px', background: 'transparent', border: '1px solid rgba(255,255,255,0.5)', color: 'white', borderRadius: '6px', cursor: 'pointer', fontWeight: '600', transition: 'all 0.2s' }}
+                          onMouseEnter={(e) => e.target.style.background = 'rgba(255,255,255,0.1)'}
+                          onMouseLeave={(e) => e.target.style.background = 'transparent'}
+                        >
+                          Cancel
+                        </button>
+                        <button 
+                          onClick={() => handleSave(item.id)} 
+                          style={{ padding: '8px 16px', background: '#c89b3c', border: 'none', color: 'white', borderRadius: '6px', cursor: 'pointer', fontWeight: '800', transition: 'all 0.2s' }}
+                          onMouseEnter={(e) => e.target.style.background = '#b08630'}
+                          onMouseLeave={(e) => e.target.style.background = '#c89b3c'}
+                        >
+                          Save Changes
+                        </button>
                       </div>
                     </div>
                   ) : (

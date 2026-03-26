@@ -1,13 +1,15 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../components/sections/auth/AuthContext';
 import {
     FaBars, FaUserCircle, FaUser, FaClipboardList,
-    FaCreditCard, FaNewspaper, FaConciergeBell
+    FaCreditCard, FaNewspaper, FaConciergeBell, FaSignOutAlt
 } from 'react-icons/fa';
 import StaffServiceMainContent from './StaffServiceMainContent';
 import '../styles/staff.css';
 
 const StaffService = () => {
+    const { logout } = useAuth();
     const navigate = useNavigate();
     const [sidebarOpen, setSidebarOpen] = useState(true);
     const [showIdCard, setShowIdCard] = useState(false);
@@ -59,9 +61,14 @@ const StaffService = () => {
                                         <p style={{ fontSize: '12px', color: '#64748b' }}>Service Coordinator | ID: SVC-2026</p>
                                     </div>
                                     <div style={{ fontSize: '13px' }}>
-                                        <p><strong>Department:</strong> Resident Services</p>
-                                        <p><strong>Join Date:</strong> 10/02/2026</p>
-                                        <p><strong>Responsibility:</strong> Amenity Management</p>
+                                        <p><strong>Department:</strong> Service Management</p>
+                                        <p><strong>Join Date:</strong> 13/03/2026</p>
+                                        <p><strong>Shift:</strong> 08:00 - 17:00</p>
+                                    </div>
+                                    <div className="logout-btn-wrapper">
+                                        <button className="btn-logout-account" onClick={() => logout()}>
+                                            <FaSignOutAlt /> Logout Account
+                                        </button>
                                     </div>
                                 </div>
                             )}

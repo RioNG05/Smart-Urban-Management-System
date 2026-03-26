@@ -20,6 +20,8 @@ public class ResidentCreateRequest {
     LocalDate dateOfBirth;
     @NotBlank(message = "Không được để trống căn cước công dân")
     String identityId;
+    @NotBlank(message = "Không được để trống sdt")
+    String phoneNumber;
     @NotNull(message = "Không được để trống id tài khoản đăng ký")
     Integer accountId;
 }
