@@ -24,6 +24,7 @@ public class AccountController {
     private RoleRepository roleRepository;
 
     @GetMapping
+<<<<<<< HEAD
     @PreAuthorize("hasAuthority('Account_R_01')")
     ApiResponse<List<Account>> get(){
         ApiResponse<List<Account>> response = new ApiResponse<>();
@@ -32,6 +33,10 @@ public class AccountController {
         response.setMessage("Lấy danh sách tài khoản thành công");
         response.setResult(accountService.findAll());
         return response;
+=======
+    List<Account> get(){
+        return accountService.findAll();
+>>>>>>> c6f5a04 (Sửa hiển thị role trong api)
     }
 
     @GetMapping("/{accountID}")
