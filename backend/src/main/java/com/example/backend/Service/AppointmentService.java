@@ -6,7 +6,9 @@ import com.example.backend.Repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 
 @Service
@@ -141,24 +143,33 @@ public class AppointmentService {
     }
 
     private void checkConflict(Integer staffId,
-                               java.time.LocalDate date,
-                               java.time.LocalTime start,
-                               java.time.LocalTime end,
+                               LocalDate date,
+                               LocalTime start,
+                               LocalTime end,
                                Integer excludeId) {
 
-        boolean isConflict;
+        int count;
 
         if (excludeId == null) {
-            isConflict = appointmentRepository.existsConflict(
-                    staffId, date, start, end
+            // CREATE
+            count = appointmentRepository.countConflict(
+                    staffId,
+                    date,
+                    start,
+                    end
             );
         } else {
-            isConflict = appointmentRepository.existsConflictExcludeId(
-                    staffId, excludeId, date, start, end
+            // UPDATE
+            count = appointmentRepository.countConflictExcludeId(
+                    staffId,
+                    excludeId,
+                    date,
+                    start,
+                    end
             );
         }
 
-        if (isConflict) {
+        if (count > 0) {
             throw new RuntimeException("Staff đã có lịch trong thời gian này");
         }
     }

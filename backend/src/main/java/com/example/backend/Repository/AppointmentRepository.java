@@ -9,30 +9,32 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 
 public interface AppointmentRepository extends JpaRepository<Appointment, Integer> {
-    @Query("""
-    SELECT COUNT(a) > 0 FROM Appointment a
-    WHERE a.assignedTo.id = :staffId
-    AND a.meetingDate = :date
+    @Query(value = """
+    SELECT COUNT(*) FROM Appointments a
+    WHERE a.AssignedTo = :staffId
+    AND a.MeetingDate = :date
     AND (
-        a.startTime < :endTime AND a.endTime > :startTime
+        a.StartTime < CAST(:endTime AS TIME)
+        AND a.EndTime > CAST(:startTime AS TIME)
     )
-""")
-    boolean existsConflict(
+""", nativeQuery = true)
+    int countConflict(
             @Param("staffId") Integer staffId,
             @Param("date") LocalDate date,
             @Param("startTime") LocalTime startTime,
             @Param("endTime") LocalTime endTime
     );
-    @Query("""
-    SELECT COUNT(a) > 0 FROM Appointment a
-    WHERE a.assignedTo.id = :staffId
-    AND a.id <> :appointmentId
-    AND a.meetingDate = :date
+    @Query(value = """
+    SELECT COUNT(*) FROM Appointments a
+    WHERE a.AssignedTo = :staffId
+    AND a.Id <> :appointmentId
+    AND a.MeetingDate = :date
     AND (
-        a.startTime < :endTime AND a.endTime > :startTime
+        a.StartTime < CAST(:endTime AS TIME)
+        AND a.EndTime > CAST(:startTime AS TIME)
     )
-""")
-    boolean existsConflictExcludeId(
+""", nativeQuery = true)
+    int countConflictExcludeId(
             @Param("staffId") Integer staffId,
             @Param("appointmentId") Integer appointmentId,
             @Param("date") LocalDate date,
