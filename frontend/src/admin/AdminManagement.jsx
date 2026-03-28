@@ -242,7 +242,7 @@ export const AdminLockResident = () => {
         gender: "",
         dateOfBirth: "",
         identityId: "",
-        email: "",
+        phone: "",
         username: "",
         password: "",
         isActive: true,
@@ -273,7 +273,7 @@ export const AdminLockResident = () => {
             gender: resident?.gender ?? "",
             dateOfBirth: resident?.dateOfBirth ?? "",
             identityId: resident?.identityId ?? "",
-            email: account?.email ?? "",
+            phone: account?.phone ?? account?.email ?? "",
             username: account?.username ?? "",
             roleName: account?.role?.roleName ?? "RESIDENT",
             isActive: account?.isActive ?? false,
@@ -347,7 +347,7 @@ export const AdminLockResident = () => {
             gender: resident.gender,
             dateOfBirth: resident.dateOfBirth,
             identityId: resident.identityId,
-            email: resident.email,
+            phone: resident.phone,
             username: resident.username,
             password: "",
             isActive: resident.isActive,
@@ -358,10 +358,10 @@ export const AdminLockResident = () => {
     };
 
     const validateForm = () => {
-        if (!formData.fullName || !formData.dateOfBirth || !formData.identityId || !formData.email || !formData.username) {
+        if (!formData.fullName || !formData.dateOfBirth || !formData.identityId || !formData.phone || !formData.username) {
             setFeedback({
                 type: "error",
-                message: "Vui long nhap day du ho ten, ngay sinh, CCCD, email va username.",
+                message: "Vui long nhap day du ho ten, ngay sinh, CCCD, so dien thoai va username.",
             });
             return false;
         }
@@ -388,7 +388,8 @@ export const AdminLockResident = () => {
         try {
             if (isEditMode) {
                 const accountPayload = {
-                    email: formData.email,
+                    email: formData.phone,
+                    phone: formData.phone,
                     username: formData.username,
                     isActive: formData.isActive,
                 };
@@ -411,7 +412,8 @@ export const AdminLockResident = () => {
                 });
             } else {
                 const account = await createAccount({
-                    email: formData.email,
+                    email: formData.phone,
+                    phone: formData.phone,
                     username: formData.username,
                     password: formData.password,
                     isActive: formData.isActive,
@@ -492,7 +494,8 @@ export const AdminLockResident = () => {
 
         try {
             await updateAccountById(resident.accountId, {
-                email: resident.email,
+                email: resident.phone,
+                phone: resident.phone,
                 username: resident.username,
                 isActive: !resident.isActive,
             });
@@ -524,7 +527,7 @@ export const AdminLockResident = () => {
 
         return [
             resident.fullName,
-            resident.email,
+            resident.phone,
             resident.username,
             resident.identityId,
             ...resident.apartments.map((apartment) => String(apartment.roomNumber)),
@@ -583,8 +586,8 @@ export const AdminLockResident = () => {
                         <input type="text" value={formData.identityId} placeholder="CCCD / Passport" onChange={(e) => handleInputChange("identityId", e.target.value)} />
                     </div>
                     <div className="form-group">
-                        <label>Email</label>
-                        <input type="email" value={formData.email} placeholder="resident@email.com" onChange={(e) => handleInputChange("email", e.target.value)} />
+                        <label>Phone</label>
+                        <input type="text" value={formData.phone} placeholder="09xxxxxxxx" onChange={(e) => handleInputChange("phone", e.target.value)} />
                     </div>
                     <div className="form-group">
                         <label>Username</label>
@@ -624,7 +627,7 @@ export const AdminLockResident = () => {
                         <FaSearch />
                         <input
                             type="text"
-                            placeholder="Tim theo ten, email, username, CCCD, can ho..."
+                            placeholder="Tim theo ten, so dien thoai, username, CCCD, can ho..."
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                         />
@@ -639,7 +642,7 @@ export const AdminLockResident = () => {
                                 <th>Gender</th>
                                 <th>Date of Birth</th>
                                 <th>Identity ID</th>
-                                <th>Email</th>
+                                <th>Phone</th>
                                 <th>Username</th>
                                 <th>Owned Apartments</th>
                                 <th>Status</th>
@@ -667,7 +670,7 @@ export const AdminLockResident = () => {
                                         <td className="admin-cell-compact">{resident.gender || "N/A"}</td>
                                         <td className="admin-cell-compact">{resident.dateOfBirth || "N/A"}</td>
                                         <td className="admin-cell-compact">{resident.identityId || "N/A"}</td>
-                                        <td className="admin-cell-compact">{resident.email || "N/A"}</td>
+                                        <td className="admin-cell-compact">{resident.phone || "N/A"}</td>
                                         <td className="admin-cell-compact">{resident.username || "N/A"}</td>
                                         <td>
                                             {resident.apartments.length > 0 ? (
