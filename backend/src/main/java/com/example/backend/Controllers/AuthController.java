@@ -95,6 +95,7 @@ public class AuthController {
                 .gender(resident.getGender())
                 .dateOfBirth(resident.getDateOfBirth())
                 .identityId(resident.getIdentityId())
+                .phoneNumber(resident.getPhoneNumber())
                 .build();
 
         return ApiResponse.<ResidentsResponse>builder()

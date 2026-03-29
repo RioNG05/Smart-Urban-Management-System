@@ -1,13 +1,15 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../components/sections/auth/AuthContext';
 import {
-    FaBars, FaUserCircle, FaUser, FaClipboardList, 
-    FaCreditCard, FaNewspaper, FaConciergeBell
+    FaBars, FaUserCircle, FaUser, FaClipboardList,
+    FaCreditCard, FaNewspaper, FaConciergeBell, FaSignOutAlt
 } from 'react-icons/fa';
 import StaffServiceMainContent from './StaffServiceMainContent';
 import '../styles/staff.css';
 
 const StaffService = () => {
+    const { logout } = useAuth();
     const navigate = useNavigate();
     const [sidebarOpen, setSidebarOpen] = useState(true);
     const [showIdCard, setShowIdCard] = useState(false);
@@ -17,27 +19,25 @@ const StaffService = () => {
         <div className="staff-wrapper">
             {/* SIDEBAR */}
             <aside className={`staff-sidebar ${sidebarOpen ? '' : 'closed'}`}>
-                <div style={{ padding: '25px', display: 'flex', alignItems: 'center' }}>
-                    <FaBars onClick={() => setSidebarOpen(!sidebarOpen)} style={{ cursor: 'pointer' }} />
+                <div style={{ padding: '25px', display: 'flex', alignItems: 'center', justifyContent: sidebarOpen ? 'flex-start' : 'center' }}>
+                    <FaBars onClick={() => setSidebarOpen(!sidebarOpen)} style={{ cursor: 'pointer', fontSize: '1.2rem' }} />
                     {sidebarOpen && <span style={{ marginLeft: '15px', fontWeight: '800' }}>SERVICE HUB</span>}
                 </div>
 
                 <nav className="staff-sidebar-nav">
-                    <div className={`staff-nav-item ${activeTab === 'bookings' ? 'active' : ''}`} onClick={() => setActiveTab('bookings')}>
-                        <FaConciergeBell /> {sidebarOpen && "Booking Management"}
+                    <div className={`staff-nav-item ${activeTab === 'bookings' ? 'active' : ''}`} onClick={() => setActiveTab('bookings')} style={{ justifyContent: sidebarOpen ? 'flex-start' : 'center', padding: sidebarOpen ? '12px 15px' : '15px 0' }}>
+                        <FaConciergeBell style={{ marginRight: sidebarOpen ? '15px' : '0' }} /> {sidebarOpen && "Booking Management"}
                     </div>
-                    <div className={`staff-nav-item ${activeTab === 'fees' ? 'active' : ''}`} onClick={() => setActiveTab('fees')}>
-                        <FaCreditCard /> {sidebarOpen && "Service Fee Stats"}
-                    </div>
-                    <div className="staff-nav-item" onClick={() => navigate('/news')}>
-                        <FaNewspaper /> {sidebarOpen && "News Manager"}
+                    <div className={`staff-nav-item ${activeTab === 'fees' ? 'active' : ''}`} onClick={() => setActiveTab('fees')} style={{ justifyContent: sidebarOpen ? 'flex-start' : 'center', padding: sidebarOpen ? '12px 15px' : '15px 0' }}>
+                        <FaCreditCard style={{ marginRight: sidebarOpen ? '15px' : '0' }} /> {sidebarOpen && "Service Fee Stats"}
                     </div>
                 </nav>
             </aside>
 
             <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
                 <header className="staff-topbar" style={{ justifyContent: 'space-between' }}>
-                    <nav className="staff-main-nav" style={{ marginRight: 0 }}>
+                    <nav className="staff-main-nav" style={{ marginRight: 0, alignItems: 'center' }}>
+                        <a href="/admin">Admin</a>
                         <a href="/staff/apartment">Staff Apartment</a>
                         <a href="/staff/service" className="active">Staff Service</a>
                         <a href="/staff/security">Staff Security</a>
@@ -61,9 +61,14 @@ const StaffService = () => {
                                         <p style={{ fontSize: '12px', color: '#64748b' }}>Service Coordinator | ID: SVC-2026</p>
                                     </div>
                                     <div style={{ fontSize: '13px' }}>
-                                        <p><strong>Department:</strong> Resident Services</p>
-                                        <p><strong>Join Date:</strong> 10/02/2026</p>
-                                        <p><strong>Responsibility:</strong> Amenity Management</p>
+                                        <p><strong>Department:</strong> Service Management</p>
+                                        <p><strong>Join Date:</strong> 13/03/2026</p>
+                                        <p><strong>Shift:</strong> 08:00 - 17:00</p>
+                                    </div>
+                                    <div className="logout-btn-wrapper">
+                                        <button className="btn-logout-account" onClick={() => logout()}>
+                                            <FaSignOutAlt /> Logout Account
+                                        </button>
                                     </div>
                                 </div>
                             )}

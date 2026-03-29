@@ -26,6 +26,9 @@ public class Resident {
     @Column(name = "IdentityId", nullable = false, unique = true, length = 20)
     private String identityId;
 
+    @Column(name = "PhoneNumber", length = 15)
+    private String phoneNumber;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "AccountId")
     private Account account;
