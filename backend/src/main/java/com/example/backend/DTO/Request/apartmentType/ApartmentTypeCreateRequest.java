@@ -1,5 +1,6 @@
 package com.example.backend.DTO.Request.apartmentType;
 
+import com.example.backend.Entity.FurnitureType;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
@@ -27,5 +28,5 @@ public class ApartmentTypeCreateRequest {
     @NotNull(message = "Không được để trống giá thuê")
     BigDecimal commonPriceForRent;
     @NotNull(message = "Không được để trống kiểu nội thất")
-    Integer furniture;                  //Defaut: 0
+    Integer furnitureTypeId;
 }
