@@ -44,6 +44,17 @@ public class AccountController {
         return response;
     }
 
+    @GetMapping("/search-by-username/{username}")
+    @PreAuthorize("@accessValidate.isAllowed(#accountID, authentication)")
+    ApiResponse<Account> getByUsername(@PathVariable("username") String username){
+        ApiResponse<Account> response = new ApiResponse<>();
+
+        response.setCode(200);
+        response.setMessage("Thông tin tài khoản id: " + username);
+        response.setResult(accountService.findByUsername(username));
+        return response;
+    }
+
     @PostMapping
     ApiResponse<Account> create(@RequestBody @Valid AccountCreateRequest req){
         ApiResponse<Account> response = new ApiResponse<>();

@@ -1,24 +1,45 @@
-export default function ProjectsSection() {
+import { Link } from "react-router-dom";
+
+export default function ProjectsSection({ apartmentTypes = [] }) {
   return (
-    <section className="section">
-      <h2>Featured Projects</h2>
+    <section className="section home-projects-section">
+      <div className="home-section-heading">
+        <span className="home-section-kicker">Featured Apartments</span>
+        <h2>Discover 3 apartment types highlighted from the latest backend data</h2>
+        <p>
+          Browse apartment layouts with core details, overview content, and visuals tailored to
+          each type.
+        </p>
+      </div>
 
       <div className="project-grid">
-        <div className="card">
-          <h3>Ocean Park</h3>
-          <p>A coastal-inspired mega urban development.</p>
-        </div>
+        {apartmentTypes.map((apartmentType) => (
+          <article key={apartmentType.id} className="card project-card">
+            <div className="project-card-image">
+              <img src={apartmentType.image} alt={apartmentType.name} />
+            </div>
 
-        <div className="card">
-          <h3>Smart City</h3>
-          <p>Where innovation meets modern architecture.</p>
-        </div>
+            <div className="project-card-content">
+              <div className="project-card-meta">
+                <span>{apartmentType.bedrooms} bedrooms</span>
+                <span>{apartmentType.bathrooms} bathrooms</span>
+                {apartmentType.area ? <span>{apartmentType.area} m2</span> : null}
+              </div>
 
-        <div className="card">
-          <h3>Grand Park</h3>
-          <p>A green urban paradise in the heart of the city.</p>
-        </div>
+              <h3>{apartmentType.name}</h3>
+              <p>{apartmentType.description}</p>
+
+              <Link to="/market" className="home-section-link">
+                View apartments
+              </Link>
+            </div>
+          </article>
+        ))}
       </div>
+
+      {!apartmentTypes.length ? (
+        <div className="home-empty-state">No apartment types are available yet.</div>
+      ) : null}
     </section>
   );
 }

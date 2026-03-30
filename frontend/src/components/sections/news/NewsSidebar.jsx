@@ -1,23 +1,21 @@
 import { Link } from "react-router-dom";
 
-const related = [
-  { id: 2, title: "Top Livable Urban Areas in Hanoi" },
-  { id: 3, title: "Is Real Estate Investment Worth It in 2026?" },
-  { id: 4, title: "Areas with the Fastest Property Price Growth" },
-];
-
-export default function NewsSidebar() {
+export default function NewsSidebar({ items = [] }) {
   return (
     <aside className="news-detail-sidebar">
       <h3>Related Articles</h3>
 
-      <ul>
-        {related.map((item) => (
-          <li key={item.id}>
-            <Link to={`/news/${item.id}`}>{item.title}</Link>
-          </li>
-        ))}
-      </ul>
+      {items.length === 0 ? (
+        <p className="text-muted mb-0">No related articles yet.</p>
+      ) : (
+        <ul>
+          {items.map((item) => (
+            <li key={item.id}>
+              <Link to={`/news/${item.id}`}>{item.title}</Link>
+            </li>
+          ))}
+        </ul>
+      )}
     </aside>
   );
 }

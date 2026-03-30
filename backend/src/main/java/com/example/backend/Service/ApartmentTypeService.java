@@ -6,8 +6,10 @@ import com.example.backend.DTO.Request.resident.ResidentCreateRequest;
 import com.example.backend.DTO.Request.resident.ResidentUpdateRequest;
 import com.example.backend.Entity.Account;
 import com.example.backend.Entity.ApartmentType;
+import com.example.backend.Entity.FurnitureType;
 import com.example.backend.Entity.Resident;
 import com.example.backend.Repository.ApartmentTypeRepository;
+import com.example.backend.Repository.FurnitureTypeRepository;
 import com.example.backend.Repository.ResidentRepository;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
@@ -22,6 +24,8 @@ import java.util.Optional;
 public class ApartmentTypeService {
     @Autowired
     ApartmentTypeRepository repository;
+    @Autowired
+    FurnitureTypeRepository furnitureTypeRepository;
 
     public List<ApartmentType> findAll() {
         return repository.findAll();
@@ -33,11 +37,13 @@ public class ApartmentTypeService {
     }
 
     public ApartmentType create(ApartmentTypeCreateRequest request) {
+        FurnitureType furnitureType = furnitureTypeRepository.findById(request.getFurnitureTypeId()).orElseThrow(() ->new RuntimeException("Can't found furniture type by id: " + request.getFurnitureTypeId()));
+
         ApartmentType apartmentType = ApartmentType.builder()
                 .name(request.getName())
                 .overview(request.getOverview())
                 .designSqrt(request.getDesignSqrt())
-                .furniture(Optional.ofNullable(request.getFurniture()).orElse(0))
+                .furnitureType(furnitureType)
                 .commonPriceForRent(request.getCommonPriceForRent())
                 .commonPriceForBuying(request.getCommonPriceForBuying())
                 .numberOfBathroom(Optional.ofNullable(request.getNumberOfBathroom()).orElse(1))
@@ -65,8 +71,9 @@ public class ApartmentTypeService {
             apartmentType.setDesignSqrt(req.getDesignSqrt());
         }
 
-        if(req.getFurniture() != null) {
-            apartmentType.setFurniture(req.getFurniture());
+        if(req.getFurnitureTypeId() != null) {
+            FurnitureType furnitureType = furnitureTypeRepository.findById(req.getFurnitureTypeId()).orElseThrow(() ->new RuntimeException("Can't found furniture type by id: " + req.getFurnitureTypeId()));
+            apartmentType.setFurnitureType(furnitureType);
         }
 
         if(req.getCommonPriceForRent() != null) {

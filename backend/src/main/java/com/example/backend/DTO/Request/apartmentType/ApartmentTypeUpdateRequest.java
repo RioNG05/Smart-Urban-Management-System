@@ -1,5 +1,6 @@
 package com.example.backend.DTO.Request.apartmentType;
 
+import com.example.backend.Entity.FurnitureType;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -18,5 +19,5 @@ public class ApartmentTypeUpdateRequest {
     String overview;
     BigDecimal commonPriceForBuying;
     BigDecimal commonPriceForRent;
-    Integer furniture = 0;
+    Integer furnitureTypeId;
 }

@@ -1,0 +1,22 @@
+# Sử dụng trực tiếp Java 25 từ Microsoft hoặc Oracle
+FROM openjdk:25-ea-jdk-slim
+
+# Đặt thư mục làm việc trong container
+WORKDIR /app
+
+# Copy các file build Maven vào
+COPY .mvn/ .mvn
+COPY mvnw pom.xml ./
+COPY src ./src
+
+# Cấp quyền thực thi cho file mvnw (nếu chạy trên Linux)
+RUN chmod +x mvnw
+
+# Build ứng dụng 
+RUN ./mvnw clean install -DskipTests
+
+# Mở cổng 8080
+EXPOSE 8080
+
+# Chạy ứng dụng Spring Boot
+ENTRYPOINT ["java", "-jar", "target/backend-0.0.1-SNAPSHOT.jar"]

@@ -2,15 +2,12 @@ package com.example.backend.Controllers;
 
 import com.example.backend.DTO.Request.apartmentType.ApartmentTypeCreateRequest;
 import com.example.backend.DTO.Request.apartmentType.ApartmentTypeUpdateRequest;
-import com.example.backend.DTO.Request.resident.ResidentCreateRequest;
-import com.example.backend.DTO.Request.resident.ResidentUpdateRequest;
 import com.example.backend.DTO.Response.ApiResponse;
 import com.example.backend.Entity.ApartmentType;
-import com.example.backend.Entity.Resident;
 import com.example.backend.Service.ApartmentTypeService;
-import com.example.backend.Service.ResidentService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -44,6 +41,7 @@ public class ApartmentTypeController {
     }
 
     @PostMapping
+    @PreAuthorize("hasAuthority('ApartmentTypes_C_01')")
     ApiResponse<ApartmentType> create(@RequestBody @Valid ApartmentTypeCreateRequest req){
         ApiResponse<ApartmentType> response = new ApiResponse<>();
 
@@ -54,6 +52,7 @@ public class ApartmentTypeController {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasAuthority('ApartmentTypes_U_01')")
     ApiResponse<ApartmentType> update(@PathVariable("id") Integer id, @RequestBody ApartmentTypeUpdateRequest req){
         ApiResponse<ApartmentType> response = new ApiResponse<>();
 
@@ -65,6 +64,7 @@ public class ApartmentTypeController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasAuthority('ApartmentTypes_D_01')")
     ApiResponse<ApartmentType> delete(@PathVariable("id") Integer id){
         ApiResponse<ApartmentType> response = new ApiResponse<>();
 

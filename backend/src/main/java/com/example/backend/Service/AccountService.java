@@ -30,9 +30,14 @@ public class AccountService {
         return repository.findAll();
     }
 
-    public Account findById(Integer id) {
+    public Account findById(java.lang.Integer id) {
         return repository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy Account với ID: " + id));
+    }
+
+    public Account findByUsername(String username) {
+        return repository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy Account với username: " + username));
     }
 
     public Account create(AccountCreateRequest req) {
@@ -50,7 +55,6 @@ public class AccountService {
     }
 
     public Account update(Integer id, AccountUpdateRequest req) {
-        // Kiểm tra xem record có tồn tại không trước khi update
         Account account = findById(id);
 
         if (req.getEmail() != null) {
@@ -65,7 +69,7 @@ public class AccountService {
             account.setPassword(passwordEncoder.encode(req.getPassword()));
         }
         if (req.getRoleId() != null) {
-            Role role =  roleRepository.findByRoleName(RoleEnum.USER).orElseThrow(() -> new RuntimeException("Không tìm thấy role tên USER"));
+            Role role =  roleRepository.findById(req.getRoleId()).orElseThrow(() -> new RuntimeException("Không tìm thấy role tên USER"));
             account.setRole(role);
         }
         if (req.getIsActive() != null) {
