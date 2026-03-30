@@ -2210,7 +2210,7 @@ CREATE TABLE Expenses (
     Amount DECIMAL(18, 2) NOT NULL, -- Tổng chi phí
     
     -- Thời gian
-    ExpenseDate DATE DEFAULT GETDATE(), -- Ngày thực tế phát sinh chi phí
+    ExpenseDate DATE, -- Ngày thực tế phát sinh chi phí
     CreatedAt DATETIME DEFAULT GETDATE(), -- Ngày tạo record trên hệ thống
     
     -- Trạng thái
