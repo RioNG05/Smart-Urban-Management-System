@@ -91,29 +91,31 @@ const LegacyAdminRoleManager = () => {
         if (!active) return;
 
         const groupedRoles = Array.from(
-          accounts.reduce((map, account) => {
-            const roleName = account?.role?.roleName || "UNASSIGNED";
-            const current = map.get(roleName) ?? {
-              id: roleName,
-              name: roleName,
-              permissions: Array.isArray(account?.role?.permissions)
-                ? account.role.permissions
-                : [],
-              totalAccounts: 0,
-              activeAccounts: 0,
-              lockedAccounts: 0,
-            };
+          accounts
+            .reduce((map, account) => {
+              const roleName = account?.role?.roleName || "UNASSIGNED";
+              const current = map.get(roleName) ?? {
+                id: roleName,
+                name: roleName,
+                permissions: Array.isArray(account?.role?.permissions)
+                  ? account.role.permissions
+                  : [],
+                totalAccounts: 0,
+                activeAccounts: 0,
+                lockedAccounts: 0,
+              };
 
-            current.totalAccounts += 1;
-            if (account?.isActive === false) {
-              current.lockedAccounts += 1;
-            } else {
-              current.activeAccounts += 1;
-            }
+              current.totalAccounts += 1;
+              if (account?.isActive === false) {
+                current.lockedAccounts += 1;
+              } else {
+                current.activeAccounts += 1;
+              }
 
-            map.set(roleName, current);
-            return map;
-          }, new Map()).values(),
+              map.set(roleName, current);
+              return map;
+            }, new Map())
+            .values(),
         ).sort((a, b) => b.totalAccounts - a.totalAccounts);
 
         setRoles(groupedRoles);
@@ -149,14 +151,25 @@ const LegacyAdminRoleManager = () => {
       >
         <div className="create-role-content">
           <h3>System Role Access Overview</h3>
-          <p style={{ color: "#e2e8f0", lineHeight: "1.6", marginBottom: "18px" }}>
+          <p
+            style={{
+              color: "#e2e8f0",
+              lineHeight: "1.6",
+              marginBottom: "18px",
+            }}
+          >
             This screen now summarizes real backend accounts grouped by role.
             The current backend docs do not expose a standalone role CRUD API,
             so this admin page focuses on live access distribution instead of
             local fake role editing.
           </p>
-          <div className="checkbox-group" style={{ flexWrap: "wrap", gap: "12px" }}>
-            <span className="btn-perm active">Roles detected: {roles.length}</span>
+          <div
+            className="checkbox-group"
+            style={{ flexWrap: "wrap", gap: "12px" }}
+          >
+            <span className="btn-perm active">
+              Roles detected: {roles.length}
+            </span>
             <span className="btn-perm active">
               Active accounts:{" "}
               {roles.reduce((sum, role) => sum + role.activeAccounts, 0)}
@@ -167,7 +180,9 @@ const LegacyAdminRoleManager = () => {
             </span>
           </div>
           {error && (
-            <p style={{ color: "#fecaca", fontSize: "14px", marginTop: "16px" }}>
+            <p
+              style={{ color: "#fecaca", fontSize: "14px", marginTop: "16px" }}
+            >
               {error}
             </p>
           )}
@@ -256,29 +271,31 @@ export const AdminRoleManager = () => {
         if (!active) return;
 
         const groupedRoles = Array.from(
-          accounts.reduce((map, account) => {
-            const roleName = account?.role?.roleName || "UNASSIGNED";
-            const current = map.get(roleName) ?? {
-              id: roleName,
-              name: roleName,
-              permissions: Array.isArray(account?.role?.permissions)
-                ? account.role.permissions
-                : [],
-              totalAccounts: 0,
-              activeAccounts: 0,
-              lockedAccounts: 0,
-            };
+          accounts
+            .reduce((map, account) => {
+              const roleName = account?.role?.roleName || "UNASSIGNED";
+              const current = map.get(roleName) ?? {
+                id: roleName,
+                name: roleName,
+                permissions: Array.isArray(account?.role?.permissions)
+                  ? account.role.permissions
+                  : [],
+                totalAccounts: 0,
+                activeAccounts: 0,
+                lockedAccounts: 0,
+              };
 
-            current.totalAccounts += 1;
-            if (account?.isActive === false) {
-              current.lockedAccounts += 1;
-            } else {
-              current.activeAccounts += 1;
-            }
+              current.totalAccounts += 1;
+              if (account?.isActive === false) {
+                current.lockedAccounts += 1;
+              } else {
+                current.activeAccounts += 1;
+              }
 
-            map.set(roleName, current);
-            return map;
-          }, new Map()).values(),
+              map.set(roleName, current);
+              return map;
+            }, new Map())
+            .values(),
         ).sort((a, b) => b.totalAccounts - a.totalAccounts);
 
         setRoles(groupedRoles);
@@ -321,14 +338,25 @@ export const AdminRoleManager = () => {
       >
         <div className="create-role-content">
           <h3>System Role Access Overview</h3>
-          <p style={{ color: "#e2e8f0", lineHeight: "1.6", marginBottom: "18px" }}>
+          <p
+            style={{
+              color: "#e2e8f0",
+              lineHeight: "1.6",
+              marginBottom: "18px",
+            }}
+          >
             This screen now summarizes real backend accounts grouped by role.
             The current backend docs do not expose a standalone role CRUD API,
             so this admin page focuses on live access distribution instead of
             local fake role editing.
           </p>
-          <div className="checkbox-group" style={{ flexWrap: "wrap", gap: "12px" }}>
-            <span className="btn-perm active">Roles detected: {roles.length}</span>
+          <div
+            className="checkbox-group"
+            style={{ flexWrap: "wrap", gap: "12px" }}
+          >
+            <span className="btn-perm active">
+              Roles detected: {roles.length}
+            </span>
             <span className="btn-perm active">
               Active accounts:{" "}
               {roles.reduce((sum, role) => sum + role.activeAccounts, 0)}
@@ -339,7 +367,9 @@ export const AdminRoleManager = () => {
             </span>
           </div>
           {error ? (
-            <p style={{ color: "#fecaca", fontSize: "14px", marginTop: "16px" }}>
+            <p
+              style={{ color: "#fecaca", fontSize: "14px", marginTop: "16px" }}
+            >
               {error}
             </p>
           ) : null}
@@ -360,13 +390,19 @@ export const AdminRoleManager = () => {
             <tbody>
               {isLoading ? (
                 <tr>
-                  <td colSpan="4" style={{ textAlign: "center", padding: "30px" }}>
+                  <td
+                    colSpan="4"
+                    style={{ textAlign: "center", padding: "30px" }}
+                  >
                     Loading role data from backend...
                   </td>
                 </tr>
               ) : roles.length === 0 ? (
                 <tr>
-                  <td colSpan="4" style={{ textAlign: "center", padding: "30px" }}>
+                  <td
+                    colSpan="4"
+                    style={{ textAlign: "center", padding: "30px" }}
+                  >
                     No role-linked accounts were returned by the backend.
                   </td>
                 </tr>
@@ -380,7 +416,8 @@ export const AdminRoleManager = () => {
                       <div className="permission-tags">
                         {(role.permissions.length > 0
                           ? role.permissions
-                          : ["No permission list exposed by API"]).map((permission) => (
+                          : ["No permission list exposed by API"]
+                        ).map((permission) => (
                           <span
                             key={permission}
                             className={`badge badge-${String(permission)
@@ -811,7 +848,10 @@ export const AdminLockResident = () => {
     currentPage,
     pageSize,
   );
-  const totalPages = Math.max(1, Math.ceil(filteredResidents.length / pageSize));
+  const totalPages = Math.max(
+    1,
+    Math.ceil(filteredResidents.length / pageSize),
+  );
 
   return (
     <div className="admin-lock-resident-container">
@@ -1822,9 +1862,14 @@ export const AdminPropertyManager = () => {
         getResidents(),
       ]);
 
-      const accountMap = new Map(accounts.map((account) => [account.id, account]));
+      const accountMap = new Map(
+        accounts.map((account) => [account.id, account]),
+      );
       const residentMap = new Map(
-        residents.map((resident) => [resident?.account?.id ?? resident?.accountId, resident]),
+        residents.map((resident) => [
+          resident?.account?.id ?? resident?.accountId,
+          resident,
+        ]),
       );
 
       const normalizedContracts = contractList.map((contract) => {
@@ -1839,7 +1884,10 @@ export const AdminPropertyManager = () => {
             contract?.apartment?.roomNumber ??
             contract?.apartmentId ??
             `Apartment #${contract?.apartmentId ?? "N/A"}`,
-          owner: resident?.fullName || account?.username || `Account #${accountId ?? "N/A"}`,
+          owner:
+            resident?.fullName ||
+            account?.username ||
+            `Account #${accountId ?? "N/A"}`,
           username: account?.username || "N/A",
           contractType: contract?.contractType || "Residential",
           monthlyRent: contract?.monthlyRent ?? "",
@@ -1889,7 +1937,10 @@ export const AdminPropertyManager = () => {
     currentPage,
     pageSize,
   );
-  const totalPages = Math.max(1, Math.ceil(filteredContracts.length / pageSize));
+  const totalPages = Math.max(
+    1,
+    Math.ceil(filteredContracts.length / pageSize),
+  );
 
   const handleEdit = (contract) => {
     setEditingId(contract.id);
@@ -1908,7 +1959,8 @@ export const AdminPropertyManager = () => {
 
       await updateContractById(contractId, {
         contractType: draft.contractType,
-        monthlyRent: draft.monthlyRent === "" ? null : Number(draft.monthlyRent),
+        monthlyRent:
+          draft.monthlyRent === "" ? null : Number(draft.monthlyRent),
         endDate: draft.endDate || null,
         status: Number(draft.status),
       });
@@ -1941,7 +1993,10 @@ export const AdminPropertyManager = () => {
           Apartment & Contract List
         </h2>
 
-        <div className="admin-lock-search" style={{ margin: 0, minWidth: "320px" }}>
+        <div
+          className="admin-lock-search"
+          style={{ margin: 0, minWidth: "320px" }}
+        >
           <FaSearch style={{ color: "#94a3b8" }} />
           <input
             type="text"
@@ -2029,7 +2084,10 @@ export const AdminPropertyManager = () => {
                       border: "1px solid rgba(255,255,255,0.2)",
                     }}
                   >
-                    <div className="form-group" style={{ marginBottom: "12px" }}>
+                    <div
+                      className="form-group"
+                      style={{ marginBottom: "12px" }}
+                    >
                       <label style={{ color: "#cbd5e1" }}>CONTRACT TYPE</label>
                       <input
                         type="text"
@@ -2042,7 +2100,10 @@ export const AdminPropertyManager = () => {
                         }
                       />
                     </div>
-                    <div className="form-group" style={{ marginBottom: "12px" }}>
+                    <div
+                      className="form-group"
+                      style={{ marginBottom: "12px" }}
+                    >
                       <label style={{ color: "#cbd5e1" }}>MONTHLY RENT</label>
                       <input
                         type="number"
@@ -2055,7 +2116,10 @@ export const AdminPropertyManager = () => {
                         }
                       />
                     </div>
-                    <div className="form-group" style={{ marginBottom: "12px" }}>
+                    <div
+                      className="form-group"
+                      style={{ marginBottom: "12px" }}
+                    >
                       <label style={{ color: "#cbd5e1" }}>END DATE</label>
                       <input
                         type="date"
@@ -2068,7 +2132,10 @@ export const AdminPropertyManager = () => {
                         }
                       />
                     </div>
-                    <div className="form-group" style={{ marginBottom: "16px" }}>
+                    <div
+                      className="form-group"
+                      style={{ marginBottom: "16px" }}
+                    >
                       <label style={{ color: "#cbd5e1" }}>STATUS</label>
                       <select
                         value={draft.status}
@@ -2083,7 +2150,13 @@ export const AdminPropertyManager = () => {
                         <option value="0">Inactive</option>
                       </select>
                     </div>
-                    <div style={{ display: "flex", gap: "10px", justifyContent: "flex-end" }}>
+                    <div
+                      style={{
+                        display: "flex",
+                        gap: "10px",
+                        justifyContent: "flex-end",
+                      }}
+                    >
                       <button
                         onClick={() => setEditingId(null)}
                         style={{
@@ -2117,7 +2190,13 @@ export const AdminPropertyManager = () => {
                   </div>
                 ) : (
                   <div className="card-details">
-                    <p style={{ color: "white", marginBottom: "10px", fontSize: "15px" }}>
+                    <p
+                      style={{
+                        color: "white",
+                        marginBottom: "10px",
+                        fontSize: "15px",
+                      }}
+                    >
                       Owner / Tenant: <strong>{item.owner}</strong>
                     </p>
                     <p style={{ color: "#cbd5e1", marginBottom: "10px" }}>
@@ -2617,21 +2696,32 @@ export const AdminApartmentLayout = () => {
     setHistoryPage(1);
   }, [selectedApartmentId]);
 
-  const apartmentMap = new Map(baseData.apartments.map((apartment) => [apartment.id, apartment]));
-  const accountMap = new Map(baseData.accounts.map((account) => [account.id, account]));
-  const residentMap = new Map(
-    baseData.residents.map((resident) => [resident?.account?.id ?? resident?.accountId, resident]),
+  const apartmentMap = new Map(
+    baseData.apartments.map((apartment) => [apartment.id, apartment]),
   );
-  const bookingMap = new Map(baseData.bookings.map((booking) => [booking.id, booking]));
+  const accountMap = new Map(
+    baseData.accounts.map((account) => [account.id, account]),
+  );
+  const residentMap = new Map(
+    baseData.residents.map((resident) => [
+      resident?.account?.id ?? resident?.accountId,
+      resident,
+    ]),
+  );
+  const bookingMap = new Map(
+    baseData.bookings.map((booking) => [booking.id, booking]),
+  );
 
   const floors = Array.from(
-    baseData.apartments.reduce((map, apartment) => {
-      const floor = apartment.floorNumber ?? 0;
-      const current = map.get(floor) ?? [];
-      current.push(apartment);
-      map.set(floor, current);
-      return map;
-    }, new Map()).entries(),
+    baseData.apartments
+      .reduce((map, apartment) => {
+        const floor = apartment.floorNumber ?? 0;
+        const current = map.get(floor) ?? [];
+        current.push(apartment);
+        map.set(floor, current);
+        return map;
+      }, new Map())
+      .entries(),
   ).sort((a, b) => Number(b[0]) - Number(a[0]));
 
   const selectedApartment = selectedApartmentId
@@ -2639,20 +2729,37 @@ export const AdminApartmentLayout = () => {
     : null;
 
   const relatedContracts = baseData.contracts
-    .filter((contract) => (contract?.apartment?.id ?? contract?.apartmentId) === selectedApartmentId)
-    .sort((a, b) => new Date(b?.startDate || 0).getTime() - new Date(a?.startDate || 0).getTime());
+    .filter(
+      (contract) =>
+        (contract?.apartment?.id ?? contract?.apartmentId) ===
+        selectedApartmentId,
+    )
+    .sort(
+      (a, b) =>
+        new Date(b?.startDate || 0).getTime() -
+        new Date(a?.startDate || 0).getTime(),
+    );
 
   const activeContract =
     relatedContracts.find((contract) => Number(contract?.status ?? 1) === 1) ||
     relatedContracts[0] ||
     null;
 
-  const activeAccountId = activeContract?.account?.id ?? activeContract?.accountId ?? null;
-  const activeAccount = activeAccountId ? accountMap.get(activeAccountId) : null;
-  const activeResident = activeAccountId ? residentMap.get(activeAccountId) : null;
+  const activeAccountId =
+    activeContract?.account?.id ?? activeContract?.accountId ?? null;
+  const activeAccount = activeAccountId
+    ? accountMap.get(activeAccountId)
+    : null;
+  const activeResident = activeAccountId
+    ? residentMap.get(activeAccountId)
+    : null;
 
   const relatedUtilities = baseData.utilities
-    .filter((invoice) => (invoice?.apartment?.id ?? invoice?.apartmentId) === selectedApartmentId)
+    .filter(
+      (invoice) =>
+        (invoice?.apartment?.id ?? invoice?.apartmentId) ===
+        selectedApartmentId,
+    )
     .sort((a, b) => {
       const keyA = `${a?.billingYear ?? 0}-${String(a?.billingMonth ?? 0).padStart(2, "0")}`;
       const keyB = `${b?.billingYear ?? 0}-${String(b?.billingMonth ?? 0).padStart(2, "0")}`;
@@ -2682,14 +2789,16 @@ export const AdminApartmentLayout = () => {
         Number(invoice?.billingYear) === now.getFullYear(),
     ) || relatedUtilities[0];
 
-  const currentMonthServiceInvoices = relatedServiceInvoices.filter((invoice) => {
-    const parsed = new Date(invoice?.paymentDate || invoice?.createdAt || 0);
-    return (
-      !Number.isNaN(parsed.getTime()) &&
-      parsed.getMonth() === now.getMonth() &&
-      parsed.getFullYear() === now.getFullYear()
-    );
-  });
+  const currentMonthServiceInvoices = relatedServiceInvoices.filter(
+    (invoice) => {
+      const parsed = new Date(invoice?.paymentDate || invoice?.createdAt || 0);
+      return (
+        !Number.isNaN(parsed.getTime()) &&
+        parsed.getMonth() === now.getMonth() &&
+        parsed.getFullYear() === now.getFullYear()
+      );
+    },
+  );
 
   const currentMonthRows = [];
 
@@ -2698,13 +2807,15 @@ export const AdminApartmentLayout = () => {
       name: "Electricity Bill",
       detail: `Month ${currentUtilityInvoice.billingMonth}/${currentUtilityInvoice.billingYear}`,
       amount: Number(currentUtilityInvoice.totalElectricUsed ?? 0),
-      status: Number(currentUtilityInvoice.status ?? 0) === 1 ? "Paid" : "Unpaid",
+      status:
+        Number(currentUtilityInvoice.status ?? 0) === 1 ? "Paid" : "Unpaid",
     });
     currentMonthRows.push({
       name: "Water Bill",
       detail: `Month ${currentUtilityInvoice.billingMonth}/${currentUtilityInvoice.billingYear}`,
       amount: Number(currentUtilityInvoice.totalWaterUsed ?? 0),
-      status: Number(currentUtilityInvoice.status ?? 0) === 1 ? "Paid" : "Unpaid",
+      status:
+        Number(currentUtilityInvoice.status ?? 0) === 1 ? "Paid" : "Unpaid",
     });
   }
 
@@ -2715,7 +2826,10 @@ export const AdminApartmentLayout = () => {
         booking?.serviceResource?.service?.serviceName ||
         booking?.serviceResource?.serviceName ||
         `Service Invoice #${invoice.id}`,
-      detail: invoice?.paymentDate?.slice?.(0, 10) || invoice?.createdAt?.slice?.(0, 10) || "N/A",
+      detail:
+        invoice?.paymentDate?.slice?.(0, 10) ||
+        invoice?.createdAt?.slice?.(0, 10) ||
+        "N/A",
       amount: Number(invoice?.amount ?? 0),
       status: Number(invoice?.status ?? 0) === 1 ? "Paid" : "Unpaid",
     });
@@ -2728,13 +2842,15 @@ export const AdminApartmentLayout = () => {
       payer: activeResident?.fullName || activeAccount?.username || "N/A",
       total: Number(
         invoice?.totalAmount ??
-          Number(invoice?.totalElectricUsed ?? 0) + Number(invoice?.totalWaterUsed ?? 0),
+          Number(invoice?.totalElectricUsed ?? 0) +
+            Number(invoice?.totalWaterUsed ?? 0),
       ),
       status: Number(invoice?.status ?? 0) === 1 ? "Paid" : "Unpaid",
     })),
     ...relatedServiceInvoices.map((invoice) => ({
       id: `service-${invoice.id}`,
-      month: (invoice?.paymentDate || invoice?.createdAt || "").slice(0, 7) || "N/A",
+      month:
+        (invoice?.paymentDate || invoice?.createdAt || "").slice(0, 7) || "N/A",
       payer: activeResident?.fullName || activeAccount?.username || "N/A",
       total: Number(invoice?.amount ?? 0),
       status: Number(invoice?.status ?? 0) === 1 ? "Paid" : "Unpaid",
@@ -2744,7 +2860,10 @@ export const AdminApartmentLayout = () => {
   const paginatedCharges = paginateItems(currentMonthRows, chargesPage, 6);
   const chargesTotalPages = Math.max(1, Math.ceil(currentMonthRows.length / 6));
   const paginatedHistory = paginateItems(transactionHistory, historyPage, 8);
-  const historyTotalPages = Math.max(1, Math.ceil(transactionHistory.length / 8));
+  const historyTotalPages = Math.max(
+    1,
+    Math.ceil(transactionHistory.length / 8),
+  );
 
   return (
     <div className="admin-apartment-layout-wrapper">
@@ -2768,9 +2887,13 @@ export const AdminApartmentLayout = () => {
           </h3>
 
           {isLoading ? (
-            <div style={{ color: "#64748b" }}>Loading apartments from backend...</div>
+            <div style={{ color: "#64748b" }}>
+              Loading apartments from backend...
+            </div>
           ) : floors.length === 0 ? (
-            <div style={{ color: "#64748b" }}>No apartments were returned by backend.</div>
+            <div style={{ color: "#64748b" }}>
+              No apartments were returned by backend.
+            </div>
           ) : (
             <div className="building-grid">
               {floors.map(([floor, apartments]) => (
@@ -2778,11 +2901,14 @@ export const AdminApartmentLayout = () => {
                   <div className="floor-label">Floor {floor}</div>
                   <div className="apartment-grid">
                     {apartments
-                      .sort((a, b) => Number(a.roomNumber) - Number(b.roomNumber))
+                      .sort(
+                        (a, b) => Number(a.roomNumber) - Number(b.roomNumber),
+                      )
                       .map((apartment) => {
                         const occupied = baseData.contracts.some(
                           (contract) =>
-                            (contract?.apartment?.id ?? contract?.apartmentId) === apartment.id &&
+                            (contract?.apartment?.id ??
+                              contract?.apartmentId) === apartment.id &&
                             Number(contract?.status ?? 1) === 1,
                         );
 
@@ -2807,13 +2933,21 @@ export const AdminApartmentLayout = () => {
           )}
         </div>
       ) : (
-        <div className="staff-form-container apartment-detail-view" style={{ minHeight: "80vh" }}>
-          <button onClick={() => setSelectedApartmentId(null)} className="btn-back">
+        <div
+          className="staff-form-container apartment-detail-view"
+          style={{ minHeight: "80vh" }}
+        >
+          <button
+            onClick={() => setSelectedApartmentId(null)}
+            className="btn-back"
+          >
             ← Back to Layout
           </button>
 
           <div className="admin-lock-header-row" style={{ marginTop: "15px" }}>
-            <h3 style={{ fontSize: "24px", fontWeight: "800", color: "#c89b3c" }}>
+            <h3
+              style={{ fontSize: "24px", fontWeight: "800", color: "#c89b3c" }}
+            >
               Apartment Details: {selectedApartment.roomNumber}
             </h3>
           </div>
@@ -2832,7 +2966,9 @@ export const AdminApartmentLayout = () => {
             </p>
             <p>
               <strong>Owner / Tenant:</strong>{" "}
-              {activeResident?.fullName || activeAccount?.username || "No active contract"}
+              {activeResident?.fullName ||
+                activeAccount?.username ||
+                "No active contract"}
             </p>
             <p>
               <strong>Current Residents:</strong>{" "}
@@ -2843,10 +2979,20 @@ export const AdminApartmentLayout = () => {
             </p>
           </div>
 
-          <h4 style={{ marginTop: "35px", marginBottom: "20px", fontWeight: "800", color: "#1e293b" }}>
+          <h4
+            style={{
+              marginTop: "35px",
+              marginBottom: "20px",
+              fontWeight: "800",
+              color: "#1e293b",
+            }}
+          >
             Current Charges
           </h4>
-          <div className="admin-table-wrapper" style={{ padding: 0, border: "none", boxShadow: "none" }}>
+          <div
+            className="admin-table-wrapper"
+            style={{ padding: 0, border: "none", boxShadow: "none" }}
+          >
             <table className="admin-custom-table bordered">
               <thead>
                 <tr>
@@ -2859,7 +3005,10 @@ export const AdminApartmentLayout = () => {
               <tbody>
                 {currentMonthRows.length === 0 ? (
                   <tr>
-                    <td colSpan="4" style={{ textAlign: "center", padding: "24px" }}>
+                    <td
+                      colSpan="4"
+                      style={{ textAlign: "center", padding: "24px" }}
+                    >
                       No current apartment charge data was returned by backend.
                     </td>
                   </tr>
@@ -2871,7 +3020,12 @@ export const AdminApartmentLayout = () => {
                       <td style={{ fontWeight: "bold" }}>
                         {new Intl.NumberFormat("vi-VN").format(row.amount)}
                       </td>
-                      <td style={{ color: row.status === "Paid" ? "#10b981" : "#ef4444", fontWeight: "700" }}>
+                      <td
+                        style={{
+                          color: row.status === "Paid" ? "#10b981" : "#ef4444",
+                          fontWeight: "700",
+                        }}
+                      >
                         {row.status}
                       </td>
                     </tr>
@@ -2889,10 +3043,20 @@ export const AdminApartmentLayout = () => {
             itemLabel="charges"
           />
 
-          <h4 style={{ marginTop: "45px", marginBottom: "20px", fontWeight: "800", color: "#1e293b" }}>
+          <h4
+            style={{
+              marginTop: "45px",
+              marginBottom: "20px",
+              fontWeight: "800",
+              color: "#1e293b",
+            }}
+          >
             Service Transaction History
           </h4>
-          <div className="admin-table-wrapper" style={{ padding: 0, border: "none", boxShadow: "none" }}>
+          <div
+            className="admin-table-wrapper"
+            style={{ padding: 0, border: "none", boxShadow: "none" }}
+          >
             <table className="admin-custom-table bordered">
               <thead>
                 <tr>
@@ -2905,7 +3069,10 @@ export const AdminApartmentLayout = () => {
               <tbody>
                 {transactionHistory.length === 0 ? (
                   <tr>
-                    <td colSpan="4" style={{ textAlign: "center", padding: "24px" }}>
+                    <td
+                      colSpan="4"
+                      style={{ textAlign: "center", padding: "24px" }}
+                    >
                       No backend transaction history found for this apartment.
                     </td>
                   </tr>
@@ -2917,7 +3084,12 @@ export const AdminApartmentLayout = () => {
                       <td style={{ fontWeight: "bold" }}>
                         {new Intl.NumberFormat("vi-VN").format(item.total)}
                       </td>
-                      <td style={{ color: item.status === "Paid" ? "#10b981" : "#ef4444", fontWeight: "bold" }}>
+                      <td
+                        style={{
+                          color: item.status === "Paid" ? "#10b981" : "#ef4444",
+                          fontWeight: "bold",
+                        }}
+                      >
                         {item.status}
                       </td>
                     </tr>

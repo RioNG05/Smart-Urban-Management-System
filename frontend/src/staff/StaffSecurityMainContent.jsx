@@ -10,7 +10,11 @@ import {
   FaUserTie,
 } from "react-icons/fa";
 import { getApartments } from "../services/apartmentService";
-import { createVisitor, getAllStaff, getAllVisitors } from "../services/adminService";
+import {
+  createVisitor,
+  getAllStaff,
+  getAllVisitors,
+} from "../services/adminService";
 import AdminPagination from "../components/common/AdminPagination";
 
 const DATE_TIME_FORMATTER = new Intl.DateTimeFormat("en-GB", {
@@ -85,7 +89,8 @@ const StaffSecurityMainContent = ({ activeTab }) => {
   }, [visitors.length]);
 
   const apartmentMap = useMemo(
-    () => new Map(apartments.map((apartment) => [String(apartment.id), apartment])),
+    () =>
+      new Map(apartments.map((apartment) => [String(apartment.id), apartment])),
     [apartments],
   );
 
@@ -95,7 +100,12 @@ const StaffSecurityMainContent = ({ activeTab }) => {
   );
 
   const handleCheckIn = async () => {
-    if (!visitorForm.visitorName || !visitorForm.phoneNumber || !visitorForm.apartmentId || !visitorForm.staffId) {
+    if (
+      !visitorForm.visitorName ||
+      !visitorForm.phoneNumber ||
+      !visitorForm.apartmentId ||
+      !visitorForm.staffId
+    ) {
       setError("Please fill visitor name, phone number, apartment, and staff.");
       setSuccess("");
       return;
@@ -140,23 +150,37 @@ const StaffSecurityMainContent = ({ activeTab }) => {
     { name: "Building Manager", phone: "0836 160 161", icon: <FaUserTie /> },
   ];
 
-  const paginatedVisitors = visitors.slice((currentPage - 1) * 8, currentPage * 8);
+  const paginatedVisitors = visitors.slice(
+    (currentPage - 1) * 8,
+    currentPage * 8,
+  );
   const totalPages = Math.max(1, Math.ceil(visitors.length / 8));
 
   return (
     <main className="staff-content-area">
       {activeTab === "visitors" && (
         <div className="staff-tab-content">
-          <div className="staff-form-container" style={{ borderLeft: "5px solid #c89b3c" }}>
-            <h3><FaUserPlus /> Register New Visitor</h3>
+          <div
+            className="staff-form-container"
+            style={{ borderLeft: "5px solid #c89b3c" }}
+          >
+            <h3>
+              <FaUserPlus /> Register New Visitor
+            </h3>
 
             {error ? (
-              <div className="admin-feedback error" style={{ marginTop: "16px" }}>
+              <div
+                className="admin-feedback error"
+                style={{ marginTop: "16px" }}
+              >
                 {error}
               </div>
             ) : null}
             {success ? (
-              <div className="admin-feedback success" style={{ marginTop: "16px" }}>
+              <div
+                className="admin-feedback success"
+                style={{ marginTop: "16px" }}
+              >
                 {success}
               </div>
             ) : null}
@@ -203,7 +227,8 @@ const StaffSecurityMainContent = ({ activeTab }) => {
                 >
                   {apartments.map((apartment) => (
                     <option key={apartment.id} value={apartment.id}>
-                      Room {apartment.roomNumber} - Floor {apartment.floorNumber}
+                      Room {apartment.roomNumber} - Floor{" "}
+                      {apartment.floorNumber}
                     </option>
                   ))}
                 </select>
@@ -252,9 +277,14 @@ const StaffSecurityMainContent = ({ activeTab }) => {
           </div>
 
           <div className="staff-form-container" style={{ marginTop: "30px" }}>
-            <h3><FaHistory /> Visitor Logs</h3>
+            <h3>
+              <FaHistory /> Visitor Logs
+            </h3>
             <div className="staff-table-scroll">
-              <table className="admin-custom-table bordered" style={{ marginTop: "20px" }}>
+              <table
+                className="admin-custom-table bordered"
+                style={{ marginTop: "20px" }}
+              >
                 <thead>
                   <tr>
                     <th>Visitor Name</th>
@@ -269,35 +299,56 @@ const StaffSecurityMainContent = ({ activeTab }) => {
                 <tbody>
                   {isLoading ? (
                     <tr>
-                      <td colSpan="7" style={{ textAlign: "center", padding: "40px" }}>
+                      <td
+                        colSpan="7"
+                        style={{ textAlign: "center", padding: "40px" }}
+                      >
                         Loading visitor logs from backend...
                       </td>
                     </tr>
                   ) : visitors.length === 0 ? (
                     <tr>
-                      <td colSpan="7" style={{ textAlign: "center", padding: "40px" }}>
+                      <td
+                        colSpan="7"
+                        style={{ textAlign: "center", padding: "40px" }}
+                      >
                         No visitor logs found in backend.
                       </td>
                     </tr>
                   ) : (
                     paginatedVisitors.map((visitor) => {
-                      const apartment =
-                        apartmentMap.get(String(visitor?.apartment?.id ?? visitor?.apartmentId));
-                      const staff =
-                        staffMap.get(String(visitor?.staff?.id ?? visitor?.staffId));
+                      const apartment = apartmentMap.get(
+                        String(visitor?.apartment?.id ?? visitor?.apartmentId),
+                      );
+                      const staff = staffMap.get(
+                        String(visitor?.staff?.id ?? visitor?.staffId),
+                      );
 
                       return (
                         <tr key={visitor.id}>
-                          <td><strong>{visitor.visitorName}</strong></td>
+                          <td>
+                            <strong>{visitor.visitorName}</strong>
+                          </td>
                           <td>{visitor.phoneNumber || "N/A"}</td>
                           <td>
                             {apartment
                               ? `Room ${apartment.roomNumber} - Floor ${apartment.floorNumber}`
-                              : visitor?.apartment?.roomNumber || visitor?.apartmentId || "N/A"}
+                              : visitor?.apartment?.roomNumber ||
+                                visitor?.apartmentId ||
+                                "N/A"}
                           </td>
-                          <td>{staff?.fullName || visitor?.staff?.fullName || visitor?.staffId || "N/A"}</td>
+                          <td>
+                            {staff?.fullName ||
+                              visitor?.staff?.fullName ||
+                              visitor?.staffId ||
+                              "N/A"}
+                          </td>
                           <td>{visitor.note || "N/A"}</td>
-                          <td>{formatDateTime(visitor.createdAt || visitor.updatedAt)}</td>
+                          <td>
+                            {formatDateTime(
+                              visitor.createdAt || visitor.updatedAt,
+                            )}
+                          </td>
                           <td style={{ textAlign: "center" }}>
                             <span
                               style={{
@@ -334,7 +385,9 @@ const StaffSecurityMainContent = ({ activeTab }) => {
       {activeTab === "incidents" && (
         <div className="staff-tab-content">
           <div className="staff-form-container">
-            <h3><FaExclamationCircle /> Incident Tracking</h3>
+            <h3>
+              <FaExclamationCircle /> Incident Tracking
+            </h3>
             <p style={{ color: "#64748b" }}>
               This tab is not part of the current admin integration scope.
             </p>
@@ -345,9 +398,21 @@ const StaffSecurityMainContent = ({ activeTab }) => {
       {activeTab === "emergency" && (
         <div className="staff-tab-content">
           <div className="staff-grid">
-            <div className="staff-form-container" style={{ borderTop: "5px solid #ef4444" }}>
-              <h3><FaExclamationCircle /> Emergency Contacts</h3>
-              <div style={{ marginTop: "20px", display: "flex", flexDirection: "column", gap: "15px" }}>
+            <div
+              className="staff-form-container"
+              style={{ borderTop: "5px solid #ef4444" }}
+            >
+              <h3>
+                <FaExclamationCircle /> Emergency Contacts
+              </h3>
+              <div
+                style={{
+                  marginTop: "20px",
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: "15px",
+                }}
+              >
                 {emergencyContacts.map((contact) => (
                   <div
                     key={contact.name}
@@ -361,11 +426,25 @@ const StaffSecurityMainContent = ({ activeTab }) => {
                       border: "1px solid #fee2e2",
                     }}
                   >
-                    <div style={{ display: "flex", alignItems: "center", gap: "15px" }}>
-                      <div style={{ color: "#ef4444", fontSize: "1.2rem" }}>{contact.icon}</div>
+                    <div
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "15px",
+                      }}
+                    >
+                      <div style={{ color: "#ef4444", fontSize: "1.2rem" }}>
+                        {contact.icon}
+                      </div>
                       <div>
                         <div style={{ fontWeight: "bold" }}>{contact.name}</div>
-                        <div style={{ color: "#ef4444", fontWeight: "800", fontSize: "1.1rem" }}>
+                        <div
+                          style={{
+                            color: "#ef4444",
+                            fontWeight: "800",
+                            fontSize: "1.1rem",
+                          }}
+                        >
                           {contact.phone}
                         </div>
                       </div>

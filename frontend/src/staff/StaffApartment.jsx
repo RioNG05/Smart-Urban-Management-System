@@ -90,45 +90,22 @@ const StaffApartment = () => {
     };
 
     // --- LOGIC COMPLAINTS ---
+    const { user } = useAuth();
     const [selectedComplaint, setSelectedComplaint] = useState(null);
     const [replyNote, setReplyNote] = useState("");
     const [complaints, setComplaints] = useState([
-        { id: 1, name: "Tran Phu Thanh Hung", room: "A-505", note: "AC is too loud, can't sleep!", time: "15:30 - 12/03/2026", status: "Pending" },
-        { id: 2, name: "Minh Son Thanh", room: "B-101", note: "Emergency exit stuck, please check", time: "09:15 - 13/03/2026", status: "Pending" },
-        { id: 3, name: "Nguyen Thi Lan", room: "C-202", note: "Pool on 5th floor water seems cloudy", time: "10:00 - 14/03/2026", status: "Approved" },
-        { id: 4, name: "Vu Hoang Cuong", room: "D-808", note: "Hallway lighting system broken", time: "20:00 - 15/03/2026", status: "Rejected" },
-        { id: 5, name: "Le Thi Mai", room: "A-102", note: "Neighbors making noise at midnight", time: "23:45 - 15/03/2026", status: "Pending" },
-        { id: 6, name: "Nguyen Van Dung", room: "B-304", note: "Kitchen sink faucet leaking", time: "08:30 - 16/03/2026", status: "Approved" },
-        { id: 7, name: "Trinh Thi Hoa", room: "C-1102", note: "Elevator #3 is very slow", time: "14:20 - 16/03/2026", status: "Pending" },
-        { id: 8, name: "An Ngoc Tuan", room: "D-1506", note: "Strange smell in trash area", time: "17:10 - 16/03/2026", status: "Approved" },
-        { id: 9, name: "Phan Hoang Linh", room: "A-703", note: "Lobby Wifi is too weak", time: "11:55 - 17/03/2026", status: "Pending" },
-        { id: 10, name: "Bui Quoc Thanh", room: "B-910", note: "Need to re-check this month water bill", time: "16:40 - 17/03/2026", status: "Pending" },
-        { id: 11, name: "Ngo Thu Quynh", room: "C-405", note: "Broken equipment in playground", time: "09:30 - 18/03/2026", status: "Approved" },
-        { id: 12, name: "Do Van Dat", room: "D-1201", note: "Night guard fell asleep on duty", time: "02:15 - 18/03/2026", status: "Rejected" },
-        { id: 13, name: "Hoang Thi Yen", room: "A-312", note: "Window leaking when it rains", time: "13:00 - 18/03/2026", status: "Pending" },
-        { id: 14, name: "Pham Quoc Khanh", room: "B-508", note: "Gym machine cable is broken", time: "18:25 - 18/03/2026", status: "Approved" },
-        { id: 15, name: "Phan Thu Ngoc", room: "C-801", note: "Insects found in parking basement", time: "21:50 - 18/03/2026", status: "Pending" },
-        { id: 16, name: "Hoang Van Long", room: "D-203", note: "Stair sensor light not working", time: "20:30 - 19/03/2026", status: "Approved" },
-        { id: 17, name: "Nguyen Thu Trang", room: "A-1405", note: "Request regular mosquito spraying", time: "10:15 - 19/03/2026", status: "Pending" },
-        { id: 18, name: "Nguyen Huu Thang", room: "B-702", note: "Fire alarm triggered falsely", time: "15:45 - 19/03/2026", status: "Rejected" },
-        { id: 19, name: "Tran Thi Diem", room: "C-1204", note: "Balcony drain is clogged", time: "07:20 - 20/03/2026", status: "Pending" },
-        { id: 20, name: "Vu Quoc Binh", room: "D-510", note: "Cleaning staff did not clean well", time: "16:30 - 20/03/2026", status: "Approved" },
-        { id: 21, name: "Ha Thi Thu", room: "A-908", note: "Need help moving bulky items", time: "09:00 - 21/03/2026", status: "Pending" },
-        { id: 22, name: "Nguyen Minh Quan", room: "B-1005", note: "Elevator card not recognized", time: "11:10 - 21/03/2026", status: "Approved" },
-        { id: 23, name: "Truong Thi Vy", room: "C-306", note: "Water heater problem", time: "22:00 - 21/03/2026", status: "Pending" },
-        { id: 24, name: "Dang Hoang Phuc", room: "D-111", note: "Lobby floor tiles are peeling", time: "08:45 - 22/03/2026", status: "Pending" },
-        { id: 25, name: "Bui Thi An", room: "A-607", note: "Doorbell not working", time: "14:15 - 22/03/2026", status: "Approved" },
-        { id: 26, name: "Tran Van Minh", room: "B-212", note: "Cars frequently parked wrongly", time: "19:30 - 22/03/2026", status: "Pending" },
-        { id: 27, name: "Do Kim Huong", room: "C-1502", note: "Public Wifi is too slow", time: "10:00 - 23/03/2026", status: "Approved" },
-        { id: 28, name: "Pham Van Thinh", room: "D-404", note: "Request battery change for e-lock", time: "13:40 - 23/03/2026", status: "Pending" },
-        { id: 29, name: "Trinh Thu Giang", room: "A-1210", note: "Common area water filter expired", time: "15:10 - 23/03/2026", status: "Approved" },
-        { id: 30, name: "Nguyen Minh Hieu", room: "B-808", note: "Person smoking in elevator", time: "17:55 - 23/03/2026", status: "Pending" }
+        { id: 1, name: "Tran Phu Thanh Hung", room: "A-505", note: "AC is too loud, can't sleep!", time: "15:30 - 12/03/2026", repliedBy: "Staff_Tom" },
+        { id: 2, name: "Minh Son Thanh", room: "B-101", note: "Emergency exit stuck, please check", time: "09:15 - 13/03/2026", repliedBy: null },
+        { id: 3, name: "Nguyen Thi Lan", room: "C-202", note: "Pool on 5th floor water seems cloudy", time: "10:00 - 14/03/2026", repliedBy: "Staff_Tom" },
     ]);
 
-    const handleAction = (id, type) => {
-        setComplaints(complaints.map(c => c.id === id ? { ...c, status: type } : c));
-        alert(`Complaint ${type === 'Approved' ? 'Approved' : 'Rejected'}!`);
+    const handleAction = (id, type, note) => {
+        setComplaints(complaints.map(c => 
+            c.id === id ? { ...c, repliedBy: user?.username || "Staff Apartment", reply: note } : c
+        ));
+        alert("Reply saved successfully!");
     };
+
 
     return (
         <div className="staff-wrapper">
@@ -142,11 +119,11 @@ const StaffApartment = () => {
                     <div className={`staff-nav-item ${activeTab === 'accounts' ? 'active' : ''}`} onClick={() => { setActiveTab('accounts'); setSelectedComplaint(null) }} style={{ justifyContent: sidebarOpen ? 'flex-start' : 'center', padding: sidebarOpen ? '12px 15px' : '15px 0' }}>
                         <FaUserCircle style={{ marginRight: sidebarOpen ? '15px' : '0' }} /> {sidebarOpen && "Resident Account"}
                     </div>
-                    <div className={`staff-nav-item ${activeTab === 'complaints' ? 'active' : ''}`} onClick={() => setActiveTab('complaints')} style={{ justifyContent: sidebarOpen ? 'flex-start' : 'center', padding: sidebarOpen ? '12px 15px' : '15px 0' }}>
-                        <FaComments style={{ marginRight: sidebarOpen ? '15px' : '0' }} /> {sidebarOpen && "Complaint & Reply"}
-                    </div>
                     <div className={`staff-nav-item ${activeTab === 'apartment_management' ? 'active' : ''}`} onClick={() => { setActiveTab('apartment_management'); setSelectedComplaint(null) }} style={{ justifyContent: sidebarOpen ? 'flex-start' : 'center', padding: sidebarOpen ? '12px 15px' : '15px 0' }}>
                         <FaBuilding style={{ marginRight: sidebarOpen ? '15px' : '0' }} /> {sidebarOpen && "Management"}
+                    </div>
+                    <div className={`staff-nav-item ${activeTab === 'complaints' ? 'active' : ''}`} onClick={() => setActiveTab('complaints')} style={{ justifyContent: sidebarOpen ? 'flex-start' : 'center', padding: sidebarOpen ? '12px 15px' : '15px 0' }}>
+                        <FaComments style={{ marginRight: sidebarOpen ? '15px' : '0' }} /> {sidebarOpen && "Complaint & Reply"}
                     </div>
                     <div className={`staff-nav-item ${activeTab === 'history' ? 'active' : ''}`} onClick={() => setActiveTab('history')} style={{ justifyContent: sidebarOpen ? 'flex-start' : 'center', padding: sidebarOpen ? '12px 15px' : '15px 0' }}>
                         <FaHistory style={{ marginRight: sidebarOpen ? '15px' : '0' }} /> {sidebarOpen && "Stay At History"}
