@@ -54,10 +54,36 @@ const formatDateTime = (value) => {
   return DATE_TIME_FORMATTER.format(parsed);
 };
 
+const toTimestamp = (value) => {
+  if (!value) return 0;
+  const parsed = new Date(value);
+  return Number.isNaN(parsed.getTime()) ? 0 : parsed.getTime();
+};
+
+const comparePriorityThenNewest = (
+  leftPriority,
+  rightPriority,
+  leftTimestamp,
+  rightTimestamp,
+) => {
+  if (leftPriority !== rightPriority) {
+    return leftPriority - rightPriority;
+  }
+
+  return rightTimestamp - leftTimestamp;
+};
+
 const getBookingStatusMeta = (status) => {
   if (Number(status) === 1) return { label: "Approved", className: "approved" };
   if (Number(status) === 2) return { label: "Denied", className: "deny" };
   return { label: "Pending", className: "pending" };
+};
+
+const getBookingSortPriority = (status) => {
+  if (Number(status) === 0) return 0;
+  if (Number(status) === 1) return 1;
+  if (Number(status) === 2) return 2;
+  return 3;
 };
 
 const getInvoiceStatusMeta = (status) => {
@@ -80,6 +106,24 @@ const getApartmentLabel = (accountId, contractMap) =>
   contractMap.get(accountId)?.apartment?.roomNumber ||
   contractMap.get(accountId)?.apartmentId ||
   "N/A";
+
+const buildBookingUpdatePayload = (bookingItem, nextStatus) => {
+  const rawBooking = bookingItem?.raw ?? {};
+
+  return {
+    resourceId:
+      rawBooking?.resourceId ?? rawBooking?.serviceResource?.id ?? null,
+    accountId: rawBooking?.accountId ?? rawBooking?.account?.id ?? null,
+    bookFrom: rawBooking?.bookFrom ?? null,
+    bookTo: rawBooking?.bookTo ?? null,
+    status: nextStatus,
+    totalAmount:
+      rawBooking?.totalAmount ??
+      rawBooking?.amount ??
+      bookingItem?.raw?.bookingService?.totalAmount ??
+      null,
+  };
+};
 
 const StaffServiceMainContent = ({ activeTab }) => {
   const [bookingFilter, setBookingFilter] = useState("All");
@@ -137,6 +181,13 @@ const StaffServiceMainContent = ({ activeTab }) => {
             ? `${formatDateTime(booking.bookFrom)} - ${formatDateTime(booking.bookTo)}`
             : "N/A",
         status: getBookingStatusMeta(booking?.status),
+        sortPriority: getBookingSortPriority(booking?.status),
+        sortTimestamp: toTimestamp(
+          booking?.createdAt ||
+            booking?.updatedAt ||
+            booking?.bookFrom ||
+            booking?.bookTo,
+        ),
         raw: booking,
       }));
 
@@ -160,6 +211,13 @@ const StaffServiceMainContent = ({ activeTab }) => {
           amount: CURRENCY_FORMATTER.format(Number(invoice?.amount ?? 0)),
           status: getInvoiceStatusMeta(invoice?.status),
           date: formatDateTime(invoice?.paymentDate || invoice?.createdAt),
+          sortPriority: Number(invoice?.status) === 1 ? 1 : 0,
+          sortTimestamp: toTimestamp(
+            invoice?.createdAt ||
+              invoice?.updatedAt ||
+              invoice?.paymentDate ||
+              booking?.bookFrom,
+          ),
         };
       });
 
@@ -202,6 +260,24 @@ const StaffServiceMainContent = ({ activeTab }) => {
       ? serviceFees
       : serviceFees.filter((fee) => fee.service === feeFilter);
 
+  const sortedBookings = [...filteredBookings].sort((left, right) =>
+    comparePriorityThenNewest(
+      left.sortPriority,
+      right.sortPriority,
+      left.sortTimestamp,
+      right.sortTimestamp,
+    ),
+  );
+
+  const sortedFees = [...filteredFees].sort((left, right) =>
+    comparePriorityThenNewest(
+      left.sortPriority,
+      right.sortPriority,
+      left.sortTimestamp,
+      right.sortTimestamp,
+    ),
+  );
+
   useEffect(() => {
     setBookingPage(1);
   }, [bookingFilter, bookings.length]);
@@ -210,23 +286,27 @@ const StaffServiceMainContent = ({ activeTab }) => {
     setFeePage(1);
   }, [feeFilter, serviceFees.length]);
 
-  const paginatedBookings = filteredBookings.slice(
+  const paginatedBookings = sortedBookings.slice(
     (bookingPage - 1) * 8,
     bookingPage * 8,
   );
-  const bookingTotalPages = Math.max(1, Math.ceil(filteredBookings.length / 8));
+  const bookingTotalPages = Math.max(1, Math.ceil(sortedBookings.length / 8));
 
-  const paginatedFees = filteredFees.slice((feePage - 1) * 8, feePage * 8);
-  const feeTotalPages = Math.max(1, Math.ceil(filteredFees.length / 8));
+  const paginatedFees = sortedFees.slice((feePage - 1) * 8, feePage * 8);
+  const feeTotalPages = Math.max(1, Math.ceil(sortedFees.length / 8));
 
   const handleStatusUpdate = async (bookingItem, nextStatus) => {
     try {
       setIsUpdating(true);
-      await updateBookingById(bookingItem.id, { status: nextStatus });
+      await updateBookingById(
+        bookingItem.id,
+        buildBookingUpdatePayload(bookingItem, nextStatus),
+      );
       await loadData();
     } catch (updateError) {
       setError(
         updateError?.response?.data?.message ||
+          updateError?.response?.data?.error ||
           "Could not update booking status on the backend.",
       );
     } finally {

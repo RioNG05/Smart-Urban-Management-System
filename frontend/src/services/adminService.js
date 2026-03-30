@@ -4,7 +4,10 @@ const getPayload = (data) => data?.result ?? data;
 
 const toArray = (value) => (Array.isArray(value) ? value : []);
 
-const requestWithAuthFallback = async (config) => {
+const requestWithAuthFallback = async (
+  config,
+  { retryOnBadRequest = true } = {},
+) => {
   try {
     return await api({
       ...config,
@@ -13,7 +16,10 @@ const requestWithAuthFallback = async (config) => {
   } catch (error) {
     const status = error?.response?.status;
 
-    if (status !== 400 && status !== 401 && status !== 403) {
+    const shouldRetry =
+      status === 401 || status === 403 || (retryOnBadRequest && status === 400);
+
+    if (!shouldRetry) {
       throw error;
     }
 
@@ -61,7 +67,7 @@ export const updateBookingById = async (bookingId, payload) => {
     method: "put",
     url: `/bookings/${bookingId}`,
     data: payload,
-  });
+  }, { retryOnBadRequest: false });
 
   return getPayload(res.data);
 };
@@ -101,6 +107,37 @@ export const getAllComplaints = async () => {
   });
 
   return toArray(getPayload(res.data));
+};
+
+export const updateComplaintById = async (complaintId, payload) => {
+  const res = await requestWithAuthFallback({
+    method: "put",
+    url: `/complaints/${complaintId}`,
+    data: payload,
+  });
+
+  return getPayload(res.data);
+};
+
+export const getRepliesByComplaintId = async (complaintId) => {
+  if (!complaintId) return [];
+
+  const res = await requestWithAuthFallback({
+    method: "get",
+    url: `/replies/complaint/${complaintId}`,
+  });
+
+  return toArray(getPayload(res.data));
+};
+
+export const createReply = async (payload) => {
+  const res = await requestWithAuthFallback({
+    method: "post",
+    url: "/replies",
+    data: payload,
+  });
+
+  return getPayload(res.data);
 };
 
 export const getAllUtilitiesInvoices = async () => {

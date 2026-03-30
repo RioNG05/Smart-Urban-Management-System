@@ -24,6 +24,10 @@ import {
   FaLayerGroup,
   FaWrench,
   FaStar,
+  FaComments,
+  FaClock,
+  FaRegCommentDots,
+  FaExclamationTriangle,
 } from "react-icons/fa";
 import {
   FaFileContract,
@@ -48,13 +52,17 @@ import { getApartments } from "../services/apartmentService";
 import {
   createVisitor,
   getAllBookings,
+  getAllComplaints,
   getAllContracts,
+  getRepliesByComplaintId,
   getAllServiceInvoices,
   getAllStaff,
   getAllUtilitiesInvoices,
   getAllVisitors,
   getStayHistoryByApartmentId,
+  createReply,
   updateBookingById,
+  updateComplaintById,
   updateContractById,
 } from "../services/adminService";
 import api from "../services/api";
@@ -71,6 +79,60 @@ import {
 
 const paginateItems = (items, page, pageSize) =>
   items.slice((page - 1) * pageSize, page * pageSize);
+
+const formatAdminDateTime = (value) => {
+  if (!value) return "N/A";
+
+  const parsed = new Date(value);
+  if (Number.isNaN(parsed.getTime())) return String(value);
+
+  return new Intl.DateTimeFormat("vi-VN", {
+    dateStyle: "medium",
+    timeStyle: "short",
+  }).format(parsed);
+};
+
+const formatAdminDate = (value) => {
+  if (!value) return "N/A";
+
+  const parsed = new Date(value);
+  if (Number.isNaN(parsed.getTime())) return String(value);
+
+  return new Intl.DateTimeFormat("vi-VN", {
+    dateStyle: "medium",
+  }).format(parsed);
+};
+
+const getComplaintOwnerId = (complaint) =>
+  complaint?.madeByUser?.id ??
+  complaint?.user?.id ??
+  complaint?.userId ??
+  complaint?.accountId ??
+  complaint?.createdBy?.id ??
+  complaint?.account?.id ??
+  null;
+
+const getReplyAuthorId = (reply) =>
+  reply?.user?.id ??
+  reply?.userId ??
+  reply?.accountId ??
+  reply?.createdBy?.id ??
+  null;
+
+const getComplaintTimestamp = (record) =>
+  record?.createdAt ??
+  record?.updatedAt ??
+  record?.createAt ??
+  record?.time ??
+  record?.sentAt ??
+  null;
+
+const getAdminTimestampValue = (value) => {
+  if (!value) return 0;
+
+  const parsed = new Date(value);
+  return Number.isNaN(parsed.getTime()) ? 0 : parsed.getTime();
+};
 
 // --- ADMIN ROLE MANAGER ---
 const LegacyAdminRoleManager = () => {
@@ -2258,6 +2320,855 @@ export const AdminVisitorManager = () => (
     <StaffSecurityMainContent activeTab="visitors" />
   </div>
 );
+
+export const AdminComplaintManager = () => {
+  const { user } = useAuth();
+  const [complaints, setComplaints] = useState([]);
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedComplaintId, setSelectedComplaintId] = useState(null);
+  const [replyDraft, setReplyDraft] = useState("");
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSubmittingReply, setIsSubmittingReply] = useState(false);
+  const [feedback, setFeedback] = useState({ type: "", message: "" });
+  const [currentPage, setCurrentPage] = useState(1);
+  const pageSize = 6;
+
+  const loadComplaintData = async ({ keepSelection = true } = {}) => {
+    setIsLoading(true);
+
+    try {
+      const [complaintList, accountList, residentList, contractList, apartmentList] =
+        await Promise.all([
+          getAllComplaints(),
+          getAccounts(),
+          getResidents(),
+          getAllContracts(),
+          getApartments(),
+        ]);
+
+      const accountsMap = new Map(
+        accountList.map((account) => [String(account.id), account]),
+      );
+      const residentsMap = new Map(
+        residentList.map((resident) => [
+          String(resident?.account?.id ?? resident?.accountId ?? resident?.id),
+          resident,
+        ]),
+      );
+      const apartmentMap = new Map(
+        apartmentList.map((apartment) => [String(apartment.id), apartment]),
+      );
+      const contractsByAccount = contractList.reduce((map, contract) => {
+        const accountId = contract?.account?.id ?? contract?.accountId;
+        if (!accountId) return map;
+
+        const key = String(accountId);
+        const current = map.get(key) ?? [];
+        current.push(contract);
+        map.set(key, current);
+        return map;
+      }, new Map());
+
+      const replyResults = await Promise.all(
+        complaintList.map(async (complaint) => {
+          try {
+            const replies = await getRepliesByComplaintId(complaint?.id);
+            return [complaint?.id, replies];
+          } catch {
+            return [complaint?.id, []];
+          }
+        }),
+      );
+
+      const repliesMap = new Map(replyResults);
+
+      const normalizedComplaints = complaintList
+        .map((complaint) => {
+          const ownerId = getComplaintOwnerId(complaint);
+          const ownerKey = ownerId !== null ? String(ownerId) : null;
+          const account =
+            (ownerKey ? accountsMap.get(ownerKey) : null) ??
+            complaint?.madeByUser ??
+            complaint?.user ??
+            complaint?.account ??
+            null;
+          const resident =
+            (ownerKey ? residentsMap.get(ownerKey) : null) ??
+            complaint?.resident ??
+            null;
+          const contracts = ownerKey ? contractsByAccount.get(ownerKey) ?? [] : [];
+          const sortedContracts = [...contracts].sort(
+            (a, b) =>
+              new Date(b?.startDate || 0).getTime() -
+              new Date(a?.startDate || 0).getTime(),
+          );
+          const activeContract =
+            sortedContracts.find((contract) => Number(contract?.status ?? 1) === 1) ??
+            sortedContracts[0] ??
+            null;
+          const apartmentId =
+            complaint?.apartment?.id ??
+            complaint?.apartmentId ??
+            activeContract?.apartment?.id ??
+            activeContract?.apartmentId ??
+            null;
+          const apartment =
+            (apartmentId !== null ? apartmentMap.get(String(apartmentId)) : null) ??
+            complaint?.apartment ??
+            activeContract?.apartment ??
+            null;
+          const replies = (repliesMap.get(complaint?.id) ?? []).map((reply) => ({
+            ...reply,
+            authorId: getReplyAuthorId(reply),
+            authorName:
+              reply?.user?.fullName ??
+              reply?.user?.username ??
+              reply?.createdBy?.fullName ??
+              reply?.createdBy?.username ??
+              "Staff/Admin",
+            createdLabel: formatAdminDateTime(getComplaintTimestamp(reply)),
+          }));
+          const createdAt = getComplaintTimestamp(complaint);
+
+          return {
+            ...complaint,
+            ownerId,
+            ownerName:
+              resident?.fullName ??
+              account?.fullName ??
+              account?.username ??
+              complaint?.fullName ??
+              complaint?.residentName ??
+              "Unknown resident",
+            ownerEmail: account?.email ?? complaint?.email ?? "N/A",
+            ownerPhone:
+              resident?.phoneNumber ??
+              account?.phoneNumber ??
+              complaint?.phoneNumber ??
+              "N/A",
+            apartmentLabel:
+              apartment?.roomNumber ??
+              complaint?.roomNumber ??
+              complaint?.apartmentNumber ??
+              "Unassigned",
+            floorNumber: apartment?.floorNumber ?? null,
+            createdAt,
+            createdLabel: formatAdminDateTime(createdAt),
+            updatedLabel: formatAdminDateTime(
+              complaint?.updatedAt ?? complaint?.modifiedAt,
+            ),
+            replies,
+            replyCount: replies.length,
+            status: replies.length > 0 ? "replied" : "new",
+            statusLabel: replies.length > 0 ? "Replied" : "Pending review",
+            latestReplyLabel:
+              replies.length > 0
+                ? formatAdminDateTime(
+                    getComplaintTimestamp(replies[replies.length - 1]),
+                  )
+                : "No replies yet",
+            sortPriority: replies.length > 0 ? 1 : 0,
+            sortTimestamp: Math.max(
+              getAdminTimestampValue(createdAt),
+              getAdminTimestampValue(
+                complaint?.updatedAt ?? complaint?.modifiedAt,
+              ),
+            ),
+          };
+        })
+        .sort((a, b) => {
+          if (a.sortPriority !== b.sortPriority) {
+            return a.sortPriority - b.sortPriority;
+          }
+
+          return b.sortTimestamp - a.sortTimestamp;
+        });
+
+      setComplaints(normalizedComplaints);
+      setFeedback({ type: "", message: "" });
+
+      if (!keepSelection) {
+        setSelectedComplaintId(normalizedComplaints[0]?.id ?? null);
+        return;
+      }
+
+      setSelectedComplaintId((prev) => {
+        if (prev && normalizedComplaints.some((complaint) => complaint.id === prev)) {
+          return prev;
+        }
+        return normalizedComplaints[0]?.id ?? null;
+      });
+    } catch (error) {
+      setFeedback({
+        type: "error",
+        message:
+          error?.response?.data?.message ||
+          "Could not load complaints from the backend.",
+      });
+      setComplaints([]);
+      setSelectedComplaintId(null);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadComplaintData({ keepSelection: false });
+  }, []);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, statusFilter, complaints.length]);
+
+  useEffect(() => {
+    setReplyDraft("");
+  }, [selectedComplaintId]);
+
+  const filteredComplaints = complaints
+    .filter((complaint) => {
+      const matchesStatus =
+        statusFilter === "all" ? true : complaint.status === statusFilter;
+      const keyword = searchTerm.trim().toLowerCase();
+      const matchesSearch =
+        keyword.length === 0
+          ? true
+          : [
+              complaint.content,
+              complaint.ownerName,
+              complaint.ownerEmail,
+              complaint.ownerPhone,
+              complaint.apartmentLabel,
+            ].some((value) =>
+              String(value ?? "").toLowerCase().includes(keyword),
+            );
+
+      return matchesStatus && matchesSearch;
+    })
+    .sort((a, b) => {
+      if (a.sortPriority !== b.sortPriority) {
+        return a.sortPriority - b.sortPriority;
+      }
+
+      return b.sortTimestamp - a.sortTimestamp;
+    });
+
+  const paginatedComplaints = paginateItems(
+    filteredComplaints,
+    currentPage,
+    pageSize,
+  );
+  const totalPages = Math.max(
+    1,
+    Math.ceil(filteredComplaints.length / pageSize),
+  );
+  const selectedComplaint =
+    complaints.find((complaint) => complaint.id === selectedComplaintId) ?? null;
+  const newCount = complaints.filter((complaint) => complaint.status === "new").length;
+  const repliedCount = complaints.filter(
+    (complaint) => complaint.status === "replied",
+  ).length;
+  const latestComplaintDate =
+    complaints.length > 0 ? formatAdminDate(complaints[0].createdAt) : "N/A";
+
+  const handleSubmitReply = async () => {
+    if (!selectedComplaint || !replyDraft.trim()) {
+      setFeedback({
+        type: "error",
+        message: "Please choose a complaint and enter a reply.",
+      });
+      return;
+    }
+
+    if (!user?.id) {
+      setFeedback({
+        type: "error",
+        message:
+          "Could not identify the current admin account for this reply. Please sign in again.",
+      });
+      return;
+    }
+
+    setIsSubmittingReply(true);
+    setFeedback({ type: "", message: "" });
+
+    try {
+      await createReply({
+        content: replyDraft.trim(),
+        complaintId: selectedComplaint.id,
+        userId: user.id,
+      });
+
+      try {
+        await updateComplaintById(selectedComplaint.id, {
+          content: selectedComplaint.content,
+        });
+      } catch {
+        // Complaint status is inferred from replies, so reply creation is enough.
+      }
+
+      setReplyDraft("");
+      await loadComplaintData();
+      setFeedback({
+        type: "success",
+        message: "Reply sent and complaint data refreshed successfully.",
+      });
+    } catch (error) {
+      setFeedback({
+        type: "error",
+        message:
+          error?.response?.data?.message || "Failed to send reply.",
+      });
+    } finally {
+      setIsSubmittingReply(false);
+    }
+  };
+
+  return (
+    <div className="admin-reports-container">
+      <section
+        className="create-role-section"
+        style={{
+          backgroundImage:
+            "linear-gradient(135deg, rgba(15,23,42,0.92), rgba(12,74,110,0.88)), url('https://images.unsplash.com/photo-1516321318423-f06f85e504b3?q=80&w=1200')",
+          backgroundBlendMode: "overlay",
+        }}
+      >
+        <div className="create-role-content">
+          <h3>Complaint Command Center</h3>
+          <p
+            style={{
+              color: "#dbeafe",
+              lineHeight: "1.7",
+              maxWidth: "780px",
+              marginBottom: "22px",
+            }}
+          >
+            Track resident issues in real time, prioritize unanswered reports,
+            and send responses directly from the admin workspace.
+          </p>
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fit, minmax(170px, 1fr))",
+              gap: "14px",
+            }}
+          >
+            {[
+              {
+                icon: <FaComments />,
+                label: "Total complaints",
+                value: complaints.length,
+                accent: "#38bdf8",
+              },
+              {
+                icon: <FaExclamationTriangle />,
+                label: "Pending review",
+                value: newCount,
+                accent: "#f59e0b",
+              },
+              {
+                icon: <FaRegCommentDots />,
+                label: "Replied",
+                value: repliedCount,
+                accent: "#22c55e",
+              },
+              {
+                icon: <FaClock />,
+                label: "Latest activity",
+                value: latestComplaintDate,
+                accent: "#c084fc",
+              },
+            ].map((item) => (
+              <div
+                key={item.label}
+                style={{
+                  background: "rgba(255,255,255,0.08)",
+                  border: "1px solid rgba(255,255,255,0.14)",
+                  borderRadius: "18px",
+                  padding: "18px 20px",
+                  backdropFilter: "blur(10px)",
+                }}
+              >
+                <div
+                  style={{
+                    width: "42px",
+                    height: "42px",
+                    borderRadius: "14px",
+                    display: "grid",
+                    placeItems: "center",
+                    background: item.accent,
+                    color: "#0f172a",
+                    marginBottom: "12px",
+                    fontSize: "18px",
+                  }}
+                >
+                  {item.icon}
+                </div>
+                <div style={{ fontSize: "13px", color: "#cbd5e1" }}>{item.label}</div>
+                <div
+                  style={{
+                    fontSize: "24px",
+                    fontWeight: "800",
+                    color: "#fff",
+                    marginTop: "6px",
+                  }}
+                >
+                  {item.value}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {feedback.message ? (
+        <div className={`admin-feedback ${feedback.type}`} style={{ marginTop: "22px" }}>
+          {feedback.message}
+        </div>
+      ) : null}
+
+      <section
+        className="staff-form-container"
+        style={{ marginTop: "22px", padding: "24px", overflow: "hidden" }}
+      >
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "minmax(0, 1.15fr) minmax(340px, 0.85fr)",
+            gap: "22px",
+          }}
+        >
+          <div style={{ minWidth: 0 }}>
+            <div
+              className="admin-lock-header-row"
+              style={{ marginBottom: "18px", alignItems: "center" }}
+            >
+              <div>
+                <h3 style={{ marginBottom: "6px", color: "#0f172a" }}>
+                  Complaint Queue
+                </h3>
+                <p style={{ margin: 0, color: "#64748b", fontSize: "14px" }}>
+                  Filter by status and search by resident, apartment, phone, or complaint content.
+                </p>
+              </div>
+              <button
+                type="button"
+                className="btn-submit"
+                onClick={() => loadComplaintData()}
+                disabled={isLoading}
+                style={{ minWidth: "120px" }}
+              >
+                {isLoading ? "Loading..." : "Refresh"}
+              </button>
+            </div>
+
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "minmax(0, 1fr) 220px",
+                gap: "14px",
+                marginBottom: "18px",
+              }}
+            >
+              <div style={{ position: "relative" }}>
+                <FaSearch
+                  style={{
+                    position: "absolute",
+                    left: "14px",
+                    top: "50%",
+                    transform: "translateY(-50%)",
+                    color: "#94a3b8",
+                  }}
+                />
+                <input
+                  type="text"
+                  value={searchTerm}
+                  onChange={(event) => setSearchTerm(event.target.value)}
+                  placeholder="Search complaints by resident, apartment, phone, or content..."
+                  style={{
+                    width: "100%",
+                    padding: "13px 14px 13px 40px",
+                    borderRadius: "12px",
+                    border: "1px solid #dbe3f0",
+                    background: "#f8fafc",
+                    outline: "none",
+                  }}
+                />
+              </div>
+
+              <select
+                value={statusFilter}
+                onChange={(event) => setStatusFilter(event.target.value)}
+                style={{
+                  width: "100%",
+                  padding: "13px 14px",
+                  borderRadius: "12px",
+                  border: "1px solid #dbe3f0",
+                  background: "#f8fafc",
+                  outline: "none",
+                }}
+              >
+                <option value="all">All statuses</option>
+                <option value="new">Pending review</option>
+                <option value="replied">Replied</option>
+              </select>
+            </div>
+
+            <div className="admin-table-wrapper">
+              <table className="admin-custom-table bordered">
+                <thead>
+                  <tr>
+                    <th>Resident</th>
+                    <th>Apartment</th>
+                    <th>Content</th>
+                    <th>Status</th>
+                    <th>Updated</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {isLoading ? (
+                    <tr>
+                      <td colSpan="5" style={{ textAlign: "center", padding: "28px" }}>
+                        Loading complaints from the backend...
+                      </td>
+                    </tr>
+                  ) : filteredComplaints.length === 0 ? (
+                    <tr>
+                      <td colSpan="5" style={{ textAlign: "center", padding: "28px" }}>
+                        No complaints match the current filters.
+                      </td>
+                    </tr>
+                  ) : (
+                    paginatedComplaints.map((complaint) => (
+                      <tr
+                        key={complaint.id}
+                        onClick={() => setSelectedComplaintId(complaint.id)}
+                        style={{
+                          cursor: "pointer",
+                          background:
+                            complaint.id === selectedComplaintId
+                              ? "rgba(59, 130, 246, 0.08)"
+                              : undefined,
+                        }}
+                      >
+                        <td>
+                          <strong>{complaint.ownerName}</strong>
+                          <div style={{ color: "#64748b", fontSize: "12px", marginTop: "4px" }}>
+                            {complaint.ownerEmail}
+                          </div>
+                        </td>
+                        <td>
+                          <strong>Room {complaint.apartmentLabel}</strong>
+                          <div style={{ color: "#64748b", fontSize: "12px", marginTop: "4px" }}>
+                            {complaint.floorNumber ? `Floor ${complaint.floorNumber}` : "Floor unknown"}
+                          </div>
+                        </td>
+                        <td style={{ maxWidth: "280px" }}>
+                          <div
+                            style={{
+                              display: "-webkit-box",
+                              WebkitLineClamp: 2,
+                              WebkitBoxOrient: "vertical",
+                              overflow: "hidden",
+                              lineHeight: "1.5",
+                            }}
+                          >
+                            {complaint.content}
+                          </div>
+                        </td>
+                        <td>
+                          <span
+                            className={`status-badge ${
+                              complaint.status === "replied" ? "active" : "locked"
+                            }`}
+                          >
+                            {complaint.statusLabel}
+                          </span>
+                          <div style={{ color: "#64748b", fontSize: "12px", marginTop: "6px" }}>
+                            {complaint.replyCount} replies
+                          </div>
+                        </td>
+                        <td>{complaint.latestReplyLabel}</td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
+
+            <AdminPagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={setCurrentPage}
+              totalItems={filteredComplaints.length}
+              pageSize={pageSize}
+              itemLabel="complaints"
+            />
+          </div>
+
+          <div
+            style={{
+              background: "linear-gradient(180deg, #f8fafc 0%, #ffffff 100%)",
+              border: "1px solid #e2e8f0",
+              borderRadius: "20px",
+              padding: "22px",
+              minHeight: "760px",
+              boxShadow: "0 18px 45px rgba(15, 23, 42, 0.08)",
+            }}
+          >
+            {!selectedComplaint ? (
+              <div
+                style={{
+                  height: "100%",
+                  display: "grid",
+                  placeItems: "center",
+                  textAlign: "center",
+                  color: "#64748b",
+                  padding: "30px",
+                }}
+              >
+                Select a complaint from the left to review details and reply.
+              </div>
+            ) : (
+              <>
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    gap: "12px",
+                    alignItems: "flex-start",
+                    marginBottom: "20px",
+                  }}
+                >
+                  <div>
+                    <div
+                      style={{
+                        display: "inline-flex",
+                        alignItems: "center",
+                        gap: "8px",
+                        background: "#e0f2fe",
+                        color: "#0369a1",
+                        borderRadius: "999px",
+                        padding: "6px 12px",
+                        fontWeight: "700",
+                        fontSize: "12px",
+                        marginBottom: "12px",
+                      }}
+                    >
+                      <FaComments />
+                      Ticket #{selectedComplaint.id}
+                    </div>
+                    <h3 style={{ marginBottom: "6px", color: "#0f172a" }}>
+                      {selectedComplaint.ownerName}
+                    </h3>
+                    <p
+                      style={{
+                        margin: 0,
+                        color: "#64748b",
+                        fontSize: "14px",
+                        display: "none",
+                      }}
+                    >
+                      Phong {selectedComplaint.apartmentLabel} • {selectedComplaint.ownerPhone}
+                    </p>
+                    <p style={{ margin: 0, color: "#64748b", fontSize: "14px" }}>
+                      Room {selectedComplaint.apartmentLabel} | {selectedComplaint.ownerPhone}
+                    </p>
+                  </div>
+                  <span
+                    className={`status-badge ${
+                      selectedComplaint.status === "replied" ? "active" : "locked"
+                    }`}
+                  >
+                    {selectedComplaint.statusLabel}
+                  </span>
+                </div>
+
+                <div
+                  style={{
+                    display: "grid",
+                    gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
+                    gap: "12px",
+                    marginBottom: "18px",
+                  }}
+                >
+                  {[
+                    { label: "Submitted", value: selectedComplaint.createdLabel },
+                    { label: "Updated", value: selectedComplaint.updatedLabel },
+                    { label: "Email", value: selectedComplaint.ownerEmail },
+                    { label: "Reply count", value: selectedComplaint.replyCount },
+                  ].map((item) => (
+                    <div
+                      key={item.label}
+                      style={{
+                        background: "#fff",
+                        border: "1px solid #e2e8f0",
+                        borderRadius: "14px",
+                        padding: "14px",
+                      }}
+                    >
+                      <div style={{ fontSize: "12px", color: "#64748b", marginBottom: "6px" }}>
+                        {item.label}
+                      </div>
+                      <div style={{ color: "#0f172a", fontWeight: "700", lineHeight: "1.5" }}>
+                        {item.value}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                <div
+                  style={{
+                    background: "#0f172a",
+                    color: "#e2e8f0",
+                    borderRadius: "18px",
+                    padding: "18px",
+                    marginBottom: "18px",
+                  }}
+                >
+                  <div style={{ fontSize: "12px", letterSpacing: "0.08em", color: "#7dd3fc" }}>
+                    RESIDENT MESSAGE
+                  </div>
+                  <div
+                    style={{
+                      marginTop: "10px",
+                      lineHeight: "1.75",
+                      fontSize: "15px",
+                      whiteSpace: "pre-wrap",
+                    }}
+                  >
+                    {selectedComplaint.content}
+                  </div>
+                </div>
+
+                <div style={{ marginBottom: "18px" }}>
+                  <div
+                    style={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "center",
+                      marginBottom: "12px",
+                    }}
+                  >
+                    <h4 style={{ margin: 0, color: "#0f172a" }}>Reply history</h4>
+                    <span style={{ color: "#64748b", fontSize: "13px" }}>
+                      {selectedComplaint.replyCount} items
+                    </span>
+                  </div>
+
+                  <div
+                    style={{
+                      maxHeight: "260px",
+                      overflowY: "auto",
+                      display: "grid",
+                      gap: "12px",
+                      paddingRight: "4px",
+                    }}
+                  >
+                    {selectedComplaint.replies.length === 0 ? (
+                      <div
+                        style={{
+                          border: "1px dashed #cbd5e1",
+                          borderRadius: "14px",
+                          padding: "18px",
+                          color: "#64748b",
+                          background: "#fff",
+                        }}
+                      >
+                        This complaint has not been answered yet. You can send the first reply below.
+                      </div>
+                    ) : (
+                      selectedComplaint.replies.map((reply) => (
+                        <div
+                          key={reply.id}
+                          style={{
+                            background: "#fff",
+                            border: "1px solid #dbeafe",
+                            borderLeft: "4px solid #38bdf8",
+                            borderRadius: "14px",
+                            padding: "14px 16px",
+                          }}
+                        >
+                          <div
+                            style={{
+                              display: "flex",
+                              justifyContent: "space-between",
+                              gap: "10px",
+                              marginBottom: "8px",
+                              color: "#0f172a",
+                              fontWeight: "700",
+                            }}
+                          >
+                            <span>{reply.authorName}</span>
+                            <span style={{ color: "#64748b", fontSize: "12px" }}>
+                              {reply.createdLabel}
+                            </span>
+                          </div>
+                          <div style={{ color: "#334155", lineHeight: "1.65", whiteSpace: "pre-wrap" }}>
+                            {reply.content}
+                          </div>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                </div>
+
+                <div
+                  style={{
+                    borderTop: "1px solid #e2e8f0",
+                    paddingTop: "18px",
+                  }}
+                >
+                  <h4 style={{ marginTop: 0, marginBottom: "12px", color: "#0f172a" }}>
+                    Send a new reply
+                  </h4>
+                  <textarea
+                    value={replyDraft}
+                    onChange={(event) => setReplyDraft(event.target.value)}
+                    rows={6}
+                    placeholder="Write your response to the resident..."
+                    style={{
+                      width: "100%",
+                      resize: "vertical",
+                      borderRadius: "14px",
+                      border: "1px solid #dbe3f0",
+                      padding: "14px 16px",
+                      background: "#fff",
+                      outline: "none",
+                      lineHeight: "1.65",
+                    }}
+                  />
+                  <div
+                    style={{
+                      marginTop: "12px",
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "center",
+                      gap: "12px",
+                    }}
+                  >
+                    <span style={{ color: "#64748b", fontSize: "12px" }}>
+                      The reply will be sent using the currently signed-in admin account.
+                    </span>
+                    <button
+                      type="button"
+                      className="btn-submit"
+                      onClick={handleSubmitReply}
+                      disabled={isSubmittingReply}
+                    >
+                      {isSubmittingReply ? "Sending..." : "Send Reply"}
+                    </button>
+                  </div>
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+      </section>
+    </div>
+  );
+};
 
 // --- ADMIN APARTMENT MANAGEMENT ---
 const LegacyAdminApartmentLayout = () => {
