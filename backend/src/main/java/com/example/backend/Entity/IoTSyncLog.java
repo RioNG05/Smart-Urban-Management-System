@@ -30,6 +30,6 @@ public class IoTSyncLog {
     @Column(name = "WaterEndNum", nullable = false, precision = 10, scale = 2)
     private BigDecimal waterEndNum;
 
-    @Column(name = "LogDate", insertable = false, updatable = false)
+    @Column(name = "LogDate")
     private LocalDateTime logDate;
 }

@@ -5,6 +5,7 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 @Data
 @NoArgsConstructor
@@ -21,4 +22,6 @@ public class IoTSyncLogCreateRequest {
 
     @NotNull(message = "Không được để trống nước")
     BigDecimal waterEndNum;
+
+    LocalDateTime logDate;
 }

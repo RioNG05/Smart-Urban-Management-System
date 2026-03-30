@@ -48,7 +48,7 @@ public class UtilitiesInvoiceController {
 
         response.setCode(200);
         response.setMessage("Danh sách hóa đơn của căn hộ id: " + id);
-        response.setResult(service.findAllByAparmentId(id));
+        response.setResult(service.findAllByApartmentId(id));
         return response;
     }
 
