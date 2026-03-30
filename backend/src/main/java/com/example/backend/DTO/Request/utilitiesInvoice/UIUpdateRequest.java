@@ -15,7 +15,5 @@ public class UIUpdateRequest {
     Integer apartmentId;
     Integer billingMonth;
     Integer billingYear;
-    Integer totalElectricUsed;
-    Integer totalWaterUsed;
     Integer status = 0;
 }

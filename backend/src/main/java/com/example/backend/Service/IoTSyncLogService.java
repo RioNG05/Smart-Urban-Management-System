@@ -32,7 +32,7 @@ public class IoTSyncLogService {
     }
 
     public List<IoTSyncLog> findByApartmentId(Integer apartmentId) {
-        return repository.findAllByApartmentId(apartmentId);
+        return repository.findAllByApartmentIdOrderByLogDateDesc(apartmentId);
     }
 
     public IoTSyncLog create(IoTSyncLogCreateRequest request) {
@@ -43,6 +43,7 @@ public class IoTSyncLogService {
                 .apartment(apartment)
                 .electricityEndNum(request.getElectricityEndNum())
                 .waterEndNum(request.getWaterEndNum())
+                .logDate(request.getLogDate())
                 .build();
 
         return repository.save(log);

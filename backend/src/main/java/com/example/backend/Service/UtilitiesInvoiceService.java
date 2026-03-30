@@ -3,24 +3,16 @@ package com.example.backend.Service;
 
 import com.example.backend.DTO.Request.utilitiesInvoice.UICreateRequest;
 import com.example.backend.DTO.Request.utilitiesInvoice.UIUpdateRequest;
-import com.example.backend.Entity.Apartment;
-import com.example.backend.Entity.Services;
-import com.example.backend.Entity.Contract;
-import com.example.backend.Entity.UtilitiesInvoice;
-import com.example.backend.Repository.ContractRepository;
-import com.example.backend.Repository.ServicesRepository;
-import com.example.backend.Repository.UtilitiesInvoiceRepository;
+import com.example.backend.Entity.*;
+import com.example.backend.Repository.*;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import javax.swing.text.Utilities;
 import java.math.BigDecimal;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 @FieldDefaults(level = AccessLevel.PRIVATE)
@@ -28,20 +20,18 @@ public class UtilitiesInvoiceService {
     @Autowired
     UtilitiesInvoiceRepository repository;
     @Autowired
-    ServicesRepository servicesRepository;
-    @Autowired
-    ServicesService servicesService;
+    MandatoryServicesRepository mandatoryServicesRepository;
     @Autowired
     ApartmentService apartmentService;
     @Autowired
-    ContractRepository contractRepository;
+    IoTSyncLogRepository ioTSyncLogRepository;
 
 
     public List<UtilitiesInvoice> findAll() {
         return repository.findAll();
     }
 
-    public List<UtilitiesInvoice> findAllByAparmentId(Integer apartmentId){
+    public List<UtilitiesInvoice> findAllByApartmentId(Integer apartmentId){
         return repository.findAllByApartmentId(apartmentId);
     }
 
@@ -56,25 +46,23 @@ public class UtilitiesInvoiceService {
 
         Apartment apartment = apartmentService.findById(req.getApartmentId());
 
-        Services electricServices = servicesService.findByServiceCode("ELEC_01");
-        Services waterServices = servicesService.findByServiceCode("WAT_01");
+        IoTSyncLog[] listIoT = getLatestIoT(req.getApartmentId());
+        IoTSyncLog thisMonth = listIoT[0];
+        IoTSyncLog lastMonth = listIoT[1];
 
-        BigDecimal electricInvoice = electricServices.getFeePerUnit().multiply(BigDecimal.valueOf(req.getTotalElectricUsed()));
-        BigDecimal waterInvoice = waterServices.getFeePerUnit().multiply(BigDecimal.valueOf(req.getTotalWaterUsed()));
+        BigDecimal totalAmount = calculateTotalAmount(req.getApartmentId());
 
-        BigDecimal totalAmount = calculateTotalAmount(req.getApartmentId(), req.getTotalElectricUsed(), req.getTotalWaterUsed());
-
-        UtilitiesInvoice UI = UtilitiesInvoice.builder()
+        UtilitiesInvoice invoice = UtilitiesInvoice.builder()
                 .apartment(apartment)
                 .billingYear(req.getBillingYear())
                 .billingMonth(req.getBillingMonth())
-                .totalElectricUsed(electricInvoice)
-                .totalWaterUsed(waterInvoice)
+                .totalElectricUsed(getElectricityUsedOfApartment(thisMonth,lastMonth))
+                .totalWaterUsed(getWaterUsedOfApartment(thisMonth,lastMonth))
                 .totalAmount(totalAmount)
                 .status(Optional.ofNullable(req.getStatus()).orElse(0))
                 .build();
 
-        return repository.save(UI);
+        return repository.save(invoice);
     }
 
     public UtilitiesInvoice update(Integer id, UIUpdateRequest req) {
@@ -82,41 +70,34 @@ public class UtilitiesInvoiceService {
 //            throw new RuntimeException("Căn hộ chưa được sở hữu");
 //        }
 
-        UtilitiesInvoice UI = findById(id);
+        UtilitiesInvoice invoice = findById(id);
 
-        Services waterServices = servicesService.findByServiceCode("WAT_01");
-        BigDecimal waterInvoice = waterServices.getFeePerUnit().multiply(BigDecimal.valueOf(req.getTotalWaterUsed()));
-        Services electricServices = servicesService.findByServiceCode("ELEC_01");
-        BigDecimal electricInvoice = electricServices.getFeePerUnit().multiply(BigDecimal.valueOf(req.getTotalElectricUsed()));
+        IoTSyncLog[] listIoT = getLatestIoT(req.getApartmentId());
+        IoTSyncLog thisMonth = listIoT[0];
+        IoTSyncLog lastMonth = listIoT[1];
 
         if (req.getBillingMonth() != null) {
-            UI.setBillingMonth(req.getBillingMonth());
+            invoice.setBillingMonth(req.getBillingMonth());
         }
 
         if (req.getBillingYear() != null) {
-            UI.setBillingYear(req.getBillingYear());
-        }
-
-        if (req.getTotalWaterUsed() != null) {
-            UI.setTotalWaterUsed(waterInvoice);
+            invoice.setBillingYear(req.getBillingYear());
         }
 
         if (req.getApartmentId() != null) {
             Apartment apartment = apartmentService.findById(req.getApartmentId());
-            UI.setApartment(apartment);
-        }
-
-        if (req.getTotalElectricUsed() != null) {
-            UI.setTotalElectricUsed(electricInvoice);
+            invoice.setApartment(apartment);
         }
 
         if (req.getStatus() != null) {
-            UI.setStatus(req.getStatus());
+            invoice.setStatus(req.getStatus());
         }
-        BigDecimal totalAmount = calculateTotalAmount(req.getApartmentId(), req.getTotalElectricUsed(), req.getTotalWaterUsed());
-        UI.setTotalAmount(totalAmount);
+        BigDecimal totalAmount = calculateTotalAmount(req.getApartmentId());
+        invoice.setTotalElectricUsed(getElectricityUsedOfApartment(thisMonth, lastMonth));
+        invoice.setTotalWaterUsed(getWaterUsedOfApartment(thisMonth,lastMonth));
+        invoice.setTotalAmount(totalAmount);
 
-        return repository.save(UI);
+        return repository.save(invoice);
     }
 
     public void delete(Integer id) {
@@ -124,64 +105,38 @@ public class UtilitiesInvoiceService {
         repository.deleteById(id);
     }
 
-    private BigDecimal calculateTotalAmount(Integer apartmentId, Integer electricUsed, Integer waterUsed) {
-        List<Services> services =
-                servicesRepository.findByServiceCodeIn(
-                        List.of("ELEC_01", "WAT_01", "MNG_FEE_MONTH"));
+    private BigDecimal calculateTotalAmount(Integer apartmentId) {
+        MandatoryServices electricityService = mandatoryServicesRepository.findByServiceCode("ELEC_01").orElseThrow(() -> new RuntimeException("Không thấy dịch vụ điện"));
+        MandatoryServices waterService = mandatoryServicesRepository.findByServiceCode("WAT_01").orElseThrow(() -> new RuntimeException("Không thấy dịch vụ nước"));
+        MandatoryServices monthlyFee = mandatoryServicesRepository.findByServiceCode("MNG_FEE").orElseThrow(() -> new RuntimeException("Không thấy dịch vụ phí hàng tháng"));
+//
+        IoTSyncLog[] listIoT = getLatestIoT(apartmentId);
+        IoTSyncLog thisMonth = listIoT[0];
+        IoTSyncLog lastMonth = listIoT[1];
 
-        Map<String, Services> serviceMap =
-                services.stream()
-                        .collect(Collectors.toMap(
-                                Services::getServiceCode,
-                                s -> s));
+        BigDecimal electricityUsed = getElectricityUsedOfApartment(thisMonth, lastMonth);
+        BigDecimal waterUsed = getWaterUsedOfApartment(thisMonth, lastMonth);
 
-        BigDecimal electricCost =
-                serviceMap.get("ELEC_01")
-                        .getFeePerUnit()
-                        .multiply(BigDecimal.valueOf(electricUsed));
+        BigDecimal electricityAmount = electricityUsed.multiply(electricityService.getBasePrice());
+        BigDecimal waterAmount = waterUsed.multiply(waterService.getBasePrice());
 
-        BigDecimal waterCost =
-                serviceMap.get("WAT_01")
-                        .getFeePerUnit()
-                        .multiply(BigDecimal.valueOf(waterUsed));
-
-        BigDecimal managementFee =
-                serviceMap.get("MNG_FEE_MONTH")
-                        .getFeePerUnit();
-
-        BigDecimal totalAmount =
-                electricCost
-                        .add(waterCost)
-                        .add(managementFee);
-
-        Optional<Contract> contractOpt =
-                contractRepository
-                        .findFirstByApartmentIdAndStatus(apartmentId, 1);
-
-        if (contractOpt.isPresent()) {
-
-            Contract contract = contractOpt.get();
-
-            if ("Rent".equals(contract.getContractType())) {
-
-                totalAmount =
-                        totalAmount.add(contract.getMonthlyRent());
-
-            } else if ("Sale".equals(contract.getContractType())) {
-
-                Apartment apartment =
-                        apartmentService.findById(apartmentId);
-
-                BigDecimal buyPrice =
-                        apartment.getApartmentType()
-                                .getCommonPriceForBuying();
-
-                totalAmount =
-                        totalAmount.add(buyPrice);
-            }
-        }
-
-        return totalAmount;
+        return electricityAmount.add(waterAmount).add(monthlyFee.getBasePrice());
     }
 
+    private BigDecimal getElectricityUsedOfApartment(IoTSyncLog thisMonth, IoTSyncLog lastMonth){
+        return thisMonth.getElectricityEndNum().subtract(lastMonth.getElectricityEndNum());
+    }
+
+    private BigDecimal getWaterUsedOfApartment(IoTSyncLog thisMonth, IoTSyncLog lastMonth){
+        return  thisMonth.getWaterEndNum().subtract(lastMonth.getWaterEndNum());
+    }
+
+    private IoTSyncLog[] getLatestIoT(Integer apartmentId){
+        List<IoTSyncLog> listIoT = ioTSyncLogRepository.findAllByApartmentIdOrderByLogDateDesc(apartmentId);
+        if(listIoT.size() <2){
+            throw new RuntimeException("Dữ liệu IoT log không đủ");
+        }
+
+        return new IoTSyncLog[]{listIoT.get(0), listIoT.get(1)};
+    }
 }
