@@ -1424,6 +1424,58 @@
   font-size: 13px;
 }
 
+.admin-pagination {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-top: 18px;
+}
+
+.admin-pagination-summary {
+  color: var(--admin-text-muted);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.admin-pagination-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.admin-pagination-btn {
+  min-width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  border: 1px solid #dbe2ea;
+  background: #fff;
+  color: var(--admin-text-main);
+  font-weight: 700;
+  cursor: pointer;
+  transition: var(--admin-transition-fast);
+  padding: 0 14px;
+}
+
+.admin-pagination-btn:hover:not(:disabled) {
+  border-color: var(--admin-primary);
+  color: var(--admin-primary);
+  transform: translateY(-1px);
+}
+
+.admin-pagination-btn.active {
+  background: var(--admin-primary);
+  color: #fff;
+  border-color: var(--admin-primary);
+}
+
+.admin-pagination-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
 .admin-lock-table-actions {
   justify-content: center;
   flex-wrap: nowrap;

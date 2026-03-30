@@ -1,7 +1,9 @@
 import { useEffect, useMemo, useState } from "react";
+import { toast } from "react-toastify";
 import Navbar from "../components/layout/Navbar";
 import Footer from "../components/layout/Footer";
 import { useAuth } from "../components/sections/auth/AuthContext";
+import { getMyAccount } from "../services/profileService";
 import {
   createBooking,
   getServiceResources,
@@ -49,6 +51,7 @@ const formatLocalDateTime = (date) => {
 
 export default function BookingPage() {
   const { user, role } = useAuth();
+  const [account, setAccount] = useState(null);
   const [services, setServices] = useState([]);
   const [resources, setResources] = useState([]);
   const [selectedServiceId, setSelectedServiceId] = useState(null);
@@ -60,8 +63,16 @@ export default function BookingPage() {
     preferredDate: "",
     preferredTime: visitTimes[0].value,
     durationHours: durationOptions[0],
-    note: "",
   });
+
+  useEffect(() => {
+    const bookingSuccessMessage = sessionStorage.getItem("bookingSuccessMessage");
+
+    if (bookingSuccessMessage) {
+      toast.success(bookingSuccessMessage);
+      sessionStorage.removeItem("bookingSuccessMessage");
+    }
+  }, []);
 
   useEffect(() => {
     const fetchBookingData = async () => {
@@ -69,19 +80,25 @@ export default function BookingPage() {
         setIsLoading(true);
         setFeedback({ type: "", message: "" });
 
-        const [serviceData, resourceData] = await Promise.all([
+        const requests = [
           getServices(),
           getServiceResources(),
-        ]);
+        ];
+
+        if (localStorage.getItem("token")) {
+          requests.push(getMyAccount());
+        }
+
+        const [serviceData, resourceData, accountData] = await Promise.all(requests);
 
         setServices(serviceData);
         setResources(resourceData);
-        setSelectedServiceId(serviceData[0]?.id ?? null);
+        setAccount(accountData ?? null);
       } catch (error) {
         console.error("Error loading booking data:", error);
         setFeedback({
           type: "error",
-          message: "Khong the tai du lieu booking tu backend.",
+          message: "Unable to load booking data from the backend.",
         });
       } finally {
         setIsLoading(false);
@@ -91,9 +108,37 @@ export default function BookingPage() {
     fetchBookingData();
   }, []);
 
+  const servicesWithResources = useMemo(() => {
+    const availableServiceIds = new Set(
+      resources
+        .filter((resource) => resource?.serviceId && resource.isAvailable !== false)
+        .map((resource) => resource.serviceId)
+    );
+
+    return services.filter((service) => availableServiceIds.has(service.id));
+  }, [services, resources]);
+
+  useEffect(() => {
+    if (!servicesWithResources.length) {
+      setSelectedServiceId(null);
+      return;
+    }
+
+    const hasSelectedService = servicesWithResources.some(
+      (service) => service.id === selectedServiceId
+    );
+
+    if (!hasSelectedService) {
+      setSelectedServiceId(servicesWithResources[0].id);
+    }
+  }, [servicesWithResources, selectedServiceId]);
+
   const selectedService = useMemo(
-    () => services.find((service) => service.id === selectedServiceId) ?? services[0] ?? null,
-    [services, selectedServiceId]
+    () =>
+      servicesWithResources.find((service) => service.id === selectedServiceId) ??
+      servicesWithResources[0] ??
+      null,
+    [servicesWithResources, selectedServiceId]
   );
 
   const serviceResources = useMemo(() => {
@@ -126,7 +171,7 @@ export default function BookingPage() {
 
   const canSubmit =
     role === "RESIDENT" &&
-    !!user?.id &&
+    !!account?.id &&
     !!selectedService &&
     !!selectedResource &&
     !!survey.preferredDate &&
@@ -148,10 +193,10 @@ export default function BookingPage() {
   const handleSubmit = async (event) => {
     event.preventDefault();
 
-    if (!user?.id) {
+    if (!account?.id) {
       setFeedback({
         type: "error",
-        message: "Ban can dang nhap tai khoan resident de gui booking.",
+        message: "We could not verify your current account from the backend.",
       });
       return;
     }
@@ -159,7 +204,7 @@ export default function BookingPage() {
     if (role !== "RESIDENT") {
       setFeedback({
         type: "error",
-        message: "Chi tai khoan resident moi co the tao booking dich vu.",
+        message: "Only resident accounts can place service bookings.",
       });
       return;
     }
@@ -167,7 +212,7 @@ export default function BookingPage() {
     if (!selectedResource) {
       setFeedback({
         type: "error",
-        message: "Dich vu nay hien chua co resource kha dung de dat lich.",
+        message: "This service currently has no available resource to book.",
       });
       return;
     }
@@ -179,7 +224,7 @@ export default function BookingPage() {
     if (Number.isNaN(startDateTime.getTime())) {
       setFeedback({
         type: "error",
-        message: "Thoi gian booking khong hop le.",
+        message: "The selected booking time is invalid.",
       });
       return;
     }
@@ -193,29 +238,25 @@ export default function BookingPage() {
 
       await createBooking({
         resourceId: selectedResource.id,
-        accountId: user.id,
+        accountId: account.id,
         bookFrom: formatLocalDateTime(startDateTime),
         bookTo: formatLocalDateTime(endDateTime),
         status: 0,
         totalAmount: bookingAmount,
       });
 
-      setFeedback({
-        type: "success",
-        message: "Gui booking thanh cong. Ban co the theo doi trang thai tu backend.",
-      });
-      setSurvey((current) => ({
-        ...current,
-        preferredDate: "",
-        preferredTime: visitTimes[0].value,
-        durationHours: durationOptions[0],
-        note: "",
-      }));
+      sessionStorage.setItem(
+        "bookingSuccessMessage",
+        "Your booking has been submitted successfully."
+      );
+      window.location.reload();
     } catch (error) {
       console.error("Error creating booking:", error);
       setFeedback({
         type: "error",
-        message: error?.response?.data?.message || "Gui booking that bai. Vui long thu lai.",
+        message:
+          error?.response?.data?.message ||
+          "We could not submit your booking. Please try again.",
       });
     } finally {
       setIsSubmitting(false);
@@ -230,10 +271,12 @@ export default function BookingPage() {
         <section className="booking-hero">
           <div className="container">
             <p className="booking-eyebrow">Service Booking</p>
-            <h1>Book real services from backend data and send your request directly.</h1>
+            <h1>Reserve premium resident services with confidence, speed, and seamless support.</h1>
             <p className="booking-hero-copy">
-              Chon dich vu, resource va khung gio phu hop. Phan booking nay da duoc dong bo
-              voi du lieu `/services`, `/service-resource` va submit len `/bookings`.
+              Discover a curated collection of resident-exclusive amenities and premium lifestyle
+              services. Select your preferred time, choose an available resource, and submit your
+              request in just a few steps for a booking experience designed to feel effortless,
+              refined, and professionally managed from start to finish.
             </p>
           </div>
         </section>
@@ -243,7 +286,10 @@ export default function BookingPage() {
             <div className="booking-panel-header">
               <span className="booking-step">Step 1</span>
               <h2>Booking form</h2>
-              <p>Chon dich vu that, resource that va gui booking ngay tren frontend.</p>
+              <p>
+                Choose an available service, select your preferred schedule, review the matching
+                resource, and submit your booking request.
+              </p>
             </div>
 
             {feedback.message ? (
@@ -256,7 +302,11 @@ export default function BookingPage() {
             ) : null}
 
             {isLoading ? (
-              <div className="booking-empty-state">Dang tai danh sach dich vu va resource...</div>
+              <div className="booking-empty-state">Loading services and resources...</div>
+            ) : !servicesWithResources.length ? (
+              <div className="booking-empty-state">
+                There are currently no services with available resources for booking.
+              </div>
             ) : (
               <form className="booking-form" onSubmit={handleSubmit}>
                 <div className="booking-field-grid">
@@ -304,7 +354,7 @@ export default function BookingPage() {
                     <span>Selected account</span>
                     <input
                       type="text"
-                      value={user?.username || "Chua dang nhap"}
+                      value={account?.username || user?.username || "Chua dang nhap"}
                       readOnly
                     />
                   </label>
@@ -314,11 +364,11 @@ export default function BookingPage() {
                   <div className="booking-picker-header">
                     <span className="booking-step">Step 2</span>
                     <h3>Select your service</h3>
-                    <p>Danh sach nay dang lay truc tiep tu backend `/services`.</p>
+                    <p>Only services with live, bookable resources are shown here.</p>
                   </div>
 
                   <div className="booking-service-options">
-                    {services.map((service) => (
+                    {servicesWithResources.map((service) => (
                       <label
                         key={service.id}
                         className={`booking-service-option ${
@@ -360,32 +410,21 @@ export default function BookingPage() {
                   </select>
                 </label>
 
-                <label className="booking-field">
-                  <span>Special request</span>
-                  <textarea
-                    name="note"
-                    rows="4"
-                    placeholder="Frontend da luu tru noi dung nay de nguoi dung xem lai. Neu backend them field note sau nay minh co the noi tiep."
-                    value={survey.note}
-                    onChange={handleSurveyChange}
-                  />
-                </label>
-
                 <div className="booking-summary-box">
                   <p className="booking-summary-label">Current selection</p>
                   <h3>{selectedService?.title || "No service selected"}</h3>
-                  <p>{selectedService?.desc || "Chon dich vu de xem thong tin booking."}</p>
+                  <p>{selectedService?.desc || "Select a service to view booking details."}</p>
                   <p>
                     Resource:{" "}
                     {selectedResource
                       ? `${selectedResource.resourceCode || `#${selectedResource.id}`} - ${
                           selectedResource.location || "No location"
                         }`
-                      : "Chua co resource"}
+                      : "No resource selected"}
                   </p>
                   <p>
                     Estimated total:{" "}
-                    {bookingAmount === null ? "Chua tinh duoc" : formatCurrency(bookingAmount)}
+                    {bookingAmount === null ? "Not available" : formatCurrency(bookingAmount)}
                   </p>
                 </div>
 
@@ -399,7 +438,7 @@ export default function BookingPage() {
 
                 {role !== "RESIDENT" ? (
                   <p className="booking-submit-hint">
-                    Ban can dang nhap bang tai khoan resident de gui booking.
+                    Please sign in with a resident account to submit a booking.
                   </p>
                 ) : null}
               </form>
@@ -414,33 +453,44 @@ export default function BookingPage() {
                 <div className="booking-image-placeholder">No image</div>
               )}
               <div className="booking-visual-overlay">
-                <p className="booking-step">Selected service</p>
+                <p className="booking-step">Featured service</p>
                 <h2>{selectedService?.title || "Waiting for service data"}</h2>
-                <p>{selectedService?.tagline || "Backend data will appear here."}</p>
+                <p>{selectedService?.tagline || "Live backend data will appear here."}</p>
               </div>
             </div>
 
             <div className="booking-areas">
               <div className="booking-picker-header">
                 <span className="booking-step">Step 3</span>
-                <h3>Service areas synced with your choice</h3>
-                <p>Phan hinh anh va khu vuc van duoc giu dong bo theo dich vu dang chon.</p>
+                <h3>Available resources for this service</h3>
+                <p>
+                  Review the live backend resources currently mapped to your selected service
+                  before completing the booking.
+                </p>
               </div>
 
               <div className="booking-area-grid">
-                {selectedService?.areas?.length ? (
-                  selectedService.areas.map((area) => (
-                    <article key={area.name} className="booking-area-card">
-                      <img src={area.image} alt={area.name} />
+                {availableResources.length ? (
+                  availableResources.map((resource) => (
+                    <article key={resource.id} className="booking-area-card">
+                      <div className="booking-resource-visual">
+                        <span className="booking-resource-badge">
+                          {resource.id === selectedResource?.id ? "Selected" : "Available"}
+                        </span>
+                        <h4>{resource.resourceCode || `Resource #${resource.id}`}</h4>
+                      </div>
                       <div className="booking-area-content">
-                        <h4>{area.name}</h4>
-                        <p>{area.description}</p>
+                        <h4>{resource.location || "Resource location will be updated soon"}</h4>
+                        <p>
+                          Backend resource ID: {resource.id}. This resource is currently available
+                          for your selected service and can be reserved immediately.
+                        </p>
                       </div>
                     </article>
                   ))
                 ) : (
                   <div className="booking-empty-state">
-                    Chua co hinh anh mo ta khu vuc cho dich vu nay.
+                    No live backend resources are available for this service right now.
                   </div>
                 )}
               </div>

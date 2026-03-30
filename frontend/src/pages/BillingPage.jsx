@@ -20,6 +20,7 @@ import {
   getUtilitiesInvoicesByApartmentId,
 } from "../services/billingService";
 import { getMyAccount } from "../services/profileService";
+import { getServices } from "../services/serviceService";
 
 import "../styles/billing.css";
 
@@ -53,6 +54,90 @@ const getBookingLabel = (booking) =>
   booking?.serviceResource?.serviceName ||
   booking?.serviceName ||
   null;
+
+const sortByBillingPeriod = (items) =>
+  [...items].sort((a, b) => {
+    const yearA = Number(a?.billingYear ?? 0);
+    const yearB = Number(b?.billingYear ?? 0);
+    const monthA = Number(a?.billingMonth ?? 0);
+    const monthB = Number(b?.billingMonth ?? 0);
+
+    if (yearA !== yearB) return yearA - yearB;
+    return monthA - monthB;
+  });
+
+const buildUtilityBills = (utilityInvoices, utilityRates) => {
+  const sortedInvoices = sortByBillingPeriod(utilityInvoices);
+  let electricityReading = 0;
+  let waterReading = 0;
+
+  return sortedInvoices.map((invoice) => {
+    const status = getInvoiceStatus(invoice.status);
+    const invoiceMonthKey = getMonthKey(
+      invoice.billingYear,
+      invoice.billingMonth
+    );
+    const createdAt = invoice.createdAt ? new Date(invoice.createdAt) : null;
+    const electricityAmount = Number(invoice.totalElectricUsed ?? 0);
+    const waterAmount = Number(invoice.totalWaterUsed ?? 0);
+
+    const electricityRate =
+      Number(utilityRates.electricity?.feePerUnit ?? 0) || 0;
+    const waterRate = Number(utilityRates.water?.feePerUnit ?? 0) || 0;
+
+    const electricityUsage =
+      electricityRate > 0 ? electricityAmount / electricityRate : null;
+    const waterUsage = waterRate > 0 ? waterAmount / waterRate : null;
+
+    const previousElectricityReading =
+      electricityUsage === null ? null : electricityReading;
+    const currentElectricityReading =
+      electricityUsage === null
+        ? null
+        : previousElectricityReading + electricityUsage;
+
+    const previousWaterReading = waterUsage === null ? null : waterReading;
+    const currentWaterReading =
+      waterUsage === null ? null : previousWaterReading + waterUsage;
+
+    if (currentElectricityReading !== null) {
+      electricityReading = currentElectricityReading;
+    }
+
+    if (currentWaterReading !== null) {
+      waterReading = currentWaterReading;
+    }
+
+    return {
+      id: `utility-${invoice.id}`,
+      source: "utility",
+      name: `Utilities Invoice #${invoice.id}`,
+      monthKey: invoiceMonthKey,
+      dueDate: createdAt,
+      amount: Number(invoice.totalAmount ?? electricityAmount + waterAmount),
+      statusKey: status.key,
+      statusLabel: status.label,
+      utilityDetails: {
+        electricity: {
+          label: "Electricity",
+          unit: utilityRates.electricity?.unitType || "kWh",
+          previousReading: previousElectricityReading,
+          currentReading: currentElectricityReading,
+          rate: electricityRate,
+          amount: electricityAmount,
+        },
+        water: {
+          label: "Water",
+          unit: utilityRates.water?.unitType || "m3",
+          previousReading: previousWaterReading,
+          currentReading: currentWaterReading,
+          rate: waterRate,
+          amount: waterAmount,
+        },
+      },
+    };
+  });
+};
 
 export default function BillingPage() {
   const [accountId, setAccountId] = useState(null);
@@ -129,13 +214,30 @@ export default function BillingPage() {
       setLoading(true);
 
       try {
-        const [utilityInvoices, serviceInvoiceResponse, bookings] = await Promise.all([
-          getUtilitiesInvoicesByApartmentId(apartment),
-          getServiceInvoices(),
-          getBookingsByAccountId(accountId),
-        ]);
+        const [utilityInvoices, serviceInvoiceResponse, bookings, services] =
+          await Promise.all([
+            getUtilitiesInvoicesByApartmentId(apartment),
+            getServiceInvoices(),
+            getBookingsByAccountId(accountId),
+            getServices(),
+          ]);
 
         if (!active) return;
+
+        const utilityRates = services.reduce(
+          (acc, service) => {
+            if (service.serviceCode === "ELEC_01") {
+              acc.electricity = service;
+            }
+
+            if (service.serviceCode === "WAT_01") {
+              acc.water = service;
+            }
+
+            return acc;
+          },
+          { electricity: null, water: null }
+        );
 
         const bookingMap = new Map(
           bookings
@@ -143,27 +245,7 @@ export default function BillingPage() {
             .map((booking) => [booking.id, booking])
         );
 
-        const utilityBills = utilityInvoices.map((invoice) => {
-          const status = getInvoiceStatus(invoice.status);
-          const invoiceMonthKey = getMonthKey(
-            invoice.billingYear,
-            invoice.billingMonth
-          );
-          const createdAt = invoice.createdAt
-            ? new Date(invoice.createdAt)
-            : null;
-
-          return {
-            id: `utility-${invoice.id}`,
-            source: "utility",
-            name: `Utilities Invoice #${invoice.id}`,
-            monthKey: invoiceMonthKey,
-            dueDate: createdAt,
-            amount: Number(invoice.totalAmount ?? 0),
-            statusKey: status.key,
-            statusLabel: status.label,
-          };
-        });
+        const utilityBills = buildUtilityBills(utilityInvoices, utilityRates);
 
         const serviceBills = serviceInvoiceResponse.items
           .filter((invoice) => {
