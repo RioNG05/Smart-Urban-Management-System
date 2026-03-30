@@ -26,9 +26,9 @@ import {
   AdminApartmentLayout,
   AdminBookingManager,
   AdminServiceFeeStats,
-  AdminVisitorManager
+  AdminVisitorManager,
+  AdminComplaintManager
 } from "../admin/AdminManagement";
-
 
 import StaffApartment from "../staff/StaffApartment";
 import StaffSecurity from "../staff/StaffSecurity";
@@ -106,7 +106,9 @@ function AppRoutes() {
           {/* Service & Security routes */}
           <Route path="bookings" element={<AdminBookingManager />} />
           <Route path="service-fees" element={<AdminServiceFeeStats />} />
+          <Route path="complaints" element={<AdminComplaintManager />} />
           <Route path="visitors" element={<AdminVisitorManager />} />
+
 
 
         </Route>
