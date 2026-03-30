@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import {
     FaCalendarCheck, FaCreditCard, FaCheck, FaTimes,
     FaInfoCircle, FaSwimmingPool, FaDumbbell, FaFire,
-    FaTableTennis, FaGolfBall, FaSpa, FaUsers
+    FaTableTennis, FaGolfBall, FaSpa, FaUsers, FaSearch, FaFilter
 } from 'react-icons/fa';
 import ComplaintsSection from '../components/sections/manager/ComplaintsSection';
 
@@ -21,6 +21,9 @@ const StaffServiceMainContent = ({
     // --- STATE FOR FILTERS ---
     const [bookingFilter, setBookingFilter] = useState('All');
     const [feeFilter, setFeeFilter] = useState('All');
+    const [feeSearch, setFeeSearch] = useState('');
+    const [feeStatus, setFeeStatus] = useState('All');
+    const [feeDate, setFeeDate] = useState('');
 
     // --- MOCK DATA FOR SERVICE ---
     const [bookings, setBookings] = useState([
@@ -121,176 +124,224 @@ const StaffServiceMainContent = ({
         ? bookings
         : bookings.filter(b => b.service === bookingFilter);
 
-    const filteredFees = feeFilter === 'All'
-        ? serviceFees
-        : serviceFees.filter(f => f.service === feeFilter); return (
-            <main className="staff-content-area">
-                {/* --- BOOKING MANAGEMENT --- */}
-                {activeTab === 'bookings' && (
-                    <div className="staff-tab-content">
-                        <div className="staff-form-container" style={{ borderLeft: '5px solid #c89b3c' }}>
-                            <h3><FaCalendarCheck /> Amenity Booking Management</h3>
-                            <p style={{ color: '#64748b', fontSize: '14px', marginBottom: '20px' }}>
-                                Review and manage resident requests for building facilities.
-                            </p>
+    const filteredFees = serviceFees.filter(f => {
+        const matchesCategory = feeFilter === 'All' || f.service === feeFilter;
+        const matchesSearch = feeSearch === '' ||
+            f.resident.toLowerCase().includes(feeSearch.toLowerCase()) ||
+            f.apartment.toLowerCase().includes(feeSearch.toLowerCase());
+        const matchesStatus = feeStatus === 'All' || f.status === feeStatus;
+        const matchesDate = feeDate === '' || f.date.includes(feeDate);
 
-                            <div className="staff-sub-nav">
-                                {['All', 'Swimming Pool', 'Gym & Yoga', 'BBQ Park', 'Tennis Court', 'Golf Course', 'Sauna & Spa', 'Community Hall'].map(cat => (
-                                    <div
-                                        key={cat}
-                                        className={`sub-nav-item ${bookingFilter === cat ? 'active' : ''}`}
-                                        onClick={() => setBookingFilter(cat)}
-                                    >
-                                        {cat === 'All' ? 'All Services' : <>{getServiceIcon(cat)} {cat}</>}
-                                    </div>
-                                ))}
-                            </div>
+        return matchesCategory && matchesSearch && matchesStatus && matchesDate;
+    });
 
-                            {/* [NOTE CHO BACKEND ]
+    return (
+        <main className="staff-content-area">
+            {/* --- BOOKING MANAGEMENT --- */}
+            {activeTab === 'bookings' && (
+                <div className="staff-tab-content">
+                    <div className="staff-form-container" style={{ borderLeft: '5px solid #c89b3c' }}>
+                        <h3><FaCalendarCheck /> Amenity Booking Management</h3>
+                        <p style={{ color: '#64748b', fontSize: '14px', marginBottom: '20px' }}>
+                            Review and manage resident requests for building facilities.
+                        </p>
+
+                        <div className="staff-sub-nav">
+                            {['All', 'Swimming Pool', 'Gym & Yoga', 'BBQ Park', 'Tennis Court', 'Golf Course', 'Sauna & Spa', 'Community Hall'].map(cat => (
+                                <div
+                                    key={cat}
+                                    className={`sub-nav-item ${bookingFilter === cat ? 'active' : ''}`}
+                                    onClick={() => setBookingFilter(cat)}
+                                >
+                                    {cat === 'All' ? 'All Services' : <>{getServiceIcon(cat)} {cat}</>}
+                                </div>
+                            ))}
+                        </div>
+
+                        {/* [NOTE CHO BACKEND ]
                             1. Khi bấm Approve/Deny, gửi request PUT/PATCH lên backend.
                             2. Backend cần cập nhật database và có thể gửi thông báo (Push Notification/Email) cho cư dân.
                             3. Reload lại danh sách sau khi update thành công.
                         */}
 
-                            <div className="staff-table-scroll">
-                                <table className="admin-custom-table bordered">
-                                    <thead>
-                                        <tr>
-                                            <th>Resident</th>
-                                            <th>Service</th>
-                                            <th>Date</th>
-                                            <th>Time Slot</th>
-                                            <th style={{ textAlign: 'center' }}>Status</th>
-                                            <th style={{ textAlign: 'center' }}>Actions</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {filteredBookings.map(b => (
-                                            <tr key={b.id}>
-                                                <td><strong>{b.resident}</strong></td>
-                                                <td>
-                                                    <div className="service-row-item">
-                                                        {getServiceIcon(b.service)} {b.service}
+                        <div className="staff-table-scroll">
+                            <table className="admin-custom-table bordered">
+                                <thead>
+                                    <tr>
+                                        <th>Resident</th>
+                                        <th>Service</th>
+                                        <th>Date</th>
+                                        <th>Time Slot</th>
+                                        <th style={{ textAlign: 'center' }}>Status</th>
+                                        <th style={{ textAlign: 'center' }}>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {filteredBookings.map(b => (
+                                        <tr key={b.id}>
+                                            <td><strong>{b.resident}</strong></td>
+                                            <td>
+                                                <div className="service-row-item">
+                                                    {getServiceIcon(b.service)} {b.service}
+                                                </div>
+                                            </td>
+                                            <td>{b.date}</td>
+                                            <td>{b.time}</td>
+                                            <td style={{ textAlign: 'center' }}>
+                                                <span className={`status-badge ${b.status.toLowerCase()}`}>
+                                                    {b.status}
+                                                </span>
+                                            </td>
+                                            <td style={{ textAlign: 'center' }}>
+                                                {b.status === 'Pending' && (
+                                                    <div style={{ display: 'flex', gap: '8px', justifyContent: 'center' }}>
+                                                        <button
+                                                            className="action-btn-circle approve"
+                                                            title="Approve"
+                                                            onClick={() => handleStatusUpdate(b.id, 'Approved')}
+                                                        >
+                                                            <FaCheck />
+                                                        </button>
+                                                        <button
+                                                            className="action-btn-circle deny"
+                                                            title="Deny"
+                                                            onClick={() => handleStatusUpdate(b.id, 'Denied')}
+                                                        >
+                                                            <FaTimes />
+                                                        </button>
                                                     </div>
-                                                </td>
-                                                <td>{b.date}</td>
-                                                <td>{b.time}</td>
-                                                <td style={{ textAlign: 'center' }}>
-                                                    <span className={`status-badge ${b.status.toLowerCase()}`}>
-                                                        {b.status}
-                                                    </span>
-                                                </td>
-                                                <td style={{ textAlign: 'center' }}>
-                                                    {b.status === 'Pending' && (
-                                                        <div style={{ display: 'flex', gap: '8px', justifyContent: 'center' }}>
-                                                            <button
-                                                                className="action-btn-circle approve"
-                                                                title="Approve"
-                                                                onClick={() => handleStatusUpdate(b.id, 'Approved')}
-                                                            >
-                                                                <FaCheck />
-                                                            </button>
-                                                            <button
-                                                                className="action-btn-circle deny"
-                                                                title="Deny"
-                                                                onClick={() => handleStatusUpdate(b.id, 'Denied')}
-                                                            >
-                                                                <FaTimes />
-                                                            </button>
-                                                        </div>
-                                                    )}
-                                                    {b.status !== 'Pending' && <span className="action-processed-text">Processed</span>}
-                                                </td>
-                                            </tr>
-                                        ))}
-                                        {filteredBookings.length === 0 && (
-                                            <tr>
-                                                <td colSpan="6" style={{ textAlign: 'center', color: '#94a3b8', padding: '40px' }}>
-                                                    <FaInfoCircle style={{ marginRight: '10px' }} />
-                                                    No bookings found for {bookingFilter}.
-                                                </td>
-                                            </tr>
-                                        )}
-                                    </tbody>
-                                </table>
-                            </div>
+                                                )}
+                                                {b.status !== 'Pending' && <span className="action-processed-text">Processed</span>}
+                                            </td>
+                                        </tr>
+                                    ))}
+                                    {filteredBookings.length === 0 && (
+                                        <tr>
+                                            <td colSpan="6" style={{ textAlign: 'center', color: '#94a3b8', padding: '40px' }}>
+                                                <FaInfoCircle style={{ marginRight: '10px' }} />
+                                                No bookings found for {bookingFilter}.
+                                            </td>
+                                        </tr>
+                                    )}
+                                </tbody>
+                            </table>
                         </div>
                     </div>
-                )}
+                </div>
+            )}
 
-                {/* --- SERVICE FEE STATISTICS --- */}
-                {activeTab === 'fees' && (
-                    <div className="staff-tab-content">
-                        <div className="staff-form-container" style={{ borderLeft: '5px solid #c89b3c' }}>
-                            <h3><FaCreditCard /> Service Fee Statistics</h3>
-                            <p style={{ color: '#64748b', fontSize: '14px', marginBottom: '20px' }}>
-                                Track facility usage fees and payment history for residents.
-                            </p>
+            {/* --- SERVICE FEE STATISTICS --- */}
+            {activeTab === 'fees' && (
+                <div className="staff-tab-content">
+                    <div className="staff-form-container" style={{ borderLeft: '5px solid #c89b3c' }}>
+                        <h3><FaCreditCard /> Service Fee Statistics</h3>
+                        <p style={{ color: '#64748b', fontSize: '14px', marginBottom: '20px' }}>
+                            Track facility usage fees and payment history for residents.
+                        </p>
 
-                            <div className="staff-sub-nav">
-                                {['All', 'Swimming Pool', 'Gym & Yoga', 'BBQ Park', 'Tennis Court', 'Golf Course', 'Sauna & Spa', 'Community Hall'].map(cat => (
-                                    <div
-                                        key={cat}
-                                        className={`sub-nav-item ${feeFilter === cat ? 'active' : ''}`}
-                                        onClick={() => setFeeFilter(cat)}
-                                    >
-                                        {cat === 'All' ? 'All Services' : <>{getServiceIcon(cat)} {cat}</>}
-                                    </div>
-                                ))}
+                        <div className="staff-sub-nav">
+                            {['All', 'Swimming Pool', 'Gym & Yoga', 'BBQ Park', 'Tennis Court', 'Golf Course', 'Sauna & Spa', 'Community Hall'].map(cat => (
+                                <div
+                                    key={cat}
+                                    className={`sub-nav-item ${feeFilter === cat ? 'active' : ''}`}
+                                    onClick={() => setFeeFilter(cat)}
+                                >
+                                    {cat === 'All' ? 'All Services' : <>{getServiceIcon(cat)} {cat}</>}
+                                </div>
+                            ))}
+                        </div>
+
+                        <div className="staff-action-bar" style={{ display: 'flex', gap: '15px', marginBottom: '20px', flexWrap: 'wrap', background: '#f8fafc', padding: '15px', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
+                            <div className="search-box-wrapper" style={{ flex: 1, minWidth: '250px', position: 'relative' }}>
+                                <FaSearch style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: '#94a3b8' }} />
+                                <input
+                                    type="text"
+                                    placeholder="Search by name or apartment..."
+                                    value={feeSearch}
+                                    onChange={(e) => setFeeSearch(e.target.value)}
+                                    style={{ width: '100%', padding: '10px 10px 10px 40px', borderRadius: '8px', border: '1.5px solid #cbd5e1', outline: 'none' }}
+                                />
                             </div>
+                            <div className="filter-item" style={{ minWidth: '150px' }}>
+                                <select
+                                    value={feeStatus}
+                                    onChange={(e) => setFeeStatus(e.target.value)}
+                                    style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1.5px solid #cbd5e1', outline: 'none' }}
+                                >
+                                    <option value="All">All Statuses</option>
+                                    <option value="Paid">Paid</option>
+                                    <option value="Unpaid">Unpaid</option>
+                                </select>
+                            </div>
+                            <div className="filter-item" style={{ minWidth: '150px' }}>
+                                <input
+                                    type="text"
+                                    placeholder="Date (DD/MM/YYYY)"
+                                    value={feeDate}
+                                    onChange={(e) => setFeeDate(e.target.value)}
+                                    style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1.5px solid #cbd5e1', outline: 'none' }}
+                                />
+                            </div>
+                            <button
+                                onClick={() => { setFeeSearch(''); setFeeStatus('All'); setFeeDate(''); setFeeFilter('All'); }}
+                                style={{ padding: '0 20px', background: '#c89b3c', border: 'none', borderRadius: '8px', color: '#fff', fontWeight: 'bold', cursor: 'pointer' }}
+                            >
+                                Reset Filters
+                            </button>
+                        </div>
 
-                            <div className="staff-table-scroll">
-                                <table className="admin-custom-table bordered">
-                                    <thead>
-                                        <tr>
-                                            <th>Resident</th>
-                                            <th>Apartment</th>
-                                            <th>Service Used</th>
-                                            <th>Amount</th>
-                                            <th>Usage Date</th>
-                                            <th style={{ textAlign: 'center' }}>Payment Status</th>
+                        <div className="staff-table-scroll">
+                            <table className="admin-custom-table bordered">
+                                <thead>
+                                    <tr>
+                                        <th>Resident</th>
+                                        <th>Apartment</th>
+                                        <th>Service Used</th>
+                                        <th>Amount</th>
+                                        <th>Usage Date</th>
+                                        <th style={{ textAlign: 'center' }}>Payment Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {filteredFees.map(fee => (
+                                        <tr key={fee.id}>
+                                            <td><strong>{fee.resident}</strong></td>
+                                            <td>{fee.apartment}</td>
+                                            <td>
+                                                <div className="service-row-item">
+                                                    {getServiceIcon(fee.service)} {fee.service}
+                                                </div>
+                                            </td>
+                                            <td style={{ fontWeight: '800', color: '#0f172a', fontSize: '15px' }}>{fee.amount}</td>
+                                            <td>{fee.date}</td>
+                                            <td style={{ textAlign: 'center' }}>
+                                                <span className={`status-badge ${fee.status.toLowerCase()}`}>
+                                                    {fee.status}
+                                                </span>
+                                            </td>
                                         </tr>
-                                    </thead>
-                                    <tbody>
-                                        {filteredFees.map(fee => (
-                                            <tr key={fee.id}>
-                                                <td><strong>{fee.resident}</strong></td>
-                                                <td>{fee.apartment}</td>
-                                                <td>
-                                                    <div className="service-row-item">
-                                                        {getServiceIcon(fee.service)} {fee.service}
-                                                    </div>
-                                                </td>
-                                                <td style={{ fontWeight: '800', color: '#0f172a', fontSize: '15px' }}>{fee.amount}</td>
-                                                <td>{fee.date}</td>
-                                                <td style={{ textAlign: 'center' }}>
-                                                    <span className={`status-badge ${fee.status.toLowerCase()}`}>
-                                                        {fee.status}
-                                                    </span>
-                                                </td>
-                                            </tr>
-                                        ))}
-                                    </tbody>
-                                </table>
-                            </div>
+                                    ))}
+                                </tbody>
+                            </table>
                         </div>
                     </div>
-                )}
+                </div>
+            )}
 
-                {activeTab === 'complaints' && (
-                    <ComplaintsSection
-                        selectedComplaint={selectedComplaint}
-                        complaints={complaints}
-                        setSelectedComplaint={setSelectedComplaint}
-                        handleAction={handleAction}
-                        replyNote={replyNote}
-                        setReplyNote={setReplyNote}
-                    />
-                )}
+            {activeTab === 'complaints' && (
+                <ComplaintsSection
+                    selectedComplaint={selectedComplaint}
+                    complaints={complaints}
+                    setSelectedComplaint={setSelectedComplaint}
+                    handleAction={handleAction}
+                    replyNote={replyNote}
+                    setReplyNote={setReplyNote}
+                />
+            )}
 
-            </main>
+        </main>
 
-        );
+    );
 };
 
 export default StaffServiceMainContent;
