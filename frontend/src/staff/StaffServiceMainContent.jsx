@@ -4,8 +4,20 @@ import {
     FaInfoCircle, FaSwimmingPool, FaDumbbell, FaFire,
     FaTableTennis, FaGolfBall, FaSpa, FaUsers
 } from 'react-icons/fa';
+import ComplaintsSection from '../components/sections/manager/ComplaintsSection';
 
-const StaffServiceMainContent = ({ activeTab }) => {
+
+const StaffServiceMainContent = ({
+    activeTab,
+    selectedComplaint,
+    complaints,
+    setSelectedComplaint,
+    handleAction,
+    replyNote,
+    setReplyNote
+}) => {
+
+
     // --- STATE FOR FILTERS ---
     const [bookingFilter, setBookingFilter] = useState('All');
     const [feeFilter, setFeeFilter] = useState('All');
@@ -227,12 +239,6 @@ const StaffServiceMainContent = ({ activeTab }) => {
                                 ))}
                             </div>
 
-                            {/* [NOTE CHO BACKEND]
-                            1. Fetch dữ liệu phí dịch vụ: GET /api/service/fees
-                            2. Khi tích hợp Payment (Momo/ZaloPay/Stripe), trạng thái status sẽ tự động cập nhật từ 'Unpaid' -> 'Paid'
-                            3. Backend cần lưu vết transaction_id và thời gian thanh toán thực tế.
-                        */}
-
                             <div className="staff-table-scroll">
                                 <table className="admin-custom-table bordered">
                                     <thead>
@@ -264,33 +270,26 @@ const StaffServiceMainContent = ({ activeTab }) => {
                                                 </td>
                                             </tr>
                                         ))}
-                                        {filteredFees.length === 0 && (
-                                            <tr>
-                                                <td colSpan="6" style={{ textAlign: 'center', color: '#94a3b8', padding: '40px' }}>
-                                                    <FaInfoCircle style={{ marginRight: '10px' }} />
-                                                    No fee records found for {feeFilter}.
-                                                </td>
-                                            </tr>
-                                        )}
                                     </tbody>
                                 </table>
-                            </div>
-
-                            <div style={{
-                                marginTop: '30px', padding: '20px', background: '#f8fafc',
-                                borderRadius: '12px', border: '1px solid #e2e8f0', display: 'flex', gap: '15px', alignItems: 'center'
-                            }}>
-                                <div style={{ background: '#3b82f6', color: 'white', width: '40px', height: '40px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                                    <FaInfoCircle style={{ margin: '0 auto', fontSize: '1.2rem' }} />
-                                </div>
-                                <span style={{ fontSize: '13px', color: '#475569', lineHeight: '1.6' }}>
-                                    <strong>Developer Note:</strong> This statistics dashboard currently uses mock data. Upon backend integration, this view will provide real-time financial analytics synchronized with the central payment processing unit.
-                                </span>
                             </div>
                         </div>
                     </div>
                 )}
+
+                {activeTab === 'complaints' && (
+                    <ComplaintsSection
+                        selectedComplaint={selectedComplaint}
+                        complaints={complaints}
+                        setSelectedComplaint={setSelectedComplaint}
+                        handleAction={handleAction}
+                        replyNote={replyNote}
+                        setReplyNote={setReplyNote}
+                    />
+                )}
+
             </main>
+
         );
 };
 

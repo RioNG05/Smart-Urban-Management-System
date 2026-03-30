@@ -19,18 +19,23 @@ import {
     FaLock,
     FaLayerGroup,
     FaShieldAlt,
-    FaSignOutAlt
+    FaSignOutAlt,
+    FaComments
 } from 'react-icons/fa';
+
 import { AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, Legend } from 'recharts';
 import "../styles/admin.css";
 import "../styles/staff.css";
 
 const AdminSidebar = ({ isOpen, setIsOpen, upcomingCount }) => {
     const [openMenus, setOpenMenus] = useState({
-        access: true,
-        apartment: true,
-        service: true
+        access: false,
+        apartment: false,
+        service: false,
+        support: false
     });
+
+
 
     const toggleMenu = (menu) => {
         if (!isOpen) setIsOpen(true);
@@ -95,6 +100,9 @@ const AdminSidebar = ({ isOpen, setIsOpen, upcomingCount }) => {
                     </div>
                 )}
 
+                <NavLink to="/admin/complaints" end className="staff-nav-item" style={{ justifyContent: isOpen ? 'flex-start' : 'center', padding: isOpen ? '12px 15px' : '15px 0' }}>
+                    <FaComments style={{ marginRight: isOpen ? '15px' : '0' }} /> {isOpen && "Complaints"}
+                </NavLink>
             </nav>
         </aside>
     );

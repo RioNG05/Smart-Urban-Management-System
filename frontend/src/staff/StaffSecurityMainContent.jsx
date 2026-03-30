@@ -4,8 +4,20 @@ import {
     FaExclamationCircle, FaShieldAlt, FaPhoneAlt, FaMapMarkerAlt,
     FaClock, FaUserShield, FaBell, FaFireExtinguisher, FaAmbulance, FaUserTie
 } from 'react-icons/fa';
+import ComplaintsSection from '../components/sections/manager/ComplaintsSection';
 
-const StaffSecurityMainContent = ({ activeTab }) => {
+
+const StaffSecurityMainContent = ({
+    activeTab,
+    selectedComplaint,
+    complaints,
+    setSelectedComplaint,
+    handleAction,
+    replyNote,
+    setReplyNote
+}) => {
+
+
     // --- MOCK DATA FOR SECURITY ---
     const [visitors, setVisitors] = useState([
         { id: 1, name: "Le Van C", idCard: "001095012345", phone: "0901234567", purpose: "Visit A-505", checkIn: "08:30 - 17/03/2026", status: "Registered" },
@@ -310,69 +322,82 @@ const StaffSecurityMainContent = ({ activeTab }) => {
                 </div>
             )}
 
-            {/* --- EMERGENCY --- */}
-            {activeTab === 'emergency' && (
-                <div className="staff-tab-content">
-                    <div className="staff-grid">
-                        <div className="staff-form-container" style={{ borderTop: '5px solid #ef4444' }}>
-                            <h3><FaExclamationCircle /> Emergency Contacts</h3>
-                            <div style={{ marginTop: '20px', display: 'flex', flexDirection: 'column', gap: '15px' }}>
-                                {emergencyContacts.map((contact, idx) => (
-                                    <div key={idx} style={{
-                                        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                                        padding: '15px', background: '#fff5f5', borderRadius: '8px', border: '1px solid #fee2e2'
-                                    }}>
-                                        <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
-                                            <div style={{ color: '#ef4444', fontSize: '1.2rem' }}>{contact.icon}</div>
-                                            <div>
-                                                <div style={{ fontWeight: 'bold' }}>{contact.name}</div>
-                                                <div style={{ color: '#ef4444', fontWeight: '800', fontSize: '1.1rem' }}>{contact.phone}</div>
+                {/* --- EMERGENCY --- */}
+                {activeTab === 'emergency' && (
+                    <div className="staff-tab-content">
+                    <div className="staff-grid" style={{ gridTemplateColumns: 'repeat(2, 1fr)' }}>
+
+                            <div className="staff-form-container" style={{ borderTop: '5px solid #ef4444' }}>
+                                <h3><FaExclamationCircle /> Emergency Contacts</h3>
+                                <div style={{ marginTop: '20px', display: 'flex', flexDirection: 'column', gap: '15px' }}>
+                                    {emergencyContacts.map((contact, idx) => (
+                                        <div key={idx} style={{
+                                            display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                                            padding: '15px', background: '#fff5f5', borderRadius: '8px', border: '1px solid #fee2e2'
+                                        }}>
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+                                                <div style={{ color: '#ef4444', fontSize: '1.2rem' }}>{contact.icon}</div>
+                                                <div>
+                                                    <div style={{ fontWeight: 'bold' }}>{contact.name}</div>
+                                                    <div style={{ color: '#ef4444', fontWeight: '800', fontSize: '1.1rem' }}>{contact.phone}</div>
+                                                </div>
                                             </div>
+                                            <a
+                                                href={`tel:${contact.phone}`}
+                                                style={{
+                                                    background: '#ef4444', color: 'white', border: 'none',
+                                                    padding: '8px 15px', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold',
+                                                    textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '5px'
+                                                }}
+                                            >
+                                                <FaPhoneAlt /> CALL
+                                            </a>
                                         </div>
-                                        <a
-                                            href={`tel:${contact.phone}`}
-                                            style={{
-                                                background: '#ef4444', color: 'white', border: 'none',
-                                                padding: '8px 15px', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold',
-                                                textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '5px'
-                                            }}
-                                        >
-                                            <FaPhoneAlt /> CALL
-                                        </a>
+                                    ))}
+                                </div>
+                            </div>
+
+                            <div className="staff-form-container" style={{ borderTop: '5px solid #3b82f6' }}>
+                                <h3><FaShieldAlt /> System Monitoring</h3>
+                                <div style={{ marginTop: '20px' }}>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', padding: '10px 0', borderBottom: '1px solid #f1f5f9' }}>
+                                        <span>CCTV System Status</span>
+                                        <span style={{ color: '#10b981', fontWeight: 'bold' }}><FaCheck /> Operational</span>
                                     </div>
-                                ))}
-                            </div>
-                        </div>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', padding: '10px 0', borderBottom: '1px solid #f1f5f9' }}>
+                                        <span>Fire Alarm System</span>
+                                        <span style={{ color: '#10b981', fontWeight: 'bold' }}><FaCheck /> Armed</span>
+                                    </div>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', padding: '10px 0', borderBottom: '1px solid #f1f5f9' }}>
+                                        <span>Main Gate Connectivity</span>
+                                        <span style={{ color: '#10b981', fontWeight: 'bold' }}><FaCheck /> Stable</span>
+                                    </div>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', padding: '10px 0' }}>
+                                        <span>Guard Tour System</span>
+                                        <span style={{ color: '#10b981', fontWeight: 'bold' }}><FaCheck /> Online</span>
+                                    </div>
+                                </div>
 
-                        <div className="staff-form-container" style={{ borderTop: '5px solid #3b82f6' }}>
-                            <h3><FaShieldAlt /> System Monitoring</h3>
-                            <div style={{ marginTop: '20px' }}>
-                                <div style={{ display: 'flex', justifyContent: 'space-between', padding: '10px 0', borderBottom: '1px solid #f1f5f9' }}>
-                                    <span>CCTV System Status</span>
-                                    <span style={{ color: '#10b981', fontWeight: 'bold' }}><FaCheck /> Operational</span>
+                                <div style={{ marginTop: '25px', padding: '15px', background: '#eff6ff', borderRadius: '8px', color: '#1e40af' }}>
+                                    <strong>System Note:</strong> Next full system maintenance scheduled for 01/04/2026.
                                 </div>
-                                <div style={{ display: 'flex', justifyContent: 'space-between', padding: '10px 0', borderBottom: '1px solid #f1f5f9' }}>
-                                    <span>Fire Alarm System</span>
-                                    <span style={{ color: '#10b981', fontWeight: 'bold' }}><FaCheck /> Armed</span>
-                                </div>
-                                <div style={{ display: 'flex', justifyContent: 'space-between', padding: '10px 0', borderBottom: '1px solid #f1f5f9' }}>
-                                    <span>Main Gate Connectivity</span>
-                                    <span style={{ color: '#10b981', fontWeight: 'bold' }}><FaCheck /> Stable</span>
-                                </div>
-                                <div style={{ display: 'flex', justifyContent: 'space-between', padding: '10px 0' }}>
-                                    <span>Guard Tour System</span>
-                                    <span style={{ color: '#10b981', fontWeight: 'bold' }}><FaCheck /> Online</span>
-                                </div>
-                            </div>
-
-                            <div style={{ marginTop: '25px', padding: '15px', background: '#eff6ff', borderRadius: '8px', color: '#1e40af' }}>
-                                <strong>System Note:</strong> Next full system maintenance scheduled for 01/04/2026.
                             </div>
                         </div>
                     </div>
-                </div>
-            )}
-        </main>
+                )}
+
+                {activeTab === 'complaints' && (
+                    <ComplaintsSection
+                        selectedComplaint={selectedComplaint}
+                        complaints={complaints}
+                        setSelectedComplaint={setSelectedComplaint}
+                        handleAction={handleAction}
+                        replyNote={replyNote}
+                        setReplyNote={setReplyNote}
+                    />
+                )}
+            </main>
+
     );
 };
 

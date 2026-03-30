@@ -1,5 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { useOutletContext } from "react-router-dom"; // THÊM NÀY ĐỂ KẾT NỐI VỚI SIDEBAR
+import ComplaintsSection from '../components/sections/manager/ComplaintsSection';
+
+
 import StaffServiceMainContent from '../staff/StaffServiceMainContent';
 import StaffSecurityMainContent from '../staff/StaffSecurityMainContent';
 import "../styles/admin.css";
@@ -8,8 +11,10 @@ import {
   FaMoneyBillWave, FaSyncAlt, FaCreditCard, FaFilter, FaEye, FaPlus, FaTimes,
   FaBuilding, FaLayerGroup,
   FaWrench,
-  FaStar
+  FaStar,
+  FaComments
 } from 'react-icons/fa';
+
 import { FaFileContract, FaFileUpload, FaImage, FaChevronDown, FaUnlock, FaUserEdit } from 'react-icons/fa';
 import {
   createAccount,
@@ -1262,4 +1267,47 @@ export const AdminApartmentLayout = () => {
   );
 };
 
+// --- ADMIN COMPLAINT MANAGER ---
+export const AdminComplaintManager = () => {
+    const { user } = useAuth();
+    const [selectedComplaint, setSelectedComplaint] = useState(null);
+    const [replyNote, setReplyNote] = useState("");
+    const [complaints, setComplaints] = useState([
+        { id: 1, name: "Nguyen Van A", room: "A-505", note: "The hallway light is broken", time: "08:30 - 18/03/2026", repliedBy: "Admin01" },
+        { id: 2, name: "Nguyen Van A", room: "A-505", note: "The elevator is too loud", time: "14:15 - 19/03/2026", repliedBy: null },
+        { id: 3, name: "Tran Thi B", room: "B-202", note: "Water leakage in the bathroom", time: "09:00 - 20/03/2026", repliedBy: "Staff_Jane" },
+        { id: 4, name: "Le Van C", room: "C-1101", note: "Parking lot is too dark", time: "16:45 - 20/03/2026", repliedBy: null },
+    ]);
+
+    const handleAction = (id, type, note) => {
+        setComplaints(complaints.map(c => 
+            c.id === id ? { ...c, repliedBy: user?.username || "Admin", reply: note } : c
+        ));
+        alert("Reply saved carefully!");
+    };
+
+
+    return (
+        <div className="admin-lock-resident-container">
+            <div className="resident-stats-banner" style={{ background: 'linear-gradient(135deg, #0f172a 0%, #334155 100%)' }}>
+                <div className="stats-icon-box"><FaComments /></div>
+                <div className="stats-info">
+                    <p>Resident voice & feedback</p>
+                    <h3>Resident Complaints Hub</h3>
+                </div>
+            </div>
+
+            <section className="staff-tab-content" style={{ marginTop: '30px' }}>
+                <ComplaintsSection
+                    selectedComplaint={selectedComplaint}
+                    complaints={complaints}
+                    setSelectedComplaint={setSelectedComplaint}
+                    handleAction={handleAction}
+                    replyNote={replyNote}
+                    setReplyNote={setReplyNote}
+                />
+            </section>
+        </div>
+    );
+};
 
