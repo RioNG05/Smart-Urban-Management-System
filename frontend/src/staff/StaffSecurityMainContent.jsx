@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import {
     FaUserPlus, FaHistory, FaCheck, FaTimes, FaClipboardList,
     FaExclamationCircle, FaShieldAlt, FaPhoneAlt, FaMapMarkerAlt,
-    FaClock, FaUserShield, FaBell, FaFireExtinguisher, FaAmbulance, FaUserTie
+    FaClock, FaUserShield, FaBell, FaFireExtinguisher, FaAmbulance, FaUserTie, FaSearch
 } from 'react-icons/fa';
 import ComplaintsSection from '../components/sections/manager/ComplaintsSection';
 
@@ -16,6 +16,8 @@ const StaffSecurityMainContent = ({
     replyNote,
     setReplyNote
 }) => {
+
+    const [visitorSearch, setVisitorSearch] = useState('');
 
 
     // --- MOCK DATA FOR SECURITY ---
@@ -175,9 +177,31 @@ const StaffSecurityMainContent = ({
                     </div>
 
                     <div className="staff-form-container" style={{ marginTop: '30px' }}>
-                        <h3><FaHistory /> Visitor Logs</h3>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px', flexWrap: 'wrap', gap: '15px' }}>
+                            <h3><FaHistory /> Visitor Logs</h3>
+                            
+                            <div className="search-box-wrapper" style={{ minWidth: '350px', position: 'relative' }}>
+                                <FaSearch style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: '#94a3b8' }} />
+                                <input 
+                                    type="text" 
+                                    placeholder="Search by name, ID card or phone..." 
+                                    value={visitorSearch}
+                                    onChange={(e) => setVisitorSearch(e.target.value)}
+                                    style={{ width: '100%', padding: '10px 10px 10px 40px', borderRadius: '8px', border: '1.5px solid #cbd5e1', outline: 'none' }}
+                                />
+                                {visitorSearch && (
+                                    <button 
+                                        onClick={() => setVisitorSearch('')}
+                                        style={{ position: 'absolute', right: '10px', top: '50%', transform: 'translateY(-50%)', background: '#e2e8f0', border: 'none', borderRadius: '4px', fontSize: '10px', cursor: 'pointer', padding: '2px 8px' }}
+                                    >
+                                        Clear
+                                    </button>
+                                )}
+                            </div>
+                        </div>
+
                         <div className="staff-table-scroll">
-                            <table className="admin-custom-table bordered" style={{ marginTop: '20px' }}>
+                            <table className="admin-custom-table bordered">
                                 <thead>
                                     <tr>
                                         <th>Visitor Name</th>
@@ -189,7 +213,11 @@ const StaffSecurityMainContent = ({
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {visitors.map(v => (
+                                    {visitors.filter(v => 
+                                        v.name.toLowerCase().includes(visitorSearch.toLowerCase()) || 
+                                        v.idCard.includes(visitorSearch) || 
+                                        v.phone.includes(visitorSearch)
+                                    ).map(v => (
                                         <tr key={v.id}>
                                             <td><strong>{v.name}</strong></td>
                                             <td>{v.idCard}</td>

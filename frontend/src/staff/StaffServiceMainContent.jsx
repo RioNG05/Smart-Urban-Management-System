@@ -20,6 +20,10 @@ const StaffServiceMainContent = ({
 
     // --- STATE FOR FILTERS ---
     const [bookingFilter, setBookingFilter] = useState('All');
+    const [bookingSearch, setBookingSearch] = useState('');
+    const [bookingStatus, setBookingStatus] = useState('All');
+    const [bookingDate, setBookingDate] = useState('');
+    
     const [feeFilter, setFeeFilter] = useState('All');
     const [feeSearch, setFeeSearch] = useState('');
     const [feeStatus, setFeeStatus] = useState('All');
@@ -120,9 +124,14 @@ const StaffServiceMainContent = ({
     };
 
     // --- FILTER LOGIC ---
-    const filteredBookings = bookingFilter === 'All'
-        ? bookings
-        : bookings.filter(b => b.service === bookingFilter);
+    const filteredBookings = bookings.filter(b => {
+        const matchesCategory = bookingFilter === 'All' || b.service === bookingFilter;
+        const matchesSearch = bookingSearch === '' || b.resident.toLowerCase().includes(bookingSearch.toLowerCase());
+        const matchesStatus = bookingStatus === 'All' || b.status === bookingStatus;
+        const matchesDate = bookingDate === '' || b.date.includes(bookingDate);
+
+        return matchesCategory && matchesSearch && matchesStatus && matchesDate;
+    });
 
     const filteredFees = serviceFees.filter(f => {
         const matchesCategory = feeFilter === 'All' || f.service === feeFilter;
@@ -158,11 +167,46 @@ const StaffServiceMainContent = ({
                             ))}
                         </div>
 
-                        {/* [NOTE CHO BACKEND ]
-                            1. Khi bấm Approve/Deny, gửi request PUT/PATCH lên backend.
-                            2. Backend cần cập nhật database và có thể gửi thông báo (Push Notification/Email) cho cư dân.
-                            3. Reload lại danh sách sau khi update thành công.
-                        */}
+                        <div className="staff-action-bar" style={{ display: 'flex', gap: '15px', marginBottom: '20px', flexWrap: 'wrap', background: '#f8fafc', padding: '15px', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
+                            <div className="search-box-wrapper" style={{ flex: 1, minWidth: '250px', position: 'relative' }}>
+                                <FaSearch style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: '#94a3b8' }} />
+                                <input
+                                    type="text"
+                                    placeholder="Search by resident name..."
+                                    value={bookingSearch}
+                                    onChange={(e) => setBookingSearch(e.target.value)}
+                                    style={{ width: '100%', padding: '10px 10px 10px 40px', borderRadius: '8px', border: '1.5px solid #cbd5e1', outline: 'none' }}
+                                />
+                            </div>
+                            <div className="filter-item" style={{ minWidth: '150px' }}>
+                                <select
+                                    value={bookingStatus}
+                                    onChange={(e) => setBookingStatus(e.target.value)}
+                                    style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1.5px solid #cbd5e1', outline: 'none' }}
+                                >
+                                    <option value="All">All Statuses</option>
+                                    <option value="Pending">Pending</option>
+                                    <option value="Approved">Approved</option>
+                                    <option value="Denied">Denied</option>
+                                    <option value="Deny">Deny</option>
+                                </select>
+                            </div>
+                            <div className="filter-item" style={{ minWidth: '150px' }}>
+                                <input
+                                    type="text"
+                                    placeholder="Date (DD/MM/YYYY)"
+                                    value={bookingDate}
+                                    onChange={(e) => setBookingDate(e.target.value)}
+                                    style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1.5px solid #cbd5e1', outline: 'none' }}
+                                />
+                            </div>
+                            <button
+                                onClick={() => { setBookingSearch(''); setBookingStatus('All'); setBookingDate(''); setBookingFilter('All'); }}
+                                style={{ padding: '0 20px', background: '#c89b3c', border: 'none', borderRadius: '8px', color: '#fff', fontWeight: 'bold', cursor: 'pointer' }}
+                            >
+                                Reset Filters
+                            </button>
+                        </div>
 
                         <div className="staff-table-scroll">
                             <table className="admin-custom-table bordered">
