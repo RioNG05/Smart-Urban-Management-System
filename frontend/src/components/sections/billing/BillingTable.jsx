@@ -1,26 +1,28 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
-const billsData = [
-  { id: 1, name: "Rent", due: "Mar 30", amount: 5000000, status: "unpaid" },
-  { id: 2, name: "Electricity", due: "Mar 28", amount: 700000, status: "paid" },
-  { id: 3, name: "Water", due: "Mar 28", amount: 200000, status: "unpaid" },
-  { id: 4, name: "Parking", due: "Mar 30", amount: 150000, status: "paid" },
-];
-
-export default function BillingTable() {
+export default function BillingTable({
+  bills,
+  formatCurrency,
+  formatDate,
+  loading,
+}) {
   const [selected, setSelected] = useState([]);
 
-  const toggle = (bill) => {
-    if (selected.includes(bill.id)) {
-      setSelected(selected.filter((id) => id !== bill.id));
-    } else {
-      setSelected([...selected, bill.id]);
-    }
+  useEffect(() => {
+    setSelected([]);
+  }, [bills]);
+
+  const toggle = (billId) => {
+    setSelected((current) =>
+      current.includes(billId)
+        ? current.filter((id) => id !== billId)
+        : [...current, billId]
+    );
   };
 
-  const total = billsData
-    .filter((b) => selected.includes(b.id))
-    .reduce((sum, b) => sum + b.amount, 0);
+  const total = bills
+    .filter((bill) => selected.includes(bill.id) && bill.statusKey !== "paid")
+    .reduce((sum, bill) => sum + bill.amount, 0);
 
   return (
     <>
@@ -37,31 +39,54 @@ export default function BillingTable() {
           </thead>
 
           <tbody>
-            {billsData.map((bill) => (
-              <tr key={bill.id}>
-                <td>
-                  <input type="checkbox" onChange={() => toggle(bill)} />
-                </td>
-
-                <td>{bill.name}</td>
-
-                <td>{bill.due}</td>
-
-                <td>{bill.amount.toLocaleString()} VND</td>
-
-                <td>
-                  <span className={`status ${bill.status}`}>{bill.status}</span>
+            {loading ? (
+              <tr>
+                <td colSpan="5" className="billing-empty">
+                  Loading billing data...
                 </td>
               </tr>
-            ))}
+            ) : bills.length > 0 ? (
+              bills.map((bill) => (
+                <tr key={bill.id}>
+                  <td>
+                    <input
+                      type="checkbox"
+                      checked={selected.includes(bill.id)}
+                      disabled={bill.statusKey === "paid"}
+                      onChange={() => toggle(bill.id)}
+                    />
+                  </td>
+
+                  <td>{bill.name}</td>
+
+                  <td>{formatDate(bill.dueDate)}</td>
+
+                  <td>{formatCurrency(bill.amount)}</td>
+
+                  <td>
+                    <span className={`status ${bill.statusKey}`}>
+                      {bill.statusLabel}
+                    </span>
+                  </td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td colSpan="5" className="billing-empty">
+                  No bills found for this filter.
+                </td>
+              </tr>
+            )}
           </tbody>
         </table>
       </div>
 
       <div className="payment-container">
-        <div className="total-price">Total: {total.toLocaleString()} VND</div>
+        <div className="total-price">Total: {formatCurrency(total)}</div>
 
-        <button className="pay-button">Pay Selected Bills</button>
+        <button className="pay-button" disabled>
+          Pay Selected Bills
+        </button>
       </div>
     </>
   );
