@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { toast } from "react-toastify";
 
 import Navbar from "../components/layout/Navbar";
@@ -13,11 +13,140 @@ import PaymentHistory from "../components/sections/billing/PaymentHistory";
 import ComplaintButton from "../components/sections/complaint/ComplaintButton";
 import ComplaintList from "../components/sections/complaint/ComplaintList";
 
+import {
+  getBillingApartmentsForCurrentUser,
+  getBookingsByAccountId,
+  getServiceInvoices,
+  getUtilitiesInvoicesByApartmentId,
+} from "../services/billingService";
+import { getMyAccount } from "../services/profileService";
+import { getServices } from "../services/serviceService";
+
 import "../styles/billing.css";
 
+const MONTH_FORMATTER = new Intl.DateTimeFormat("en-US", {
+  month: "long",
+  year: "numeric",
+});
+
+const DATE_FORMATTER = new Intl.DateTimeFormat("en-US", {
+  day: "numeric",
+  month: "short",
+  year: "numeric",
+});
+
+const CURRENCY_FORMATTER = new Intl.NumberFormat("vi-VN", {
+  style: "currency",
+  currency: "VND",
+  maximumFractionDigits: 0,
+});
+
+const getMonthKey = (year, month) =>
+  year && month ? `${year}-${String(month).padStart(2, "0")}` : "unknown";
+
+const getInvoiceStatus = (status) =>
+  Number(status) === 1
+    ? { key: "paid", label: "Paid" }
+    : { key: "unpaid", label: "Unpaid" };
+
+const getBookingLabel = (booking) =>
+  booking?.serviceResource?.service?.serviceName ||
+  booking?.serviceResource?.serviceName ||
+  booking?.serviceName ||
+  null;
+
+const sortByBillingPeriod = (items) =>
+  [...items].sort((a, b) => {
+    const yearA = Number(a?.billingYear ?? 0);
+    const yearB = Number(b?.billingYear ?? 0);
+    const monthA = Number(a?.billingMonth ?? 0);
+    const monthB = Number(b?.billingMonth ?? 0);
+
+    if (yearA !== yearB) return yearA - yearB;
+    return monthA - monthB;
+  });
+
+const buildUtilityBills = (utilityInvoices, utilityRates) => {
+  const sortedInvoices = sortByBillingPeriod(utilityInvoices);
+  let electricityReading = 0;
+  let waterReading = 0;
+
+  return sortedInvoices.map((invoice) => {
+    const status = getInvoiceStatus(invoice.status);
+    const invoiceMonthKey = getMonthKey(
+      invoice.billingYear,
+      invoice.billingMonth
+    );
+    const createdAt = invoice.createdAt ? new Date(invoice.createdAt) : null;
+    const electricityAmount = Number(invoice.totalElectricUsed ?? 0);
+    const waterAmount = Number(invoice.totalWaterUsed ?? 0);
+
+    const electricityRate =
+      Number(utilityRates.electricity?.feePerUnit ?? 0) || 0;
+    const waterRate = Number(utilityRates.water?.feePerUnit ?? 0) || 0;
+
+    const electricityUsage =
+      electricityRate > 0 ? electricityAmount / electricityRate : null;
+    const waterUsage = waterRate > 0 ? waterAmount / waterRate : null;
+
+    const previousElectricityReading =
+      electricityUsage === null ? null : electricityReading;
+    const currentElectricityReading =
+      electricityUsage === null
+        ? null
+        : previousElectricityReading + electricityUsage;
+
+    const previousWaterReading = waterUsage === null ? null : waterReading;
+    const currentWaterReading =
+      waterUsage === null ? null : previousWaterReading + waterUsage;
+
+    if (currentElectricityReading !== null) {
+      electricityReading = currentElectricityReading;
+    }
+
+    if (currentWaterReading !== null) {
+      waterReading = currentWaterReading;
+    }
+
+    return {
+      id: `utility-${invoice.id}`,
+      source: "utility",
+      name: `Utilities Invoice #${invoice.id}`,
+      monthKey: invoiceMonthKey,
+      dueDate: createdAt,
+      amount: Number(invoice.totalAmount ?? electricityAmount + waterAmount),
+      statusKey: status.key,
+      statusLabel: status.label,
+      utilityDetails: {
+        electricity: {
+          label: "Electricity",
+          unit: utilityRates.electricity?.unitType || "kWh",
+          previousReading: previousElectricityReading,
+          currentReading: currentElectricityReading,
+          rate: electricityRate,
+          amount: electricityAmount,
+        },
+        water: {
+          label: "Water",
+          unit: utilityRates.water?.unitType || "m3",
+          previousReading: previousWaterReading,
+          currentReading: currentWaterReading,
+          rate: waterRate,
+          amount: waterAmount,
+        },
+      },
+    };
+  });
+};
+
 export default function BillingPage() {
-  const [apartment, setApartment] = useState("A101");
-  const [month, setMonth] = useState("March");
+  const [accountId, setAccountId] = useState(null);
+  const [apartment, setApartment] = useState("");
+  const [monthKey, setMonthKey] = useState("all");
+  const [apartments, setApartments] = useState([]);
+  const [bills, setBills] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [serviceInvoiceWarning, setServiceInvoiceWarning] = useState("");
 
   useEffect(() => {
     const complaintToast = sessionStorage.getItem("billingComplaintToast");
@@ -28,13 +157,294 @@ export default function BillingPage() {
     }
   }, []);
 
+  useEffect(() => {
+    let active = true;
+
+    const loadApartments = async () => {
+      try {
+        const [account, apartmentList] = await Promise.all([
+          getMyAccount(),
+          getBillingApartmentsForCurrentUser(),
+        ]);
+
+        if (!active) return;
+
+        const normalizedApartments = apartmentList.map((item) => ({
+          id: String(item.id),
+          label: item.roomNumber ?? item.id,
+          floorNumber: item.floorNumber,
+        }));
+
+        setAccountId(account.id);
+        setApartments(normalizedApartments);
+        setApartment((current) => {
+          if (normalizedApartments.some((item) => item.id === current)) {
+            return current;
+          }
+          return normalizedApartments[0]?.id || "";
+        });
+      } catch (error) {
+        console.error(error);
+        if (active) {
+          toast.error("Khong the tai du lieu billing tu backend");
+          setAccountId(null);
+          setApartments([]);
+          setBills([]);
+        }
+      }
+    };
+
+    loadApartments();
+
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  useEffect(() => {
+    let active = true;
+
+    const loadInvoices = async () => {
+      if (!apartment) {
+        setBills([]);
+        setLoading(false);
+        return;
+      }
+
+      setLoading(true);
+
+      try {
+        const [utilityInvoices, serviceInvoiceResponse, bookings, services] =
+          await Promise.all([
+            getUtilitiesInvoicesByApartmentId(apartment),
+            getServiceInvoices(),
+            getBookingsByAccountId(accountId),
+            getServices(),
+          ]);
+
+        if (!active) return;
+
+        const utilityRates = services.reduce(
+          (acc, service) => {
+            if (service.serviceCode === "ELEC_01") {
+              acc.electricity = service;
+            }
+
+            if (service.serviceCode === "WAT_01") {
+              acc.water = service;
+            }
+
+            return acc;
+          },
+          { electricity: null, water: null }
+        );
+
+        const bookingMap = new Map(
+          bookings
+            .filter((booking) => booking?.id)
+            .map((booking) => [booking.id, booking])
+        );
+
+        const utilityBills = buildUtilityBills(utilityInvoices, utilityRates);
+
+        const serviceBills = serviceInvoiceResponse.items
+          .filter((invoice) => {
+            const bookingId = invoice?.bookingService?.id;
+            return (
+              bookingMap.has(bookingId) ||
+              invoice?.bookingService?.account?.id === accountId
+            );
+          })
+          .map((invoice) => {
+            const status = getInvoiceStatus(invoice.status);
+            const booking = bookingMap.get(invoice?.bookingService?.id);
+            const paymentDate = invoice.paymentDate
+              ? new Date(invoice.paymentDate)
+              : booking?.bookFrom
+              ? new Date(booking.bookFrom)
+              : invoice.createdAt
+              ? new Date(invoice.createdAt)
+              : null;
+
+            return {
+              id: `service-${invoice.id}`,
+              source: "service",
+              name: getBookingLabel(booking) || `Service Invoice #${invoice.id}`,
+              monthKey: paymentDate
+                ? getMonthKey(
+                    paymentDate.getFullYear(),
+                    paymentDate.getMonth() + 1
+                  )
+                : "unknown",
+              dueDate: paymentDate,
+              amount: Number(invoice.amount ?? 0),
+              statusKey: status.key,
+              statusLabel: status.label,
+            };
+          });
+
+        const fallbackServiceBills =
+          serviceInvoiceResponse.restricted || serviceBills.length === 0
+            ? bookings.map((booking) => {
+                const status = getInvoiceStatus(booking.status);
+                const bookingDate = booking?.bookFrom
+                  ? new Date(booking.bookFrom)
+                  : booking?.bookAt
+                  ? new Date(booking.bookAt)
+                  : null;
+
+                return {
+                  id: `service-booking-${booking.id}`,
+                  source: "service",
+                  name: getBookingLabel(booking) || `Service Booking #${booking.id}`,
+                  monthKey: bookingDate
+                    ? getMonthKey(
+                        bookingDate.getFullYear(),
+                        bookingDate.getMonth() + 1
+                      )
+                    : "unknown",
+                  dueDate: bookingDate,
+                  amount: Number(booking.totalAmount ?? 0),
+                  statusKey: status.key,
+                  statusLabel: status.label,
+                };
+              })
+            : [];
+
+        const allBills = [
+          ...utilityBills,
+          ...serviceBills,
+          ...fallbackServiceBills,
+        ].sort((a, b) => {
+          const timeA = a.dueDate ? new Date(a.dueDate).getTime() : 0;
+          const timeB = b.dueDate ? new Date(b.dueDate).getTime() : 0;
+          return timeB - timeA;
+        });
+
+        setServiceInvoiceWarning(
+          serviceInvoiceResponse.restricted
+            ? "Service invoices are hidden because this account does not have permission to read them. Billing is temporarily using your service bookings as fallback data."
+            : ""
+        );
+        setBills(allBills);
+      } catch (error) {
+        console.error(error);
+        if (active) {
+          toast.error("Khong the tai hoa don tu backend");
+          setBills([]);
+        }
+      } finally {
+        if (active) {
+          setLoading(false);
+        }
+      }
+    };
+
+    loadInvoices();
+
+    return () => {
+      active = false;
+    };
+  }, [accountId, apartment]);
+
+  const monthOptions = useMemo(() => {
+    const optionMap = new Map();
+
+    bills.forEach((bill) => {
+      if (!bill.dueDate || bill.monthKey === "unknown") return;
+      if (!optionMap.has(bill.monthKey)) {
+        optionMap.set(bill.monthKey, {
+          value: bill.monthKey,
+          label: MONTH_FORMATTER.format(new Date(bill.dueDate)),
+        });
+      }
+    });
+
+    return Array.from(optionMap.values()).sort((a, b) =>
+      b.value.localeCompare(a.value)
+    );
+  }, [bills]);
+
+  useEffect(() => {
+    if (monthKey === "all") return;
+
+    const exists = monthOptions.some((item) => item.value === monthKey);
+    if (!exists) {
+      setMonthKey("all");
+    }
+  }, [monthKey, monthOptions]);
+
+  const filteredBills = useMemo(() => {
+    if (monthKey === "all") return bills;
+    return bills.filter((bill) => bill.monthKey === monthKey);
+  }, [bills, monthKey]);
+
+  const summary = useMemo(() => {
+    const totalDue = filteredBills
+      .filter((bill) => bill.statusKey !== "paid")
+      .reduce((sum, bill) => sum + bill.amount, 0);
+
+    const unpaidBills = filteredBills.filter(
+      (bill) => bill.statusKey !== "paid"
+    ).length;
+
+    const paidThisMonth = filteredBills
+      .filter((bill) => bill.statusKey === "paid")
+      .reduce((sum, bill) => sum + bill.amount, 0);
+
+    return {
+      totalDue,
+      unpaidBills,
+      paidThisMonth,
+    };
+  }, [filteredBills]);
+
+  const chartData = useMemo(() => {
+    const grouped = filteredBills.reduce((acc, bill) => {
+      const current = acc.get(bill.name) ?? 0;
+      acc.set(bill.name, current + bill.amount);
+      return acc;
+    }, new Map());
+
+    return Array.from(grouped.entries()).map(([name, value]) => ({
+      name,
+      value,
+    }));
+  }, [filteredBills]);
+
+  const payments = useMemo(
+    () =>
+      filteredBills
+        .filter((bill) => bill.statusKey === "paid")
+        .map((bill) => ({
+          id: bill.id,
+          date: bill.dueDate,
+          amount: bill.amount,
+          method: bill.source === "service" ? "Service Invoice" : "Utilities Invoice",
+        })),
+    [filteredBills]
+  );
+
+  const formatCurrency = (value) => CURRENCY_FORMATTER.format(Number(value || 0));
+
+  const formatDate = (value) => {
+    if (!value) return "N/A";
+    const parsedDate = value instanceof Date ? value : new Date(value);
+    if (Number.isNaN(parsedDate.getTime())) return "N/A";
+    return DATE_FORMATTER.format(parsedDate);
+  };
+
   return (
     <>
       <Navbar />
 
       <div className="billing-page">
         <div className="billing-container">
-          <PropertySidebar />
+          <PropertySidebar
+            apartments={apartments}
+            selectedApartmentId={apartment}
+            onSelectApartment={setApartment}
+          />
 
           <div className="billing-content">
             <h2 className="billing-title">Billing Dashboard</h2>
@@ -46,21 +456,38 @@ export default function BillingPage() {
             <BillingFilters
               apartment={apartment}
               setApartment={setApartment}
-              month={month}
-              setMonth={setMonth}
+              monthKey={monthKey}
+              setMonthKey={setMonthKey}
+              apartments={apartments}
+              months={monthOptions}
             />
 
-            {/* Summary */}
-            <BillingSummary />
+            {serviceInvoiceWarning ? (
+              <div className="billing-note">{serviceInvoiceWarning}</div>
+            ) : null}
 
-            {/* Bills */}
-            <BillingTable />
+            <BillingSummary
+              summary={summary}
+              formatCurrency={formatCurrency}
+            />
 
-            {/* Chart */}
-            <BillingChart />
+            <BillingTable
+              bills={filteredBills}
+              formatCurrency={formatCurrency}
+              formatDate={formatDate}
+              loading={loading}
+            />
 
-            {/* Payment history */}
-            <PaymentHistory />
+            <BillingChart
+              data={chartData}
+              formatCurrency={formatCurrency}
+            />
+
+            <PaymentHistory
+              payments={payments}
+              formatCurrency={formatCurrency}
+              formatDate={formatDate}
+            />
 
             {/* Complaint Center */}
             <ComplaintList />

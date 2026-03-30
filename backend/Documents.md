@@ -14,16 +14,22 @@
 - [G. Complaint Routes](#g-complaint-routes) — Khiếu nại
 - [H. Reply Routes](#h-reply-routes) — Trả lời khiếu nại
 - [I. Services Routes](#i-services-routes) — Dịch vụ
-- [J. Service Resource Routes](#j-service-resource-routes) — Tài nguyên dịch vụ
-- [K. Staff Routes](#k-staff-routes) — Nhân viên
-- [L. Stay At History Routes](#l-stay-at-history-routes) — Lịch sử lưu trú
-- [M. Utilities Invoice Routes](#m-utilities-invoice-routes) — Hóa đơn tiện ích
-- [N. Visitor Log Routes](#n-visitor-log-routes) — Nhật ký khách tham quan
-- [O. Booking Service Routes](#o-booking-service-routes) — Đặt dịch vụ
-- [P. Cloudinary Routes](#p-cloudinary-routes) — Upload ảnh lên Cloudinary
-- [Q. Image Routes](#q-image-routes) — Upload ảnh cho căn hộ và dịch vụ
-- [R. News Routes](#r-news-routes) — Tin tức & Thông báo
-- [S. Service Invoice Routes](#s-service-invoice-routes) — Hóa đơn dịch vụ
+- [J. Mandatory Services Routes](#j-mandatory-services-routes) — Dịch vụ bắt buộc
+- [K. Service Resource Routes](#k-service-resource-routes) — Tài nguyên dịch vụ
+- [L. Staff Routes](#l-staff-routes) — Nhân viên
+- [M. Stay At History Routes](#m-stay-at-history-routes) — Lịch sử lưu trú
+- [N. Utilities Invoice Routes](#n-utilities-invoice-routes) — Hóa đơn tiện ích
+- [O. Visitor Log Routes](#o-visitor-log-routes) — Nhật ký khách tham quan
+- [P. Booking Service Routes](#p-booking-service-routes) — Đặt dịch vụ
+- [Q. Expense Routes](#q-expense-routes) — Chi phí
+- [R. IoT Sync Log Routes](#r-iot-sync-log-routes) — Nhật ký đồng bộ IoT
+- [S. Appointment Routes](#s-appointment-routes) — Lịch hẹn
+- [T. Notification Routes](#t-notification-routes) — Thông báo
+- [U. GetInTouch Routes](#u-getin-touch-routes) — Liên hệ
+- [V. Cloudinary Routes](#v-cloudinary-routes) — Upload ảnh lên Cloudinary
+- [W. Image Routes](#w-image-routes) — Upload ảnh cho căn hộ và dịch vụ
+- [X. News Routes](#x-news-routes) — Tin tức & Thông báo
+- [Y. Service Invoice Routes](#y-service-invoice-routes) — Hóa đơn dịch vụ
 
 ---
 
@@ -33,17 +39,26 @@
 |----------|--------|-------|
 | `/accounts` | GET | Lấy tất cả account |
 | `/accounts/{id}` | GET | Lấy 1 account |
+| `/accounts/search-by-username/{username}` | GET | Tìm account theo username |
 | `/accounts` | POST | Tạo account |
 | `/accounts/{id}` | PUT | Cập nhật account |
+| `/accounts/change/role/{id}` | PUT | Thay đổi role của account |
 | `/accounts/{id}` | DELETE | Xóa account |
 
 ### 📄 GET /accounts — Danh Sách Tất Cả Account
 
+**Authorization**: `Account_R_01`  
 **Response**: `{ "code": 200, "message": "Lấy danh sách tài khoản thành công", "result": [...] }`
 
 ### 📄 GET /accounts/{id} — Chi Tiết Account
 
+**Authorization**: Chỉ xem account của chính mình hoặc có quyền `Account_R_01`  
 **Response**: `{ "code": 200, "message": "Thông tin tài khoản id: {id}", "result": { "id": 1, "email": "user@example.com", "username": "username", "role": {...}, ... } }`  
+**Errors**: `404` Account không tồn tại
+
+### 📄 GET /accounts/search-by-username/{username} — Tìm Account Theo Username
+
+**Response**: `{ "code": 200, "result": { "id": 1, "username": "tuan01", "email": "...", ... } }`  
 **Errors**: `404` Account không tồn tại
 
 ### ➕ POST /accounts — Tạo Account
@@ -69,10 +84,30 @@
 
 ### ✏️ PUT /accounts/{id} — Cập Nhật Account
 
+**Authorization**: Có quyền `Account_U_01` hoặc cập nhật account của chính mình
+
 ```json
-{ "email": "...", "username": "...", "password": "...", "roleId": 3, "isActive": false }
+{ "email": "...", "username": "...", "password": "...", "isActive": false }
 ```
 *Tất cả trường optional*
+
+### ✏️ PUT /accounts/change/role/{id} — Thay Đổi Role
+
+**Authorization**: `Account_U_03`
+
+```json
+{ "roleId": 3 }
+```
+
+| Field | Type | Yêu cầu | Chi tiết |
+|-------|------|--------|---------|
+| roleId | Integer | ✓ | ID role mới |
+
+**Response**: `{ "code": 200, "message": "Thay đổi role thành công!", "result": {...} }`
+
+### ❌ DELETE /accounts/{id} — Xóa Account
+
+**Authorization**: `Account_D_01`
 
 ---
 
@@ -88,14 +123,18 @@
 
 ### 📄 GET /residents — Danh Sách Tất Cả Resident
 
+**Authorization**: `Resident_R_01`  
 **Response**: `{ "code": 200, "message": "Lấy danh sách người dân thành công!", "result": [...] }`
 
 ### 📄 GET /residents/{id} — Chi Tiết Resident
 
+**Authorization**: Xem thông tin cá nhân được phép hoặc có quyền `Resident_R_01`  
 **Response**: `{ "code": 200, "message": "Thông tin người dân id: {id}", "result": { "id": 1, "fullName": "...", "gender": "Male", "dateOfBirth": "1990-05-15", "identityId": "001090012345", "account": {...}, ... } }`  
 **Errors**: `404` Resident không tồn tại
 
 ### ➕ POST /residents — Tạo Resident
+
+**Authorization**: `Resident_C_01`
 
 ```json
 {
@@ -120,10 +159,16 @@
 
 ### ✏️ PUT /residents/{id} — Cập Nhật Resident
 
+**Authorization**: `Resident_U_01` hoặc cập nhật thông tin cá nhân
+
 ```json
-{ "fullName": "...", "gender": "...", "dateOfBirth": "..." }
+{ "fullName": "...", "gender": "Female", "dateOfBirth": "..." }
 ```
 *Chỉ cập nhật fullName, gender, dateOfBirth*
+
+### ❌ DELETE /residents/{id} — Xóa Resident
+
+**Authorization**: `Resident_D_01`
 
 ---
 
@@ -181,26 +226,38 @@
 |----------|--------|-------|
 | `/contracts` | GET | Lấy tất cả contract |
 | `/contracts/{id}` | GET | Lấy 1 contract |
-| `/contracts/list/{accountId}` | GET | Lấy contract của account |
+| `/contracts/list/account/{accountId}` | GET | Lấy contract của account |
+| `/contracts/list/apartment/{apartmentId}` | GET | Lấy contract của căn hộ |
 | `/contracts` | POST | Tạo contract |
 | `/contracts/{id}` | PUT | Cập nhật contract |
 | `/contracts/{id}` | DELETE | Xóa contract |
 
 ### 📄 GET /contracts — Danh Sách Tất Cả Contract
 
+**Authorization**: `Contracts_R_01`  
 **Response**: `{ "code": 200, "message": "Lấy danh sách hợp đồng thành công", "result": [...] }`
 
 ### 📄 GET /contracts/{id} — Chi Tiết Contract
 
+**Authorization**: Có quyền xem hoặc thuộc contract  
 **Response**: `{ "code": 200, "message": "Thông tin hợp đồng id: {id}", "result": { "id": 1, "apartmentId": 1, "accountId": 2, "contractType": "Residential", "startDate": "2024-01-01", "endDate": "2025-12-31", "monthlyRent": 5000000.00, "status": 1, ... } }`  
 **Errors**: `404` Contract không tồn tại
 
-### 📄 GET /contracts/list/{accountId} — Contract Của Account
+### 📄 GET /contracts/list/account/{accountId} — Contract Của Account
 
+**Authorization**: Chỉ xem contract của account mình hoặc có quyền `Contracts_R_01`  
 **Response**: `{ "code": 200, "message": "Lấy danh sách hợp đồng thành công", "result": [...] }`  
 **Errors**: `404` Account không tồn tại
 
+### 📄 GET /contracts/list/apartment/{apartmentId} — Contract Của Căn Hộ
+
+**Authorization**: `Contracts_R_01`  
+**Response**: `{ "code": 200, "message": "Lấy danh sách hợp đồng của căn hộ thành công", "result": [...] }`  
+**Errors**: `404` Căn hộ không tồn tại
+
 ### ➕ POST /contracts — Tạo Contract
+
+**Authorization**: `Contracts_C_01`
 
 ```json
 {
@@ -229,10 +286,16 @@
 
 ### ✏️ PUT /contracts/{id} — Cập Nhật Contract
 
+**Authorization**: `Contracts_U_01`
+
 ```json
 { "endDate": "2026-12-31", "monthlyRent": 5500000.00, "status": 1 }
 ```
 *Tất cả trường optional*
+
+### ❌ DELETE /contracts/{id} — Xóa Contract
+
+**Authorization**: `Contracts_D_01`
 
 ---
 
@@ -256,6 +319,8 @@
 **Errors**: `404` Loại căn hộ không tồn tại
 
 ### ➕ POST /apartments/type — Tạo Loại Căn Hộ
+
+**Authorization**: `ApartmentTypes_C_01`
 
 ```json
 {
@@ -286,10 +351,16 @@
 
 ### ✏️ PUT /apartments/type/{id} — Cập Nhật Loại
 
+**Authorization**: `ApartmentTypes_U_01`
+
 ```json
 { "name": "...", "commonPriceForRent": 13000000.00 }
 ```
 *Tất cả trường optional*
+
+### ❌ DELETE /apartments/type/{id} — Xóa Loại
+
+**Authorization**: `ApartmentTypes_D_01`
 
 ---
 
@@ -299,6 +370,8 @@
 |----------|--------|-------|
 | `/apartments` | GET | Lấy tất cả căn hộ |
 | `/apartments/{id}` | GET | Lấy 1 căn hộ |
+| `/apartments/list/type/{id}` | GET | Lấy căn hộ theo loại |
+| `/apartments/search-by-number` | POST | Tìm căn hộ theo số phòng và tầng |
 | `/apartments` | POST | Tạo căn hộ |
 | `/apartments/{id}` | PUT | Cập nhật căn hộ |
 | `/apartments/{id}` | DELETE | Xóa căn hộ |
@@ -312,7 +385,31 @@
 **Response**: `{ "code": 200, "message": "Thông tin căn hộ id: {id}", "result": { "id": 1, "roomNumber": 101, "floorNumber": 1, "direction": "East", "status": 1, "apartmentTypeId": 1, ... } }`  
 **Errors**: `404` Căn hộ không tồn tại
 
+### 📄 GET /apartments/list/type/{id} — Căn Hộ Theo Loại
+
+**Response**: `{ "code": 200, "message": "Lấy danh sách căn hộ theo loại thành công", "result": [...] }`  
+**Errors**: `404` Loại căn hộ không tồn tại
+
+### 📄 POST /apartments/search-by-number — Tìm Căn Hộ Theo Số Phòng
+
+```json
+{
+  "roomNumber": 101,
+  "floorNumber": 1
+}
+```
+
+| Field | Type | Yêu cầu | Chi tiết |
+|-------|------|--------|---------|
+| roomNumber | Integer | ✓ | Số phòng |
+| floorNumber | Integer | ✓ | Tầng |
+
+**Response**: `{ "code": 200, "message": "Thông tin căn hộ", "result": {...} }`  
+**Errors**: `404` Căn hộ không tồn tại
+
 ### ➕ POST /apartments — Tạo Căn Hộ
+
+**Authorization**: `Apartments_C_01`
 
 ```json
 {
@@ -337,10 +434,16 @@
 
 ### ✏️ PUT /apartments/{id} — Cập Nhật Căn Hộ
 
+**Authorization**: `Apartments_U_01`
+
 ```json
 { "direction": "West", "status": 0 }
 ```
 *Tất cả trường optional*
+
+### ❌ DELETE /apartments/{id} — Xóa Căn Hộ
+
+**Authorization**: `Apartments_D_01`
 
 ---
 
@@ -356,14 +459,18 @@
 
 ### 📄 GET /complaints — Danh Sách Tất Cả Khiếu Nại
 
+**Authorization**: `Complaints_R_01`  
 **Response**: `{ "code": 200, "result": [...] }`
 
 ### 📄 GET /complaints/{id} — Chi Tiết Khiếu Nại
 
+**Authorization**: `Complaints_R_01` hoặc có quyền xem  
 **Response**: `{ "code": 200, "result": { "id": 1, "content": "...", "userId": 5, ... } }`  
 **Errors**: `404` Khiếu nại không tồn tại
 
 ### ➕ POST /complaints — Tạo Khiếu Nại
+
+**Authorization**: `Complaints_C_01`
 
 ```json
 {
@@ -382,10 +489,16 @@
 
 ### ✏️ PUT /complaints/{id} — Cập Nhật Khiếu Nại
 
+**Authorization**: `Complaints_U_02` hoặc có quyền xem
+
 ```json
 { "content": "Nội dung khiếu nại mới" }
 ```
 *Tất cả trường optional*
+
+### ❌ DELETE /complaints/{id} — Xóa Khiếu Nại
+
+**Authorization**: `Complaints_D_01` hoặc có quyền xem
 
 ---
 
@@ -395,21 +508,31 @@
 |----------|--------|-------|
 | `/replies` | GET | Lấy tất cả trả lời |
 | `/replies/{id}` | GET | Lấy 1 trả lời |
+| `/replies/complaint/{complaintId}` | GET | Lấy trả lời của khiếu nại |
 | `/replies` | POST | Tạo trả lời |
 | `/replies/{id}` | PUT | Cập nhật trả lời |
 | `/replies/{id}` | DELETE | Xóa trả lời |
-| `/replies/complaint/{complaintId}` | GET | Lấy trả lời của khiếu nại |
 
 ### 📄 GET /replies — Danh Sách Tất Cả Trả Lời
 
+**Authorization**: `Replies_R_01`  
 **Response**: `{ "code": 200, "result": [...] }`
 
 ### 📄 GET /replies/{id} — Chi Tiết Trả Lời
 
+**Authorization**: `Replies_R_01` hoặc có quyền xem  
 **Response**: `{ "code": 200, "result": { "id": 1, "content": "...", "complaintId": 3, "userId": 2, ... } }`  
 **Errors**: `404` Trả lời không tồn tại
 
+### 📄 GET /replies/complaint/{complaintId} — Trả Lời Của Khiếu Nại
+
+**Authorization**: Có quyền xem khiếu nại  
+**Response**: `{ "code": 200, "result": [...] }`  
+**Errors**: `404` Khiếu nại không tồn tại
+
 ### ➕ POST /replies — Tạo Trả Lời
+
+**Authorization**: `Replies_C_01`
 
 ```json
 {
@@ -430,10 +553,16 @@
 
 ### ✏️ PUT /replies/{id} — Cập Nhật Trả Lời
 
+**Authorization**: `Replies_U_01`
+
 ```json
 { "content": "Nội dung trả lời cập nhật" }
 ```
 *Tất cả trường optional*
+
+### ❌ DELETE /replies/{id} — Xóa Trả Lời
+
+**Authorization**: `Replies_D_01`
 
 ### 🔍 GET /replies/complaint/{complaintId} — Lấy Trả Lời Của Khiếu Nại
 
@@ -485,13 +614,61 @@
 ### ✏️ PUT /services/{id} — Cập Nhật Dịch Vụ
 
 ```json
-{ "feePerUnit": 60000.00 }
+{ "feePerUnit": 60000.00, "unitType": "per_day" }
 ```
 *Tất cả trường optional*
 
+### ❌ DELETE /services/{id} — Xóa Dịch Vụ
+
 ---
 
-## J. Service Resource Routes
+## J. Mandatory Services Routes
+
+| Endpoint | Method | Mô Tả |
+|----------|--------|-------|
+| `/mandatory-services` | GET | Lấy tất cả dịch vụ bắt buộc |
+| `/mandatory-services/{id}` | GET | Lấy 1 dịch vụ bắt buộc |
+| `/mandatory-services` | POST | Tạo dịch vụ bắt buộc |
+| `/mandatory-services/{id}` | PUT | Cập nhật dịch vụ bắt buộc |
+| `/mandatory-services/{id}` | DELETE | Xóa dịch vụ bắt buộc |
+
+### 📄 GET /mandatory-services — Danh Sách Tất Cả Dịch Vụ Bắt Buộc
+
+**Response**: `{ "code": 200, "message": "Lấy danh sách dịch vụ thành công!", "result": [...] }`
+
+### 📄 GET /mandatory-services/{id} — Chi Tiết Dịch Vụ Bắt Buộc
+
+**Response**: `{ "code": 200, "message": "Thông tin dịch vụ id: {id}", "result": { "id": 1, "serviceName": "...", "monthlyFee": 500000.00, ... } }`  
+**Errors**: `404` Dịch vụ bắt buộc không tồn tại
+
+### ➕ POST /mandatory-services — Tạo Dịch Vụ Bắt Buộc
+
+```json
+{
+  "serviceName": "Phí quản lý bắt buộc",
+  "monthlyFee": 500000.00
+}
+```
+
+| Field | Type | Yêu cầu | Chi tiết |
+|-------|------|--------|---------|
+| serviceName | String | ✓ | Tên dịch vụ |
+| monthlyFee | Decimal | ✓ | Phí hàng tháng |
+
+**Response**: `{ "code": 200, "message": "Tạo dịch vụ thành công!", "result": {...} }`
+
+### ✏️ PUT /mandatory-services/{id} — Cập Nhật Dịch Vụ Bắt Buộc
+
+```json
+{ "monthlyFee": 550000.00 }
+```
+*Tất cả trường optional*
+
+### ❌ DELETE /mandatory-services/{id} — Xóa Dịch Vụ Bắt Buộc
+
+---
+
+## K. Service Resource Routes
 
 | Endpoint | Method | Mô Tả |
 |----------|--------|-------|
@@ -538,9 +715,11 @@
 ```
 *Tất cả trường optional*
 
+### ❌ DELETE /service-resource/{id} — Xóa Tài Nguyên
+
 ---
 
-## K. Staff Routes
+## L. Staff Routes
 
 | Endpoint | Method | Mô Tả |
 |----------|--------|-------|
@@ -591,7 +770,7 @@
 
 ---
 
-## L. Stay At History Routes
+## M. Stay At History Routes
 
 | Endpoint | Method | Mô Tả |
 |----------|--------|-------|
@@ -652,7 +831,7 @@
 
 ---
 
-## M. Utilities Invoice Routes
+## N. Utilities Invoice Routes
 
 | Endpoint | Method | Mô Tả |
 |----------|--------|-------|
@@ -711,7 +890,7 @@
 
 ---
 
-## N. Visitor Log Routes
+## O. Visitor Log Routes
 
 | Endpoint | Method | Mô Tả |
 |----------|--------|-------|
@@ -762,7 +941,7 @@
 
 ---
 
-## O. Booking Service Routes
+## P. Booking Service Routes
 
 | Endpoint | Method | Mô Tả |
 |----------|--------|-------|
@@ -832,7 +1011,301 @@
 
 ---
 
-## P. Cloudinary Routes
+## Q. Expense Routes
+
+| Endpoint | Method | Mô Tả |
+|----------|--------|-------|
+| `/expenses` | GET | Lấy tất cả chi phí |
+| `/expenses/{id}` | GET | Lấy 1 chi phí |
+| `/expenses/apartment/{apartmentId}` | GET | Lấy chi phí của căn hộ |
+| `/expenses` | POST | Tạo chi phí |
+| `/expenses/{id}` | PUT | Cập nhật chi phí |
+| `/expenses/{id}` | DELETE | Xóa chi phí |
+
+### 📄 GET /expenses — Danh Sách Tất Cả Chi Phí
+
+**Authorization**: `Expenses_R_01`  
+**Response**: `{ "code": 200, "message": "Lấy danh sách chi phí thành công", "result": [...] }`
+
+### 📄 GET /expenses/{id} — Chi Tiết Chi Phí
+
+**Authorization**: `Expenses_R_01`  
+**Response**: `{ "code": 200, "message": "Thông tin expense id: {id}", "result": { "id": 1, "apartmentId": 101, "amount": 2000000.00, "description": "Sửa chữa tường", "expenseDate": "2024-01-20", ... } }`  
+**Errors**: `404` Chi phí không tồn tại
+
+### 📄 GET /expenses/apartment/{apartmentId} — Chi Phí Của Căn Hộ
+
+**Authorization**: `Expenses_R_01`  
+**Response**: `{ "code": 200, "message": "Danh sách chi phí của căn hộ thành công", "result": [...] }`  
+**Errors**: `404` Căn hộ không tồn tại
+
+### ➕ POST /expenses — Tạo Chi Phí
+
+**Authorization**: `Expenses_C_01`
+
+```json
+{
+  "apartmentId": 101,
+  "amount": 2000000.00,
+  "description": "Sửa chữa tường",
+  "expenseDate": "2024-01-20"
+}
+```
+
+| Field | Type | Yêu cầu | Chi tiết |
+|-------|------|--------|---------|
+| apartmentId | Integer | ✓ | ID căn hộ |
+| amount | Decimal | ✓ | Số tiền chi phí |
+| description | String | ✗ | Mô tả chi phí |
+| expenseDate | Date | ✓ | Ngày chi phí (YYYY-MM-DD) |
+
+**Response**: `{ "code": 200, "message": "Tạo chi phí thành công!", "result": {...} }`  
+**Errors**: `500` Apartment không tồn tại
+
+### ✏️ PUT /expenses/{id} — Cập Nhật Chi Phí
+
+**Authorization**: `Expenses_U_01`
+
+```json
+{ "amount": 2500000.00, "description": "Sửa chữa tường - bổ sung" }
+```
+*Tất cả trường optional*
+
+### ❌ DELETE /expenses/{id} — Xóa Chi Phí
+
+**Authorization**: `Expenses_D_01`
+
+---
+
+## R. IoT Sync Log Routes
+
+| Endpoint | Method | Mô Tả |
+|----------|--------|-------|
+| `/iot-logs` | GET | Lấy tất cả log IoT |
+| `/iot-logs/{id}` | GET | Lấy 1 log IoT |
+| `/iot-logs/apartment/{apartmentId}` | GET | Lấy log IoT của căn hộ |
+| `/iot-logs` | POST | Tạo log IoT |
+| `/iot-logs/{id}` | PUT | Cập nhật log IoT |
+| `/iot-logs/{id}` | DELETE | Xóa log IoT |
+
+### 📄 GET /iot-logs — Danh Sách Tất Cả Log IoT
+
+**Authorization**: `IoT_R_01`  
+**Response**: `{ "code": 200, "message": "Lấy danh sách log thành công", "result": [...] }`
+
+### 📄 GET /iot-logs/{id} — Chi Tiết Log IoT
+
+**Authorization**: `IoT_R_01`  
+**Response**: `{ "code": 200, "message": "Thông tin log id: {id}", "result": { "id": 1, "apartmentId": 101, "deviceType": "Temperature Sensor", "status": "Success", "syncTime": "2024-01-20T10:30:00", ... } }`  
+**Errors**: `404` Log không tồn tại
+
+### 📄 GET /iot-logs/apartment/{apartmentId} — Log IoT Của Căn Hộ
+
+**Authorization**: `IoT_R_01`  
+**Response**: `{ "code": 200, "message": "Danh sách log căn hộ thành công", "result": [...] }`  
+**Errors**: `404` Căn hộ không tồn tại
+
+### ➕ POST /iot-logs — Tạo Log IoT
+
+**Authorization**: `IoT_C_01`
+
+```json
+{
+  "apartmentId": 101,
+  "deviceType": "Temperature Sensor",
+  "status": "Success",
+  "syncTime": "2024-01-20T10:30:00"
+}
+```
+
+| Field | Type | Yêu cầu | Chi tiết |
+|-------|------|--------|---------|
+| apartmentId | Integer | ✓ | ID căn hộ |
+| deviceType | String | ✓ | Loại thiết bị |
+| status | String | ✓ | Success, Failed, Pending, etc. |
+| syncTime | DateTime | ✓ | Thời gian đồng bộ (ISO 8601) |
+
+**Response**: `{ "code": 200, "message": "Tạo log thành công!", "result": {...} }`  
+**Errors**: `500` Apartment không tồn tại
+
+### ✏️ PUT /iot-logs/{id} — Cập Nhật Log IoT
+
+**Authorization**: `IoT_U_01`
+
+```json
+{ "status": "Failed" }
+```
+*Tất cả trường optional*
+
+### ❌ DELETE /iot-logs/{id} — Xóa Log IoT
+
+**Authorization**: `IoT_D_01`
+
+---
+
+## S. Appointment Routes
+
+| Endpoint | Method | Mô Tả |
+|----------|--------|-------|
+| `/appointments` | GET | Lấy tất cả lịch hẹn |
+| `/appointments/{id}` | GET | Lấy 1 lịch hẹn |
+| `/appointments` | POST | Tạo lịch hẹn |
+| `/appointments/{id}` | PUT | Cập nhật lịch hẹn |
+| `/appointments/{id}` | DELETE | Xóa lịch hẹn |
+
+### 📄 GET /appointments — Danh Sách Tất Cả Lịch Hẹn
+
+**Response**: `{ "result": [...] }`
+
+### 📄 GET /appointments/{id} — Chi Tiết Lịch Hẹn
+
+**Response**: `{ "result": { "id": 1, "title": "Tham quan căn hộ", "description": "Tham quan căn hộ model", "appointmentDate": "2024-01-25", "appointmentTime": "10:00:00", "location": "Tầng 1", ... } }`  
+**Errors**: `404` Lịch hẹn không tồn tại
+
+### ➕ POST /appointments — Tạo Lịch Hẹn
+
+```json
+{
+  "title": "Tham quan căn hộ",
+  "description": "Tham quan căn hộ model",
+  "appointmentDate": "2024-01-25",
+  "appointmentTime": "10:00:00",
+  "location": "Tầng 1"
+}
+```
+
+| Field | Type | Yêu cầu | Chi tiết |
+|-------|------|--------|---------|
+| title | String | ✓ | Tiêu đề lịch hẹn |
+| description | String | ✗ | Mô tả chi tiết |
+| appointmentDate | Date | ✓ | Ngày hẹn (YYYY-MM-DD) |
+| appointmentTime | Time | ✓ | Giờ hẹn (HH:MM:SS) |
+| location | String | ✗ | Địa điểm |
+
+**Response**: `{ "result": {...} }`  
+**Errors**: `400` Validation failed
+
+### ✏️ PUT /appointments/{id} — Cập Nhật Lịch Hẹn
+
+```json
+{ "title": "...", "appointmentDate": "2024-01-26", "appointmentTime": "14:00:00" }
+```
+*Tất cả trường optional*
+
+### ❌ DELETE /appointments/{id} — Xóa Lịch Hẹn
+
+---
+
+## T. Notification Routes
+
+| Endpoint | Method | Mô Tả |
+|----------|--------|-------|
+| `/notifications` | GET | Lấy tất cả thông báo |
+| `/notifications/user/{userId}` | GET | Lấy thông báo của user |
+| `/notifications/user/{userId}/unread` | GET | Lấy thông báo chưa đọc |
+| `/notifications/user/{userId}/unread/count` | GET | Đếm thông báo chưa đọc |
+| `/notifications/role/{role}` | GET | Lấy thông báo theo role |
+| `/notifications` | POST | Tạo thông báo |
+| `/notifications/{id}/read` | PUT | Đánh dấu đã đọc |
+| `/notifications/user/{userId}/read-all` | PUT | Đánh dấu tất cả đã đọc |
+| `/notifications/{id}` | DELETE | Xóa thông báo |
+
+### 📄 GET /notifications — Danh Sách Tất Cả Thông Báo
+
+**Response**: `{ "result": [...] }`
+
+### 📄 GET /notifications/user/{userId} — Thông Báo Của User
+
+**Response**: `{ "result": [ { "id": 1, "userId": 5, "title": "Thông báo bảo trì hệ thống", "message": "Hệ thống sẽ bảo trì vào ngày 25/01", "isRead": false, "createdAt": "2024-01-20", ... } ] }`  
+**Errors**: `404` User không tồn tại
+
+### 📄 GET /notifications/user/{userId}/unread — Thông Báo Chưa Đọc
+
+**Response**: `{ "result": [ {...} ] }`
+
+### 📄 GET /notifications/user/{userId}/unread/count — Đếm Thông Báo Chưa Đọc
+
+**Response**: `{ "result": 5 }`
+
+### 📄 GET /notifications/role/{role} — Thông Báo Theo Role
+
+**Response**: `{ "result": [...] }`
+
+### ➕ POST /notifications — Tạo Thông Báo
+
+```json
+{
+  "userId": 5,
+  "title": "Thông báo bảo trì hệ thống",
+  "message": "Hệ thống sẽ bảo trì vào ngày 25/01",
+  "isRead": false
+}
+```
+
+| Field | Type | Yêu cầu | Chi tiết |
+|-------|------|--------|---------|
+| userId | Integer | ✓ | ID user nhận thông báo |
+| title | String | ✓ | Tiêu đề thông báo |
+| message | String | ✓ | Nội dung thông báo |
+| isRead | Boolean | ✗ | Default = false |
+
+**Response**: `{ "result": {...} }`
+
+### ✏️ PUT /notifications/{id}/read — Đánh Dấu Đã Đọc
+
+**Response**: `{ "result": { "id": 1, "isRead": true, ... } }`
+
+### ✏️ PUT /notifications/user/{userId}/read-all — Đánh Dấu Tất Cả Đã Đọc
+
+**Response**: `{ "message": "Đánh dấu thành công" }`
+
+### ❌ DELETE /notifications/{id} — Xóa Thông Báo
+
+---
+
+## U. GetInTouch Routes
+
+| Endpoint | Method | Mô Tả |
+|----------|--------|-------|
+| `/getintouch` | GET | Lấy tất cả liên hệ |
+| `/getintouch/{id}` | GET | Lấy 1 liên hệ |
+| `/getintouch` | POST | Tạo liên hệ |
+| `/getintouch/{id}` | DELETE | Xóa liên hệ |
+
+### 📄 GET /getintouch — Danh Sách Tất Cả Liên Hệ
+
+**Response**: `{ "result": [ { "id": 1, "fullName": "Nguyễn Văn A", "email": "user@example.com", "phoneNumber": "0901234567", "message": "Xin hỏi thông tin về căn hộ", "createdAt": "2024-01-20", ... } ] }`
+
+### 📄 GET /getintouch/{id} — Chi Tiết Liên Hệ
+
+**Response**: `{ "result": { "id": 1, "fullName": "Nguyễn Văn A", "email": "user@example.com", "phoneNumber": "0901234567", "message": "...", ... } }`  
+**Errors**: `404` Liên hệ không tồn tại
+
+### ➕ POST /getintouch — Tạo Liên Hệ
+
+```json
+{
+  "fullName": "Nguyễn Văn A",
+  "email": "user@example.com",
+  "phoneNumber": "0901234567",
+  "message": "Xin hỏi thông tin về căn hộ"
+}
+```
+
+| Field | Type | Yêu cầu | Chi tiết |
+|-------|------|--------|---------|
+| fullName | String | ✓ | Họ tên người liên hệ |
+| email | String | ✓ | Email |
+| phoneNumber | String | ✓ | Số điện thoại |
+| message | String | ✓ | Nội dung tin nhắn |
+
+**Response**: `{ "result": {...} }`
+
+### ❌ DELETE /getintouch/{id} — Xóa Liên Hệ
+
+---
+
+## V. Cloudinary Routes
 
 | Endpoint | Method | Mô Tả |
 |----------|--------|-------|
@@ -863,7 +1336,7 @@
 
 ---
 
-## Q. Image Routes
+## W. Image Routes
 
 | Endpoint | Method | Mô Tả |
 |----------|--------|-------|
@@ -893,7 +1366,7 @@
 
 ---
 
-## R. News Routes
+## X. News Routes
 
 | Endpoint | Method | Mô Tả |
 |----------|--------|-------|
@@ -952,7 +1425,7 @@
 
 ---
 
-## S. Service Invoice Routes
+## Y. Service Invoice Routes
 
 | Endpoint | Method | Mô Tả |
 |----------|--------|-------|
@@ -1019,6 +1492,7 @@
 - **Email & Username**: Phải unique
 - **JWT Token**: 1 giờ, Algorithm HS512
 - **Claims**: `sub` (username), `iss` (sums.vn), `iat`, `exp`, `roleId`
+- **Additional Endpoints**: Search by username, change role
 
 ### Resident
 - Phải liên kết với Account
@@ -1030,6 +1504,7 @@
 - **Status**: 1 = Active, 0 = Inactive
 - **MonthlyRent**: Decimal(18,2)
 - **EndDate**: Optional (vô thời hạn nếu null)
+- **Multiple Endpoints**: Get by account, get by apartment
 
 ### Apartment Type
 - **Name**: Studio, 1BR, 2BR, Penthouse, etc.
@@ -1042,6 +1517,7 @@
 - **Status**: 0 = Trống, 1 = Đã cho thuê/bán (default)
 - **Direction**: Hướng: East, West, North, South, Southeast, Southwest, Northeast, Northwest
 - **FloorNumber**: Tầng có thể trùng (các phòng khác nhau trên cùng 1 tầng)
+- **Search**: Có thể tìm kiếm bằng số phòng và tầng
 
 ### Complaint & Reply
 - **Complaint**: User khiếu nại về vấn đề trong khu phức hợp
@@ -1055,6 +1531,7 @@
 - **FeePerUnit**: Giá dịch vụ theo đơn vị (tháng, phòng, lần, etc.)
 - **UnitType**: per_month, per_unit, per_service, per_apartment, per_day, etc.
 - **IsAvailable**: Tài nguyên có sẵn để sử dụng hay không
+- **MandatoryServices**: Dịch vụ bắt buộc phải thanh toán hàng tháng
 
 ### Staff
 - **Staff**: Nhân viên làm việc trong khu phức hợp
@@ -1089,6 +1566,37 @@
 - **Status**: 0=Pending, 1=Confirmed, 2=Cancelled
 - **Amount**: Tổng chi phí dịch vụ được tính khi booking
 - **Access Control**: Cư dân chỉ có thể xem booking của chính mình
+
+### Expense
+- **Tracking**: Ghi nhận chi phí cho căn hộ (sửa chữa, bảo dưỡng, etc.)
+- **Amount**: Số tiền chi phí (Decimal)
+- **Description**: Mô tả nội dung chi phí
+- **ExpenseDate**: Ngày chi phí phát sinh
+- **Apartment**: Chi phí ghi nhận cho căn hộ cụ thể
+
+### IoT Sync Log
+- **Tracking**: Ghi nhận kết quả đồng bộ dữ liệu từ thiết bị IoT
+- **DeviceType**: Loại thiết bị (Temperature Sensor, Motion Detector, etc.)
+- **Status**: Success, Failed, Pending
+- **SyncTime**: Thời gian đồng bộ
+- **Apartment**: Thiết bị IoT gắn với căn hộ nào
+
+### Appointment
+- **Booking**: Giúp khách hàng đặt lịch tham quan căn hộ
+- **Date & Time**: Ngày và giờ hẹn cụ thể
+- **Location**: Địa điểm tham quan căn hộ
+- **Description**: Chi tiết về lịch hẹn
+
+### Notification
+- **User Tracking**: Gửi thông báo cho các user cụ thể
+- **Role Tracking**: Có thể gửi thông báo theo role (Admin, Staff, Resident)
+- **ReadStatus**: Theo dõi trạng thái đã đọc/chưa đọc
+- **UnreadCount**: Đếm số thông báo chưa đọc của user
+
+### GetInTouch
+- **Contact Form**: Form liên hệ từ khách hàng trên website
+- **MessageStorage**: Lưu trữ các tin nhắn từ khách hàng
+- **NoAuth**: Không cần xác thực để gửi form liên hệ
 
 ### Image Upload (Cloudinary & Local)
 - **Cloudinary**: Upload ảnh lên Cloudinary cloud storage
@@ -1126,4 +1634,5 @@
   - 403 = Forbidden
   - 404 = Not Found
   - 500 = Internal Server Error
+- **New Features**: Các API mới được thêm vào bao gồm Expense Management, IoT Logging, Appointment Booking, Notification System, GetInTouch Contact Form, và Mandatory Services
 

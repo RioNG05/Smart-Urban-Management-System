@@ -4,8 +4,9 @@ import { useAuth } from '../components/sections/auth/AuthContext';
 import {
     FaBars, FaUserCircle, FaUser, FaShieldAlt, FaHistory,
     FaExclamationTriangle, FaWalking, FaPhoneAlt, FaNewspaper,
-    FaBuilding, FaClipboardList, FaSignOutAlt
+    FaBuilding, FaClipboardList, FaSignOutAlt, FaComments
 } from 'react-icons/fa';
+
 import StaffSecurityMainContent from './StaffSecurityMainContent';
 import '../styles/staff.css';
 
@@ -15,6 +16,24 @@ const StaffSecurity = () => {
     const [sidebarOpen, setSidebarOpen] = useState(true);
     const [showIdCard, setShowIdCard] = useState(false);
     const [activeTab, setActiveTab] = useState('visitors');
+
+    // --- LOGIC COMPLAINTS ---
+    const { user } = useAuth();
+    const [selectedComplaint, setSelectedComplaint] = useState(null);
+    const [replyNote, setReplyNote] = useState("");
+    const [complaints, setComplaints] = useState([
+        { id: 1, name: "Nguyen Hoai Nam", room: "D-102", note: "Found a suspicious package in the lobby", time: "07:15 - 20/03/2026", repliedBy: null },
+        { id: 2, name: "Le Thi Thu", room: "A-505", note: "Noise complaint: neighbor's dog barking all night", time: "02:30 - 21/03/2026", repliedBy: "Staff_Jack" },
+        { id: 3, name: "Tran Van Long", room: "B-201", note: "Suspected unauthorized person in the parking basement", time: "23:45 - 22/03/2026", repliedBy: "Staff_Jack" },
+    ]);
+
+    const handleAction = (id, type, note) => {
+        setComplaints(complaints.map(c => 
+            c.id === id ? { ...c, repliedBy: user?.username || "Staff Security", reply: note } : c
+        ));
+        alert("Security reply logged!");
+    };
+
 
     return (
         <div className="staff-wrapper">
@@ -27,18 +46,22 @@ const StaffSecurity = () => {
 
                 <nav className="staff-sidebar-nav">
                     <div className={`staff-nav-item ${activeTab === 'visitors' ? 'active' : ''}`} onClick={() => setActiveTab('visitors')} style={{ justifyContent: sidebarOpen ? 'flex-start' : 'center', padding: sidebarOpen ? '12px 15px' : '15px 0' }}>
-                        <FaUserCircle style={{ marginRight: sidebarOpen ? '15px' : '0' }}/> {sidebarOpen && "Visitor Management"}
+                        <FaUserCircle style={{ marginRight: sidebarOpen ? '15px' : '0' }} /> {sidebarOpen && "Visitor Management"}
+                    </div>
+                    <div className={`staff-nav-item ${activeTab === 'complaints' ? 'active' : ''}`} onClick={() => setActiveTab('complaints')} style={{ justifyContent: sidebarOpen ? 'flex-start' : 'center', padding: sidebarOpen ? '12px 15px' : '15px 0' }}>
+                        <FaComments style={{ marginRight: sidebarOpen ? '15px' : '0' }} /> {sidebarOpen && "Complaint & Reply"}
                     </div>
                     <div className={`staff-nav-item ${activeTab === 'emergency' ? 'active' : ''}`} onClick={() => setActiveTab('emergency')} style={{ justifyContent: sidebarOpen ? 'flex-start' : 'center', padding: sidebarOpen ? '12px 15px' : '15px 0' }}>
-                        <FaPhoneAlt style={{ marginRight: sidebarOpen ? '15px' : '0' }}/> {sidebarOpen && "Emergency & Alerts"}
+                        <FaPhoneAlt style={{ marginRight: sidebarOpen ? '15px' : '0' }} /> {sidebarOpen && "Emergency & Alerts"}
                     </div>
                     <div className={`staff-nav-item ${activeTab === 'incidents' ? 'active' : ''}`} onClick={() => setActiveTab('incidents')} style={{ justifyContent: sidebarOpen ? 'flex-start' : 'center', padding: sidebarOpen ? '12px 15px' : '15px 0' }}>
-                        <FaExclamationTriangle style={{ marginRight: sidebarOpen ? '15px' : '0' }}/> {sidebarOpen && "Incident Reports"}
+                        <FaExclamationTriangle style={{ marginRight: sidebarOpen ? '15px' : '0' }} /> {sidebarOpen && "Incident Reports"}
                     </div>
                     <div className={`staff-nav-item ${activeTab === 'patrols' ? 'active' : ''}`} onClick={() => setActiveTab('patrols')} style={{ justifyContent: sidebarOpen ? 'flex-start' : 'center', padding: sidebarOpen ? '12px 15px' : '15px 0' }}>
-                        <FaWalking style={{ marginRight: sidebarOpen ? '15px' : '0' }}/> {sidebarOpen && "Patrol Schedule"}
+                        <FaWalking style={{ marginRight: sidebarOpen ? '15px' : '0' }} /> {sidebarOpen && "Patrol Schedule"}
                     </div>
                 </nav>
+
             </aside>
 
             <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
@@ -83,7 +106,16 @@ const StaffSecurity = () => {
                     </div>
                 </header>
 
-                <StaffSecurityMainContent activeTab={activeTab} />
+                <StaffSecurityMainContent
+                    activeTab={activeTab}
+                    selectedComplaint={selectedComplaint}
+                    complaints={complaints}
+                    setSelectedComplaint={setSelectedComplaint}
+                    handleAction={handleAction}
+                    replyNote={replyNote}
+                    setReplyNote={setReplyNote}
+                />
+
             </div>
         </div>
     );

@@ -1,10 +1,8 @@
-const payments = [
-  { id: 1, date: "Mar 5", amount: "700,000 VND", method: "Bank Transfer" },
-  { id: 2, date: "Feb 28", amount: "5,000,000 VND", method: "Credit Card" },
-  { id: 3, date: "Feb 10", amount: "150,000 VND", method: "Momo" },
-];
-
-export default function PaymentHistory() {
+export default function PaymentHistory({
+  payments,
+  formatCurrency,
+  formatDate,
+}) {
   return (
     <div className="payment-history">
       <h3 className="section-title">Payment History</h3>
@@ -19,15 +17,23 @@ export default function PaymentHistory() {
         </thead>
 
         <tbody>
-          {payments.map((p) => (
-            <tr key={p.id}>
-              <td>{p.date}</td>
+          {payments.length > 0 ? (
+            payments.map((payment) => (
+              <tr key={payment.id}>
+                <td>{formatDate(payment.date)}</td>
 
-              <td>{p.amount}</td>
+                <td>{formatCurrency(payment.amount)}</td>
 
-              <td>{p.method}</td>
+                <td>{payment.method}</td>
+              </tr>
+            ))
+          ) : (
+            <tr>
+              <td colSpan="3" className="billing-empty">
+                No payment history yet.
+              </td>
             </tr>
-          ))}
+          )}
         </tbody>
       </table>
     </div>

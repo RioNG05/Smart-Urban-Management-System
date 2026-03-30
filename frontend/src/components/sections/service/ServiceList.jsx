@@ -4,7 +4,7 @@ import { useAuth } from "../auth/AuthContext";
 import { getServices } from "../../../services/serviceService";
 
 export default function ServiceList() {
-  const { user } = useAuth();
+  const { user, role } = useAuth();
   const navigate = useNavigate();
   const [services, setServices] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -73,13 +73,13 @@ export default function ServiceList() {
         )}
 
         <div className="text-center mt-5">
-          {user && user.role === "resident" ? (
+          {user && role === "RESIDENT" ? (
             <button
               className="btn btn-primary btn-lg"
-              onClick={() => navigate("/dashboard")}
+              onClick={() => navigate("/booking")}
               style={{ backgroundColor: "#c89b3c", border: "none" }}
             >
-              Go to Dashboard To Book
+              Book This Service
             </button>
           ) : (
             <div className="service-warning-alert">

@@ -3,8 +3,10 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../components/sections/auth/AuthContext';
 import {
     FaBars, FaUserCircle, FaUser, FaClipboardList,
-    FaCreditCard, FaNewspaper, FaConciergeBell, FaSignOutAlt
+    FaCreditCard, FaNewspaper, FaConciergeBell, FaSignOutAlt,
+    FaComments
 } from 'react-icons/fa';
+
 import StaffServiceMainContent from './StaffServiceMainContent';
 import '../styles/staff.css';
 
@@ -14,6 +16,24 @@ const StaffService = () => {
     const [sidebarOpen, setSidebarOpen] = useState(true);
     const [showIdCard, setShowIdCard] = useState(false);
     const [activeTab, setActiveTab] = useState('bookings');
+
+    // --- LOGIC COMPLAINTS ---
+    const { user } = useAuth();
+    const [selectedComplaint, setSelectedComplaint] = useState(null);
+    const [replyNote, setReplyNote] = useState("");
+    const [complaints, setComplaints] = useState([
+        { id: 1, name: "Le Van Luong", room: "A-201", note: "Cleaning service was late by 2 hours", time: "08:30 - 20/03/2026", repliedBy: "Staff_Mike" },
+        { id: 2, name: "Hoang Thu Thao", room: "C-1105", note: "Request to change yoga class time", time: "10:15 - 21/03/2026", repliedBy: null },
+        { id: 3, name: "Do Manh Duc", room: "B-404", note: "Spa room was a bit cold during session", time: "14:50 - 22/03/2026", repliedBy: "Staff_Sarah" },
+    ]);
+
+    const handleAction = (id, type, note) => {
+        setComplaints(complaints.map(c => 
+            c.id === id ? { ...c, repliedBy: user?.username || "Staff Service", reply: note } : c
+        ));
+        alert("Reply saved!");
+    };
+
 
     return (
         <div className="staff-wrapper">
@@ -31,7 +51,11 @@ const StaffService = () => {
                     <div className={`staff-nav-item ${activeTab === 'fees' ? 'active' : ''}`} onClick={() => setActiveTab('fees')} style={{ justifyContent: sidebarOpen ? 'flex-start' : 'center', padding: sidebarOpen ? '12px 15px' : '15px 0' }}>
                         <FaCreditCard style={{ marginRight: sidebarOpen ? '15px' : '0' }} /> {sidebarOpen && "Service Fee Stats"}
                     </div>
+                    <div className={`staff-nav-item ${activeTab === 'complaints' ? 'active' : ''}`} onClick={() => setActiveTab('complaints')} style={{ justifyContent: sidebarOpen ? 'flex-start' : 'center', padding: sidebarOpen ? '12px 15px' : '15px 0' }}>
+                        <FaComments style={{ marginRight: sidebarOpen ? '15px' : '0' }} /> {sidebarOpen && "Complaint & Reply"}
+                    </div>
                 </nav>
+
             </aside>
 
             <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
@@ -76,7 +100,16 @@ const StaffService = () => {
                     </div>
                 </header>
 
-                <StaffServiceMainContent activeTab={activeTab} />
+                <StaffServiceMainContent
+                    activeTab={activeTab}
+                    selectedComplaint={selectedComplaint}
+                    complaints={complaints}
+                    setSelectedComplaint={setSelectedComplaint}
+                    handleAction={handleAction}
+                    replyNote={replyNote}
+                    setReplyNote={setReplyNote}
+                />
+
             </div>
         </div>
     );

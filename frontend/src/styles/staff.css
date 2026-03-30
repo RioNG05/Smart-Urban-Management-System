@@ -966,49 +966,56 @@
 .building-grid {
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 14px;
 }
 
 .floor-row {
-    display: flex;
+    display: grid;
+    grid-template-columns: 110px minmax(0, 1fr);
     align-items: stretch;
+    gap: 14px;
     background: #f8fafc;
-    border-radius: 8px;
-    padding: 10px;
+    border-radius: 14px;
+    padding: 14px;
     border: 1px solid #e2e8f0;
 }
 
 .floor-label {
-    min-width: 80px;
     display: flex;
     align-items: center;
     justify-content: center;
     font-weight: 800;
     color: #ffffff;
     background: #0f172a;
-    border-radius: 6px;
-    margin-right: 15px;
+    border-radius: 10px;
     font-size: 14px;
+    min-height: 70px;
+    text-align: center;
+    padding: 10px;
 }
 
 .apartment-grid {
     display: grid;
-    grid-template-columns: repeat(7, 1fr);
-    gap: 10px;
-    flex: 1;
+    grid-template-columns: repeat(6, minmax(88px, 1fr));
+    gap: 12px;
+    width: 100%;
 }
 
 .apartment-box {
     background: white;
     border: 2px solid #e2e8f0;
-    border-radius: 6px;
-    padding: 15px 5px;
+    border-radius: 10px;
+    min-height: 70px;
+    padding: 12px 8px;
     text-align: center;
     font-weight: 700;
     color: #1e293b;
     cursor: pointer;
     transition: all 0.3s ease;
     font-size: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .apartment-box:hover {
@@ -1017,6 +1024,30 @@
     border-color: #c89b3c;
     box-shadow: 0 4px 12px rgba(200, 155, 60, 0.3);
     transform: translateY(-3px);
+}
+
+@media (max-width: 1100px) {
+    .floor-row {
+        grid-template-columns: 100px minmax(0, 1fr);
+    }
+
+    .apartment-grid {
+        grid-template-columns: repeat(6, minmax(78px, 1fr));
+    }
+}
+
+@media (max-width: 720px) {
+    .floor-row {
+        grid-template-columns: 1fr;
+    }
+
+    .floor-label {
+        min-height: 52px;
+    }
+
+    .apartment-grid {
+        grid-template-columns: repeat(3, minmax(78px, 1fr));
+    }
 }
 
 .btn-back {
@@ -1202,3 +1233,78 @@
     transform: translateY(-2px);
     box-shadow: 0 4px 8px rgba(220, 38, 38, 0.1);
 }
+
+/* COMPLAINTS SECTION STYLES */
+.staff-complaint-section {
+    animation: slideUp 0.4s ease-out;
+}
+
+.btn-reply-main {
+    background: #fdf8eb;
+    color: #c89b3c;
+    border: 1.5px solid #c89b3c;
+    padding: 6px 14px;
+    border-radius: 8px;
+    font-weight: 700;
+    font-size: 13px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.2s ease;
+}
+
+.btn-reply-main:hover {
+    background: #c89b3c;
+    color: white;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(200, 155, 60, 0.2);
+}
+
+.btn-approve-mini {
+    background: #dcfce7;
+    color: #10b981;
+    border: 1.5px solid #10b981;
+    width: 34px;
+    height: 34px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.btn-approve-mini:hover {
+    background: #10b981;
+    color: white;
+}
+
+.btn-reject-mini {
+    background: #fee2e2;
+    color: #ef4444;
+    border: 1.5px solid #ef4444;
+    width: 34px;
+    height: 34px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.btn-reject-mini:hover {
+    background: #ef4444;
+    color: white;
+}
+
+.staff-reply-detail-page {
+    animation: fadeIn 0.3s ease-in;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
