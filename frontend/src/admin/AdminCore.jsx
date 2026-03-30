@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Outlet, NavLink, useOutletContext, useNavigate } from 'react-router-dom';
 import { useAuth } from '../components/sections/auth/AuthContext';
 import {
@@ -26,6 +26,9 @@ import {
 import { AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, Legend } from 'recharts';
 import "../styles/admin.css";
 import "../styles/staff.css";
+import { getApartments } from '../services/apartmentService';
+import { getAccounts, getResidents } from '../services/adminResidentService';
+import { getAllBookings, getAllComplaints, getAllContracts, getAllServiceInvoices, getAllUtilitiesInvoices } from '../services/adminService';
 
 const AdminSidebar = ({ isOpen, setIsOpen, upcomingCount }) => {
     const [openMenus, setOpenMenus] = useState({
@@ -175,25 +178,259 @@ export const AdminLayout = () => {
 };
 
 export const AdminDashboard = () => {
-    const apartmentRevenueData = [
-        { month: 'Jan', rent: 45000, utilities: 12000, management: 5000 },
-        { month: 'Feb', rent: 46000, utilities: 11500, management: 5000 },
-        { month: 'Mar', rent: 45000, utilities: 13000, management: 5000 },
-        { month: 'Apr', rent: 47000, utilities: 14000, management: 5200 },
-        { month: 'May', rent: 48000, utilities: 15500, management: 5200 },
-        { month: 'Jun', rent: 50000, utilities: 18000, management: 5500 },
-        { month: 'Jul', rent: 52000, utilities: 19500, management: 5500 },
-    ];
+    const [dashboardState, setDashboardState] = useState({
+        apartments: [],
+        accounts: [],
+        residents: [],
+        bookings: [],
+        complaints: [],
+        contracts: [],
+        utilityInvoices: [],
+        serviceInvoices: [],
+    });
+    const [isLoading, setIsLoading] = useState(true);
+    const [error, setError] = useState("");
 
-    const serviceRevenueData = [
-        { month: 'Jan', gym: 3000, bbq: 1200, sauna: 1500, hall: 800 },
-        { month: 'Feb', gym: 3200, bbq: 1500, sauna: 1400, hall: 1000 },
-        { month: 'Mar', gym: 3100, bbq: 1800, sauna: 1600, hall: 500 },
-        { month: 'Apr', gym: 3500, bbq: 2000, sauna: 1800, hall: 1200 },
-        { month: 'May', gym: 3600, bbq: 2200, sauna: 2000, hall: 1500 },
-        { month: 'Jun', gym: 3800, bbq: 2500, sauna: 2100, hall: 2000 },
-        { month: 'Jul', gym: 4000, bbq: 2800, sauna: 2300, hall: 1800 },
-    ];
+    useEffect(() => {
+        let active = true;
+
+        const loadDashboard = async () => {
+            try {
+                setIsLoading(true);
+                setError("");
+
+                const [
+                    apartments,
+                    accounts,
+                    residents,
+                    bookings,
+                    complaints,
+                    contracts,
+                    utilityInvoices,
+                    serviceInvoices,
+                ] = await Promise.all([
+                    getApartments(),
+                    getAccounts(),
+                    getResidents(),
+                    getAllBookings(),
+                    getAllComplaints(),
+                    getAllContracts(),
+                    getAllUtilitiesInvoices(),
+                    getAllServiceInvoices(),
+                ]);
+
+                if (!active) return;
+
+                setDashboardState({
+                    apartments,
+                    accounts,
+                    residents,
+                    bookings,
+                    complaints,
+                    contracts,
+                    utilityInvoices,
+                    serviceInvoices,
+                });
+            } catch (loadError) {
+                if (!active) return;
+                setError(
+                    loadError?.response?.data?.message ||
+                    "Could not load admin dashboard data from backend."
+                );
+            } finally {
+                if (active) {
+                    setIsLoading(false);
+                }
+            }
+        };
+
+        loadDashboard();
+
+        return () => {
+            active = false;
+        };
+    }, []);
+
+    const currentDate = new Date();
+    const monthFormatter = useMemo(() => new Intl.DateTimeFormat("en-US", { month: "short" }), []);
+    const currencyFormatter = useMemo(
+        () =>
+            new Intl.NumberFormat("en-US", {
+                style: "currency",
+                currency: "VND",
+                notation: "compact",
+                maximumFractionDigits: 1,
+            }),
+        []
+    );
+
+    const monthBuckets = useMemo(() => {
+        return Array.from({ length: 6 }, (_, index) => {
+            const date = new Date(currentDate.getFullYear(), currentDate.getMonth() - (5 - index), 1);
+            const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`;
+            return {
+                key,
+                label: monthFormatter.format(date),
+                date,
+            };
+        });
+    }, [currentDate, monthFormatter]);
+
+    const monthIndexByKey = useMemo(
+        () => new Map(monthBuckets.map((bucket, index) => [bucket.key, index])),
+        [monthBuckets]
+    );
+
+    const statCards = useMemo(() => {
+        const residentAccounts = dashboardState.accounts.filter(
+            (account) => account?.role?.roleName?.toUpperCase() === "RESIDENT"
+        );
+        const activeResidents = residentAccounts.filter((account) => account?.isActive !== false).length;
+        const openRequests = dashboardState.bookings.filter((booking) => Number(booking?.status) === 0).length
+            + dashboardState.complaints.filter((complaint) => {
+                const status = String(complaint?.status ?? "").toLowerCase();
+                return status && status !== "resolved" && status !== "closed";
+            }).length;
+
+        const currentMonthRevenue = [
+            ...dashboardState.utilityInvoices,
+            ...dashboardState.serviceInvoices,
+        ].reduce((sum, invoice) => {
+            const sourceDate = invoice?.paymentDate || invoice?.createdAt;
+            if (!sourceDate) return sum;
+
+            const parsed = new Date(sourceDate);
+            if (Number.isNaN(parsed.getTime())) return sum;
+            if (
+                parsed.getFullYear() !== currentDate.getFullYear() ||
+                parsed.getMonth() !== currentDate.getMonth()
+            ) {
+                return sum;
+            }
+
+            return sum + Number(invoice?.amount ?? invoice?.totalAmount ?? 0);
+        }, 0);
+
+        return [
+            { title: 'Total Apartments', value: dashboardState.apartments.length.toLocaleString(), icon: <FaBuilding />, color: '#3b82f6', bg: '#eff6ff' },
+            { title: 'Active Residents', value: activeResidents.toLocaleString(), icon: <FaUsers />, color: '#10b981', bg: '#dcfce7' },
+            { title: 'Open Service Requests', value: openRequests.toLocaleString(), icon: <FaWrench />, color: '#f59e0b', bg: '#fef3c7' },
+            { title: 'Monthly Revenue', value: currencyFormatter.format(currentMonthRevenue || 0), icon: <FaMoneyBillWave />, color: '#c89b3c', bg: '#fefce8' }
+        ];
+    }, [currencyFormatter, currentDate, dashboardState]);
+
+    const apartmentRevenueData = useMemo(() => {
+        const rows = monthBuckets.map((bucket) => ({
+            month: bucket.label,
+            rent: 0,
+            utilities: 0,
+            management: 0,
+        }));
+
+        dashboardState.contracts.forEach((contract) => {
+            const monthlyRent = Number(contract?.monthlyRent ?? 0);
+            if (!monthlyRent) return;
+
+            monthBuckets.forEach((bucket, index) => {
+                const monthStart = new Date(bucket.date.getFullYear(), bucket.date.getMonth(), 1);
+                const monthEnd = new Date(bucket.date.getFullYear(), bucket.date.getMonth() + 1, 0);
+                const startDate = contract?.startDate ? new Date(contract.startDate) : null;
+                const endDate = contract?.endDate ? new Date(contract.endDate) : null;
+
+                const started = !startDate || !Number.isNaN(startDate.getTime()) && startDate <= monthEnd;
+                const notEnded = !endDate || !Number.isNaN(endDate.getTime()) && endDate >= monthStart;
+
+                if (started && notEnded) {
+                    rows[index].rent += monthlyRent;
+                }
+            });
+        });
+
+        dashboardState.utilityInvoices.forEach((invoice) => {
+            const key = `${invoice?.billingYear}-${String(invoice?.billingMonth).padStart(2, "0")}`;
+            const index = monthIndexByKey.get(key);
+            if (index === undefined) return;
+
+            rows[index].utilities += Number(invoice?.totalAmount ?? invoice?.totalElectricUsed ?? 0) + Number(invoice?.totalWaterUsed ?? 0);
+        });
+
+        dashboardState.serviceInvoices.forEach((invoice) => {
+            const sourceDate = invoice?.paymentDate || invoice?.createdAt;
+            if (!sourceDate) return;
+            const parsed = new Date(sourceDate);
+            if (Number.isNaN(parsed.getTime())) return;
+
+            const key = `${parsed.getFullYear()}-${String(parsed.getMonth() + 1).padStart(2, "0")}`;
+            const index = monthIndexByKey.get(key);
+            if (index === undefined) return;
+
+            rows[index].management += Number(invoice?.amount ?? 0);
+        });
+
+        return rows;
+    }, [dashboardState, monthBuckets, monthIndexByKey]);
+
+    const serviceChartMeta = useMemo(() => {
+        const serviceTotals = new Map();
+
+        dashboardState.serviceInvoices.forEach((invoice) => {
+            const serviceName =
+                invoice?.bookingService?.serviceResource?.service?.serviceName ||
+                invoice?.bookingService?.serviceResource?.serviceName ||
+                invoice?.bookingService?.serviceName ||
+                "Other Services";
+
+            serviceTotals.set(
+                serviceName,
+                (serviceTotals.get(serviceName) ?? 0) + Number(invoice?.amount ?? 0)
+            );
+        });
+
+        return Array.from(serviceTotals.entries())
+            .sort((a, b) => b[1] - a[1])
+            .slice(0, 4)
+            .map(([name], index) => ({
+                key: `service_${index}`,
+                name,
+                color: ['#3b82f6', '#10b981', '#c89b3c', '#ef4444'][index],
+            }));
+    }, [dashboardState.serviceInvoices]);
+
+    const serviceRevenueData = useMemo(() => {
+        const rows = monthBuckets.map((bucket) => {
+            const baseRow = { month: bucket.label };
+            serviceChartMeta.forEach((item) => {
+                baseRow[item.key] = 0;
+            });
+            return baseRow;
+        });
+
+        const nameToKeyMap = new Map(serviceChartMeta.map((item) => [item.name, item.key]));
+
+        dashboardState.serviceInvoices.forEach((invoice) => {
+            const sourceDate = invoice?.paymentDate || invoice?.createdAt;
+            if (!sourceDate) return;
+            const parsed = new Date(sourceDate);
+            if (Number.isNaN(parsed.getTime())) return;
+
+            const key = `${parsed.getFullYear()}-${String(parsed.getMonth() + 1).padStart(2, "0")}`;
+            const index = monthIndexByKey.get(key);
+            if (index === undefined) return;
+
+            const serviceName =
+                invoice?.bookingService?.serviceResource?.service?.serviceName ||
+                invoice?.bookingService?.serviceResource?.serviceName ||
+                invoice?.bookingService?.serviceName ||
+                "Other Services";
+            const dataKey = nameToKeyMap.get(serviceName);
+
+            if (dataKey) {
+                rows[index][dataKey] += Number(invoice?.amount ?? 0);
+            }
+        });
+
+        return rows;
+    }, [dashboardState.serviceInvoices, monthBuckets, monthIndexByKey, serviceChartMeta]);
 
     return (
         <div className="dashboard-content staff-form-container" style={{ paddingBottom: '40px' }}>
@@ -202,21 +439,22 @@ export const AdminDashboard = () => {
                 <p style={{ color: '#c89b3c', fontWeight: 'bold' }}>Real-time building management metrics</p>
             </header>
 
+            {error ? (
+                <div className="admin-feedback error" style={{ marginBottom: '20px' }}>
+                    {error}
+                </div>
+            ) : null}
+
             {/* Quick Stats Cards */}
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '20px', marginBottom: '30px' }}>
-                {[
-                    { title: 'Total Apartments', value: '1,000', icon: <FaBuilding />, color: '#3b82f6', bg: '#eff6ff' },
-                    { title: 'Active Residents', value: '3,240', icon: <FaUsers />, color: '#10b981', bg: '#dcfce7' },
-                    { title: 'Open Service Requests', value: '52', icon: <FaWrench />, color: '#f59e0b', bg: '#fef3c7' },
-                    { title: 'Monthly Revenue', value: '$125k', icon: <FaMoneyBillWave />, color: '#c89b3c', bg: '#fefce8' }
-                ].map((stat, i) => (
+                {statCards.map((stat, i) => (
                     <div key={i} style={{ padding: '20px', background: 'white', borderRadius: '16px', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05)', display: 'flex', alignItems: 'center', gap: '20px', border: '1px solid #f1f5f9', transition: 'transform 0.2s ease', cursor: 'default' }} onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-2px)'} onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}>
                         <div style={{ width: '60px', height: '60px', borderRadius: '12px', background: stat.bg, color: stat.color, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '24px' }}>
                             {stat.icon}
                         </div>
                         <div>
                             <p style={{ margin: 0, color: '#64748b', fontSize: '14px', fontWeight: '600' }}>{stat.title}</p>
-                            <h3 style={{ margin: '5px 0 0', color: '#1e293b', fontSize: '26px', fontWeight: '800' }}>{stat.value}</h3>
+                            <h3 style={{ margin: '5px 0 0', color: '#1e293b', fontSize: '26px', fontWeight: '800' }}>{isLoading ? '...' : stat.value}</h3>
                         </div>
                     </div>
                 ))}
@@ -246,12 +484,12 @@ export const AdminDashboard = () => {
                                 </defs>
                                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
                                 <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#64748b' }} dy={10} />
-                                <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#64748b' }} tickFormatter={(val) => `$${val / 1000}k`} />
+                                <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#64748b' }} tickFormatter={(val) => currencyFormatter.format(val)} />
                                 <RechartsTooltip contentStyle={{ borderRadius: '8px', border: '1px solid #f1f5f9', boxShadow: '0 4px 6px rgba(0,0,0,0.05)', padding: '10px' }} />
                                 <Legend iconType="circle" wrapperStyle={{ fontSize: '13px', paddingTop: '10px' }} />
-                                <Area type="monotone" dataKey="rent" name="Rent/Sale" stroke="#10b981" strokeWidth={3} fillOpacity={1} fill="url(#colorRent)" stackId="1" />
+                                <Area type="monotone" dataKey="rent" name="Contract Rent" stroke="#10b981" strokeWidth={3} fillOpacity={1} fill="url(#colorRent)" stackId="1" />
                                 <Area type="monotone" dataKey="utilities" name="Utilities" stroke="#3b82f6" strokeWidth={3} fillOpacity={1} fill="url(#colorUtil)" stackId="1" />
-                                <Area type="monotone" dataKey="management" name="Management" stroke="#f59e0b" strokeWidth={3} fillOpacity={1} fill="url(#colorMgmt)" stackId="1" />
+                                <Area type="monotone" dataKey="management" name="Service Invoices" stroke="#f59e0b" strokeWidth={3} fillOpacity={1} fill="url(#colorMgmt)" stackId="1" />
                             </AreaChart>
                         </ResponsiveContainer>
                     </div>
@@ -265,13 +503,20 @@ export const AdminDashboard = () => {
                             <BarChart data={serviceRevenueData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
                                 <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#64748b' }} dy={10} />
-                                <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#64748b' }} tickFormatter={(val) => `$${val / 1000}k`} />
+                                <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#64748b' }} tickFormatter={(val) => currencyFormatter.format(val)} />
                                 <RechartsTooltip cursor={{ fill: '#f8fafc' }} contentStyle={{ borderRadius: '8px', border: '1px solid #f1f5f9', boxShadow: '0 4px 6px rgba(0,0,0,0.05)', padding: '10px' }} />
                                 <Legend iconType="circle" wrapperStyle={{ fontSize: '13px', paddingTop: '10px' }} />
-                                <Bar dataKey="gym" name="Gym & Yoga" fill="#3b82f6" stackId="a" barSize={35} />
-                                <Bar dataKey="bbq" name="BBQ" fill="#10b981" stackId="a" barSize={35} />
-                                <Bar dataKey="sauna" name="Sauna & Spa" fill="#c89b3c" stackId="a" barSize={35} />
-                                <Bar dataKey="hall" name="Community Hall" fill="#ef4444" stackId="a" barSize={35} radius={[4, 4, 0, 0]} />
+                                {serviceChartMeta.map((item, index) => (
+                                    <Bar
+                                        key={item.key}
+                                        dataKey={item.key}
+                                        name={item.name}
+                                        fill={item.color}
+                                        stackId="a"
+                                        barSize={35}
+                                        radius={index === serviceChartMeta.length - 1 ? [4, 4, 0, 0] : [0, 0, 0, 0]}
+                                    />
+                                ))}
                             </BarChart>
                         </ResponsiveContainer>
                     </div>
