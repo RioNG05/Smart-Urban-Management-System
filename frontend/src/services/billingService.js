@@ -48,3 +48,10 @@ export const getServiceInvoices = async () => {
     throw error;
   }
 };
+
+export const getBookingsByAccountId = async (accountId) => {
+  if (!accountId) return [];
+
+  const res = await api.get(`/bookings/account/${accountId}`);
+  return toArray(res.data);
+};

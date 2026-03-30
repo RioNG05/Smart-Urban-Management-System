@@ -8,24 +8,28 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "IoT_Sync_Logs")
-@Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class IoTSyncLog {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "Id")
     private Integer id;
 
-    // FK Apartment
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "ApartmentId", nullable = false)
     private Apartment apartment;
 
-    @Column(name = "ElectricityEndNum", precision = 10, scale = 2, nullable = false)
+    @Column(name = "ElectricityEndNum", nullable = false, precision = 10, scale = 2)
     private BigDecimal electricityEndNum;
 
-    @Column(name = "WaterEndNum", precision = 10, scale = 2, nullable = false)
+    @Column(name = "WaterEndNum", nullable = false, precision = 10, scale = 2)
     private BigDecimal waterEndNum;
 
-    @Column(name = "LogDate")
+    @Column(name = "LogDate", insertable = false, updatable = false)
     private LocalDateTime logDate;
 }

@@ -1,14 +1,24 @@
 package com.example.backend.DTO.Request.iot;
 
-import lombok.Data;
+import jakarta.validation.constraints.NotNull;
+import lombok.*;
+import lombok.experimental.FieldDefaults;
 
 import java.math.BigDecimal;
 
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class IoTSyncLogCreateRequest {
 
-    private Integer apartmentId;
+    @NotNull(message = "Không được để trống apartmentId")
+    Integer apartmentId;
 
-    private BigDecimal electricityEndNum;
-    private BigDecimal waterEndNum;
+    @NotNull(message = "Không được để trống điện")
+    BigDecimal electricityEndNum;
+
+    @NotNull(message = "Không được để trống nước")
+    BigDecimal waterEndNum;
 }

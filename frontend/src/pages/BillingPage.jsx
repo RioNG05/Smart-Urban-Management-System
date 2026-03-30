@@ -15,6 +15,7 @@ import ComplaintList from "../components/sections/complaint/ComplaintList";
 
 import {
   getBillingApartmentsForCurrentUser,
+  getBookingsByAccountId,
   getServiceInvoices,
   getUtilitiesInvoicesByApartmentId,
 } from "../services/billingService";
@@ -46,6 +47,12 @@ const getInvoiceStatus = (status) =>
   Number(status) === 1
     ? { key: "paid", label: "Paid" }
     : { key: "unpaid", label: "Unpaid" };
+
+const getBookingLabel = (booking) =>
+  booking?.serviceResource?.service?.serviceName ||
+  booking?.serviceResource?.serviceName ||
+  booking?.serviceName ||
+  null;
 
 export default function BillingPage() {
   const [accountId, setAccountId] = useState(null);
@@ -122,12 +129,19 @@ export default function BillingPage() {
       setLoading(true);
 
       try {
-        const [utilityInvoices, serviceInvoiceResponse] = await Promise.all([
+        const [utilityInvoices, serviceInvoiceResponse, bookings] = await Promise.all([
           getUtilitiesInvoicesByApartmentId(apartment),
           getServiceInvoices(),
+          getBookingsByAccountId(accountId),
         ]);
 
         if (!active) return;
+
+        const bookingMap = new Map(
+          bookings
+            .filter((booking) => booking?.id)
+            .map((booking) => [booking.id, booking])
+        );
 
         const utilityBills = utilityInvoices.map((invoice) => {
           const status = getInvoiceStatus(invoice.status);
@@ -152,11 +166,20 @@ export default function BillingPage() {
         });
 
         const serviceBills = serviceInvoiceResponse.items
-          .filter((invoice) => invoice?.bookingService?.account?.id === accountId)
+          .filter((invoice) => {
+            const bookingId = invoice?.bookingService?.id;
+            return (
+              bookingMap.has(bookingId) ||
+              invoice?.bookingService?.account?.id === accountId
+            );
+          })
           .map((invoice) => {
             const status = getInvoiceStatus(invoice.status);
+            const booking = bookingMap.get(invoice?.bookingService?.id);
             const paymentDate = invoice.paymentDate
               ? new Date(invoice.paymentDate)
+              : booking?.bookFrom
+              ? new Date(booking.bookFrom)
               : invoice.createdAt
               ? new Date(invoice.createdAt)
               : null;
@@ -164,7 +187,7 @@ export default function BillingPage() {
             return {
               id: `service-${invoice.id}`,
               source: "service",
-              name: `Service Invoice #${invoice.id}`,
+              name: getBookingLabel(booking) || `Service Invoice #${invoice.id}`,
               monthKey: paymentDate
                 ? getMonthKey(
                     paymentDate.getFullYear(),
@@ -178,7 +201,39 @@ export default function BillingPage() {
             };
           });
 
-        const allBills = [...utilityBills, ...serviceBills].sort((a, b) => {
+        const fallbackServiceBills =
+          serviceInvoiceResponse.restricted || serviceBills.length === 0
+            ? bookings.map((booking) => {
+                const status = getInvoiceStatus(booking.status);
+                const bookingDate = booking?.bookFrom
+                  ? new Date(booking.bookFrom)
+                  : booking?.bookAt
+                  ? new Date(booking.bookAt)
+                  : null;
+
+                return {
+                  id: `service-booking-${booking.id}`,
+                  source: "service",
+                  name: getBookingLabel(booking) || `Service Booking #${booking.id}`,
+                  monthKey: bookingDate
+                    ? getMonthKey(
+                        bookingDate.getFullYear(),
+                        bookingDate.getMonth() + 1
+                      )
+                    : "unknown",
+                  dueDate: bookingDate,
+                  amount: Number(booking.totalAmount ?? 0),
+                  statusKey: status.key,
+                  statusLabel: status.label,
+                };
+              })
+            : [];
+
+        const allBills = [
+          ...utilityBills,
+          ...serviceBills,
+          ...fallbackServiceBills,
+        ].sort((a, b) => {
           const timeA = a.dueDate ? new Date(a.dueDate).getTime() : 0;
           const timeB = b.dueDate ? new Date(b.dueDate).getTime() : 0;
           return timeB - timeA;
@@ -186,7 +241,7 @@ export default function BillingPage() {
 
         setServiceInvoiceWarning(
           serviceInvoiceResponse.restricted
-            ? "Service invoices are hidden because this account does not have permission to read them."
+            ? "Service invoices are hidden because this account does not have permission to read them. Billing is temporarily using your service bookings as fallback data."
             : ""
         );
         setBills(allBills);

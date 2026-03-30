@@ -6,6 +6,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 
 public interface IoTSyncLogRepository extends JpaRepository<IoTSyncLog, Integer> {
-
-    List<IoTSyncLog> findByApartmentId(Integer apartmentId);
+    List<IoTSyncLog> findAllByApartmentId(Integer apartmentId);
 }

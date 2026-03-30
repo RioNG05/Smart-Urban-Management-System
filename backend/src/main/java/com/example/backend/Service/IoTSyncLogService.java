@@ -1,31 +1,48 @@
 package com.example.backend.Service;
 
-import com.example.backend.DTO.Request.iot.*;
-import com.example.backend.Entity.*;
-import com.example.backend.Repository.*;
-import lombok.RequiredArgsConstructor;
+import com.example.backend.DTO.Request.iot.IoTSyncLogCreateRequest;
+import com.example.backend.DTO.Request.iot.IoTSyncLogUpdateRequest;
+import com.example.backend.Entity.Apartment;
+import com.example.backend.Entity.IoTSyncLog;
+import com.example.backend.Repository.IoTSyncLogRepository;
+import lombok.AccessLevel;
+import lombok.experimental.FieldDefaults;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
-@RequiredArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class IoTSyncLogService {
 
-    private final IoTSyncLogRepository repository;
-    private final ApartmentRepository apartmentRepository;
+    @Autowired
+    IoTSyncLogRepository repository;
+
+    @Autowired
+    ApartmentService apartmentService;
+
+    public List<IoTSyncLog> findAll() {
+        return repository.findAll();
+    }
+
+    public IoTSyncLog findById(Integer id) {
+        return repository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy log id: " + id));
+    }
+
+    public List<IoTSyncLog> findByApartmentId(Integer apartmentId) {
+        return repository.findAllByApartmentId(apartmentId);
+    }
 
     public IoTSyncLog create(IoTSyncLogCreateRequest request) {
 
-        Apartment apartment = apartmentRepository.findById(request.getApartmentId())
-                .orElseThrow(() -> new RuntimeException("Apartment not found"));
+        Apartment apartment = apartmentService.findById(request.getApartmentId());
 
         IoTSyncLog log = IoTSyncLog.builder()
                 .apartment(apartment)
                 .electricityEndNum(request.getElectricityEndNum())
                 .waterEndNum(request.getWaterEndNum())
-                .logDate(LocalDateTime.now())
                 .build();
 
         return repository.save(log);
@@ -33,34 +50,26 @@ public class IoTSyncLogService {
 
     public IoTSyncLog update(Integer id, IoTSyncLogUpdateRequest request) {
 
-        IoTSyncLog log = repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Log not found"));
+        IoTSyncLog log = findById(id);
 
-        if (request.getElectricityEndNum() != null) {
+        if(request.getApartmentId() != null){
+            Apartment apartment = apartmentService.findById(request.getApartmentId());
+            log.setApartment(apartment);
+        }
+
+        if(request.getElectricityEndNum() != null){
             log.setElectricityEndNum(request.getElectricityEndNum());
         }
 
-        if (request.getWaterEndNum() != null) {
+        if(request.getWaterEndNum() != null){
             log.setWaterEndNum(request.getWaterEndNum());
         }
 
         return repository.save(log);
     }
 
-    public IoTSyncLog getById(Integer id) {
-        return repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Not found"));
-    }
-
-    public List<IoTSyncLog> getAll() {
-        return repository.findAll();
-    }
-
-    public List<IoTSyncLog> getByApartment(Integer apartmentId) {
-        return repository.findByApartmentId(apartmentId);
-    }
-
     public void delete(Integer id) {
+        findById(id);
         repository.deleteById(id);
     }
 }
