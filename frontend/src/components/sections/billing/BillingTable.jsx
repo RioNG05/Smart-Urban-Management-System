@@ -1,12 +1,16 @@
 import { useEffect, useState } from "react";
+import BillingPagination from "./BillingPagination";
 
 export default function BillingTable({
   bills,
   formatCurrency,
   formatDate,
   loading,
+  showPaymentAction = true,
 }) {
   const [selected, setSelected] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const ITEMS_PER_PAGE = 10;
 
   const formatReading = (value, unit) => {
     if (value === null || value === undefined || Number.isNaN(Number(value))) {
@@ -20,6 +24,7 @@ export default function BillingTable({
 
   useEffect(() => {
     setSelected([]);
+    setCurrentPage(1);
   }, [bills]);
 
   const toggle = (billId) => {
@@ -34,16 +39,28 @@ export default function BillingTable({
     .filter((bill) => selected.includes(bill.id) && bill.statusKey !== "paid")
     .reduce((sum, bill) => sum + bill.amount, 0);
 
+  const totalPages = Math.ceil(bills.length / ITEMS_PER_PAGE);
+  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+  const currentBills = bills.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+
+  const handlePageChange = (newPage) => {
+    if (newPage >= 1 && newPage <= totalPages) {
+      setCurrentPage(newPage);
+    }
+  };
+
   return (
     <>
-      <div className="bill-table">
-        <table>
-          <thead>
+      <div className="admin-table-wrapper mb-3 border rounded shadow-sm">
+        <table className="admin-custom-table align-middle">
+          <thead className="table-light">
             <tr>
-              <th></th>
-              <th>Bill</th>
-              <th>Utility details</th>
-              <th>Due date</th>
+              <th style={{ width: "50px", textAlign: "center" }}>
+                Select
+              </th>
+              <th>Bill Name</th>
+              <th>Details</th>
+              <th>Due Date</th>
               <th>Amount</th>
               <th>Status</th>
             </tr>
@@ -52,15 +69,18 @@ export default function BillingTable({
           <tbody>
             {loading ? (
               <tr>
-                <td colSpan="6" className="billing-empty">
+                <td colSpan="6" className="text-center py-4 text-muted">
+                  <div className="spinner-border spinner-border-sm me-2" role="status"></div>
                   Loading billing data...
                 </td>
               </tr>
-            ) : bills.length > 0 ? (
-              bills.map((bill) => (
+            ) : currentBills.length > 0 ? (
+              currentBills.map((bill) => (
                 <tr key={bill.id}>
-                  <td>
+                  <td style={{ textAlign: "center" }}>
                     <input
+                      className="form-check-input"
+                      style={{ cursor: "pointer" }}
                       type="checkbox"
                       checked={selected.includes(bill.id)}
                       disabled={bill.statusKey === "paid"}
@@ -68,58 +88,49 @@ export default function BillingTable({
                     />
                   </td>
 
-                  <td>{bill.name}</td>
+                  <td className="fw-semibold">{bill.name}</td>
 
                   <td>
                     {bill.source === "utility" && bill.utilityDetails ? (
-                      <div className="utility-breakdown">
-                        {Object.values(bill.utilityDetails).map((item) => (
-                          <div
-                            key={item.label}
-                            className="utility-breakdown-item"
-                          >
-                            <div className="utility-breakdown-title">
-                              {item.label}
-                            </div>
+                      <div className="permission-tags d-flex flex-column gap-1">
+                        {Object.values(bill.utilityDetails).map((item) => {
+                          const isElectric = item.label.toLowerCase().includes("electric");
+                          const badgeClass = isElectric ? "badge-warning text-dark" : "badge-info text-dark";
 
-                            <div className="utility-breakdown-meta">
-                              <span>
-                                Prev:{" "}
-                                {formatReading(item.previousReading, item.unit)}
+                          return (
+                            <div key={item.label} className="d-flex align-items-center gap-2" style={{ fontSize: '13px' }}>
+                              <span className={`badge ${badgeClass} text-uppercase text-start`} style={{ width: '90px' }}>
+                                {item.label}
                               </span>
-
-                              <span>
-                                Current:{" "}
-                                {formatReading(item.currentReading, item.unit)}
-                              </span>
-
-                              <span>
-                                Rate:{" "}
-                                {item.rate > 0
-                                  ? formatCurrency(item.rate)
-                                  : "N/A"}
-                              </span>
-
-                              <span>
-                                Total: {formatCurrency(item.amount)}
+                              <span className="text-dark fw-medium">
+                                {formatReading(item.usage, item.unit)}
                               </span>
                             </div>
-                          </div>
-                        ))}
+                          );
+                        })}
+                        {/* Static Management Fee for UI purposes */}
+                        <div className="d-flex align-items-center gap-2 mt-1" style={{ fontSize: '13px' }}>
+                          <span className={`badge bg-secondary text-uppercase text-start`} style={{ width: '90px' }}>
+                            Management
+                          </span>
+                          <span className="text-dark fw-medium">
+                            1 Month
+                          </span>
+                        </div>
                       </div>
                     ) : (
-                      <span className="billing-muted">
-                        No electricity or water details
+                      <span className="text-muted fst-italic" style={{ fontSize: '13px' }}>
+                        No usage details
                       </span>
                     )}
                   </td>
 
                   <td>{formatDate(bill.dueDate)}</td>
 
-                  <td>{formatCurrency(bill.amount)}</td>
+                  <td className="fw-bold text-danger">{formatCurrency(bill.amount)}</td>
 
                   <td>
-                    <span className={`status ${bill.statusKey}`}>
+                    <span className={`status-badge ${bill.statusKey === 'paid' ? 'active' : 'locked'}`}>
                       {bill.statusLabel}
                     </span>
                   </td>
@@ -127,8 +138,8 @@ export default function BillingTable({
               ))
             ) : (
               <tr>
-                <td colSpan="6" className="billing-empty">
-                  No bills found for this filter.
+                <td colSpan="6" className="text-center py-4 text-muted fst-italic">
+                  No records to display.
                 </td>
               </tr>
             )}
@@ -136,13 +147,30 @@ export default function BillingTable({
         </table>
       </div>
 
-      <div className="payment-container">
-        <div className="total-price">Total: {formatCurrency(total)}</div>
+      <BillingPagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        onPageChange={handlePageChange}
+        totalItems={bills.length}
+        pageSize={ITEMS_PER_PAGE}
+        itemLabel="bills"
+      />
 
-        <button className="pay-button" disabled>
-          Pay Selected Bills
-        </button>
-      </div>
+      {showPaymentAction && bills.some(bill => bill.statusKey !== 'paid') && (
+        <div className="d-flex justify-content-between align-items-center mt-4 pt-3 border-top">
+          <div className="fs-5 fw-bold text-dark">
+            Total Selected: <span className="text-danger ms-2">{formatCurrency(total)}</span>
+          </div>
+
+          <button
+            className="btn px-4 py-2 fw-semibold shadow-sm text-white"
+            disabled={selected.length === 0}
+            style={{ backgroundColor: selected.length === 0 ? '#9ca3af' : '#2e7d32', border: 'none' }}
+          >
+            Pay Selected Bills ({selected.length})
+          </button>
+        </div>
+      )}
     </>
   );
 }

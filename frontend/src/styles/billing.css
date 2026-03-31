@@ -7,10 +7,6 @@
 .billing-container {
   max-width: 1200px;
   margin: auto;
-  display: grid;
-  grid-template-columns: 240px 1fr;
-  gap: 28px;
-  padding: 24px;
 }
 
 .billing-content {
@@ -332,12 +328,7 @@
   padding: 8px 14px;
   border-radius: 6px;
 }
-.complaint-list {
-  background: white;
-  border: 1px solid #e5e7eb;
-  border-radius: 10px;
-  padding: 20px;
-}
+
 
 .complaint-item {
   padding: 10px;
@@ -373,10 +364,6 @@
 }
 
 @media (max-width: 900px) {
-  .billing-container {
-    grid-template-columns: 1fr;
-  }
-
   .summary-row {
     grid-template-columns: 1fr;
   }
@@ -390,16 +377,5 @@
     align-items: flex-start;
     gap: 12px;
   }
-
-  .bill-table {
-    overflow-x: auto;
-  }
-
-  .utility-breakdown {
-    min-width: 220px;
-  }
-
-  .utility-breakdown-meta {
-    grid-template-columns: 1fr;
-  }
 }
+

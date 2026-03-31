@@ -3,7 +3,7 @@ import axios from "axios";
 import { toast } from "react-toastify";
 import { useAuth } from "../auth/AuthContext";
 
-export default function ComplaintModal({ open, setOpen }) {
+export default function ComplaintModal({ open, setOpen, onSuccess }) {
   const [content, setContent] = useState("");
   const { user } = useAuth();
   const userId = user?.id;
@@ -12,12 +12,12 @@ export default function ComplaintModal({ open, setOpen }) {
     const trimmedContent = content.trim();
 
     if (!trimmedContent) {
-      toast.warning("Vui long nhap noi dung complaint");
+      toast.warning("Please enter your complaint description");
       return;
     }
 
     if (!userId) {
-      toast.error("Khong tim thay thong tin nguoi dung");
+      toast.error("User information not found");
       return;
     }
 
@@ -29,11 +29,11 @@ export default function ComplaintModal({ open, setOpen }) {
 
       setContent("");
       setOpen(false);
-      sessionStorage.setItem("billingComplaintToast", "success");
-      window.location.reload();
+      toast.success("Complaint submitted successfully");
+      if (onSuccess) onSuccess();
     } catch (err) {
       console.error(err);
-      toast.error("Gui complaint that bai");
+      toast.error("Failed to submit complaint");
     }
   };
 
