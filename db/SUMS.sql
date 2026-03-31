@@ -1515,7 +1515,7 @@ N'Vào sáng Chủ nhật (20/03/2026), BQL phối hợp cùng lực lượng ch
 INSERT INTO News (Title, Content, ImageUrl, CreatedByUserId)
 VALUES (N'Thông báo tạm ngừng cấp điện để bảo dưỡng trạm biến áp', 
 N'Để đảm bảo hệ thống điện vận hành ổn định trong mùa hè, Điện lực sẽ tạm cắt điện khu vực sảnh và hầm từ 01h00 đến 03h00 sáng ngày 22/03/2026.', 
-'https://vieclam123.vn/ckfinder/userfiles/images/images/kien-thuc(3).jpg0', 1);
+'https://visaho.vn/upload_images/images/2022/03/30/bao-tri-dien-toa-nha-1-min.jpg', 1);
 
 -- 9. Quy định về nuôi thú cưng trong chung cư
 INSERT INTO News (Title, Content, ImageUrl, CreatedByUserId)
@@ -1540,64 +1540,64 @@ VALUES
 -- 11. Thông báo phí gửi xe
 (N'Cập nhật biểu phí trông giữ phương tiện năm 2026', 
 N'Từ ngày 01/04/2026, phí gửi xe máy sẽ giữ nguyên, xe ô tô thứ hai trở đi sẽ có mức điều chỉnh nhẹ. Chi tiết vui lòng xem tại bảng tin sảnh tòa nhà.', 
-'https://tse2.mm.bing.net/th/id/OIP.8-j6886e886e886e886e?rs=1&pid=ImgDetMain', 1),
+'https://tse4.mm.bing.net/th/id/OIP.p61hM9_C3eNcRQUo7dBZLAHaEd?rs=1&pid=ImgDetMain&o=7&rm=3', 1),
 
 -- 12. Mẹo tiết kiệm điện
 (N'5 mẹo tiết kiệm điện năng trong mùa nắng nóng', 
 N'Sử dụng rèm cửa sáng màu, bảo trì điều hòa định kỳ và tận dụng ánh sáng tự nhiên sẽ giúp hóa đơn tiền điện nhà bạn giảm đáng kể.', 
-'https://tse3.mm.bing.net/th/id/OIP.U_Y886e886e886e886e?rs=1&pid=ImgDetMain', 1),
+'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQISs5eaae3w4Wx3-EcCNNpbiGTgef1eXuJSw&s', 1),
 
 -- 13. Giải bóng đá cư dân
 (N'Khai mạc giải bóng đá nam cư dân TEMS Championship', 
 N'Giải đấu quy tụ 12 đội bóng đến từ các block s1, s2. Trận khai mạc sẽ diễn ra vào lúc 15h00 chiều thứ Bảy tại sân bóng khu đô thị.', 
-'https://tse4.mm.bing.net/th/id/OIP.f_Y886e886e886e886e?rs=1&pid=ImgDetMain', 1),
+'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQWGK8uq1tHrb9BM-QnZbUicS3EXX7gPxCk4g&s', 1),
 
 -- 14. Quy định tiếng ồn
 (N'Nhắc nhở quy định về tiếng ồn sau 22h00', 
 N'Để đảm bảo không gian yên tĩnh cho cư dân nghỉ ngơi, yêu cầu quý vị không khoan đục, ca hát karaoke quá âm lượng quy định sau 10 giờ tối.', 
-'https://tse1.mm.bing.net/th/id/OIP.noise_control_img?rs=1&pid=ImgDetMain', 1),
+'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT_LLrL9hjmp1n69hd9eP97YfR8TeWSEmFWQw&s', 1),
 
 -- 15. Lớp học bơi cho bé
 (N'Mở lớp dạy bơi miễn phí cho trẻ em cư dân', 
 N'Chương trình "Mùa hè an toàn" khai giảng lớp dạy bơi cơ bản tại bể bơi ngoài trời vào các buổi sáng thứ 3-5-7 hàng tuần.', 
-'https://tse2.mm.bing.net/th/id/OIP.swimming_class?rs=1&pid=ImgDetMain', 1),
+'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS58alheI0CHjups94Qglyn-FLe2WJ8KhVOEw&s', 1),
 
 -- 16. Bảo trì lọc nước
 (N'Kiểm tra định kỳ hệ thống lọc nước tổng tòa nhà', 
 N'Đội kỹ thuật sẽ súc rửa bồn chứa nước sạch từ 23h00 đêm nay. Nước có thể hơi đục nhẹ trong 5-10 phút đầu khi cấp lại, cư dân lưu ý.', 
-'https://tse3.mm.bing.net/th/id/OIP.water_filter?rs=1&pid=ImgDetMain', 1),
+'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ-zgJHN8c2WERoRIiEL4DsZd9ea00scEu07w&s', 1),
 
 -- 17. Ngày hội đổi rác lấy quà
 (N'Ngày hội sống xanh: Đổi pin cũ lấy cây xanh', 
 N'Hãy cùng chung tay bảo vệ môi trường bằng cách mang pin đã qua sử dụng đến quầy lễ tân để đổi lấy những chậu sen đá xinh xắn.', 
-'https://tse4.mm.bing.net/th/id/OIP.green_living?rs=1&pid=ImgDetMain', 1),
+'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQWtHe2KhjAQ0COD1uVf4i7GAjwZ_HN3Q5F6Q&s', 1),
 
 -- 18. Cảnh báo lừa đảo
 (N'Cảnh báo các thủ đoạn lừa đảo giả danh nhân viên điện lực', 
 N'Hiện có đối tượng gọi điện yêu cầu đóng tiền điện qua tài khoản cá nhân. BQL nhắc nhở cư dân chỉ thanh toán qua App chính thức hoặc tại ngân hàng.', 
-'https://tse1.mm.bing.net/th/id/OIP.security_warning?rs=1&pid=ImgDetMain', 1),
+'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTftPfa1-Zg1q9DowvB0UntIgglpk0diXfpbw&s', 1),
 
 -- 19. Hội thảo đầu tư
 (N'Hội thảo quản lý tài chính cá nhân cho cư dân trẻ', 
 N'Diễn giả hàng đầu sẽ chia sẻ về cách tối ưu hóa dòng tiền và quản lý nợ trong buổi tối thứ Tư tuần tới tại sảnh sinh hoạt cộng đồng.', 
-'https://tse2.mm.bing.net/th/id/OIP.finance_talk?rs=1&pid=ImgDetMain', 1),
+'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSbZnh_YbJ6fcTKi2hnlMSouXnqBq7TgpSuaA&s', 1),
 
 -- 20. Khuyến mãi Spa
 (N'Ưu đãi 30% dịch vụ Massage thảo mộc tại Spa tòa nhà', 
 N'Chào đón cư dân mới, phòng Spa (ID 9, 10) giảm giá sâu cho các gói chăm sóc da và bấm huyệt trong suốt tháng 3.', 
-'https://tse3.mm.bing.net/th/id/OIP.spa_promo?rs=1&pid=ImgDetMain', 1),
+'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRiVKcqyxJfwqZRbjBEvHSckx1Fmq93M1f3yw&s', 1),
 
 -- 21-30. Các tin tức bổ sung nhanh (Loop nội dung)
-(N'Lịch thu gom rác thải cồng kềnh tháng 4', N'Cư dân có nhu cầu bỏ giường, tủ cũ vui lòng đăng ký trước ngày 05/04.', 'https://tse4.mm.bing.net/th/id/OIP.trash_img', 1),
-(N'Vệ sinh lưới chắn rác ban công mùa mưa', N'BQL khuyến nghị cư dân kiểm tra phễu thoát sàn ban công tránh ngập úng.', 'https://tse1.mm.bing.net/th/id/OIP.rain_cleaning', 1),
-(N'Câu lạc bộ Yoga sảnh S2 tuyển thành viên', N'Lớp học buổi sáng sớm giúp tinh thần sảng khoái, bắt đầu từ 5h30 sáng.', 'https://tse2.mm.bing.net/th/id/OIP.yoga_club', 1),
-(N'Hướng dẫn sử dụng khóa cửa thông minh Yale', N'Video hướng dẫn cách đổi mã master và thêm vân tay cho người giúp việc.', 'https://tse3.mm.bing.net/th/id/OIP.smartlock_guide', 1),
-(N'Hợp tác cung cấp thực phẩm sạch tại sảnh', N'Gian hàng rau củ organic từ Đà Lạt sẽ phục vụ cư dân vào mỗi sáng sớm.', 'https://tse4.mm.bing.net/th/id/OIP.organic_food', 1),
-(N'Tổ chức Tết Trung Thu sớm cho các bé', N'Chương trình rước đèn và múa lân sôi động tại quảng trường trung tâm.', 'https://tse1.mm.bing.net/th/id/OIP.mid_autumn', 1),
-(N'Nhắc nhở nộp phí dịch vụ đúng hạn', N'Quý cư dân vui lòng hoàn tất phí dịch vụ trước ngày 10 hàng tháng để tránh gián đoạn.', 'https://tse2.mm.bing.net/th/id/OIP.payment_remind', 1),
-(N'Lắp đặt thêm máy tập Gym ngoài trời', N'Bổ sung 5 máy tập bụng và xà đơn tại khu vực công viên ven hồ.', 'https://tse3.mm.bing.net/th/id/OIP.gym_outdoor', 1),
-(N'Bảo trì camera an ninh hành lang tầng 15-20', N'Kỹ thuật sẽ kiểm tra góc quay và độ nét của camera trong chiều hôm nay.', 'https://tse4.mm.bing.net/th/id/OIP.camera_maintenance', 1),
-(N'Cảm ơn cư dân đã tham gia khảo sát chất lượng', N'Kết quả khảo sát mức độ hài lòng sẽ được BQL công bố vào cuối tuần tới.', 'https://tse1.mm.bing.net/th/id/OIP.survey_thanks', 1);
+(N'Lịch thu gom rác thải cồng kềnh tháng 4', N'Cư dân có nhu cầu bỏ giường, tủ cũ vui lòng đăng ký trước ngày 05/04.', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT4nzT8tYwc95h0r7tu8peoY5F6b_exo2lEdg&s', 1),
+(N'Vệ sinh lưới chắn rác ban công mùa mưa', N'BQL khuyến nghị cư dân kiểm tra phễu thoát sàn ban công tránh ngập úng.', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR_slxYfoxTTHdeAMQYgehv82AlpwBeJVEFzA&s', 1),
+(N'Câu lạc bộ Yoga sảnh S2 tuyển thành viên', N'Lớp học buổi sáng sớm giúp tinh thần sảng khoái, bắt đầu từ 5h30 sáng.', 'https://static.hotdeal.vn/images/822/822188/500x500/190116-khoa-hoc-yoga-8-buoi-tai-clb-yoga-newlife.jpg', 1),
+(N'Hướng dẫn sử dụng khóa cửa thông minh Yale', N'Video hướng dẫn cách đổi mã master và thêm vân tay cho người giúp việc.', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSyIuQ1fHt-1j4jOME6VD4h2Poz_YX0akMAXA&s', 1),
+(N'Hợp tác cung cấp thực phẩm sạch tại sảnh', N'Gian hàng rau củ organic từ Đà Lạt sẽ phục vụ cư dân vào mỗi sáng sớm.', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTk10CsnRAVZAjxiSvRKc1SUZ72UPeSElqiPQ&s', 1),
+(N'Tổ chức Tết Trung Thu sớm cho các bé', N'Chương trình rước đèn và múa lân sôi động tại quảng trường trung tâm.', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ5vSien6-6fEwacR3Yb_Wbf4jA3eOzmRyi3g&s', 1),
+(N'Nhắc nhở nộp phí dịch vụ đúng hạn', N'Quý cư dân vui lòng hoàn tất phí dịch vụ trước ngày 10 hàng tháng để tránh gián đoạn.', 'https://thdlog.com/wp-content/uploads/2025/08/3-2.jpg', 1),
+(N'Lắp đặt thêm máy tập Gym ngoài trời', N'Bổ sung 5 máy tập bụng và xà đơn tại khu vực công viên ven hồ.', 'https://thethaominhphu.com/wp-content/uploads/2017/12/cong-vien.jpg', 1),
+(N'Bảo trì camera an ninh hành lang tầng 15-20', N'Kỹ thuật sẽ kiểm tra góc quay và độ nét của camera trong chiều hôm nay.', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT52nGCq_ZEVDxWMF6Ixg0IxfvlxZkZgdGe0w&s', 1),
+(N'Cảm ơn cư dân đã tham gia khảo sát chất lượng', N'Kết quả khảo sát mức độ hài lòng sẽ được BQL công bố vào cuối tuần tới.', 'https://lh4.googleusercontent.com/proxy/NAUmYxcTIQD2UXuCm5lBQZX79hnM_zYkPrY7FywECqqSWCm-tr7GdecW09zGYw9yECtodDgUExwyoNTKq1hdligKPkDdExcN5u-ih8jdtw', 1);
 GO
 
 -- 9 services

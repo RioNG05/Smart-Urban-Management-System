@@ -81,6 +81,8 @@ const AdminSidebar = ({ isOpen, setIsOpen, upcomingCount }) => {
                 {(isOpen && openMenus.access) && (
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '2px', paddingLeft: '20px', marginBottom: '10px' }}>
                         <NavLink to="/admin/roles" className="staff-nav-item" style={{ padding: '8px 15px', fontSize: '13px' }}><FaUserShield style={{ marginRight: '10px' }} /> Permissions</NavLink>
+
+                        <NavLink to="/admin/accounts" className="staff-nav-item" style={{ padding: '8px 15px', fontSize: '13px' }}><FaUsers style={{ marginRight: '10px' }} /> Account Management</NavLink>
                         <NavLink to="/admin/resident-account" className="staff-nav-item" style={{ padding: '8px 15px', fontSize: '13px' }}><FaUserLock style={{ marginRight: '10px' }} /> Resident Account</NavLink>
                     </div>
                 )}
@@ -389,11 +391,11 @@ export const AdminDashboard = () => {
 
         return Array.from(serviceTotals.entries())
             .sort((a, b) => b[1] - a[1])
-            .slice(0, 4)
+            .slice(0, 6)
             .map(([name], index) => ({
                 key: `service_${index}`,
                 name,
-                color: ['#3b82f6', '#10b981', '#c89b3c', '#ef4444'][index],
+                color: ['#3b82f6', '#10b981', '#c89b3c', '#ef4444', '#8b5cf6', '#f59e0b'][index],
             }));
     }, [dashboardState.serviceInvoices]);
 
