@@ -29,7 +29,8 @@ import {
   AdminServiceFeeStats,
   AdminVisitorManager,
   AdminComplaintManager,
-  AdminAccountManager
+  AdminAccountManager,
+  AdminApartmentTypeManager
 } from "../admin/AdminManagement";
 
 import StaffApartment from "../staff/StaffApartment";
