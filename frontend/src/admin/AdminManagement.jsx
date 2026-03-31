@@ -1351,7 +1351,7 @@ export const AdminAccountManager = () => {
 
   return (
     <div className="admin-lock-resident-container">
-      <div className="resident-stats-banner" style={{ background: 'linear-gradient(135deg, var(--admin-primary) 0%, var(--admin-primary-hover) 100%)' }}>
+      <div className="resident-stats-banner" style={{ background: 'linear-gradient(135deg, #0f172a 0%, #334155 100%)' }}>
         <div className="stats-icon-box"><FaUsers /></div>
         <div className="stats-info">
           <p>Access Control System</p>
@@ -2930,7 +2930,7 @@ export const AdminComplaintManager = () => {
                 icon: <FaExclamationTriangle />,
                 label: "Pending review",
                 value: newCount,
-                accent: "#f59e0b",
+                accent: "#c98b3c",
               },
               {
                 icon: <FaRegCommentDots />,
@@ -3620,7 +3620,7 @@ export const AdminApartmentLayout = () => {
                 value={floorSearch}
                 onChange={(e) => setFloorSearch(e.target.value)}
                 style={{ width: "100%", padding: "14px 16px 14px 44px", borderRadius: "12px", border: "1px solid #e2e8f0", fontSize: "14px", outline: "none", transition: "all 0.2s" }}
-                onFocus={(e) => e.target.style.borderColor = "#3b82f6"}
+                onFocus={(e) => e.target.style.borderColor = "#c98b3c"}
                 onBlur={(e) => e.target.style.borderColor = "#e2e8f0"}
               />
             </div>
@@ -3639,7 +3639,7 @@ export const AdminApartmentLayout = () => {
           >
             {isLoading ? (
               <div style={{ textAlign: "center", padding: "120px 0" }}>
-                <FaSyncAlt className="spin" style={{ fontSize: "40px", color: "#3b82f6", marginBottom: "15px" }} />
+                <FaSyncAlt className="spin" style={{ fontSize: "40px", color: "#c98b3c", marginBottom: "15px" }} />
                 <p style={{ color: "#64748b", fontWeight: "600" }}>Architectural sync in progress...</p>
               </div>
             ) : filteredFloors.length === 0 ? (
@@ -3712,7 +3712,7 @@ export const AdminApartmentLayout = () => {
                               {occupied ? "OCCUPIED" : "VACANT"}
                             </div>
                             {occupied && (
-                              <div style={{ position: "absolute", top: "6px", right: "6px", width: "6px", height: "6px", background: "#3b82f6", borderRadius: "50%" }}></div>
+                              <div style={{ position: "absolute", top: "6px", right: "6px", width: "6px", height: "6px", background: "#c98b3c", borderRadius: "50%" }}></div>
                             )}
                           </div>
                         );

@@ -134,7 +134,7 @@ export const AdminLayout = () => {
                 <header className="staff-topbar" style={{ justifyContent: 'space-between' }}>
 
                     <nav className="staff-main-nav" style={{ marginRight: 0, alignItems: 'center' }}>
-                        <a href="/admin" className="active" style={{ textDecoration: 'none', borderBottom: 'none', color: 'var(--admin-primary)', fontWeight: '800', fontSize: '18px', letterSpacing: '0.5px' }}>VinaHouse Admin Management System</a>
+                        <a href="/admin" className="admin-topbar-brand-title">VinaHouse Admin Management System</a>
                     </nav>
 
                     <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
@@ -313,10 +313,10 @@ export const AdminDashboard = () => {
         }, 0);
 
         return [
-            { title: 'Total Apartments', value: dashboardState.apartments.length.toLocaleString(), icon: <FaBuilding />, color: '#3b82f6', bg: '#eff6ff' },
+            { title: 'Total Apartments', value: dashboardState.apartments.length.toLocaleString(), icon: <FaBuilding />, color: '#c98b3c', bg: '#eff6ff' },
             { title: 'Active Residents', value: activeResidents.toLocaleString(), icon: <FaUsers />, color: '#10b981', bg: '#dcfce7' },
-            { title: 'Open Service Requests', value: openRequests.toLocaleString(), icon: <FaWrench />, color: '#f59e0b', bg: '#fef3c7' },
-            { title: 'Monthly Revenue', value: currencyFormatter.format(currentMonthRevenue || 0), icon: <FaMoneyBillWave />, color: '#c89b3c', bg: '#fefce8' }
+            { title: 'Open Service Requests', value: openRequests.toLocaleString(), icon: <FaWrench />, color: '#c98b3c', bg: '#fef3c7' },
+            { title: 'Monthly Revenue', value: currencyFormatter.format(currentMonthRevenue || 0), icon: <FaMoneyBillWave />, color: '#c98b3c', bg: '#fefce8' }
         ];
     }, [currencyFormatter, currentDate, dashboardState]);
 
@@ -393,7 +393,7 @@ export const AdminDashboard = () => {
             .map(([name], index) => ({
                 key: `service_${index}`,
                 name,
-                color: ['#3b82f6', '#10b981', '#c89b3c', '#ef4444', '#8b5cf6', '#f59e0b'][index],
+                color: ['#c98b3c', '#10b981', '#c98b3c', '#ef4444', '#8b5cf6', '#c98b3c'][index],
             }));
     }, [dashboardState.serviceInvoices]);
 
@@ -437,7 +437,7 @@ export const AdminDashboard = () => {
         <div className="dashboard-content staff-form-container" style={{ paddingBottom: '40px' }}>
             <header className="content-header" style={{ marginBottom: '30px' }}>
                 <h2>Admin Dashboard Overview</h2>
-                <p style={{ color: '#c89b3c', fontWeight: 'bold' }}>Real-time building management metrics</p>
+                <p style={{ color: '#c98b3c', fontWeight: 'bold' }}>Real-time building management metrics</p>
             </header>
 
             {error ? (
@@ -475,12 +475,12 @@ export const AdminDashboard = () => {
                                         <stop offset="95%" stopColor="#10b981" stopOpacity={0} />
                                     </linearGradient>
                                     <linearGradient id="colorUtil" x1="0" y1="0" x2="0" y2="1">
-                                        <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3} />
-                                        <stop offset="95%" stopColor="#3b82f6" stopOpacity={0} />
+                                        <stop offset="5%" stopColor="#c98b3c" stopOpacity={0.3} />
+                                        <stop offset="95%" stopColor="#c98b3c" stopOpacity={0} />
                                     </linearGradient>
                                     <linearGradient id="colorMgmt" x1="0" y1="0" x2="0" y2="1">
-                                        <stop offset="5%" stopColor="#f59e0b" stopOpacity={0.3} />
-                                        <stop offset="95%" stopColor="#f59e0b" stopOpacity={0} />
+                                        <stop offset="5%" stopColor="#c98b3c" stopOpacity={0.3} />
+                                        <stop offset="95%" stopColor="#c98b3c" stopOpacity={0} />
                                     </linearGradient>
                                 </defs>
                                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
@@ -489,8 +489,8 @@ export const AdminDashboard = () => {
                                 <RechartsTooltip contentStyle={{ borderRadius: '8px', border: '1px solid #f1f5f9', boxShadow: '0 4px 6px rgba(0,0,0,0.05)', padding: '10px' }} />
                                 <Legend iconType="circle" wrapperStyle={{ fontSize: '13px', paddingTop: '10px' }} />
                                 <Area type="monotone" dataKey="rent" name="Contract Rent" stroke="#10b981" strokeWidth={3} fillOpacity={1} fill="url(#colorRent)" stackId="1" />
-                                <Area type="monotone" dataKey="utilities" name="Utilities" stroke="#3b82f6" strokeWidth={3} fillOpacity={1} fill="url(#colorUtil)" stackId="1" />
-                                <Area type="monotone" dataKey="management" name="Service Invoices" stroke="#f59e0b" strokeWidth={3} fillOpacity={1} fill="url(#colorMgmt)" stackId="1" />
+                                <Area type="monotone" dataKey="utilities" name="Utilities" stroke="#c98b3c" strokeWidth={3} fillOpacity={1} fill="url(#colorUtil)" stackId="1" />
+                                <Area type="monotone" dataKey="management" name="Service Invoices" stroke="#c98b3c" strokeWidth={3} fillOpacity={1} fill="url(#colorMgmt)" stackId="1" />
                             </AreaChart>
                         </ResponsiveContainer>
                     </div>
