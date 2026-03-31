@@ -3086,7 +3086,6 @@ export const AdminComplaintManager = () => {
                   <tr>
                     <th>Resident</th>
                     <th>Apartment</th>
-                    <th>Content</th>
                     <th>Status</th>
                     <th>Updated</th>
                   </tr>
@@ -3113,13 +3112,13 @@ export const AdminComplaintManager = () => {
                           cursor: "pointer",
                           background:
                             complaint.id === selectedComplaintId
-                              ? "rgba(59, 130, 246, 0.08)"
+                              ? "rgba(201, 139, 60, 0.08)"
                               : undefined,
                         }}
                       >
                         <td>
                           <strong>{complaint.ownerName}</strong>
-                          <div style={{ color: "#64748b", fontSize: "12px", marginTop: "4px" }}>
+                          <div style={{ color: "#64748b", fontSize: "11px", marginTop: "4px", wordBreak: "break-all" }}>
                             {complaint.ownerEmail}
                           </div>
                         </td>
@@ -3127,19 +3126,6 @@ export const AdminComplaintManager = () => {
                           <strong>Room {complaint.apartmentLabel}</strong>
                           <div style={{ color: "#64748b", fontSize: "12px", marginTop: "4px" }}>
                             {complaint.floorNumber ? `Floor ${complaint.floorNumber}` : "Floor unknown"}
-                          </div>
-                        </td>
-                        <td style={{ maxWidth: "280px" }}>
-                          <div
-                            style={{
-                              display: "-webkit-box",
-                              WebkitLineClamp: 2,
-                              WebkitBoxOrient: "vertical",
-                              overflow: "hidden",
-                              lineHeight: "1.5",
-                            }}
-                          >
-                            {complaint.content}
                           </div>
                         </td>
                         <td>
@@ -3251,7 +3237,7 @@ export const AdminComplaintManager = () => {
                 <div
                   style={{
                     display: "grid",
-                    gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
+                    gridTemplateColumns: "1.43fr 0.57fr",
                     gap: "12px",
                     marginBottom: "18px",
                   }}
@@ -3283,7 +3269,7 @@ export const AdminComplaintManager = () => {
                       <div style={{ fontSize: "12px", color: "#64748b", marginBottom: "6px" }}>
                         {item.label}
                       </div>
-                      <div style={{ color: "#0f172a", fontWeight: "700", lineHeight: "1.5" }}>
+                      <div style={{ color: "#0f172a", fontWeight: "700", lineHeight: "1.5", wordBreak: "break-all" }}>
                         {item.value}
                       </div>
                     </div>
