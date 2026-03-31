@@ -4,7 +4,6 @@ import com.example.backend.DTO.Request.account.AccountCreateRequest;
 import com.example.backend.DTO.Request.account.AccountUpdateRequest;
 import com.example.backend.DTO.Response.ApiResponse;
 import com.example.backend.Entity.Account;
-import com.example.backend.Entity.Role;
 import com.example.backend.Repository.RoleRepository;
 import com.example.backend.Service.AccountService;
 import jakarta.validation.Valid;
