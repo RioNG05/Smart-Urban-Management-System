@@ -1253,7 +1253,9 @@
   color: #334155;
 }
 
-.btn-table-edit, .btn-reject-mini, .btn-approve-mini {
+.btn-table-edit,
+.btn-reject-mini,
+.btn-approve-mini {
   padding: 8px;
   border-radius: 8px;
   border: none;
@@ -1268,7 +1270,7 @@
   background: #fff;
   color: #1e293b;
   border: 1.5px solid #e2e8f0;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
 .btn-table-edit:hover {
@@ -1282,7 +1284,7 @@
   background: #ef4444;
   color: #fff;
   border: none;
-  box-shadow: 0 4px 10px rgba(239,68,68,0.3);
+  box-shadow: 0 4px 10px rgba(239, 68, 68, 0.3);
 }
 
 .btn-reject-mini:hover {
@@ -1294,7 +1296,7 @@
   background: #10b981;
   color: #fff;
   border: none;
-  box-shadow: 0 4px 10px rgba(16,185,129,0.3);
+  box-shadow: 0 4px 10px rgba(16, 185, 129, 0.3);
 }
 
 .btn-approve-mini:hover {
@@ -1316,7 +1318,7 @@
   justify-content: center;
   cursor: pointer;
   transition: all 0.2s ease;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
 .btn-view-details:hover {
@@ -1840,7 +1842,127 @@
 }
 
 /* Responsive Handling */
+.apartment-type-toolbar-btn,
+.apartment-type-form-btn {
+  min-width: 110px;
+  height: 44px;
+  padding: 0 14px !important;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  white-space: nowrap;
+  font-weight: 700;
+  border-radius: 12px;
+}
+
+.apartment-type-form-btn-primary {
+  background: #c89b3c !important;
+  color: #fff !important;
+  border: none !important;
+}
+
+.apartment-type-table th,
+.apartment-type-table td {
+  vertical-align: top !important;
+}
+
+.apartment-type-table th {
+  text-align: left;
+}
+
+.apartment-type-cell-type strong {
+  display: block;
+  line-height: 1.5;
+  word-break: break-word;
+}
+
+.apartment-type-cell-area,
+.apartment-type-cell-layout,
+.apartment-type-cell-action {
+  white-space: nowrap;
+}
+
+.apartment-type-cell-area,
+.apartment-type-cell-layout {
+  padding-top: 22px !important;
+}
+
+.apartment-type-cell-price {
+  line-height: 1.65;
+}
+
+.apartment-type-price-line {
+  display: block;
+}
+
+.apartment-type-price-line strong {
+  font-weight: 800;
+}
+
+.apartment-type-cell-detail {
+  line-height: 1.65;
+  text-align: ceter;
+}
+
+.apartment-type-furniture-label {
+  font-weight: 700;
+  margin-bottom: 6px;
+  color: #1e293b;
+}
+
+.apartment-type-overview-text {
+  color: #64748b;
+  line-height: 1.7;
+  word-break: break-word;
+}
+
+.apartment-type-table th:nth-child(5) {
+  text-align: left !important;
+  padding-left: 18px !important;
+}
+
+.apartment-type-cell-action {
+  text-align: center;
+  padding-top: 22px !important;
+}
+
+.apartment-type-actions {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  white-space: nowrap;
+}
+
+.apartment-type-actions .btn-table-edit,
+.apartment-type-actions .btn-table-delete {
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
 @media (max-width: 1024px) {
+  .apartment-type-form-shell {
+    grid-template-columns: 1fr !important;
+  }
+
+  .apartment-type-preview-card {
+    min-height: auto;
+  }
+
+  .apartment-type-hero .admin-lock-header-row {
+    align-items: stretch;
+  }
+
+  .apartment-type-toolbar-btn,
+  .apartment-type-form-btn {
+    min-width: 96px;
+  }
+
   .resident-grid-form {
     grid-template-columns: repeat(2, 1fr);
   }
@@ -1851,6 +1973,45 @@
 }
 
 @media (max-width: 768px) {
+  .apartment-type-hero,
+  .apartment-type-table-card {
+    padding: 20px !important;
+    border-radius: 18px !important;
+  }
+
+  .apartment-type-form-card,
+  .apartment-type-preview-card {
+    padding: 18px !important;
+    border-radius: 18px !important;
+  }
+
+  .apartment-type-preview-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .apartment-type-hero .admin-page-title {
+    font-size: 26px !important;
+  }
+
+  .apartment-type-hero .admin-lock-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .apartment-type-hero .admin-lock-actions button {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .apartment-type-table-card .admin-lock-header-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .apartment-type-table {
+    min-width: 920px !important;
+  }
+
   .resident-grid-form {
     grid-template-columns: 1fr;
   }

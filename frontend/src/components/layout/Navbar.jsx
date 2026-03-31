@@ -111,14 +111,17 @@ export default function Navbar({ solid = false }) {
                       )}
                     </div>
 
+                    {role === "MANAGER" && (
+                      <div
+                        className="dropdown-item"
+                        onClick={() => navigate("/admin")}
+                      >
+                        Dashboard
+                      </div>
+                    )}
+
                     {role === "RESIDENT" && (
                       <>
-                        <div
-                          className="dropdown-item"
-                          onClick={() => navigate("/dashboard")}
-                        >
-                          Dashboard
-                        </div>
                         <div
                           className="dropdown-item"
                           onClick={() => navigate("/billing")}

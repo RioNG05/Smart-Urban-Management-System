@@ -9,6 +9,7 @@ function AuthPage() {
 
   const roleDashboard = {
     ADMIN: "/admin",
+    MANAGER: "/admin",
     RESIDENT: "/",
     STAFF_APARTMENT: "/staff/apartment",
     STAFF_SERVICE: "/staff/service",

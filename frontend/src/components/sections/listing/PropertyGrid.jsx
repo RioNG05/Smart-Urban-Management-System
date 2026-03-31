@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import PropertyCard from "./PropertyCard";
+import Pagination from "../../common/Pagination";
 import {
   getApartments,
   getApartmentTypes,
@@ -171,42 +172,11 @@ function PropertyGrid({
         ))}
       </div>
 
-      <div className="pagination-bar">
-        <button
-          type="button"
-          className="pagination-btn"
-          onClick={() => setCurrentPage((page) => Math.max(1, page - 1))}
-          disabled={safeCurrentPage === 1}
-        >
-          Previous
-        </button>
-
-        <div className="pagination-pages">
-          {Array.from({ length: totalPages }, (_, index) => index + 1).map(
-            (page) => (
-              <button
-                key={page}
-                type="button"
-                className={`pagination-page ${
-                  page === safeCurrentPage ? "active" : ""
-                }`}
-                onClick={() => setCurrentPage(page)}
-              >
-                {page}
-              </button>
-            ),
-          )}
-        </div>
-
-        <button
-          type="button"
-          className="pagination-btn"
-          onClick={() => setCurrentPage((page) => Math.min(totalPages, page + 1))}
-          disabled={safeCurrentPage === totalPages}
-        >
-          Next
-        </button>
-      </div>
+      <Pagination
+        currentPage={safeCurrentPage}
+        totalPages={totalPages}
+        onPageChange={setCurrentPage}
+      />
     </div>
   );
 }

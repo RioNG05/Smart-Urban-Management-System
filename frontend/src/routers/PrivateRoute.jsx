@@ -5,13 +5,13 @@ function PrivateRoute({ children, roles }) {
   const { user, role } = useAuth();
 
   if (!user) {
-    return <Navigate to="/auth" />;
+    return <Navigate to="/auth" replace />;
   }
 
   const allowedRoles = roles?.map((item) => item.toUpperCase());
 
   if (allowedRoles && !allowedRoles.includes(role)) {
-    return <Navigate to="/unauthorized" />;
+    return <Navigate to="/unauthorize" replace />;
   }
 
   return children;

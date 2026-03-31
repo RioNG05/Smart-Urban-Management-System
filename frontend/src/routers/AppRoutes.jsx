@@ -24,11 +24,12 @@ import {
   AdminCreateContract,
   AdminPropertyManager,
   AdminApartmentLayout,
+  AdminApartmentTypeManager,
   AdminBookingManager,
   AdminServiceFeeStats,
   AdminVisitorManager,
   AdminComplaintManager,
-  AdminAccountManager
+  AdminAccountManager,
 } from "../admin/AdminManagement";
 
 import StaffApartment from "../staff/StaffApartment";
@@ -64,7 +65,7 @@ function AppRoutes() {
         <Route
           path="/market"
           element={
-            <PrivateRoute roles={["resident", "staff", "admin"]}>
+            <PrivateRoute roles={["resident", "staff", "manager"]}>
               <MarketPage />
             </PrivateRoute>
           }
@@ -72,7 +73,7 @@ function AppRoutes() {
         <Route
           path="/product/:id"
           element={
-            <PrivateRoute roles={["resident", "staff", "admin"]}>
+            <PrivateRoute roles={["resident", "staff", "manager"]}>
               <Product />
             </PrivateRoute>
           }
@@ -80,7 +81,7 @@ function AppRoutes() {
         <Route
           path="/services"
           element={
-            <PrivateRoute roles={["resident", "staff", "admin"]}>
+            <PrivateRoute roles={["resident", "staff", "manager"]}>
               <ServicePage />
             </PrivateRoute>
           }
@@ -93,10 +94,18 @@ function AppRoutes() {
             </PrivateRoute>
           }
         />
+        <Route path="/unauthorize" element={<Unauthorized />} />
         <Route path="/unauthorized" element={<Unauthorized />} />
 
         {/* --- ADMIN SYSTEM --- */}
-        <Route path="/admin" element={<AdminLayout />}>
+        <Route
+          path="/admin"
+          element={
+            <PrivateRoute roles={["manager"]}>
+              <AdminLayout />
+            </PrivateRoute>
+          }
+        >
           <Route index element={<AdminDashboard />} />
           <Route path="roles" element={<AdminRoleManager />} />
           <Route path="resident-account" element={<AdminLockResident />} />
@@ -104,6 +113,10 @@ function AppRoutes() {
           <Route path="contracts/create" element={<AdminCreateContract />} />
           <Route path="contracts/view" element={<AdminPropertyManager />} />
           <Route path="apartment-layout" element={<AdminApartmentLayout />} />
+          <Route
+            path="apartment-types"
+            element={<AdminApartmentTypeManager />}
+          />
 
           {/* Service & Security routes */}
           <Route path="bookings" element={<AdminBookingManager />} />

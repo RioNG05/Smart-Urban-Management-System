@@ -78,35 +78,25 @@ const buildUtilityBills = (utilityInvoices, utilityRates) => {
       invoice.billingMonth
     );
     const createdAt = invoice.createdAt ? new Date(invoice.createdAt) : null;
-    const electricityAmount = Number(invoice.totalElectricUsed ?? 0);
-    const waterAmount = Number(invoice.totalWaterUsed ?? 0);
+    const electricityUsage = Number(invoice.totalElectricUsed ?? 0);
+    const waterUsage = Number(invoice.totalWaterUsed ?? 0);
 
     const electricityRate =
       Number(utilityRates.electricity?.feePerUnit ?? 0) || 0;
     const waterRate = Number(utilityRates.water?.feePerUnit ?? 0) || 0;
 
-    const electricityUsage =
-      electricityRate > 0 ? electricityAmount / electricityRate : null;
-    const waterUsage = waterRate > 0 ? waterAmount / waterRate : null;
+    const electricityAmount = electricityUsage * electricityRate;
+    const waterAmount = waterUsage * waterRate;
 
-    const previousElectricityReading =
-      electricityUsage === null ? null : electricityReading;
+    const previousElectricityReading = electricityReading;
     const currentElectricityReading =
-      electricityUsage === null
-        ? null
-        : previousElectricityReading + electricityUsage;
+      previousElectricityReading + electricityUsage;
 
-    const previousWaterReading = waterUsage === null ? null : waterReading;
-    const currentWaterReading =
-      waterUsage === null ? null : previousWaterReading + waterUsage;
+    const previousWaterReading = waterReading;
+    const currentWaterReading = previousWaterReading + waterUsage;
 
-    if (currentElectricityReading !== null) {
-      electricityReading = currentElectricityReading;
-    }
-
-    if (currentWaterReading !== null) {
-      waterReading = currentWaterReading;
-    }
+    electricityReading = currentElectricityReading;
+    waterReading = currentWaterReading;
 
     return {
       id: `utility-${invoice.id}`,
@@ -114,29 +104,63 @@ const buildUtilityBills = (utilityInvoices, utilityRates) => {
       name: `Utilities Invoice #${invoice.id}`,
       monthKey: invoiceMonthKey,
       dueDate: createdAt,
-      amount: Number(invoice.totalAmount ?? electricityAmount + waterAmount),
+      amount: electricityAmount + waterAmount,
       statusKey: status.key,
       statusLabel: status.label,
       utilityDetails: {
         electricity: {
           label: "Electricity",
-          unit: utilityRates.electricity?.unitType || "kWh",
+          unit: "kWh",
           previousReading: previousElectricityReading,
           currentReading: currentElectricityReading,
           rate: electricityRate,
           amount: electricityAmount,
+          usage: electricityUsage,
         },
         water: {
           label: "Water",
-          unit: utilityRates.water?.unitType || "m3",
+          unit: "m3",
           previousReading: previousWaterReading,
           currentReading: currentWaterReading,
           rate: waterRate,
           amount: waterAmount,
+          usage: waterUsage,
         },
       },
     };
   });
+};
+
+const buildServiceBillFromBooking = (booking, invoice) => {
+  const status = getInvoiceStatus(invoice?.status ?? booking?.status);
+  const sourceDate = invoice?.paymentDate
+    ? new Date(invoice.paymentDate)
+    : booking?.bookFrom
+    ? new Date(booking.bookFrom)
+    : booking?.bookAt
+    ? new Date(booking.bookAt)
+    : invoice?.createdAt
+    ? new Date(invoice.createdAt)
+    : null;
+
+  return {
+    id: invoice?.id
+      ? `service-${invoice.id}`
+      : `service-booking-${booking?.id ?? "unknown"}`,
+    source: "service",
+    name:
+      getBookingLabel(booking || invoice?.bookingService) ||
+      (invoice?.id
+        ? `Service Invoice #${invoice.id}`
+        : `Service Booking #${booking?.id}`),
+    monthKey: sourceDate
+      ? getMonthKey(sourceDate.getFullYear(), sourceDate.getMonth() + 1)
+      : "unknown",
+    dueDate: sourceDate,
+    amount: Number(invoice?.amount ?? booking?.totalAmount ?? 0),
+    statusKey: status.key,
+    statusLabel: status.label,
+  };
 };
 
 export default function BillingPage() {
@@ -205,7 +229,7 @@ export default function BillingPage() {
     let active = true;
 
     const loadInvoices = async () => {
-      if (!apartment) {
+      if (!apartment || !accountId) {
         setBills([]);
         setLoading(false);
         return;
@@ -244,77 +268,34 @@ export default function BillingPage() {
             .filter((booking) => booking?.id)
             .map((booking) => [booking.id, booking])
         );
+        const invoiceByBookingId = new Map(
+          serviceInvoiceResponse.items
+            .filter((invoice) => invoice?.bookingService?.id)
+            .map((invoice) => [invoice.bookingService.id, invoice])
+        );
 
         const utilityBills = buildUtilityBills(utilityInvoices, utilityRates);
 
-        const serviceBills = serviceInvoiceResponse.items
+        const serviceBills = bookings.map((booking) =>
+          buildServiceBillFromBooking(
+            booking,
+            invoiceByBookingId.get(booking.id) ?? null
+          )
+        );
+
+        const unlinkedServiceInvoices = serviceInvoiceResponse.items
           .filter((invoice) => {
             const bookingId = invoice?.bookingService?.id;
-            return (
-              bookingMap.has(bookingId) ||
-              invoice?.bookingService?.account?.id === accountId
-            );
+            return !bookingId || !bookingMap.has(bookingId);
           })
-          .map((invoice) => {
-            const status = getInvoiceStatus(invoice.status);
-            const booking = bookingMap.get(invoice?.bookingService?.id);
-            const paymentDate = invoice.paymentDate
-              ? new Date(invoice.paymentDate)
-              : booking?.bookFrom
-              ? new Date(booking.bookFrom)
-              : invoice.createdAt
-              ? new Date(invoice.createdAt)
-              : null;
-
-            return {
-              id: `service-${invoice.id}`,
-              source: "service",
-              name: getBookingLabel(booking) || `Service Invoice #${invoice.id}`,
-              monthKey: paymentDate
-                ? getMonthKey(
-                    paymentDate.getFullYear(),
-                    paymentDate.getMonth() + 1
-                  )
-                : "unknown",
-              dueDate: paymentDate,
-              amount: Number(invoice.amount ?? 0),
-              statusKey: status.key,
-              statusLabel: status.label,
-            };
-          });
-
-        const fallbackServiceBills =
-          serviceInvoiceResponse.restricted || serviceBills.length === 0
-            ? bookings.map((booking) => {
-                const status = getInvoiceStatus(booking.status);
-                const bookingDate = booking?.bookFrom
-                  ? new Date(booking.bookFrom)
-                  : booking?.bookAt
-                  ? new Date(booking.bookAt)
-                  : null;
-
-                return {
-                  id: `service-booking-${booking.id}`,
-                  source: "service",
-                  name: getBookingLabel(booking) || `Service Booking #${booking.id}`,
-                  monthKey: bookingDate
-                    ? getMonthKey(
-                        bookingDate.getFullYear(),
-                        bookingDate.getMonth() + 1
-                      )
-                    : "unknown",
-                  dueDate: bookingDate,
-                  amount: Number(booking.totalAmount ?? 0),
-                  statusKey: status.key,
-                  statusLabel: status.label,
-                };
-              })
-            : [];
+          .map((invoice) =>
+            buildServiceBillFromBooking(invoice?.bookingService, invoice)
+          );
 
         const allBills = [
           ...utilityBills,
           ...serviceBills,
-          ...fallbackServiceBills,
+          ...unlinkedServiceInvoices,
         ].sort((a, b) => {
           const timeA = a.dueDate ? new Date(a.dueDate).getTime() : 0;
           const timeB = b.dueDate ? new Date(b.dueDate).getTime() : 0;
@@ -323,7 +304,7 @@ export default function BillingPage() {
 
         setServiceInvoiceWarning(
           serviceInvoiceResponse.restricted
-            ? "Service invoices are hidden because this account does not have permission to read them. Billing is temporarily using your service bookings as fallback data."
+            ? "Service invoice details are limited for this account, so the billing page is showing your real booking charges from the backend where invoice records are not accessible."
             : ""
         );
         setBills(allBills);

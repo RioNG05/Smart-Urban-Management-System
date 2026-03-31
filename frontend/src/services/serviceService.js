@@ -42,6 +42,26 @@ const formatFee = (feePerUnit, unitType) => {
   return unitType ? `${formattedFee} per ${unitType}` : formattedFee;
 };
 
+const resolveImageUrl = (...values) =>
+  values.find(
+    (value) => typeof value === "string" && value.trim().length > 0
+  ) || null;
+
+const collectImageUrls = (...sources) => {
+  const urls = sources.flatMap((source) => {
+    if (!source) return [];
+    if (Array.isArray(source)) return source;
+    if (typeof source === "string") return source.split(",");
+    return [];
+  });
+
+  return [...new Set(
+    urls
+      .map((value) => String(value ?? "").trim())
+      .filter(Boolean)
+  )];
+};
+
 export const normalizeServiceItem = (item) => {
   const formattedFee = formatFee(item?.feePerUnit, item?.unitType);
   const catalogItem = getCatalogMatch(item);
@@ -53,9 +73,23 @@ export const normalizeServiceItem = (item) => {
       formattedFee
         ? `Current service fee: ${formattedFee}. Contact the management team for booking details and availability.`
         : "Contact the management team for booking details and availability.",
-    image: item?.imageUrl || catalogItem?.image || null,
+    image: resolveImageUrl(
+      item?.imageUrl,
+      item?.image,
+      item?.thumbnailUrl,
+      catalogItem?.image
+    ),
     tagline: catalogItem?.tagline || "Resident-ready service booking.",
     areas: Array.isArray(catalogItem?.areas) ? catalogItem.areas : [],
+    imageUrls: collectImageUrls(
+      item?.imageUrls,
+      item?.images,
+      item?.gallery,
+      item?.galleryImages,
+      item?.imageUrl,
+      item?.image,
+      item?.thumbnailUrl
+    ),
     serviceCode: item?.serviceCode || null,
     feePerUnit: item?.feePerUnit ?? null,
     unitType: item?.unitType || null,
@@ -78,6 +112,30 @@ export const normalizeServiceResource = (item) => ({
   isAvailable: item?.isAvailable ?? false,
   serviceId: item?.service?.id ?? item?.serviceId ?? null,
   serviceName: item?.service?.serviceName || item?.serviceName || "",
+  imageUrl: resolveImageUrl(
+    item?.imageUrl,
+    item?.image,
+    item?.thumbnailUrl,
+    item?.service?.imageUrl,
+    item?.service?.image,
+    item?.service?.thumbnailUrl
+  ),
+  imageUrls: collectImageUrls(
+    item?.imageUrls,
+    item?.images,
+    item?.gallery,
+    item?.galleryImages,
+    item?.imageUrl,
+    item?.image,
+    item?.thumbnailUrl,
+    item?.service?.imageUrls,
+    item?.service?.images,
+    item?.service?.gallery,
+    item?.service?.galleryImages,
+    item?.service?.imageUrl,
+    item?.service?.image,
+    item?.service?.thumbnailUrl
+  ),
 });
 
 export const getServiceResources = async () => {
