@@ -388,11 +388,11 @@ export const AdminDashboard = () => {
 
         return Array.from(serviceTotals.entries())
             .sort((a, b) => b[1] - a[1])
-            .slice(0, 4)
+            .slice(0, 6)
             .map(([name], index) => ({
                 key: `service_${index}`,
                 name,
-                color: ['#3b82f6', '#10b981', '#c89b3c', '#ef4444'][index],
+                color: ['#3b82f6', '#10b981', '#c89b3c', '#ef4444', '#8b5cf6', '#f59e0b'][index],
             }));
     }, [dashboardState.serviceInvoices]);
 
