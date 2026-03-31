@@ -1351,7 +1351,7 @@ export const AdminAccountManager = () => {
 
   return (
     <div className="admin-lock-resident-container">
-      <div className="resident-stats-banner" style={{ background: 'linear-gradient(135deg, #0f172a 0%, #334155 100%)' }}>
+      <div className="resident-stats-banner" style={{ background: 'linear-gradient(135deg, var(--admin-primary) 0%, var(--admin-primary-hover) 100%)' }}>
         <div className="stats-icon-box"><FaUsers /></div>
         <div className="stats-info">
           <p>Access Control System</p>

@@ -134,7 +134,7 @@ export const AdminLayout = () => {
                 <header className="staff-topbar" style={{ justifyContent: 'space-between' }}>
 
                     <nav className="staff-main-nav" style={{ marginRight: 0, alignItems: 'center' }}>
-                        <a href="/admin" className="active">VinaHouse Admin Management System</a>
+                        <a href="/admin" className="active" style={{ textDecoration: 'none', borderBottom: 'none', color: 'var(--admin-primary)', fontWeight: '800', fontSize: '18px', letterSpacing: '0.5px' }}>VinaHouse Admin Management System</a>
                     </nav>
 
                     <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
