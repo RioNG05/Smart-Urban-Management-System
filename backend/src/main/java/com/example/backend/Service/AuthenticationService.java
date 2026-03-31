@@ -47,6 +47,10 @@ public class AuthenticationService {
     public AutheticationResponse authenticated(AuthenticationRequest request){
         var account = accountRepository.findByUsername(request.getUsername()).orElseThrow(() -> new RuntimeException("Tên người dùng hoặc mật khẩu sai"));
 
+        if (!account.isEnabled()) {
+            throw new RuntimeException("Tài khoản của bạn đã bị vô hiệu hóa");
+        }
+
         PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(10);
         boolean autheticated = passwordEncoder.matches(request.getPassword(), account.getPassword());
 
@@ -56,7 +60,7 @@ public class AuthenticationService {
                         .authenticated(false)
                         .build();
             }
-
+        
         var token = tokenGeneration(request.getUsername());
 
         return AutheticationResponse.builder()

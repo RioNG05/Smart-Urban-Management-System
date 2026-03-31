@@ -28,6 +28,7 @@ public class AccountCreateRequest {
     )
     String password;
     Integer roleId;
+    @Builder.Default
     Boolean isActive = true;
 
     public Integer getRoleId() {

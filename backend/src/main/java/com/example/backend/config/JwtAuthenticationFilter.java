@@ -58,6 +58,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
                 Account account = accountRepository.findByUsername(username).orElseThrow(() -> new RuntimeException("Không tìm thấy tài khoản có tên người dùng là: " +username));
 
+                if (Boolean.FALSE.equals(account.getIsActive())) {
+                    response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Tài khoản của bạn đã bị vô hiệu hóa");
+                    return;
+                }
+
                 UsernamePasswordAuthenticationToken authentication =
                         new UsernamePasswordAuthenticationToken(
                                 account,
