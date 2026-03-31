@@ -81,6 +81,8 @@ const AdminSidebar = ({ isOpen, setIsOpen, upcomingCount }) => {
                 {(isOpen && openMenus.access) && (
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '2px', paddingLeft: '20px', marginBottom: '10px' }}>
                         <NavLink to="/admin/roles" className="staff-nav-item" style={{ padding: '8px 15px', fontSize: '13px' }}><FaUserShield style={{ marginRight: '10px' }} /> Permissions</NavLink>
+
+                        <NavLink to="/admin/accounts" className="staff-nav-item" style={{ padding: '8px 15px', fontSize: '13px' }}><FaUsers style={{ marginRight: '10px' }} /> Account Management</NavLink>
                         <NavLink to="/admin/resident-account" className="staff-nav-item" style={{ padding: '8px 15px', fontSize: '13px' }}><FaUserLock style={{ marginRight: '10px' }} /> Resident Account</NavLink>
                     </div>
                 )}

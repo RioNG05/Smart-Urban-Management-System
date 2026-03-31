@@ -27,7 +27,8 @@ import {
   AdminBookingManager,
   AdminServiceFeeStats,
   AdminVisitorManager,
-  AdminComplaintManager
+  AdminComplaintManager,
+  AdminAccountManager
 } from "../admin/AdminManagement";
 
 import StaffApartment from "../staff/StaffApartment";
@@ -99,6 +100,7 @@ function AppRoutes() {
           <Route index element={<AdminDashboard />} />
           <Route path="roles" element={<AdminRoleManager />} />
           <Route path="resident-account" element={<AdminLockResident />} />
+          <Route path="accounts" element={<AdminAccountManager />} />
           <Route path="contracts/create" element={<AdminCreateContract />} />
           <Route path="contracts/view" element={<AdminPropertyManager />} />
           <Route path="apartment-layout" element={<AdminApartmentLayout />} />
