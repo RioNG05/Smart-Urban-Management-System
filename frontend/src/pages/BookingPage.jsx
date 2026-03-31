@@ -32,6 +32,61 @@ const formatCurrency = (value) => {
   }).format(numericValue);
 };
 
+const buildVisualSlides = (service, serviceResources, selectedResource) => {
+  const seenImages = new Set();
+  const slides = [];
+
+  const appendSlide = (image, metadata = {}) => {
+    const normalizedImage = String(image ?? "").trim();
+    if (!normalizedImage || seenImages.has(normalizedImage)) return;
+
+    seenImages.add(normalizedImage);
+    slides.push({
+      id: metadata.id || normalizedImage,
+      image: normalizedImage,
+      title: metadata.title || service?.title || "Booking service",
+      description:
+        metadata.description ||
+        service?.tagline ||
+        "Live backend images will rotate here automatically.",
+      resourceId: metadata.resourceId ?? null,
+    });
+  };
+
+  service?.imageUrls?.forEach((image, index) => {
+    appendSlide(image, {
+      id: `service-${service?.id || "default"}-${index}`,
+      title: service?.title,
+      description: service?.tagline,
+    });
+  });
+
+  serviceResources.forEach((resource) => {
+    const images =
+      resource?.imageUrls?.length > 0 ? resource.imageUrls : [resource?.imageUrl];
+
+    images.forEach((image, index) => {
+      appendSlide(image, {
+        id: `resource-${resource.id}-${index}`,
+        title: resource.resourceCode || `Resource #${resource.id}`,
+        description: resource.location || service?.title || "Available booking resource",
+        resourceId: resource.id,
+      });
+    });
+  });
+
+  if (!slides.length && selectedResource?.imageUrl) {
+    appendSlide(selectedResource.imageUrl, {
+      id: `resource-fallback-${selectedResource.id}`,
+      title: selectedResource.resourceCode || `Resource #${selectedResource.id}`,
+      description: selectedResource.location || service?.title,
+      resourceId: selectedResource.id,
+    });
+  }
+
+  return slides;
+};
+
 const toDateTimeString = (date, time) => {
   if (!date || !time) return "";
   return `${date}T${time}:00`;
@@ -59,6 +114,7 @@ export default function BookingPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [feedback, setFeedback] = useState({ type: "", message: "" });
+  const [activeSlideIndex, setActiveSlideIndex] = useState(0);
   const [survey, setSurvey] = useState({
     preferredDate: "",
     preferredTime: visitTimes[0].value,
@@ -163,6 +219,46 @@ export default function BookingPage() {
   useEffect(() => {
     setSelectedResourceId(availableResources[0]?.id ?? null);
   }, [selectedServiceId, availableResources]);
+
+  const bookingSlides = useMemo(
+    () => buildVisualSlides(selectedService, availableResources, selectedResource),
+    [selectedService, availableResources, selectedResource]
+  );
+
+  const activeSlide = bookingSlides[activeSlideIndex] ?? bookingSlides[0] ?? null;
+
+  useEffect(() => {
+    if (!bookingSlides.length) {
+      setActiveSlideIndex(0);
+      return;
+    }
+
+    setActiveSlideIndex((currentIndex) =>
+      Math.min(currentIndex, bookingSlides.length - 1)
+    );
+  }, [bookingSlides]);
+
+  useEffect(() => {
+    if (!selectedResource?.id || !bookingSlides.length) return;
+
+    const matchedSlideIndex = bookingSlides.findIndex(
+      (slide) => slide.resourceId === selectedResource.id
+    );
+
+    if (matchedSlideIndex >= 0) {
+      setActiveSlideIndex(matchedSlideIndex);
+    }
+  }, [selectedResource, bookingSlides]);
+
+  useEffect(() => {
+    if (bookingSlides.length <= 1) return undefined;
+
+    const intervalId = window.setInterval(() => {
+      setActiveSlideIndex((currentIndex) => (currentIndex + 1) % bookingSlides.length);
+    }, 4000);
+
+    return () => window.clearInterval(intervalId);
+  }, [bookingSlides.length]);
 
   const handleSurveyChange = (event) => {
     const { name, value } = event.target;
@@ -447,16 +543,35 @@ export default function BookingPage() {
 
           <div className="booking-visual-panel">
             <div className="booking-visual-hero">
-              {selectedService?.image ? (
-                <img src={selectedService.image} alt={selectedService.title} />
+              {activeSlide?.image ? (
+                <img
+                  src={activeSlide.image}
+                  alt={activeSlide.title || selectedService?.title || "Booking service"}
+                />
               ) : (
                 <div className="booking-image-placeholder">No image</div>
               )}
               <div className="booking-visual-overlay">
                 <p className="booking-step">Featured service</p>
-                <h2>{selectedService?.title || "Waiting for service data"}</h2>
-                <p>{selectedService?.tagline || "Live backend data will appear here."}</p>
+                <h2>{activeSlide?.title || selectedService?.title || "Waiting for service data"}</h2>
+                <p>{activeSlide?.description || selectedService?.tagline || "Live backend data will appear here."}</p>
               </div>
+
+              {bookingSlides.length > 1 ? (
+                <div className="booking-visual-dots">
+                  {bookingSlides.map((slide, index) => (
+                    <button
+                      key={slide.id}
+                      type="button"
+                      className={`booking-visual-dot ${
+                        index === activeSlideIndex ? "active" : ""
+                      }`}
+                      onClick={() => setActiveSlideIndex(index)}
+                      aria-label={`Show image ${index + 1}`}
+                    />
+                  ))}
+                </div>
+              ) : null}
             </div>
 
             <div className="booking-areas">
@@ -472,8 +587,22 @@ export default function BookingPage() {
               <div className="booking-area-grid">
                 {availableResources.length ? (
                   availableResources.map((resource) => (
-                    <article key={resource.id} className="booking-area-card">
+                    <button
+                      key={resource.id}
+                      type="button"
+                      className={`booking-area-card ${
+                        resource.id === selectedResource?.id ? "active" : ""
+                      }`}
+                      onClick={() => setSelectedResourceId(resource.id)}
+                    >
                       <div className="booking-resource-visual">
+                        {resource.imageUrl ? (
+                          <img
+                            src={resource.imageUrl}
+                            alt={resource.resourceCode || `Resource #${resource.id}`}
+                            className="booking-resource-image"
+                          />
+                        ) : null}
                         <span className="booking-resource-badge">
                           {resource.id === selectedResource?.id ? "Selected" : "Available"}
                         </span>
@@ -486,7 +615,7 @@ export default function BookingPage() {
                           for your selected service and can be reserved immediately.
                         </p>
                       </div>
-                    </article>
+                    </button>
                   ))
                 ) : (
                   <div className="booking-empty-state">

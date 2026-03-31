@@ -282,6 +282,30 @@
   color: #fff;
 }
 
+.booking-visual-dots {
+  position: absolute;
+  right: 24px;
+  bottom: 24px;
+  z-index: 2;
+  display: flex;
+  gap: 10px;
+}
+
+.booking-visual-dot {
+  width: 12px;
+  height: 12px;
+  border: none;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.45);
+  cursor: pointer;
+  transition: transform 0.2s ease, background-color 0.2s ease;
+}
+
+.booking-visual-dot.active {
+  background: #fff;
+  transform: scale(1.15);
+}
+
 .booking-area-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -290,31 +314,67 @@
 }
 
 .booking-area-card {
+  appearance: none;
+  font: inherit;
+  padding: 0;
+  text-align: left;
+  cursor: pointer;
   overflow: hidden;
   border-radius: 22px;
   background: #fff;
   border: 1px solid rgba(24, 24, 24, 0.08);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.booking-area-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 18px 35px rgba(15, 23, 42, 0.08);
+}
+
+.booking-area-card.active {
+  border-color: rgba(200, 155, 60, 0.55);
+  box-shadow: 0 22px 40px rgba(200, 155, 60, 0.16);
 }
 
 .booking-resource-visual {
+  position: relative;
   width: 100%;
-  min-height: 180px;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-end;
-  gap: 12px;
-  padding: 22px 18px;
+  min-height: 220px;
   background: linear-gradient(135deg, #1f2530 0%, #394558 100%);
   color: #fff;
 }
 
+.booking-resource-image {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.booking-resource-visual::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(17, 24, 39, 0.08), rgba(17, 24, 39, 0.78));
+}
+
 .booking-resource-visual h4 {
+  position: absolute;
+  left: 18px;
+  right: 18px;
+  bottom: 18px;
+  z-index: 1;
   margin: 0;
   font-size: 1.25rem;
   color: #fff;
 }
 
 .booking-resource-badge {
+  position: absolute;
+  top: 18px;
+  left: 18px;
+  z-index: 1;
   display: inline-flex;
   align-self: flex-start;
   padding: 7px 12px;

@@ -1532,6 +1532,16 @@ body {
   flex-wrap: wrap;
 }
 
+.pagination-ellipsis {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 34px;
+  color: #98a2b3;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+
 .pagination-btn,
 .pagination-page {
   min-width: 46px;
@@ -1662,6 +1672,10 @@ body {
 
   .pagination-btn {
     width: 100%;
+  }
+
+  .pagination-pages {
+    justify-content: center;
   }
 }
 

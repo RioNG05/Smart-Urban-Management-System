@@ -81,6 +81,8 @@ const AdminSidebar = ({ isOpen, setIsOpen, upcomingCount }) => {
                 {(isOpen && openMenus.access) && (
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '2px', paddingLeft: '20px', marginBottom: '10px' }}>
                         <NavLink to="/admin/roles" className="staff-nav-item" style={{ padding: '8px 15px', fontSize: '13px' }}><FaUserShield style={{ marginRight: '10px' }} /> Permissions</NavLink>
+
+                        <NavLink to="/admin/accounts" className="staff-nav-item" style={{ padding: '8px 15px', fontSize: '13px' }}><FaUsers style={{ marginRight: '10px' }} /> Account Management</NavLink>
                         <NavLink to="/admin/resident-account" className="staff-nav-item" style={{ padding: '8px 15px', fontSize: '13px' }}><FaUserLock style={{ marginRight: '10px' }} /> Resident Account</NavLink>
                     </div>
                 )}
@@ -91,6 +93,7 @@ const AdminSidebar = ({ isOpen, setIsOpen, upcomingCount }) => {
                         <NavLink to="/admin/contracts/create" className="staff-nav-item" style={{ padding: '8px 15px', fontSize: '13px' }}><FaFileContract style={{ marginRight: '10px' }} /> Create Contract</NavLink>
                         <NavLink to="/admin/contracts/view" className="staff-nav-item" style={{ padding: '8px 15px', fontSize: '13px' }}><FaClipboardList style={{ marginRight: '10px' }} /> View Contracts</NavLink>
                         <NavLink to="/admin/apartment-layout" className="staff-nav-item" style={{ padding: '8px 15px', fontSize: '13px' }}><FaBuilding style={{ marginRight: '10px' }} /> Apartment</NavLink>
+                        <NavLink to="/admin/apartment-types" className="staff-nav-item" style={{ padding: '8px 15px', fontSize: '13px' }}><FaLayerGroup style={{ marginRight: '10px' }} /> Apartment Types</NavLink>
                     </div>
                 )}
 
@@ -315,7 +318,7 @@ export const AdminDashboard = () => {
             { title: 'Total Apartments', value: dashboardState.apartments.length.toLocaleString(), icon: <FaBuilding />, color: '#3b82f6', bg: '#eff6ff' },
             { title: 'Active Residents', value: activeResidents.toLocaleString(), icon: <FaUsers />, color: '#10b981', bg: '#dcfce7' },
             { title: 'Open Service Requests', value: openRequests.toLocaleString(), icon: <FaWrench />, color: '#f59e0b', bg: '#fef3c7' },
-            { title: 'Monthly Revenue', value: currencyFormatter.format(currentMonthRevenue || 0), icon: <FaMoneyBillWave />, color: '#c89b3c', bg: '#fefce8' }
+            { title: 'Monthly Revenue', value: currencyFormatter.format(currentMonthRevenue || 0), icon: <FaMoneyBillWave />, color: '#ef4444', bg: '#fee2e2' }
         ];
     }, [currencyFormatter, currentDate, dashboardState]);
 
@@ -388,11 +391,11 @@ export const AdminDashboard = () => {
 
         return Array.from(serviceTotals.entries())
             .sort((a, b) => b[1] - a[1])
-            .slice(0, 4)
+            .slice(0, 6)
             .map(([name], index) => ({
                 key: `service_${index}`,
                 name,
-                color: ['#3b82f6', '#10b981', '#c89b3c', '#ef4444'][index],
+                color: ['#3b82f6', '#10b981', '#c89b3c', '#ef4444', '#8b5cf6', '#f59e0b'][index],
             }));
     }, [dashboardState.serviceInvoices]);
 
@@ -436,7 +439,7 @@ export const AdminDashboard = () => {
         <div className="dashboard-content staff-form-container" style={{ paddingBottom: '40px' }}>
             <header className="content-header" style={{ marginBottom: '30px' }}>
                 <h2>Admin Dashboard Overview</h2>
-                <p style={{ color: '#c89b3c', fontWeight: 'bold' }}>Real-time building management metrics</p>
+                <p style={{ color: '#c98b3c', fontWeight: 'bold' }}>Real-time building management metrics</p>
             </header>
 
             {error ? (

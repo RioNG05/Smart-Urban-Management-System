@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { useOutletContext } from "react-router-dom"; // THÊM NÀY ĐỂ KẾT NỐI VỚI SIDEBAR
 import StaffServiceMainContent from "../staff/StaffServiceMainContent";
 import StaffSecurityMainContent from "../staff/StaffSecurityMainContent";
@@ -36,6 +36,7 @@ import {
   FaChevronDown,
   FaUnlock,
   FaUserEdit,
+  FaUserLock,
 } from "react-icons/fa";
 import {
   createAccount,
@@ -48,7 +49,13 @@ import {
   updateAccountById,
   updateResidentById,
 } from "../services/adminResidentService";
-import { getApartments } from "../services/apartmentService";
+import {
+  getApartments,
+  getApartmentTypes,
+  createApartmentType,
+  updateApartmentType,
+  deleteApartmentType,
+} from "../services/apartmentService";
 import {
   createVisitor,
   getAllBookings,
@@ -134,6 +141,30 @@ const getAdminTimestampValue = (value) => {
   return Number.isNaN(parsed.getTime()) ? 0 : parsed.getTime();
 };
 
+const normalizeApartmentTypeRecord = (type, index = 0) => ({
+  id: type?.id ?? `apt-type-${Date.now()}-${index}`,
+  name: type?.name ?? "",
+  designSqrt: String(type?.designSqrt ?? ""),
+  numberOfBedroom: String(type?.numberOfBedroom ?? ""),
+  numberOfBathroom: String(type?.numberOfBathroom ?? ""),
+  commonPriceForBuying: String(type?.commonPriceForBuying ?? ""),
+  commonPriceForRent: String(type?.commonPriceForRent ?? ""),
+  furnitureTypeId: String(
+    type?.furnitureTypeId ?? type?.furnitureType?.id ?? "",
+  ),
+  furniture:
+    type?.furniture ??
+    type?.furnitureType?.description ??
+    type?.furnitureType?.name ??
+    "",
+  overview: type?.overview ?? "",
+  furnitureType: type?.furnitureType ?? null,
+  source: type?.source ?? "backend",
+  createdAt: type?.createdAt ?? new Date().toISOString(),
+  updatedAt: type?.updatedAt ?? type?.createdAt ?? new Date().toISOString(),
+});
+
+
 // --- ADMIN ROLE MANAGER ---
 const LegacyAdminRoleManager = () => {
   const [roles, setRoles] = useState([]);
@@ -186,7 +217,7 @@ const LegacyAdminRoleManager = () => {
 
         setError(
           loadError?.response?.data?.message ||
-            "Could not load real role data from backend accounts.",
+          "Could not load real role data from backend accounts.",
         );
       } finally {
         if (active) {
@@ -366,7 +397,7 @@ export const AdminRoleManager = () => {
 
         setError(
           loadError?.response?.data?.message ||
-            "Could not load real role data from backend accounts.",
+          "Could not load real role data from backend accounts.",
         );
       } finally {
         if (active) {
@@ -957,15 +988,7 @@ export const AdminLockResident = () => {
               onChange={(e) => handleInputChange("fullName", e.target.value)}
             />
           </div>
-          <div className="form-group">
-            <label>ID CARD / PASSPORT</label>
-            <input
-              type="text"
-              value={formData.identityId}
-              placeholder="Enter 12-digit ID number"
-              onChange={(e) => handleInputChange("identityId", e.target.value)}
-            />
-          </div>
+
           <div className="form-group">
             <label>USERNAME</label>
             <input
@@ -1088,7 +1111,7 @@ export const AdminLockResident = () => {
                 <th>APARTMENT</th>
                 <th>GENDER</th>
                 <th>DOB</th>
-                <th>ID CARD</th>
+
                 <th>STATUS</th>
                 <th style={{ textAlign: "center" }}>ACTION</th>
               </tr>
@@ -1146,7 +1169,7 @@ export const AdminLockResident = () => {
                     </td>
                     <td>{resident.gender || "Other"}</td>
                     <td>{resident.dateOfBirth || "N/A"}</td>
-                    <td>{resident.identityId || "N/A"}</td>
+
                     <td>
                       <span
                         style={{
@@ -1202,6 +1225,241 @@ export const AdminLockResident = () => {
           totalItems={filteredResidents.length}
           pageSize={pageSize}
           itemLabel="residents"
+        />
+      </section>
+    </div>
+  );
+};
+
+export const AdminAccountManager = () => {
+  const [accounts, setAccounts] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState("");
+  const [feedback, setFeedback] = useState({ type: "", message: "" });
+  const [searchTerm, setSearchTerm] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const pageSize = 8;
+
+  const loadAccounts = async () => {
+    try {
+      setIsLoading(true);
+      setError("");
+      const data = await getAccounts();
+      setAccounts(data);
+    } catch (err) {
+      setError(err?.response?.data?.message || "Could not load accounts.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadAccounts();
+  }, []);
+
+  // DYNAMIC ROLE DETECTION: Find all unique roles from the database
+  const availableRoles = useMemo(() => {
+    const roleMap = new Map();
+
+    accounts.forEach(acc => {
+      if (acc.role && acc.role.roleName) {
+        const name = String(acc.role.roleName).toUpperCase();
+        roleMap.set(name, {
+          id: acc.role.id || null,
+          name: name
+        });
+      }
+    });
+
+    return Array.from(roleMap.values()).sort((a, b) => (a.id || 99) - (b.id || 99));
+  }, [accounts]);
+
+  useEffect(() => {
+    if (accounts.length > 0) {
+      console.log("DEBUG: System Roles Detected:", availableRoles);
+      console.log("DEBUG: Raw Accounts List:", accounts);
+    }
+  }, [accounts, availableRoles]);
+
+  const handleToggleLock = async (account) => {
+    const nextStatus = !account.isActive;
+    const action = nextStatus ? "Unlock" : "Lock";
+
+    if (!window.confirm(`Are you sure you want to ${action} account "${account.username}"?`)) return;
+
+    try {
+      setIsSubmitting(true);
+      await updateAccountById(account.id, {
+        isActive: nextStatus,
+        username: account.username,
+        email: account.email
+      });
+      setFeedback({ type: "success", message: `Account ${action}ed successfully.` });
+      await loadAccounts();
+    } catch (err) {
+      setFeedback({ type: "error", message: err?.response?.data?.message || `Could not ${action} account.` });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleRoleChange = async (account, newRoleName) => {
+    if (!newRoleName) return;
+    if (!window.confirm(`Change role of "${account.username}" to ${newRoleName}?`)) return;
+
+    // Find the correct role object from our detected list
+    const roleInfo = availableRoles.find(r => r.name === newRoleName);
+
+    try {
+      setIsSubmitting(true);
+
+      // We try a robust payload that includes both the ID and name
+      // This increases compatibility with backends requiring role IDs
+      const payload = {
+        username: account.username,
+        email: account.email,
+        role: roleInfo.id ? { id: roleInfo.id, roleName: roleInfo.name } : { roleName: roleInfo.name }
+      };
+
+      console.log("SENDING UPDATE PAYLOAD:", payload);
+      await updateAccountById(account.id, payload);
+
+      setFeedback({ type: "success", message: "Role update command sent successfully." });
+
+      // Force a slight delay before reload to give backend time to process
+      setTimeout(() => loadAccounts(), 500);
+    } catch (err) {
+      setFeedback({ type: "error", message: err?.response?.data?.message || "Could not update role." });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+
+  const filteredAccounts = accounts.filter(acc => {
+    const role = acc.role?.roleName?.toUpperCase() || "";
+    if (role === "ADMIN" || role === "STAFF") return false;
+
+    return (acc.username?.toLowerCase() || "").includes(searchTerm.toLowerCase()) ||
+      (acc.email?.toLowerCase() || "").includes(searchTerm.toLowerCase()) ||
+      (acc.role?.roleName?.toLowerCase() || "").includes(searchTerm.toLowerCase());
+  });
+
+  const paginatedItems = paginateItems(filteredAccounts, currentPage, pageSize);
+  const totalPages = Math.max(1, Math.ceil(filteredAccounts.length / pageSize));
+
+  return (
+    <div className="admin-lock-resident-container">
+      <div className="resident-stats-banner" style={{ background: 'linear-gradient(135deg, #0f172a 0%, #334155 100%)' }}>
+        <div className="stats-icon-box"><FaUsers /></div>
+        <div className="stats-info">
+          <p>Access Control System</p>
+          <h3>Account & Role Management</h3>
+        </div>
+      </div>
+
+      <section className="resident-list-section">
+        <div className="list-toolbar" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', gap: '20px' }}>
+          <div className="admin-lock-search" style={{ flex: 1, margin: 0 }}>
+            <FaSearch />
+            <input
+              type="text"
+              placeholder="Search by username, email or role..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </div>
+          {feedback.message && (
+            <div className={`admin-feedback ${feedback.type}`} style={{ margin: 0, padding: '10px 20px', borderRadius: '8px' }}>
+              {feedback.message}
+            </div>
+          )}
+        </div>
+
+        {error && (
+          <div className="admin-feedback error" style={{ marginBottom: "20px" }}>{error}</div>
+        )}
+
+        <div className="admin-table-wrapper">
+          <table className="admin-custom-table">
+            <thead>
+              <tr>
+                <th>Username</th>
+                <th>Email</th>
+                <th style={{ minWidth: '180px' }}>Assign Role</th>
+                <th>Status</th>
+                <th style={{ textAlign: 'center' }}>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {isLoading ? (
+                <tr><td colSpan="6" style={{ textAlign: 'center', padding: '40px' }}>Loading accounts...</td></tr>
+              ) : paginatedItems.length === 0 ? (
+                <tr><td colSpan="6" style={{ textAlign: 'center', padding: '40px' }}>No accounts found.</td></tr>
+              ) : (
+                paginatedItems.map(account => {
+                  const currentRoleName = (account.role?.roleName || "").toUpperCase();
+
+                  return (
+                    <tr key={account.id} style={{ opacity: account.isActive !== false ? 1 : 0.6 }}>
+                      <td><strong>{account.username}</strong></td>
+                      <td>{account.email}</td>
+                      <td>
+                        <select
+                          className="role-selector"
+                          value={currentRoleName}
+                          onChange={(e) => handleRoleChange(account, e.target.value)}
+                          disabled={isSubmitting}
+                          style={{
+                            padding: '6px 12px',
+                            borderRadius: '6px',
+                            border: '1px solid #cbd5e1',
+                            fontSize: '13px',
+                            background: currentRoleName ? '#f0f9ff' : '#fef2f2',
+                            fontWeight: '600',
+                            width: '100%',
+                            color: currentRoleName ? '#0369a1' : '#b91c1c'
+                          }}
+                        >
+                          <option value="" disabled>-- DETECTING ROLE --</option>
+                          {availableRoles.map(role => (
+                            <option key={role.name} value={role.name}>
+                              {role.name}
+                            </option>
+                          ))}
+                        </select>
+                      </td>
+                      <td>
+                        <span className={`status-badge ${account.isActive !== false ? 'active' : 'locked'}`}>
+                          {account.isActive !== false ? 'Active' : 'Locked'}
+                        </span>
+                      </td>
+                      <td style={{ textAlign: 'center' }}>
+                        <button
+                          className={`action-btn-circle ${account.isActive !== false ? 'deny' : 'approve'}`}
+                          title={account.isActive !== false ? "Lock Account" : "Unlock Account"}
+                          onClick={() => handleToggleLock(account)}
+                          disabled={isSubmitting}
+                        >
+                          {account.isActive !== false ? <FaUserLock /> : <FaUnlock />}
+                        </button>
+                      </td>
+                    </tr>
+                  );
+                })
+              )}
+            </tbody>
+          </table>
+        </div>
+
+        <AdminPagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={setCurrentPage}
+          totalItems={filteredAccounts.length}
+          pageSize={pageSize}
+          itemLabel="accounts"
         />
       </section>
     </div>
@@ -1597,7 +1855,7 @@ const LegacyAdminPropertyManager = () => {
                     <button
                       onClick={() => setEditingId(item.id)}
                       style={{
-                        background: "#c89b3c",
+                        background: "var(--admin-primary)",
                         border: "none",
                         color: "white",
                         padding: "6px 14px",
@@ -1618,7 +1876,7 @@ const LegacyAdminPropertyManager = () => {
                           "0 6px 12px rgba(176, 134, 48, 0.3)";
                       }}
                       onMouseLeave={(e) => {
-                        e.target.style.background = "#c89b3c";
+                        e.target.style.background = "var(--admin-primary)";
                         e.target.style.transform = "translateY(0)";
                         e.target.style.boxShadow =
                           "0 4px 6px rgba(200, 155, 60, 0.2)";
@@ -1760,8 +2018,8 @@ const LegacyAdminPropertyManager = () => {
                             transition: "all 0.2s",
                           }}
                           onMouseEnter={(e) =>
-                            (e.target.style.background =
-                              "rgba(255,255,255,0.1)")
+                          (e.target.style.background =
+                            "rgba(255,255,255,0.1)")
                           }
                           onMouseLeave={(e) =>
                             (e.target.style.background = "transparent")
@@ -1773,7 +2031,7 @@ const LegacyAdminPropertyManager = () => {
                           onClick={() => handleSave(item.id)}
                           style={{
                             padding: "8px 16px",
-                            background: "#c89b3c",
+                            background: "var(--admin-primary)",
                             border: "none",
                             color: "white",
                             borderRadius: "6px",
@@ -1785,7 +2043,7 @@ const LegacyAdminPropertyManager = () => {
                             (e.target.style.background = "#b08630")
                           }
                           onMouseLeave={(e) =>
-                            (e.target.style.background = "#c89b3c")
+                            (e.target.style.background = "var(--admin-primary)")
                           }
                         >
                           Save Changes
@@ -1963,7 +2221,7 @@ export const AdminPropertyManager = () => {
     } catch (loadError) {
       setError(
         loadError?.response?.data?.message ||
-          "Could not load live contract data from backend.",
+        "Could not load live contract data from backend.",
       );
     } finally {
       setIsLoading(false);
@@ -2032,7 +2290,7 @@ export const AdminPropertyManager = () => {
     } catch (saveError) {
       setError(
         saveError?.response?.data?.message ||
-          "Could not update contract on backend.",
+        "Could not update contract on backend.",
       );
     } finally {
       setIsSaving(false);
@@ -2119,7 +2377,7 @@ export const AdminPropertyManager = () => {
                     <button
                       onClick={() => handleEdit(item)}
                       style={{
-                        background: "#c89b3c",
+                        background: "var(--admin-primary)",
                         border: "none",
                         color: "white",
                         padding: "6px 14px",
@@ -2238,7 +2496,7 @@ export const AdminPropertyManager = () => {
                         disabled={isSaving}
                         style={{
                           padding: "8px 16px",
-                          background: "#c89b3c",
+                          background: "var(--admin-primary)",
                           border: "none",
                           color: "white",
                           borderRadius: "6px",
@@ -2279,10 +2537,10 @@ export const AdminPropertyManager = () => {
                         {item.monthlyRent === "" || item.monthlyRent === null
                           ? "N/A"
                           : new Intl.NumberFormat("vi-VN", {
-                              style: "currency",
-                              currency: "VND",
-                              maximumFractionDigits: 0,
-                            }).format(Number(item.monthlyRent))}
+                            style: "currency",
+                            currency: "VND",
+                            maximumFractionDigits: 0,
+                          }).format(Number(item.monthlyRent))}
                       </strong>
                     </p>
                   </div>
@@ -2428,8 +2686,19 @@ export const AdminComplaintManager = () => {
               reply?.createdBy?.username ??
               "Staff/Admin",
             createdLabel: formatAdminDateTime(getComplaintTimestamp(reply)),
-          }));
+          }))
+            .sort(
+              (a, b) =>
+                getAdminTimestampValue(getComplaintTimestamp(a)) -
+                getAdminTimestampValue(getComplaintTimestamp(b)),
+            );
           const createdAt = getComplaintTimestamp(complaint);
+          const latestReplyAt =
+            replies.length > 0
+              ? getComplaintTimestamp(replies[replies.length - 1])
+              : null;
+          const lastActivityAt = latestReplyAt ?? createdAt;
+          const status = replies.length > 0 ? "replied" : "new";
 
           return {
             ...complaint,
@@ -2460,21 +2729,17 @@ export const AdminComplaintManager = () => {
             ),
             replies,
             replyCount: replies.length,
-            status: replies.length > 0 ? "replied" : "new",
-            statusLabel: replies.length > 0 ? "Replied" : "Pending review",
+            latestReplyAt,
             latestReplyLabel:
-              replies.length > 0
-                ? formatAdminDateTime(
-                    getComplaintTimestamp(replies[replies.length - 1]),
-                  )
+              latestReplyAt !== null
+                ? formatAdminDateTime(latestReplyAt)
                 : "No replies yet",
-            sortPriority: replies.length > 0 ? 1 : 0,
-            sortTimestamp: Math.max(
-              getAdminTimestampValue(createdAt),
-              getAdminTimestampValue(
-                complaint?.updatedAt ?? complaint?.modifiedAt,
-              ),
-            ),
+            lastActivityAt,
+            lastActivityLabel: formatAdminDateTime(lastActivityAt),
+            status,
+            statusLabel: status === "replied" ? "Replied" : "Pending review",
+            sortPriority: status === "replied" ? 1 : 0,
+            sortTimestamp: getAdminTimestampValue(lastActivityAt),
           };
         })
         .sort((a, b) => {
@@ -2534,14 +2799,14 @@ export const AdminComplaintManager = () => {
         keyword.length === 0
           ? true
           : [
-              complaint.content,
-              complaint.ownerName,
-              complaint.ownerEmail,
-              complaint.ownerPhone,
-              complaint.apartmentLabel,
-            ].some((value) =>
-              String(value ?? "").toLowerCase().includes(keyword),
-            );
+            complaint.content,
+            complaint.ownerName,
+            complaint.ownerEmail,
+            complaint.ownerPhone,
+            complaint.apartmentLabel,
+          ].some((value) =>
+            String(value ?? "").toLowerCase().includes(keyword),
+          );
 
       return matchesStatus && matchesSearch;
     })
@@ -2569,7 +2834,7 @@ export const AdminComplaintManager = () => {
     (complaint) => complaint.status === "replied",
   ).length;
   const latestComplaintDate =
-    complaints.length > 0 ? formatAdminDate(complaints[0].createdAt) : "N/A";
+    complaints.length > 0 ? formatAdminDate(complaints[0].lastActivityAt) : "N/A";
 
   const handleSubmitReply = async () => {
     if (!selectedComplaint || !replyDraft.trim()) {
@@ -2665,7 +2930,7 @@ export const AdminComplaintManager = () => {
                 icon: <FaExclamationTriangle />,
                 label: "Pending review",
                 value: newCount,
-                accent: "#f59e0b",
+                accent: "#c98b3c",
               },
               {
                 icon: <FaRegCommentDots />,
@@ -2821,7 +3086,6 @@ export const AdminComplaintManager = () => {
                   <tr>
                     <th>Resident</th>
                     <th>Apartment</th>
-                    <th>Content</th>
                     <th>Status</th>
                     <th>Updated</th>
                   </tr>
@@ -2848,13 +3112,13 @@ export const AdminComplaintManager = () => {
                           cursor: "pointer",
                           background:
                             complaint.id === selectedComplaintId
-                              ? "rgba(59, 130, 246, 0.08)"
+                              ? "rgba(201, 139, 60, 0.08)"
                               : undefined,
                         }}
                       >
                         <td>
                           <strong>{complaint.ownerName}</strong>
-                          <div style={{ color: "#64748b", fontSize: "12px", marginTop: "4px" }}>
+                          <div style={{ color: "#64748b", fontSize: "11px", marginTop: "4px", wordBreak: "break-all" }}>
                             {complaint.ownerEmail}
                           </div>
                         </td>
@@ -2864,24 +3128,10 @@ export const AdminComplaintManager = () => {
                             {complaint.floorNumber ? `Floor ${complaint.floorNumber}` : "Floor unknown"}
                           </div>
                         </td>
-                        <td style={{ maxWidth: "280px" }}>
-                          <div
-                            style={{
-                              display: "-webkit-box",
-                              WebkitLineClamp: 2,
-                              WebkitBoxOrient: "vertical",
-                              overflow: "hidden",
-                              lineHeight: "1.5",
-                            }}
-                          >
-                            {complaint.content}
-                          </div>
-                        </td>
                         <td>
                           <span
-                            className={`status-badge ${
-                              complaint.status === "replied" ? "active" : "locked"
-                            }`}
+                            className={`status-badge ${complaint.status === "replied" ? "active" : "locked"
+                              }`}
                           >
                             {complaint.statusLabel}
                           </span>
@@ -2977,9 +3227,8 @@ export const AdminComplaintManager = () => {
                     </p>
                   </div>
                   <span
-                    className={`status-badge ${
-                      selectedComplaint.status === "replied" ? "active" : "locked"
-                    }`}
+                    className={`status-badge ${selectedComplaint.status === "replied" ? "active" : "locked"
+                      }`}
                   >
                     {selectedComplaint.statusLabel}
                   </span>
@@ -2988,14 +3237,23 @@ export const AdminComplaintManager = () => {
                 <div
                   style={{
                     display: "grid",
-                    gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
+                    gridTemplateColumns: "1.43fr 0.57fr",
                     gap: "12px",
                     marginBottom: "18px",
                   }}
                 >
                   {[
                     { label: "Submitted", value: selectedComplaint.createdLabel },
-                    { label: "Updated", value: selectedComplaint.updatedLabel },
+                    {
+                      label:
+                        selectedComplaint.status === "new"
+                          ? "Awaiting reply"
+                          : "Last reply",
+                      value:
+                        selectedComplaint.status === "new"
+                          ? "Not replied yet"
+                          : selectedComplaint.latestReplyLabel,
+                    },
                     { label: "Email", value: selectedComplaint.ownerEmail },
                     { label: "Reply count", value: selectedComplaint.replyCount },
                   ].map((item) => (
@@ -3011,7 +3269,7 @@ export const AdminComplaintManager = () => {
                       <div style={{ fontSize: "12px", color: "#64748b", marginBottom: "6px" }}>
                         {item.label}
                       </div>
-                      <div style={{ color: "#0f172a", fontWeight: "700", lineHeight: "1.5" }}>
+                      <div style={{ color: "#0f172a", fontWeight: "700", lineHeight: "1.5", wordBreak: "break-all" }}>
                         {item.value}
                       </div>
                     </div>
@@ -3170,336 +3428,12 @@ export const AdminComplaintManager = () => {
   );
 };
 
-// --- ADMIN APARTMENT MANAGEMENT ---
-const LegacyAdminApartmentLayout = () => {
-  const [selectedApartment, setSelectedApartment] = useState(null);
-  const floors = [10, 9, 8, 7, 6, 5, 4, 3, 2, 1];
-  const apartmentsPerFloor = 7;
-
-  // Mock data matching staff implementation
-  const mockAptDetail = {
-    room: selectedApartment,
-    floor: selectedApartment
-      ? Math.floor(parseInt(selectedApartment) / 100)
-      : "",
-    owner:
-      selectedApartment % 100 === 1 || selectedApartment === 1001
-        ? `Nguyen Van A`
-        : null,
-    residentCount:
-      selectedApartment % 100 === 1 || selectedApartment === 1001 ? 3 : 0,
-    currentMonthStatus: "Unpaid",
-    services: [
-      { name: "Electricity", unitPrice: 3500, quantity: 150 },
-      { name: "Water", unitPrice: 15000, quantity: 10 },
-      {
-        name: "Management Fee",
-        unitPrice: 12000,
-        quantity:
-          selectedApartment % 100 === 1 || selectedApartment === 1001 ? 3 : 0,
-      },
-    ],
-    payerName: "---",
-    history: [
-      {
-        id: 1,
-        month: "02/2026",
-        payer: "Robert Miller",
-        total: "656,000",
-        status: "Paid",
-      },
-      {
-        id: 2,
-        month: "01/2026",
-        payer: "Linda Wilson",
-        total: "706,000",
-        status: "Paid",
-      },
-    ],
-  };
-
-  const hasOwner = !!mockAptDetail.owner;
-
-  return (
-    <div className="admin-apartment-layout-wrapper">
-      {!selectedApartment ? (
-        <div className="staff-form-container building-container">
-          <h3
-            style={{
-              marginBottom: "25px",
-              fontSize: "24px",
-              fontWeight: "800",
-              color: "#1e293b",
-            }}
-          >
-            VinaHouse Building Layout (Apartments)
-          </h3>
-
-          <div className="building-grid">
-            {floors.map((floor) => (
-              <div key={floor} className="floor-row">
-                <div className="floor-label">Floor {floor}</div>
-                <div className="apartment-grid">
-                  {Array.from({ length: apartmentsPerFloor }).map((_, idx) => {
-                    const aptNumber = floor * 100 + idx + 1;
-                    const isSelected = selectedApartment === aptNumber;
-                    return (
-                      <div
-                        key={aptNumber}
-                        className={`apartment-box ${isSelected ? "selected" : ""}`}
-                        onClick={() => setSelectedApartment(aptNumber)}
-                      >
-                        {aptNumber}
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      ) : (
-        <div
-          className="staff-form-container apartment-detail-view"
-          style={{ minHeight: "80vh" }}
-        >
-          <button
-            onClick={() => setSelectedApartment(null)}
-            className="btn-back"
-          >
-            ← Back to Layout
-          </button>
-
-          <div className="admin-lock-header-row" style={{ marginTop: "15px" }}>
-            <h3
-              style={{ fontSize: "24px", fontWeight: "800", color: "#c89b3c" }}
-            >
-              Apartment Details: {mockAptDetail.room}
-            </h3>
-          </div>
-
-          <div
-            className="apt-info-grid"
-            style={{
-              background: "#f8fafc",
-              padding: "25px",
-              borderRadius: "12px",
-              marginTop: "20px",
-            }}
-          >
-            <p>
-              <strong>Floor:</strong> {mockAptDetail.floor}
-            </p>
-            <p>
-              <strong>Owner:</strong>{" "}
-              {hasOwner ? (
-                <span style={{ color: "#1e293b", fontWeight: "700" }}>
-                  {mockAptDetail.owner}
-                </span>
-              ) : (
-                <span
-                  style={{
-                    color: "#ef4444",
-                    fontStyle: "italic",
-                    fontWeight: "bold",
-                  }}
-                >
-                  No Owner
-                </span>
-              )}
-            </p>
-            <p>
-              <strong>Current Residents:</strong> {mockAptDetail.residentCount}{" "}
-              people
-            </p>
-          </div>
-
-          {hasOwner ? (
-            <>
-              <h4
-                style={{
-                  marginTop: "35px",
-                  marginBottom: "20px",
-                  fontWeight: "800",
-                  color: "#1e293b",
-                }}
-              >
-                Current Month Services Table
-              </h4>
-              <div
-                className="admin-table-wrapper"
-                style={{ padding: 0, border: "none", boxShadow: "none" }}
-              >
-                <table className="admin-custom-table bordered">
-                  <thead>
-                    <tr>
-                      <th>SERVICE</th>
-                      <th>UNIT PRICE (VND)</th>
-                      <th>QUANTITY</th>
-                      <th>TOTAL (VND)</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {mockAptDetail.services.map((svc, idx) => {
-                      const totalAmount = svc.unitPrice * svc.quantity;
-                      return (
-                        <tr key={idx}>
-                          <td>{svc.name}</td>
-                          <td>{svc.unitPrice.toLocaleString()}</td>
-                          <td>
-                            {svc.quantity}{" "}
-                            {svc.name === "Management Fee" ? "(People)" : ""}
-                          </td>
-                          <td style={{ fontWeight: "bold", color: "#1e293b" }}>
-                            {totalAmount.toLocaleString()}
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                  <tfoot>
-                    <tr style={{ borderTop: "2px solid #f1f5f9" }}>
-                      <td
-                        colSpan="3"
-                        style={{
-                          textAlign: "right",
-                          fontWeight: "800",
-                          fontSize: "14px",
-                          color: "#1e293b",
-                        }}
-                      >
-                        GRAND TOTAL THIS MONTH:
-                      </td>
-                      <td
-                        style={{
-                          fontWeight: "900",
-                          color: "#ef4444",
-                          fontSize: "18px",
-                        }}
-                      >
-                        {mockAptDetail.services
-                          .reduce(
-                            (acc, curr) => acc + curr.unitPrice * curr.quantity,
-                            0,
-                          )
-                          .toLocaleString()}
-                      </td>
-                    </tr>
-                    <tr>
-                      <td
-                        colSpan="3"
-                        style={{
-                          textAlign: "right",
-                          fontWeight: "700",
-                          color: "#1e293b",
-                        }}
-                      >
-                        PAYER:
-                      </td>
-                      <td style={{ fontWeight: "600", color: "#64748b" }}>
-                        {mockAptDetail.payerName}
-                      </td>
-                    </tr>
-                    <tr>
-                      <td
-                        colSpan="3"
-                        style={{
-                          textAlign: "right",
-                          fontWeight: "700",
-                          color: "#1e293b",
-                        }}
-                      >
-                        STATUS:
-                      </td>
-                      <td style={{ fontWeight: "700", color: "#ef4444" }}>
-                        Unpaid
-                      </td>
-                    </tr>
-                  </tfoot>
-                </table>
-              </div>
-            </>
-          ) : (
-            <>
-              <h4
-                style={{
-                  marginTop: "35px",
-                  marginBottom: "20px",
-                  fontWeight: "800",
-                  color: "#1e293b",
-                }}
-              >
-                Current Month Services Table
-              </h4>
-              <div
-                style={{
-                  padding: "25px",
-                  background: "#f8fafc",
-                  border: "1px dashed #cbd5e1",
-                  borderRadius: "8px",
-                  textAlign: "center",
-                  color: "#64748b",
-                }}
-              >
-                Apartment is currently empty - No current service data
-                available.
-              </div>
-            </>
-          )}
-
-          <h4
-            style={{
-              marginTop: "45px",
-              marginBottom: "20px",
-              fontWeight: "800",
-              color: "#1e293b",
-            }}
-          >
-            Service Transaction History
-          </h4>
-          <div
-            className="admin-table-wrapper"
-            style={{ padding: 0, border: "none", boxShadow: "none" }}
-          >
-            <table className="admin-custom-table bordered">
-              <thead>
-                <tr>
-                  <th>MONTH</th>
-                  <th>PAYER</th>
-                  <th>TOTAL (VND)</th>
-                  <th>STATUS</th>
-                  <th style={{ textAlign: "center" }}>ACTION</th>
-                </tr>
-              </thead>
-              <tbody>
-                {mockAptDetail.history.map((h) => (
-                  <tr key={h.id}>
-                    <td>{h.month}</td>
-                    <td>{h.payer}</td>
-                    <td style={{ fontWeight: "bold" }}>{h.total}</td>
-                    <td>
-                      <span style={{ color: "#10b981", fontWeight: "bold" }}>
-                        {h.status}
-                      </span>
-                    </td>
-                    <td style={{ textAlign: "center" }}>
-                      <button className="btn-view-details">View Details</button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      )}
-    </div>
-  );
-};
-
+// --- ADMIN APARTMENT LAYOUT (FINAL VERSION) ---
 export const AdminApartmentLayout = () => {
   const [selectedApartmentId, setSelectedApartmentId] = useState(null);
   const [chargesPage, setChargesPage] = useState(1);
   const [historyPage, setHistoryPage] = useState(1);
+  const [floorSearch, setFloorSearch] = useState("");
   const [baseData, setBaseData] = useState({
     apartments: [],
     contracts: [],
@@ -3516,12 +3450,10 @@ export const AdminApartmentLayout = () => {
 
   useEffect(() => {
     let active = true;
-
     const loadData = async () => {
       try {
         setIsLoading(true);
         setError("");
-
         const [
           apartments,
           contracts,
@@ -3539,9 +3471,7 @@ export const AdminApartmentLayout = () => {
           getAllServiceInvoices(),
           getAllBookings(),
         ]);
-
         if (!active) return;
-
         setBaseData({
           apartments,
           contracts,
@@ -3553,53 +3483,34 @@ export const AdminApartmentLayout = () => {
         });
       } catch (loadError) {
         if (!active) return;
-        setError(
-          loadError?.response?.data?.message ||
-            "Could not load apartment layout data from backend.",
-        );
+        setError(loadError?.response?.data?.message || "Could not load apartment layout data.");
       } finally {
-        if (active) {
-          setIsLoading(false);
-        }
+        if (active) setIsLoading(false);
       }
     };
-
     loadData();
-
-    return () => {
-      active = false;
-    };
+    return () => { active = false; };
   }, []);
 
   useEffect(() => {
     let active = true;
-
     const loadStayHistory = async () => {
       if (!selectedApartmentId) {
         setStayHistory([]);
         return;
       }
-
       try {
         setIsDetailLoading(true);
         const history = await getStayHistoryByApartmentId(selectedApartmentId);
-        if (!active) return;
-        setStayHistory(history);
+        if (active) setStayHistory(history);
       } catch {
-        if (!active) return;
-        setStayHistory([]);
+        if (active) setStayHistory([]);
       } finally {
-        if (active) {
-          setIsDetailLoading(false);
-        }
+        if (active) setIsDetailLoading(false);
       }
     };
-
     loadStayHistory();
-
-    return () => {
-      active = false;
-    };
+    return () => { active = false; };
   }, [selectedApartmentId]);
 
   useEffect(() => {
@@ -3607,418 +3518,311 @@ export const AdminApartmentLayout = () => {
     setHistoryPage(1);
   }, [selectedApartmentId]);
 
-  const apartmentMap = new Map(
-    baseData.apartments.map((apartment) => [apartment.id, apartment]),
-  );
-  const accountMap = new Map(
-    baseData.accounts.map((account) => [account.id, account]),
-  );
+  const apartmentMap = new Map(baseData.apartments.map((a) => [a.id, a]));
+  const accountMap = new Map(baseData.accounts.map((a) => [a.id, a]));
   const residentMap = new Map(
-    baseData.residents.map((resident) => [
-      resident?.account?.id ?? resident?.accountId,
-      resident,
-    ]),
+    baseData.residents.map((r) => [r?.account?.id ?? r?.accountId, r]),
   );
-  const bookingMap = new Map(
-    baseData.bookings.map((booking) => [booking.id, booking]),
-  );
+  const bookingMap = new Map(baseData.bookings.map((b) => [b.id, b]));
 
   const floors = Array.from(
     baseData.apartments
-      .reduce((map, apartment) => {
-        const floor = apartment.floorNumber ?? 0;
-        const current = map.get(floor) ?? [];
-        current.push(apartment);
-        map.set(floor, current);
+      .reduce((map, apt) => {
+        const f = apt.floorNumber ?? 0;
+        const curr = map.get(f) ?? [];
+        curr.push(apt);
+        map.set(f, curr);
         return map;
       }, new Map())
       .entries(),
   ).sort((a, b) => Number(b[0]) - Number(a[0]));
 
-  const selectedApartment = selectedApartmentId
-    ? apartmentMap.get(selectedApartmentId)
-    : null;
+  const filteredFloors = floors.filter(([floorNum]) =>
+    floorSearch === "" || String(floorNum).includes(floorSearch)
+  );
 
+  const selectedApartment = selectedApartmentId ? apartmentMap.get(selectedApartmentId) : null;
   const relatedContracts = baseData.contracts
-    .filter(
-      (contract) =>
-        (contract?.apartment?.id ?? contract?.apartmentId) ===
-        selectedApartmentId,
-    )
-    .sort(
-      (a, b) =>
-        new Date(b?.startDate || 0).getTime() -
-        new Date(a?.startDate || 0).getTime(),
-    );
+    .filter(c => (c?.apartment?.id ?? c?.apartmentId) === selectedApartmentId)
+    .sort((a, b) => new Date(b?.startDate || 0).getTime() - new Date(a?.startDate || 0).getTime());
 
-  const activeContract =
-    relatedContracts.find((contract) => Number(contract?.status ?? 1) === 1) ||
-    relatedContracts[0] ||
-    null;
-
-  const activeAccountId =
-    activeContract?.account?.id ?? activeContract?.accountId ?? null;
-  const activeAccount = activeAccountId
-    ? accountMap.get(activeAccountId)
-    : null;
-  const activeResident = activeAccountId
-    ? residentMap.get(activeAccountId)
-    : null;
+  const activeContract = relatedContracts.find(c => Number(c?.status ?? 1) === 1) || relatedContracts[0] || null;
+  const activeAccountId = activeContract?.account?.id ?? activeContract?.accountId ?? null;
+  const activeResident = activeAccountId ? residentMap.get(activeAccountId) : null;
+  const activeAccount = activeAccountId ? accountMap.get(activeAccountId) : null;
 
   const relatedUtilities = baseData.utilities
-    .filter(
-      (invoice) =>
-        (invoice?.apartment?.id ?? invoice?.apartmentId) ===
-        selectedApartmentId,
-    )
+    .filter(inv => (inv?.apartment?.id ?? inv?.apartmentId) === selectedApartmentId)
     .sort((a, b) => {
-      const keyA = `${a?.billingYear ?? 0}-${String(a?.billingMonth ?? 0).padStart(2, "0")}`;
-      const keyB = `${b?.billingYear ?? 0}-${String(b?.billingMonth ?? 0).padStart(2, "0")}`;
+      const keyA = `${a?.billingYear}-${String(a?.billingMonth).padStart(2, "0")}`;
+      const keyB = `${b?.billingYear}-${String(b?.billingMonth).padStart(2, "0")}`;
       return keyB.localeCompare(keyA);
     });
 
   const relatedServiceInvoices = baseData.serviceInvoices
-    .filter((invoice) => {
-      const booking = bookingMap.get(invoice?.bookingService?.id);
-      const bookingAccountId =
-        booking?.account?.id ??
-        booking?.accountId ??
-        invoice?.bookingService?.account?.id;
-      return bookingAccountId === activeAccountId;
+    .filter((inv) => {
+      const booking = bookingMap.get(inv?.bookingService?.id);
+      const bAccountId = booking?.account?.id ?? booking?.accountId ?? inv?.bookingService?.account?.id;
+      return bAccountId === activeAccountId;
     })
-    .sort(
-      (a, b) =>
-        new Date(b?.paymentDate || b?.createdAt || 0).getTime() -
-        new Date(a?.paymentDate || a?.createdAt || 0).getTime(),
-    );
+    .sort((a, b) => new Date(b?.paymentDate || b?.createdAt || 0).getTime() - new Date(a?.paymentDate || a?.createdAt || 0).getTime());
 
   const now = new Date();
-  const currentUtilityInvoice =
-    relatedUtilities.find(
-      (invoice) =>
-        Number(invoice?.billingMonth) === now.getMonth() + 1 &&
-        Number(invoice?.billingYear) === now.getFullYear(),
-    ) || relatedUtilities[0];
-
-  const currentMonthServiceInvoices = relatedServiceInvoices.filter(
-    (invoice) => {
-      const parsed = new Date(invoice?.paymentDate || invoice?.createdAt || 0);
-      return (
-        !Number.isNaN(parsed.getTime()) &&
-        parsed.getMonth() === now.getMonth() &&
-        parsed.getFullYear() === now.getFullYear()
-      );
-    },
-  );
-
   const currentMonthRows = [];
+  const currentUtility = relatedUtilities.find(inv => Number(inv?.billingMonth) === now.getMonth() + 1 && Number(inv?.billingYear) === now.getFullYear()) || relatedUtilities[0];
 
-  if (currentUtilityInvoice) {
-    currentMonthRows.push({
-      name: "Electricity Bill",
-      detail: `Month ${currentUtilityInvoice.billingMonth}/${currentUtilityInvoice.billingYear}`,
-      amount: Number(currentUtilityInvoice.totalElectricUsed ?? 0),
-      status:
-        Number(currentUtilityInvoice.status ?? 0) === 1 ? "Paid" : "Unpaid",
-    });
-    currentMonthRows.push({
-      name: "Water Bill",
-      detail: `Month ${currentUtilityInvoice.billingMonth}/${currentUtilityInvoice.billingYear}`,
-      amount: Number(currentUtilityInvoice.totalWaterUsed ?? 0),
-      status:
-        Number(currentUtilityInvoice.status ?? 0) === 1 ? "Paid" : "Unpaid",
-    });
+  if (currentUtility) {
+    currentMonthRows.push({ name: "Electricity Bill", detail: `M ${currentUtility.billingMonth}/${currentUtility.billingYear}`, amount: Number(currentUtility.totalElectricUsed ?? 0), status: Number(currentUtility.status ?? 0) === 1 ? "Paid" : "Unpaid" });
+    currentMonthRows.push({ name: "Water Bill", detail: `M ${currentUtility.billingMonth}/${currentUtility.billingYear}`, amount: Number(currentUtility.totalWaterUsed ?? 0), status: Number(currentUtility.status ?? 0) === 1 ? "Paid" : "Unpaid" });
   }
 
-  currentMonthServiceInvoices.forEach((invoice) => {
-    const booking = bookingMap.get(invoice?.bookingService?.id);
-    currentMonthRows.push({
-      name:
-        booking?.serviceResource?.service?.serviceName ||
-        booking?.serviceResource?.serviceName ||
-        `Service Invoice #${invoice.id}`,
-      detail:
-        invoice?.paymentDate?.slice?.(0, 10) ||
-        invoice?.createdAt?.slice?.(0, 10) ||
-        "N/A",
-      amount: Number(invoice?.amount ?? 0),
-      status: Number(invoice?.status ?? 0) === 1 ? "Paid" : "Unpaid",
-    });
-  });
-
   const transactionHistory = [
-    ...relatedUtilities.map((invoice) => ({
-      id: `utility-${invoice.id}`,
-      month: `${String(invoice.billingMonth).padStart(2, "0")}/${invoice.billingYear}`,
-      payer: activeResident?.fullName || activeAccount?.username || "N/A",
-      total: Number(
-        invoice?.totalAmount ??
-          Number(invoice?.totalElectricUsed ?? 0) +
-            Number(invoice?.totalWaterUsed ?? 0),
-      ),
-      status: Number(invoice?.status ?? 0) === 1 ? "Paid" : "Unpaid",
-    })),
-    ...relatedServiceInvoices.map((invoice) => ({
-      id: `service-${invoice.id}`,
-      month:
-        (invoice?.paymentDate || invoice?.createdAt || "").slice(0, 7) || "N/A",
-      payer: activeResident?.fullName || activeAccount?.username || "N/A",
-      total: Number(invoice?.amount ?? 0),
-      status: Number(invoice?.status ?? 0) === 1 ? "Paid" : "Unpaid",
-    })),
+    ...relatedUtilities.map(inv => ({ id: `u-${inv.id}`, month: `${String(inv.billingMonth).padStart(2, "0")}/${inv.billingYear}`, payer: activeResident?.fullName || activeAccount?.username || "N/A", total: Number(inv?.totalAmount ?? Number(inv?.totalElectricUsed ?? 0) + Number(inv?.totalWaterUsed ?? 0)), status: Number(inv?.status ?? 0) === 1 ? "Paid" : "Unpaid" })),
+    ...relatedServiceInvoices.map(inv => ({ id: `s-${inv.id}`, month: (inv?.paymentDate || inv?.createdAt || "").slice(0, 7) || "N/A", payer: activeResident?.fullName || activeAccount?.username || "N/A", total: Number(inv?.amount ?? 0), status: Number(inv?.status ?? 0) === 1 ? "Paid" : "Unpaid" })),
   ];
 
   const paginatedCharges = paginateItems(currentMonthRows, chargesPage, 6);
-  const chargesTotalPages = Math.max(1, Math.ceil(currentMonthRows.length / 6));
+  const chargesTotalPages = Math.ceil(currentMonthRows.length / 6) || 1;
   const paginatedHistory = paginateItems(transactionHistory, historyPage, 8);
-  const historyTotalPages = Math.max(
-    1,
-    Math.ceil(transactionHistory.length / 8),
-  );
+  const historyTotalPages = Math.ceil(transactionHistory.length / 8) || 1;
 
   return (
     <div className="admin-apartment-layout-wrapper">
-      {error ? (
-        <div className="admin-feedback error" style={{ marginBottom: "20px" }}>
-          {error}
-        </div>
-      ) : null}
+      {error && <div className="admin-feedback error" style={{ marginBottom: "20px" }}>{error}</div>}
 
-      {!selectedApartment ? (
-        <div className="staff-form-container building-container">
-          <h3
+      {!selectedApartmentId ? (
+        <div className="staff-form-container building-container" style={{ padding: "0 5px" }}>
+
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "28px", padding: "10px 5px" }}>
+            <div>
+              <h3 style={{ margin: 0, fontSize: "28px", fontWeight: "900", color: "#0f172a", letterSpacing: "-0.02em" }}>VinaHouse Building</h3>
+              <p style={{ margin: "5px 0 0", color: "#64748b", fontSize: "14px" }}>Visualized apartment occupation and structural layout.</p>
+            </div>
+            <div style={{ position: "relative", width: "260px", boxShadow: "0 4px 15px rgba(0,0,0,0.05)", borderRadius: "12px" }}>
+              <FaSearch style={{ position: "absolute", left: "16px", top: "50%", transform: "translateY(-50%)", color: "#94a3b8", fontSize: "14px" }} />
+              <input
+                type="text"
+                placeholder="Find floor (e.g. 10)..."
+                value={floorSearch}
+                onChange={(e) => setFloorSearch(e.target.value)}
+                style={{ width: "100%", padding: "14px 16px 14px 44px", borderRadius: "12px", border: "1px solid #e2e8f0", fontSize: "14px", outline: "none", transition: "all 0.2s" }}
+                onFocus={(e) => e.target.style.borderColor = "#c98b3c"}
+                onBlur={(e) => e.target.style.borderColor = "#e2e8f0"}
+              />
+            </div>
+          </div>
+
+          <div
             style={{
-              marginBottom: "25px",
-              fontSize: "24px",
-              fontWeight: "800",
-              color: "#1e293b",
+              maxHeight: "max(600px, calc(100vh - 280px))",
+              overflowY: "auto",
+              borderRadius: "20px",
+              paddingRight: "12px",
+              paddingBottom: "20px",
+              scrollbarWidth: "thin",
+              scrollbarColor: "#cbd5e1 transparent"
             }}
           >
-            VinaHouse Building Layout (Backend Apartments)
-          </h3>
+            {isLoading ? (
+              <div style={{ textAlign: "center", padding: "120px 0" }}>
+                <FaSyncAlt className="spin" style={{ fontSize: "40px", color: "#c98b3c", marginBottom: "15px" }} />
+                <p style={{ color: "#64748b", fontWeight: "600" }}>Architectural sync in progress...</p>
+              </div>
+            ) : filteredFloors.length === 0 ? (
+              <div style={{ textAlign: "center", padding: "80px", background: "#f8fafc", borderRadius: "16px", border: "2px dashed #e2e8f0" }}>
+                <p style={{ color: "#64748b", margin: 0 }}>No floor data matches your search.</p>
+              </div>
+            ) : (
+              <div style={{ display: "grid", gap: "20px" }}>
+                {filteredFloors.map(([floor, apts]) => (
+                  <div
+                    key={floor}
+                    style={{
+                      display: "flex",
+                      gap: "24px",
+                      padding: "24px",
+                      background: "white",
+                      borderRadius: "20px",
+                      border: "1px solid #f1f5f9",
+                      boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03)",
+                      transition: "transform 0.2s ease, box-shadow 0.2s ease",
+                      position: "relative",
+                      overflow: "hidden"
+                    }}
+                  >
+                    <div
+                      style={{
+                        minWidth: "72px",
+                        padding: "12px 8px",
+                        background: "#c98b3c",
+                        color: "#ffffff",
+                        borderRadius: "16px",
+                        display: "flex",
+                        flexDirection: "column",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        fontWeight: "900",
+                        fontSize: "12px",
+                        letterSpacing: "0.05em",
+                        border: "1px solid #b47d32",
+                        boxShadow: "0 4px 10px rgba(201, 139, 60, 0.15)"
+                      }}
+                    >
+                      <span style={{ fontSize: "10px", opacity: 0.9, marginBottom: "2px" }}>FLOOR</span>
+                      <span style={{ fontSize: "20px" }}>{floor}</span>
+                    </div>
 
-          {isLoading ? (
-            <div style={{ color: "#64748b" }}>
-              Loading apartments from backend...
-            </div>
-          ) : floors.length === 0 ? (
-            <div style={{ color: "#64748b" }}>
-              No apartments were returned by backend.
-            </div>
-          ) : (
-            <div className="building-grid">
-              {floors.map(([floor, apartments]) => (
-                <div key={floor} className="floor-row">
-                  <div className="floor-label">Floor {floor}</div>
-                  <div className="apartment-grid">
-                    {apartments
-                      .sort(
-                        (a, b) => Number(a.roomNumber) - Number(b.roomNumber),
-                      )
-                      .map((apartment) => {
-                        const occupied = baseData.contracts.some(
-                          (contract) =>
-                            (contract?.apartment?.id ??
-                              contract?.apartmentId) === apartment.id &&
-                            Number(contract?.status ?? 1) === 1,
-                        );
-
+                    <div style={{ display: "grid", gridTemplateColumns: "repeat(6, 1fr)", gap: "14px", flexGrow: 1 }}>
+                      {apts.sort((a, b) => Number(a.roomNumber) - Number(b.roomNumber)).map(apt => {
+                        const occupied = baseData.contracts.some(c => (c?.apartment?.id ?? c?.apartmentId) === apt.id && Number(c?.status ?? 1) === 1);
                         return (
                           <div
-                            key={apartment.id}
-                            className="apartment-box"
+                            key={apt.id}
+                            onClick={() => setSelectedApartmentId(apt.id)}
                             style={{
-                              background: occupied ? "#1e293b" : undefined,
-                              color: occupied ? "white" : undefined,
+                              padding: "14px 10px",
+                              textAlign: "center",
+                              borderRadius: "14px",
+                              border: occupied ? "1px solid #fde68a" : "1px solid #f1f5f9",
+                              cursor: "pointer",
+                              background: occupied ? "#fffbeb" : "#fff",
+                              color: occupied ? "#c98b3c" : "#475569",
+                              fontWeight: "800",
+                              fontSize: "15px",
+                              transition: "all 0.2s cubic-bezier(0.4, 0, 0.2, 1)",
+                              position: "relative",
+                              boxShadow: occupied ? "none" : "inset 0 0 0 1px rgba(0,0,0,0.02)"
                             }}
-                            onClick={() => setSelectedApartmentId(apartment.id)}
+                            className="apt-box-hover"
                           >
-                            {apartment.roomNumber}
+                            {apt.roomNumber}
+                            <div style={{ fontSize: "10px", marginTop: "4px", opacity: 0.6, fontWeight: "600" }}>
+                              {occupied ? "OCCUPIED" : "VACANT"}
+                            </div>
+                            {occupied && (
+                              <div style={{ position: "absolute", top: "6px", right: "6px", width: "6px", height: "6px", background: "#c98b3c", borderRadius: "50%" }}></div>
+                            )}
                           </div>
                         );
                       })}
+                    </div>
                   </div>
-                </div>
-              ))}
-            </div>
-          )}
+                ))}
+              </div>
+            )}
+          </div>
         </div>
       ) : (
-        <div
-          className="staff-form-container apartment-detail-view"
-          style={{ minHeight: "80vh" }}
-        >
-          <button
-            onClick={() => setSelectedApartmentId(null)}
-            className="btn-back"
-          >
-            ← Back to Layout
-          </button>
-
-          <div className="admin-lock-header-row" style={{ marginTop: "15px" }}>
-            <h3
-              style={{ fontSize: "24px", fontWeight: "800", color: "#c89b3c" }}
-            >
-              Apartment Details: {selectedApartment.roomNumber}
-            </h3>
-          </div>
-
-          <div
-            className="apt-info-grid"
-            style={{
-              background: "#f8fafc",
-              padding: "25px",
-              borderRadius: "12px",
-              marginTop: "20px",
-            }}
-          >
-            <p>
-              <strong>Floor:</strong> {selectedApartment.floorNumber}
-            </p>
-            <p>
-              <strong>Owner / Tenant:</strong>{" "}
-              {activeResident?.fullName ||
-                activeAccount?.username ||
-                "No active contract"}
-            </p>
-            <p>
-              <strong>Current Residents:</strong>{" "}
-              {isDetailLoading
-                ? "Loading..."
-                : stayHistory.filter((item) => !item?.moveOut).length || 0}{" "}
-              people
-            </p>
-          </div>
-
-          <h4
-            style={{
-              marginTop: "35px",
-              marginBottom: "20px",
-              fontWeight: "800",
-              color: "#1e293b",
-            }}
-          >
-            Current Charges
-          </h4>
-          <div
-            className="admin-table-wrapper"
-            style={{ padding: 0, border: "none", boxShadow: "none" }}
-          >
-            <table className="admin-custom-table bordered">
-              <thead>
-                <tr>
-                  <th>DESCRIPTION</th>
-                  <th>DETAIL</th>
-                  <th>AMOUNT (VND)</th>
-                  <th>STATUS</th>
-                </tr>
-              </thead>
-              <tbody>
-                {currentMonthRows.length === 0 ? (
-                  <tr>
-                    <td
-                      colSpan="4"
-                      style={{ textAlign: "center", padding: "24px" }}
-                    >
-                      No current apartment charge data was returned by backend.
-                    </td>
-                  </tr>
-                ) : (
-                  paginatedCharges.map((row) => (
-                    <tr key={`${row.name}-${row.detail}`}>
-                      <td>{row.name}</td>
-                      <td>{row.detail}</td>
-                      <td style={{ fontWeight: "bold" }}>
-                        {new Intl.NumberFormat("vi-VN").format(row.amount)}
-                      </td>
-                      <td
-                        style={{
-                          color: row.status === "Paid" ? "#10b981" : "#ef4444",
-                          fontWeight: "700",
-                        }}
-                      >
-                        {row.status}
-                      </td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </div>
-          <AdminPagination
-            currentPage={chargesPage}
-            totalPages={chargesTotalPages}
-            onPageChange={setChargesPage}
-            totalItems={currentMonthRows.length}
-            pageSize={6}
-            itemLabel="charges"
-          />
-
-          <h4
-            style={{
-              marginTop: "45px",
-              marginBottom: "20px",
-              fontWeight: "800",
-              color: "#1e293b",
-            }}
-          >
-            Service Transaction History
-          </h4>
-          <div
-            className="admin-table-wrapper"
-            style={{ padding: 0, border: "none", boxShadow: "none" }}
-          >
-            <table className="admin-custom-table bordered">
-              <thead>
-                <tr>
-                  <th>MONTH</th>
-                  <th>PAYER</th>
-                  <th>TOTAL (VND)</th>
-                  <th>STATUS</th>
-                </tr>
-              </thead>
-              <tbody>
-                {transactionHistory.length === 0 ? (
-                  <tr>
-                    <td
-                      colSpan="4"
-                      style={{ textAlign: "center", padding: "24px" }}
-                    >
-                      No backend transaction history found for this apartment.
-                    </td>
-                  </tr>
-                ) : (
-                  paginatedHistory.map((item) => (
-                    <tr key={item.id}>
-                      <td>{item.month}</td>
-                      <td>{item.payer}</td>
-                      <td style={{ fontWeight: "bold" }}>
-                        {new Intl.NumberFormat("vi-VN").format(item.total)}
-                      </td>
-                      <td
-                        style={{
-                          color: item.status === "Paid" ? "#10b981" : "#ef4444",
-                          fontWeight: "bold",
-                        }}
-                      >
-                        {item.status}
-                      </td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </div>
-          <AdminPagination
-            currentPage={historyPage}
-            totalPages={historyTotalPages}
-            onPageChange={setHistoryPage}
-            totalItems={transactionHistory.length}
-            pageSize={8}
-            itemLabel="transactions"
-          />
+        <div className="staff-form-container apartment-detail-view" style={{ minHeight: "80vh" }}>
+          <button onClick={() => setSelectedApartmentId(null)} className="btn-back">← Back to Layout</button>
+          {selectedApartment && (
+            <>
+              <h3 style={{ marginTop: "15px", fontSize: "24px", fontWeight: "800", color: "var(--admin-primary)" }}>Apartment Details: {selectedApartment.roomNumber}</h3>
+              <div style={{ background: "#f8fafc", padding: "25px", borderRadius: "12px", marginTop: "20px" }}>
+                <p><strong>Floor:</strong> {selectedApartment.floorNumber}</p>
+                <p><strong>Tenant:</strong> {activeResident?.fullName || activeAccount?.username || "No active contract"}</p>
+                <p><strong>Residents:</strong> {isDetailLoading ? "..." : stayHistory.filter(i => !i?.moveOut).length} people</p>
+              </div>
+              <h4 style={{ marginTop: "35px", marginBottom: "15px", fontWeight: "800" }}>Current Charges</h4>
+              <div className="admin-table-wrapper" style={{ padding: 0, border: "none" }}>
+                <table className="admin-custom-table bordered">
+                  <thead><tr><th>DESCRIPTION</th><th>DETAIL</th><th>AMOUNT (VND)</th><th>STATUS</th></tr></thead>
+                  <tbody>{currentMonthRows.length === 0 ? <tr><td colSpan="4" style={{ textAlign: "center", padding: "24px" }}>No charge data found.</td></tr> : paginatedCharges.map(r => <tr key={`${r.name}-${r.detail}`}><td>{r.name}</td><td>{r.detail}</td><td style={{ fontWeight: "bold" }}>{new Intl.NumberFormat("vi-VN").format(r.amount)}</td><td style={{ color: r.status === "Paid" ? "#10b981" : "#ef4444", fontWeight: "700" }}>{r.status}</td></tr>)}</tbody>
+                </table>
+              </div>
+              <AdminPagination currentPage={chargesPage} totalPages={chargesTotalPages} onPageChange={setChargesPage} totalItems={currentMonthRows.length} pageSize={6} itemLabel="charges" />
+              <h4 style={{ marginTop: "35px", marginBottom: "15px", fontWeight: "800" }}>Transaction History</h4>
+              <div className="admin-table-wrapper" style={{ padding: 0, border: "none" }}>
+                <table className="admin-custom-table bordered">
+                  <thead><tr><th>MONTH</th><th>PAYER</th><th>TOTAL (VND)</th><th>STATUS</th></tr></thead>
+                  <tbody>{transactionHistory.length === 0 ? <tr><td colSpan="4" style={{ textAlign: "center", padding: "24px" }}>No history found.</td></tr> : paginatedHistory.map(i => <tr key={i.id}><td>{i.month}</td><td>{i.payer}</td><td style={{ fontWeight: "bold" }}>{new Intl.NumberFormat("vi-VN").format(i.total)}</td><td style={{ color: i.status === "Paid" ? "#10b981" : "#ef4444", fontWeight: "bold" }}>{i.status}</td></tr>)}</tbody>
+                </table>
+              </div>
+              <AdminPagination currentPage={historyPage} totalPages={historyTotalPages} onPageChange={setHistoryPage} totalItems={transactionHistory.length} pageSize={8} itemLabel="transactions" />
+            </>
+          )}
         </div>
       )}
+    </div>
+  );
+};
+
+export const AdminApartmentTypeManager = () => {
+  const [types, setTypes] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  const loadTypes = async () => {
+    try {
+      setIsLoading(true);
+      const data = await getApartmentTypes();
+      setTypes(data || []);
+    } catch (err) {
+      setError("Failed to load apartment types from server.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadTypes();
+  }, []);
+
+  return (
+    <div className="admin-reports-container">
+      <div className="resident-stats-banner" style={{ borderLeft: "5px solid var(--admin-primary)", borderRadius: "16px", padding: "30px", marginBottom: "30px", display: "flex", alignItems: "center", gap: "25px", background: "white", boxShadow: "var(--admin-shadow-md)" }}>
+        <div className="stats-icon-box" style={{ background: "var(--admin-primary-light)", color: "var(--admin-primary)", fontSize: "28px", padding: "20px", borderRadius: "14px" }}>
+          <FaLayerGroup />
+        </div>
+        <div className="stats-info">
+          <p style={{ color: "var(--admin-text-muted)", fontSize: "14px", fontWeight: "600", textTransform: "uppercase" }}>Apartment Specification Metrics</p>
+          <h3 style={{ color: "var(--admin-text-main)", fontSize: "24px", fontWeight: "900" }}>{types.length} Classification Types</h3>
+        </div>
+      </div>
+
+      <div className="admin-table-wrapper" style={{ background: "white", borderRadius: "20px", padding: "32px", boxShadow: "var(--admin-shadow-lg)" }}>
+        <div className="form-header" style={{ marginBottom: "28px", display: "flex", alignItems: "center", gap: "10px" }}>
+          <FaLayerGroup style={{ color: "var(--admin-primary)" }} />
+          <span style={{ fontSize: "1.4rem", fontWeight: "800", color: "var(--admin-text-main)" }}>Apartment Configuration Matrix</span>
+        </div>
+
+        {error && <div className="admin-feedback error" style={{ marginBottom: "20px" }}>{error}</div>}
+
+        <div className="staff-table-scroll">
+          <table className="admin-custom-table bordered">
+            <thead>
+              <tr>
+                <th>TYPE ID</th>
+                <th>CLASSIFICATION</th>
+                <th>DIMENSION (m²)</th>
+                <th>CHAMBERS</th>
+                <th>RENTING PRICE (VND)</th>
+                <th style={{ textAlign: "center" }}>STATUS</th>
+              </tr>
+            </thead>
+            <tbody>
+              {isLoading ? (
+                <tr><td colSpan="6" style={{ textAlign: "center", padding: "60px" }}>Synchronizing configuration data...</td></tr>
+              ) : types.length === 0 ? (
+                <tr><td colSpan="6" style={{ textAlign: "center", padding: "40px" }}>Inventory empty. No types found.</td></tr>
+              ) : (
+                types.map((type) => (
+                  <tr key={type.id} style={{ transition: "all 0.15s" }}>
+                    <td style={{ fontWeight: "600", fontSize: "13px" }}>#{type.id}</td>
+                    <td style={{ fontWeight: "900", color: "var(--admin-primary)", fontSize: "15px" }}>{type.typeName}</td>
+                    <td style={{ fontWeight: "700" }}>{type.area} m²</td>
+                    <td>{type.roomCount || "0"} rooms</td>
+                    <td style={{ fontWeight: "800", color: "#10b981" }}>{new Intl.NumberFormat("vi-VN").format(type.rentPrice || 0)}</td>
+                    <td style={{ textAlign: "center" }}>
+                      <span style={{ padding: "4px 12px", background: "var(--admin-success-light)", color: "var(--admin-success)", borderRadius: "20px", fontSize: "11px", fontWeight: "800" }}>ACTIVE</span>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
   );
 };
