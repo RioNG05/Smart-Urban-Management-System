@@ -439,7 +439,7 @@ export const AdminDashboard = () => {
         <div className="dashboard-content staff-form-container" style={{ paddingBottom: '40px' }}>
             <header className="content-header" style={{ marginBottom: '30px' }}>
                 <h2>Admin Dashboard Overview</h2>
-                <p style={{ color: '#ef4444', fontWeight: 'bold' }}>Real-time building management metrics</p>
+                <p style={{ color: '#c98b3c', fontWeight: 'bold' }}>Real-time building management metrics</p>
             </header>
 
             {error ? (
