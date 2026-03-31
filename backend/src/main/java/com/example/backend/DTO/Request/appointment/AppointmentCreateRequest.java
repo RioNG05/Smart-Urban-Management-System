@@ -22,7 +22,6 @@ public class AppointmentCreateRequest {
 
     private String note;
 
-    @NotNull
     private LocalDate meetingDate;
 
     @NotNull

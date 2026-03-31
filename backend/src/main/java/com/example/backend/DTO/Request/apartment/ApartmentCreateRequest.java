@@ -1,11 +1,8 @@
 package com.example.backend.DTO.Request.apartment;
 
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
-
-import java.math.BigDecimal;
 
 @Data
 @NoArgsConstructor
