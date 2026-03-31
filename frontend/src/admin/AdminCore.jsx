@@ -318,7 +318,7 @@ export const AdminDashboard = () => {
             { title: 'Total Apartments', value: dashboardState.apartments.length.toLocaleString(), icon: <FaBuilding />, color: '#3b82f6', bg: '#eff6ff' },
             { title: 'Active Residents', value: activeResidents.toLocaleString(), icon: <FaUsers />, color: '#10b981', bg: '#dcfce7' },
             { title: 'Open Service Requests', value: openRequests.toLocaleString(), icon: <FaWrench />, color: '#f59e0b', bg: '#fef3c7' },
-            { title: 'Monthly Revenue', value: currencyFormatter.format(currentMonthRevenue || 0), icon: <FaMoneyBillWave />, color: '#c89b3c', bg: '#fefce8' }
+            { title: 'Monthly Revenue', value: currencyFormatter.format(currentMonthRevenue || 0), icon: <FaMoneyBillWave />, color: '#ef4444', bg: '#fee2e2' }
         ];
     }, [currencyFormatter, currentDate, dashboardState]);
 
@@ -439,7 +439,7 @@ export const AdminDashboard = () => {
         <div className="dashboard-content staff-form-container" style={{ paddingBottom: '40px' }}>
             <header className="content-header" style={{ marginBottom: '30px' }}>
                 <h2>Admin Dashboard Overview</h2>
-                <p style={{ color: '#c89b3c', fontWeight: 'bold' }}>Real-time building management metrics</p>
+                <p style={{ color: '#ef4444', fontWeight: 'bold' }}>Real-time building management metrics</p>
             </header>
 
             {error ? (
