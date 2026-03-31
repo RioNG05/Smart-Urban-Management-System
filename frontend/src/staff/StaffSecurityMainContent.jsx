@@ -233,24 +233,7 @@ const StaffSecurityMainContent = ({ activeTab }) => {
                   ))}
                 </select>
               </div>
-              <div className="form-group">
-                <label>ASSIGNED STAFF</label>
-                <select
-                  value={visitorForm.staffId}
-                  onChange={(event) =>
-                    setVisitorForm((current) => ({
-                      ...current,
-                      staffId: event.target.value,
-                    }))
-                  }
-                >
-                  {staffMembers.map((staff) => (
-                    <option key={staff.id} value={staff.id}>
-                      {staff.fullName || `Staff #${staff.id}`}
-                    </option>
-                  ))}
-                </select>
-              </div>
+
               <div className="form-group" style={{ gridColumn: "1 / -1" }}>
                 <label>PURPOSE / NOTE</label>
                 <input
@@ -285,22 +268,21 @@ const StaffSecurityMainContent = ({ activeTab }) => {
                 className="admin-custom-table bordered"
                 style={{ marginTop: "20px" }}
               >
+
                 <thead>
                   <tr>
                     <th>Visitor Name</th>
                     <th>Phone Number</th>
                     <th>Apartment</th>
-                    <th>Assigned Staff</th>
                     <th>Purpose / Note</th>
                     <th>Created At</th>
-                    <th style={{ textAlign: "center" }}>Status</th>
                   </tr>
                 </thead>
                 <tbody>
                   {isLoading ? (
                     <tr>
                       <td
-                        colSpan="7"
+                        colSpan="5"
                         style={{ textAlign: "center", padding: "40px" }}
                       >
                         Loading visitor logs from backend...
@@ -309,7 +291,7 @@ const StaffSecurityMainContent = ({ activeTab }) => {
                   ) : visitors.length === 0 ? (
                     <tr>
                       <td
-                        colSpan="7"
+                        colSpan="5"
                         style={{ textAlign: "center", padding: "40px" }}
                       >
                         No visitor logs found in backend.
@@ -319,9 +301,6 @@ const StaffSecurityMainContent = ({ activeTab }) => {
                     paginatedVisitors.map((visitor) => {
                       const apartment = apartmentMap.get(
                         String(visitor?.apartment?.id ?? visitor?.apartmentId),
-                      );
-                      const staff = staffMap.get(
-                        String(visitor?.staff?.id ?? visitor?.staffId),
                       );
 
                       return (
@@ -337,31 +316,11 @@ const StaffSecurityMainContent = ({ activeTab }) => {
                                 visitor?.apartmentId ||
                                 "N/A"}
                           </td>
-                          <td>
-                            {staff?.fullName ||
-                              visitor?.staff?.fullName ||
-                              visitor?.staffId ||
-                              "N/A"}
-                          </td>
                           <td>{visitor.note || "N/A"}</td>
                           <td>
                             {formatDateTime(
                               visitor.createdAt || visitor.updatedAt,
                             )}
-                          </td>
-                          <td style={{ textAlign: "center" }}>
-                            <span
-                              style={{
-                                padding: "4px 10px",
-                                borderRadius: "20px",
-                                fontSize: "12px",
-                                fontWeight: "bold",
-                                background: "#fef3c7",
-                                color: "#92400e",
-                              }}
-                            >
-                              Registered
-                            </span>
                           </td>
                         </tr>
                       );

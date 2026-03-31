@@ -132,11 +132,9 @@ export const AdminLayout = () => {
             <AdminSidebar isOpen={isOpen} setIsOpen={setIsOpen} upcomingCount={upcomingCount} />
             <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
                 <header className="staff-topbar" style={{ justifyContent: 'space-between' }}>
+
                     <nav className="staff-main-nav" style={{ marginRight: 0, alignItems: 'center' }}>
-                        <a href="/admin" className="active">Admin</a>
-                        <a href="/staff/apartment">Staff Apartment</a>
-                        <a href="/staff/service">Staff Service</a>
-                        <a href="/staff/security">Staff Security</a>
+                        <a href="/admin" className="active">VinaHouse Admin Management System</a>
                     </nav>
 
                     <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>

@@ -988,15 +988,7 @@ export const AdminLockResident = () => {
               onChange={(e) => handleInputChange("fullName", e.target.value)}
             />
           </div>
-          <div className="form-group">
-            <label>ID CARD / PASSPORT</label>
-            <input
-              type="text"
-              value={formData.identityId}
-              placeholder="Enter 12-digit ID number"
-              onChange={(e) => handleInputChange("identityId", e.target.value)}
-            />
-          </div>
+
           <div className="form-group">
             <label>USERNAME</label>
             <input
@@ -1119,7 +1111,7 @@ export const AdminLockResident = () => {
                 <th>APARTMENT</th>
                 <th>GENDER</th>
                 <th>DOB</th>
-                <th>ID CARD</th>
+
                 <th>STATUS</th>
                 <th style={{ textAlign: "center" }}>ACTION</th>
               </tr>
@@ -1177,7 +1169,7 @@ export const AdminLockResident = () => {
                     </td>
                     <td>{resident.gender || "Other"}</td>
                     <td>{resident.dateOfBirth || "N/A"}</td>
-                    <td>{resident.identityId || "N/A"}</td>
+
                     <td>
                       <span
                         style={{
@@ -1344,11 +1336,15 @@ export const AdminAccountManager = () => {
     }
   };
 
-  const filteredAccounts = accounts.filter(acc =>
-    (acc.username?.toLowerCase() || "").includes(searchTerm.toLowerCase()) ||
-    (acc.email?.toLowerCase() || "").includes(searchTerm.toLowerCase()) ||
-    (acc.role?.roleName?.toLowerCase() || "").includes(searchTerm.toLowerCase())
-  );
+
+  const filteredAccounts = accounts.filter(acc => {
+    const role = acc.role?.roleName?.toUpperCase() || "";
+    if (role === "ADMIN" || role === "STAFF") return false;
+
+    return (acc.username?.toLowerCase() || "").includes(searchTerm.toLowerCase()) ||
+      (acc.email?.toLowerCase() || "").includes(searchTerm.toLowerCase()) ||
+      (acc.role?.roleName?.toLowerCase() || "").includes(searchTerm.toLowerCase());
+  });
 
   const paginatedItems = paginateItems(filteredAccounts, currentPage, pageSize);
   const totalPages = Math.max(1, Math.ceil(filteredAccounts.length / pageSize));
@@ -1859,7 +1855,7 @@ const LegacyAdminPropertyManager = () => {
                     <button
                       onClick={() => setEditingId(item.id)}
                       style={{
-                        background: "#c89b3c",
+                        background: "var(--admin-primary)",
                         border: "none",
                         color: "white",
                         padding: "6px 14px",
@@ -1880,7 +1876,7 @@ const LegacyAdminPropertyManager = () => {
                           "0 6px 12px rgba(176, 134, 48, 0.3)";
                       }}
                       onMouseLeave={(e) => {
-                        e.target.style.background = "#c89b3c";
+                        e.target.style.background = "var(--admin-primary)";
                         e.target.style.transform = "translateY(0)";
                         e.target.style.boxShadow =
                           "0 4px 6px rgba(200, 155, 60, 0.2)";
@@ -2035,7 +2031,7 @@ const LegacyAdminPropertyManager = () => {
                           onClick={() => handleSave(item.id)}
                           style={{
                             padding: "8px 16px",
-                            background: "#c89b3c",
+                            background: "var(--admin-primary)",
                             border: "none",
                             color: "white",
                             borderRadius: "6px",
@@ -2047,7 +2043,7 @@ const LegacyAdminPropertyManager = () => {
                             (e.target.style.background = "#b08630")
                           }
                           onMouseLeave={(e) =>
-                            (e.target.style.background = "#c89b3c")
+                            (e.target.style.background = "var(--admin-primary)")
                           }
                         >
                           Save Changes
@@ -2381,7 +2377,7 @@ export const AdminPropertyManager = () => {
                     <button
                       onClick={() => handleEdit(item)}
                       style={{
-                        background: "#c89b3c",
+                        background: "var(--admin-primary)",
                         border: "none",
                         color: "white",
                         padding: "6px 14px",
@@ -2500,7 +2496,7 @@ export const AdminPropertyManager = () => {
                         disabled={isSaving}
                         style={{
                           padding: "8px 16px",
-                          background: "#c89b3c",
+                          background: "var(--admin-primary)",
                           border: "none",
                           color: "white",
                           borderRadius: "6px",
@@ -3085,173 +3081,84 @@ export const AdminComplaintManager = () => {
             </div>
 
             <div className="admin-table-wrapper">
-              <div
-                style={{
-                  display: "grid",
-                  gap: "14px",
-                  padding: "6px",
-                  background: "#f8fafc",
-                  borderRadius: "18px",
-                }}
-              >
-                {isLoading ? (
-                  <div style={{ textAlign: "center", padding: "28px", color: "#64748b" }}>
-                    Loading complaints from the backend...
-                  </div>
-                ) : filteredComplaints.length === 0 ? (
-                  <div style={{ textAlign: "center", padding: "28px", color: "#64748b" }}>
-                    No complaints match the current filters.
-                  </div>
-                ) : (
-                  paginatedComplaints.map((complaint) => {
-                    const isSelected = complaint.id === selectedComplaintId;
-                    const isPending = complaint.status === "new";
-
-                    return (
-                      <button
+              <table className="admin-custom-table bordered">
+                <thead>
+                  <tr>
+                    <th>Resident</th>
+                    <th>Apartment</th>
+                    <th>Content</th>
+                    <th>Status</th>
+                    <th>Updated</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {isLoading ? (
+                    <tr>
+                      <td colSpan="5" style={{ textAlign: "center", padding: "28px" }}>
+                        Loading complaints from the backend...
+                      </td>
+                    </tr>
+                  ) : filteredComplaints.length === 0 ? (
+                    <tr>
+                      <td colSpan="5" style={{ textAlign: "center", padding: "28px" }}>
+                        No complaints match the current filters.
+                      </td>
+                    </tr>
+                  ) : (
+                    paginatedComplaints.map((complaint) => (
+                      <tr
                         key={complaint.id}
-                        type="button"
                         onClick={() => setSelectedComplaintId(complaint.id)}
                         style={{
-                          textAlign: "left",
-                          border: isSelected
-                            ? "1px solid rgba(59, 130, 246, 0.35)"
-                            : "1px solid #e2e8f0",
-                          background: isSelected
-                            ? "linear-gradient(180deg, rgba(219,234,254,0.9) 0%, #ffffff 100%)"
-                            : "#ffffff",
-                          borderRadius: "18px",
-                          padding: "18px",
                           cursor: "pointer",
-                          boxShadow: isSelected
-                            ? "0 14px 30px rgba(59, 130, 246, 0.14)"
-                            : "0 8px 18px rgba(15, 23, 42, 0.05)",
+                          background:
+                            complaint.id === selectedComplaintId
+                              ? "rgba(59, 130, 246, 0.08)"
+                              : undefined,
                         }}
                       >
-                        <div
-                          style={{
-                            display: "flex",
-                            justifyContent: "space-between",
-                            gap: "12px",
-                            alignItems: "flex-start",
-                            marginBottom: "12px",
-                          }}
-                        >
-                          <div style={{ minWidth: 0 }}>
-                            <div
-                              style={{
-                                display: "flex",
-                                alignItems: "center",
-                                gap: "10px",
-                                flexWrap: "wrap",
-                              }}
-                            >
-                              <strong style={{ color: "#0f172a", fontSize: "15px" }}>
-                                {complaint.ownerName}
-                              </strong>
-                              <span
-                                className={`status-badge ${isPending ? "locked" : "active"
-                                  }`}
-                              >
-                                {complaint.statusLabel}
-                              </span>
-                            </div>
-                            <div
-                              style={{
-                                color: "#64748b",
-                                fontSize: "12px",
-                                marginTop: "6px",
-                              }}
-                            >
-                              {complaint.ownerEmail}
-                            </div>
+                        <td>
+                          <strong>{complaint.ownerName}</strong>
+                          <div style={{ color: "#64748b", fontSize: "12px", marginTop: "4px" }}>
+                            {complaint.ownerEmail}
                           </div>
+                        </td>
+                        <td>
+                          <strong>Room {complaint.apartmentLabel}</strong>
+                          <div style={{ color: "#64748b", fontSize: "12px", marginTop: "4px" }}>
+                            {complaint.floorNumber ? `Floor ${complaint.floorNumber}` : "Floor unknown"}
+                          </div>
+                        </td>
+                        <td style={{ maxWidth: "280px" }}>
                           <div
                             style={{
-                              fontSize: "12px",
-                              color: "#64748b",
-                              textAlign: "right",
-                              flexShrink: 0,
+                              display: "-webkit-box",
+                              WebkitLineClamp: 2,
+                              WebkitBoxOrient: "vertical",
+                              overflow: "hidden",
+                              lineHeight: "1.5",
                             }}
                           >
-                            <div>
-                              {isPending ? "Submitted" : "Last reply"}
-                            </div>
-                            <strong style={{ color: "#0f172a", display: "block", marginTop: "4px" }}>
-                              {isPending ? complaint.createdLabel : complaint.latestReplyLabel}
-                            </strong>
+                            {complaint.content}
                           </div>
-                        </div>
-
-                        <div
-                          style={{
-                            display: "grid",
-                            gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))",
-                            gap: "10px",
-                            marginBottom: "14px",
-                          }}
-                        >
-                          <div
-                            style={{
-                              background: "#f8fafc",
-                              borderRadius: "12px",
-                              padding: "10px 12px",
-                            }}
+                        </td>
+                        <td>
+                          <span
+                            className={`status-badge ${complaint.status === "replied" ? "active" : "locked"
+                              }`}
                           >
-                            <div style={{ fontSize: "11px", color: "#64748b", marginBottom: "4px" }}>
-                              Apartment
-                            </div>
-                            <div style={{ color: "#0f172a", fontWeight: "700" }}>
-                              Room {complaint.apartmentLabel}
-                            </div>
+                            {complaint.statusLabel}
+                          </span>
+                          <div style={{ color: "#64748b", fontSize: "12px", marginTop: "6px" }}>
+                            {complaint.replyCount} replies
                           </div>
-                          <div
-                            style={{
-                              background: "#f8fafc",
-                              borderRadius: "12px",
-                              padding: "10px 12px",
-                            }}
-                          >
-                            <div style={{ fontSize: "11px", color: "#64748b", marginBottom: "4px" }}>
-                              Replies
-                            </div>
-                            <div style={{ color: "#0f172a", fontWeight: "700" }}>
-                              {complaint.replyCount} {complaint.replyCount === 1 ? "reply" : "replies"}
-                            </div>
-                          </div>
-                          <div
-                            style={{
-                              background: "#f8fafc",
-                              borderRadius: "12px",
-                              padding: "10px 12px",
-                            }}
-                          >
-                            <div style={{ fontSize: "11px", color: "#64748b", marginBottom: "4px" }}>
-                              Phone
-                            </div>
-                            <div style={{ color: "#0f172a", fontWeight: "700" }}>
-                              {complaint.ownerPhone}
-                            </div>
-                          </div>
-                        </div>
-
-                        <div
-                          style={{
-                            color: "#334155",
-                            lineHeight: "1.65",
-                            display: "-webkit-box",
-                            WebkitLineClamp: 2,
-                            WebkitBoxOrient: "vertical",
-                            overflow: "hidden",
-                          }}
-                        >
-                          {complaint.content}
-                        </div>
-                      </button>
-                    );
-                  })
-                )}
-              </div>
+                        </td>
+                        <td>{complaint.latestReplyLabel}</td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
             </div>
 
             <AdminPagination
@@ -3699,24 +3606,116 @@ export const AdminApartmentLayout = () => {
 
       {!selectedApartmentId ? (
         <div className="staff-form-container building-container" style={{ padding: "0 5px" }}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px", padding: "10px 15px" }}>
-            <h3 style={{ margin: 0, fontSize: "24px", fontWeight: "800", color: "#1e293b" }}>VinaHouse Building Layout</h3>
-            <div style={{ position: "relative", width: "220px" }}>
-              <input type="number" placeholder="Search floor..." value={floorSearch} onChange={(e) => setFloorSearch(e.target.value)} style={{ width: "100%", padding: "10px 12px 10px 40px", borderRadius: "10px", border: "1px solid #e2e8f0", fontSize: "14px", outline: "none" }} />
-              <FaSearch style={{ position: "absolute", left: "15px", top: "50%", transform: "translateY(-50%)", color: "#94a3b8" }} />
+
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "28px", padding: "10px 5px" }}>
+            <div>
+              <h3 style={{ margin: 0, fontSize: "28px", fontWeight: "900", color: "#0f172a", letterSpacing: "-0.02em" }}>VinaHouse Building</h3>
+              <p style={{ margin: "5px 0 0", color: "#64748b", fontSize: "14px" }}>Visualized apartment occupation and structural layout.</p>
+            </div>
+            <div style={{ position: "relative", width: "260px", boxShadow: "0 4px 15px rgba(0,0,0,0.05)", borderRadius: "12px" }}>
+              <FaSearch style={{ position: "absolute", left: "16px", top: "50%", transform: "translateY(-50%)", color: "#94a3b8", fontSize: "14px" }} />
+              <input
+                type="text"
+                placeholder="Find floor (e.g. 10)..."
+                value={floorSearch}
+                onChange={(e) => setFloorSearch(e.target.value)}
+                style={{ width: "100%", padding: "14px 16px 14px 44px", borderRadius: "12px", border: "1px solid #e2e8f0", fontSize: "14px", outline: "none", transition: "all 0.2s" }}
+                onFocus={(e) => e.target.style.borderColor = "#3b82f6"}
+                onBlur={(e) => e.target.style.borderColor = "#e2e8f0"}
+              />
             </div>
           </div>
 
-          <div style={{ maxHeight: "calc(100vh - 280px)", overflowY: "auto", borderRadius: "12px", paddingRight: "10px" }}>
-            {isLoading ? <div style={{ textAlign: "center", padding: "100px" }}><FaSyncAlt className="spin" style={{ fontSize: "32px" }} /><p>Loading layout...</p></div> : filteredFloors.length === 0 ? <p style={{ textAlign: "center", padding: "100px" }}>No floors found.</p> : (
-              <div className="building-grid">
+          <div
+            style={{
+              maxHeight: "max(600px, calc(100vh - 280px))",
+              overflowY: "auto",
+              borderRadius: "20px",
+              paddingRight: "12px",
+              paddingBottom: "20px",
+              scrollbarWidth: "thin",
+              scrollbarColor: "#cbd5e1 transparent"
+            }}
+          >
+            {isLoading ? (
+              <div style={{ textAlign: "center", padding: "120px 0" }}>
+                <FaSyncAlt className="spin" style={{ fontSize: "40px", color: "#3b82f6", marginBottom: "15px" }} />
+                <p style={{ color: "#64748b", fontWeight: "600" }}>Architectural sync in progress...</p>
+              </div>
+            ) : filteredFloors.length === 0 ? (
+              <div style={{ textAlign: "center", padding: "80px", background: "#f8fafc", borderRadius: "16px", border: "2px dashed #e2e8f0" }}>
+                <p style={{ color: "#64748b", margin: 0 }}>No floor data matches your search.</p>
+              </div>
+            ) : (
+              <div style={{ display: "grid", gap: "20px" }}>
                 {filteredFloors.map(([floor, apts]) => (
-                  <div key={floor} className="floor-row" style={{ display: "flex", gap: "20px", marginBottom: "15px", padding: "20px", background: "white", borderRadius: "12px", boxShadow: "0 1px 3px rgba(0,0,0,0.1)" }}>
-                    <div style={{ minWidth: "90px", background: "#0f172a", color: "white", borderRadius: "8px", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: "800" }}>Floor {floor}</div>
-                    <div className="apartment-grid" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(130px, 1fr))", gap: "12px", flexGrow: 1 }}>
+                  <div
+                    key={floor}
+                    style={{
+                      display: "flex",
+                      gap: "24px",
+                      padding: "24px",
+                      background: "white",
+                      borderRadius: "20px",
+                      border: "1px solid #f1f5f9",
+                      boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03)",
+                      transition: "transform 0.2s ease, box-shadow 0.2s ease",
+                      position: "relative",
+                      overflow: "hidden"
+                    }}
+                  >
+                    <div
+                      style={{
+                        minWidth: "100px",
+                        background: "#f1f5f9",
+                        color: "#475569",
+                        borderRadius: "16px",
+                        display: "flex",
+                        flexDirection: "column",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        fontWeight: "900",
+                        fontSize: "13px",
+                        letterSpacing: "0.05em",
+                        border: "1px solid #e2e8f0"
+                      }}
+                    >
+                      <span style={{ fontSize: "10px", opacity: 0.6, marginBottom: "2px" }}>LEVEL</span>
+                      <span style={{ fontSize: "20px" }}>{floor}</span>
+                    </div>
+
+                    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(130px, 1fr))", gap: "14px", flexGrow: 1 }}>
                       {apts.sort((a, b) => Number(a.roomNumber) - Number(b.roomNumber)).map(apt => {
                         const occupied = baseData.contracts.some(c => (c?.apartment?.id ?? c?.apartmentId) === apt.id && Number(c?.status ?? 1) === 1);
-                        return <div key={apt.id} className="apartment-box" style={{ padding: "15px", textAlign: "center", borderRadius: "8px", border: "1px solid #e2e8f0", cursor: "pointer", background: occupied ? "#1e293b" : "#fff", color: occupied ? "#fff" : "#1e293b", fontWeight: "700" }} onClick={() => setSelectedApartmentId(apt.id)}>{apt.roomNumber}</div>;
+                        return (
+                          <div
+                            key={apt.id}
+                            onClick={() => setSelectedApartmentId(apt.id)}
+                            style={{
+                              padding: "20px 15px",
+                              textAlign: "center",
+                              borderRadius: "14px",
+                              border: occupied ? "1px solid #bfdbfe" : "1px solid #f1f5f9",
+                              cursor: "pointer",
+                              background: occupied ? "#eff6ff" : "#fff",
+                              color: occupied ? "#1e40af" : "#475569",
+                              fontWeight: "800",
+                              fontSize: "16px",
+                              transition: "all 0.2s cubic-bezier(0.4, 0, 0.2, 1)",
+                              position: "relative",
+                              boxShadow: occupied ? "none" : "inset 0 0 0 1px rgba(0,0,0,0.02)"
+                            }}
+                            className="apt-box-hover"
+                          >
+                            {apt.roomNumber}
+                            <div style={{ fontSize: "10px", marginTop: "4px", opacity: 0.6, fontWeight: "600" }}>
+                              {occupied ? "OCCUPIED" : "VACANT"}
+                            </div>
+                            {occupied && (
+                              <div style={{ position: "absolute", top: "6px", right: "6px", width: "6px", height: "6px", background: "#3b82f6", borderRadius: "50%" }}></div>
+                            )}
+                          </div>
+                        );
                       })}
                     </div>
                   </div>
@@ -3730,7 +3729,7 @@ export const AdminApartmentLayout = () => {
           <button onClick={() => setSelectedApartmentId(null)} className="btn-back">← Back to Layout</button>
           {selectedApartment && (
             <>
-              <h3 style={{ marginTop: "15px", fontSize: "24px", fontWeight: "800", color: "#c89b3c" }}>Apartment Details: {selectedApartment.roomNumber}</h3>
+              <h3 style={{ marginTop: "15px", fontSize: "24px", fontWeight: "800", color: "var(--admin-primary)" }}>Apartment Details: {selectedApartment.roomNumber}</h3>
               <div style={{ background: "#f8fafc", padding: "25px", borderRadius: "12px", marginTop: "20px" }}>
                 <p><strong>Floor:</strong> {selectedApartment.floorNumber}</p>
                 <p><strong>Tenant:</strong> {activeResident?.fullName || activeAccount?.username || "No active contract"}</p>
@@ -3761,751 +3760,73 @@ export const AdminApartmentLayout = () => {
 };
 
 export const AdminApartmentTypeManager = () => {
-  const emptyForm = {
-    name: "",
-    designSqrt: "",
-    numberOfBedroom: "",
-    numberOfBathroom: "",
-    commonPriceForBuying: "",
-    commonPriceForRent: "",
-    furnitureTypeId: "",
-    overview: "",
-  };
-
-  const [apartmentTypes, setApartmentTypes] = useState([]);
-  const [furnitureOptions, setFurnitureOptions] = useState([]);
-  const [formData, setFormData] = useState(emptyForm);
-  const [editingId, setEditingId] = useState(null);
+  const [types, setTypes] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [feedback, setFeedback] = useState({ type: "", message: "" });
-  const [currentPage, setCurrentPage] = useState(1);
-  const pageSize = 6;
+  const [error, setError] = useState("");
 
-  useEffect(() => {
-    let active = true;
-
-    const loadApartmentTypes = async () => {
-      try {
-        setIsLoading(true);
-        setFeedback({ type: "", message: "" });
-
-        const backendTypes = await getApartmentTypes();
-
-        if (!active) return;
-
-        const normalizedTypes = Array.isArray(backendTypes)
-          ? backendTypes.map((item, index) =>
-            normalizeApartmentTypeRecord(item, index),
-          )
-          : [];
-        setApartmentTypes(normalizedTypes);
-        setFurnitureOptions(
-          Array.from(
-            normalizedTypes.reduce((map, item) => {
-              if (item.furnitureTypeId && item.furniture) {
-                map.set(item.furnitureTypeId, {
-                  id: item.furnitureTypeId,
-                  description: item.furniture,
-                });
-              }
-              return map;
-            }, new Map()).values(),
-          ),
-        );
-      } catch (error) {
-        if (!active) return;
-
-        setFeedback({
-          type: "error",
-          message:
-            error?.response?.data?.message ||
-            "Unable to load apartment types right now.",
-        });
-        setApartmentTypes([]);
-      } finally {
-        if (active) {
-          setIsLoading(false);
-        }
-      }
-    };
-
-    loadApartmentTypes();
-
-    return () => {
-      active = false;
-    };
-  }, []);
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [searchTerm]);
-
-  const handleRefresh = async () => {
+  const loadTypes = async () => {
     try {
       setIsLoading(true);
-      const backendTypes = await getApartmentTypes();
-      const normalizedTypes = Array.isArray(backendTypes)
-        ? backendTypes.map((item, index) =>
-          normalizeApartmentTypeRecord(item, index),
-        )
-        : [];
-
-      setApartmentTypes(normalizedTypes);
-      setFurnitureOptions(
-        Array.from(
-          normalizedTypes.reduce((map, item) => {
-            if (item.furnitureTypeId && item.furniture) {
-              map.set(item.furnitureTypeId, {
-                id: item.furnitureTypeId,
-                description: item.furniture,
-              });
-            }
-            return map;
-          }, new Map()).values(),
-        ),
-      );
-      setFeedback({
-        type: "success",
-        message: "Apartment types refreshed successfully.",
-      });
-    } catch (error) {
-      setFeedback({
-        type: "error",
-        message:
-          error?.response?.data?.message ||
-          "Unable to refresh apartment types.",
-      });
+      const data = await getApartmentTypes();
+      setTypes(data || []);
+    } catch (err) {
+      setError("Failed to load apartment types from server.");
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleInputChange = (field, value) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
-  };
-
-  const resetForm = () => {
-    setFormData(emptyForm);
-    setEditingId(null);
-  };
-
-  const handleSubmit = (event) => {
-    event.preventDefault();
-
-    if (!formData.name.trim()) {
-      setFeedback({ type: "error", message: "Apartment type name is required." });
-      return;
-    }
-
-    const payload = {
-      name: formData.name.trim(),
-      designSqrt: Number(formData.designSqrt),
-      numberOfBedroom: Number(formData.numberOfBedroom),
-      numberOfBathroom: Number(formData.numberOfBathroom),
-      overview: formData.overview.trim(),
-      commonPriceForBuying: Number(formData.commonPriceForBuying),
-      commonPriceForRent: Number(formData.commonPriceForRent),
-      furnitureTypeId: Number(formData.furnitureTypeId),
-    };
-
-    if (
-      !payload.name ||
-      !payload.designSqrt ||
-      !payload.numberOfBedroom ||
-      !payload.numberOfBathroom ||
-      !payload.commonPriceForBuying ||
-      !payload.commonPriceForRent ||
-      !payload.furnitureTypeId
-    ) {
-      setFeedback({
-        type: "error",
-        message: "Please complete all required fields.",
-      });
-      return;
-    }
-
-    Promise.resolve()
-      .then(async () => {
-        const savedItem = editingId
-          ? await updateApartmentType(editingId, payload)
-          : await createApartmentType(payload);
-
-        const normalizedItem = normalizeApartmentTypeRecord(savedItem);
-
-        setApartmentTypes((prev) =>
-          editingId
-            ? prev.map((item) => (item.id === editingId ? normalizedItem : item))
-            : [normalizedItem, ...prev],
-        );
-
-        setFurnitureOptions((prev) => {
-          const next = new Map(
-            prev.map((option) => [String(option.id), option]),
-          );
-          if (normalizedItem.furnitureTypeId && normalizedItem.furniture) {
-            next.set(String(normalizedItem.furnitureTypeId), {
-              id: String(normalizedItem.furnitureTypeId),
-              description: normalizedItem.furniture,
-            });
-          }
-          return Array.from(next.values());
-        });
-
-        setFeedback({
-          type: "success",
-          message: editingId
-            ? "Apartment type updated successfully."
-            : "Apartment type created successfully.",
-        });
-        resetForm();
-      })
-      .catch((error) => {
-        setFeedback({
-          type: "error",
-          message:
-            error?.response?.data?.message ||
-            "Unable to save apartment type.",
-        });
-      });
-  };
-
-  const handleEdit = (item) => {
-    setEditingId(item.id);
-    setFormData({
-      name: item.name ?? "",
-      designSqrt: item.designSqrt ?? "",
-      numberOfBedroom: item.numberOfBedroom ?? "",
-      numberOfBathroom: item.numberOfBathroom ?? "",
-      commonPriceForBuying: item.commonPriceForBuying ?? "",
-      commonPriceForRent: item.commonPriceForRent ?? "",
-      furnitureTypeId: item.furnitureTypeId ?? "",
-      overview: item.overview ?? "",
-    });
-    setFeedback({ type: "", message: "" });
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  };
-
-  const handleDelete = (id) => {
-    deleteApartmentType(id)
-      .then(() => {
-        const nextTypes = apartmentTypes.filter((item) => item.id !== id);
-        setApartmentTypes(nextTypes);
-        setFeedback({
-          type: "success",
-          message: "Apartment type deleted successfully.",
-        });
-
-        if (editingId === id) {
-          resetForm();
-        }
-      })
-      .catch((error) => {
-        setFeedback({
-          type: "error",
-          message:
-            error?.response?.data?.message ||
-            "Unable to delete apartment type.",
-        });
-      });
-  };
-
-  const filteredTypes = apartmentTypes.filter((item) => {
-    const keyword = searchTerm.trim().toLowerCase();
-    if (!keyword) return true;
-
-    return [
-      item.name,
-      item.designSqrt,
-      item.numberOfBedroom,
-      item.numberOfBathroom,
-      item.furniture,
-      item.overview,
-    ]
-      .filter(Boolean)
-      .some((value) => String(value).toLowerCase().includes(keyword));
-  });
-
   useEffect(() => {
-    const nextTotalPages = Math.max(1, Math.ceil(filteredTypes.length / pageSize));
-    if (currentPage > nextTotalPages) {
-      setCurrentPage(nextTotalPages);
-    }
-  }, [currentPage, filteredTypes.length, pageSize]);
-
-  const paginatedTypes = paginateItems(filteredTypes, currentPage, pageSize);
-  const totalPages = Math.max(1, Math.ceil(filteredTypes.length / pageSize));
+    loadTypes();
+  }, []);
 
   return (
-    <div className="admin-lock-resident-container">
-      <section
-        className="staff-form-container apartment-type-hero"
-        style={{
-          marginBottom: "24px",
-          background:
-            "linear-gradient(135deg, #fffdf7 0%, #ffffff 60%, #f8fafc 100%)",
-          border: "1px solid #efe3bf",
-          boxShadow: "0 18px 40px rgba(15, 23, 42, 0.08)",
-        }}
-      >
-        <div
-          className="admin-lock-header-row"
-          style={{ alignItems: "flex-start", gap: "16px", flexWrap: "wrap" }}
-        >
-          <div>
-            <div
-              style={{
-                display: "inline-flex",
-                alignItems: "center",
-                gap: "10px",
-                padding: "8px 14px",
-                borderRadius: "999px",
-                background: "#fff7e6",
-                color: "#b7791f",
-                fontWeight: "700",
-                fontSize: "12px",
-                letterSpacing: "0.04em",
-                textTransform: "uppercase",
-                marginBottom: "14px",
-              }}
-            >
-              <FaLayerGroup />
-              Apartment Catalog
-            </div>
-            <h2 className="admin-page-title" style={{ margin: 0, fontSize: "32px" }}>
-              Apartment Types
-            </h2>
-            <p
-              style={{
-                margin: "10px 0 0",
-                color: "#64748b",
-                maxWidth: "720px",
-                lineHeight: 1.7,
-              }}
-            >
-              Manage layout, area, pricing, and furnishing details in one clean
-              workspace.
-            </p>
-          </div>
-          <div
-            style={{
-              display: "flex",
-              gap: "10px",
-              alignItems: "center",
-              flexWrap: "wrap",
-            }}
-          >
-            <span className="status-badge active">
-              {apartmentTypes.length} types
-            </span>
-            <button
-              type="button"
-              className="btn-table-edit apartment-type-toolbar-btn"
-              onClick={handleRefresh}
-            >
-              <FaSyncAlt style={{ marginRight: "6px" }} />
-              Refresh
-            </button>
-          </div>
+    <div className="admin-reports-container">
+      <div className="resident-stats-banner" style={{ borderLeft: "5px solid var(--admin-primary)", borderRadius: "16px", padding: "30px", marginBottom: "30px", display: "flex", alignItems: "center", gap: "25px", background: "white", boxShadow: "var(--admin-shadow-md)" }}>
+        <div className="stats-icon-box" style={{ background: "var(--admin-primary-light)", color: "var(--admin-primary)", fontSize: "28px", padding: "20px", borderRadius: "14px" }}>
+          <FaLayerGroup />
+        </div>
+        <div className="stats-info">
+          <p style={{ color: "var(--admin-text-muted)", fontSize: "14px", fontWeight: "600", textTransform: "uppercase" }}>Apartment Specification Metrics</p>
+          <h3 style={{ color: "var(--admin-text-main)", fontSize: "24px", fontWeight: "900" }}>{types.length} Classification Types</h3>
+        </div>
+      </div>
+
+      <div className="admin-table-wrapper" style={{ background: "white", borderRadius: "20px", padding: "32px", boxShadow: "var(--admin-shadow-lg)" }}>
+        <div className="form-header" style={{ marginBottom: "28px", display: "flex", alignItems: "center", gap: "10px" }}>
+          <FaLayerGroup style={{ color: "var(--admin-primary)" }} />
+          <span style={{ fontSize: "1.4rem", fontWeight: "800", color: "var(--admin-text-main)" }}>Apartment Configuration Matrix</span>
         </div>
 
-        {feedback.message ? (
-          <div
-            className={`admin-feedback ${feedback.type === "error" ? "error" : "success"}`}
-            style={{ marginTop: "16px", marginBottom: "20px" }}
-          >
-            {feedback.message}
-          </div>
-        ) : null}
+        {error && <div className="admin-feedback error" style={{ marginBottom: "20px" }}>{error}</div>}
 
-        <form onSubmit={handleSubmit}>
-          <div
-            className="apartment-type-form-shell"
-            style={{
-              display: "grid",
-              gridTemplateColumns: "minmax(0, 1.3fr) minmax(320px, 0.9fr)",
-              gap: "22px",
-            }}
-          >
-            <div
-              className="apartment-type-form-card"
-              style={{
-                background: "#fff",
-                border: "1px solid #e2e8f0",
-                borderRadius: "20px",
-                padding: "22px",
-              }}
-            >
-              <div className="admin-lock-form-grid">
-                <div className="form-group">
-                  <label>TYPE NAME</label>
-                  <input
-                    type="text"
-                    value={formData.name}
-                    onChange={(event) => handleInputChange("name", event.target.value)}
-                    placeholder="Sky Garden, Cozy 2BR..."
-                  />
-                </div>
-                <div className="form-group">
-                  <label>AREA</label>
-                  <input
-                    type="number"
-                    min="0"
-                    value={formData.designSqrt}
-                    onChange={(event) =>
-                      handleInputChange("designSqrt", event.target.value)
-                    }
-                    placeholder="75"
-                  />
-                </div>
-                <div className="form-group">
-                  <label>BEDROOMS</label>
-                  <input
-                    type="number"
-                    min="0"
-                    value={formData.numberOfBedroom}
-                    onChange={(event) =>
-                      handleInputChange("numberOfBedroom", event.target.value)
-                    }
-                    placeholder="2"
-                  />
-                </div>
-                <div className="form-group">
-                  <label>BATHROOMS</label>
-                  <input
-                    type="number"
-                    min="0"
-                    value={formData.numberOfBathroom}
-                    onChange={(event) =>
-                      handleInputChange("numberOfBathroom", event.target.value)
-                    }
-                    placeholder="2"
-                  />
-                </div>
-                <div className="form-group">
-                  <label>BUY PRICE</label>
-                  <input
-                    type="number"
-                    min="0"
-                    value={formData.commonPriceForBuying}
-                    onChange={(event) =>
-                      handleInputChange("commonPriceForBuying", event.target.value)
-                    }
-                    placeholder="3500000000"
-                  />
-                </div>
-                <div className="form-group">
-                  <label>RENT PRICE</label>
-                  <input
-                    type="number"
-                    min="0"
-                    value={formData.commonPriceForRent}
-                    onChange={(event) =>
-                      handleInputChange("commonPriceForRent", event.target.value)
-                    }
-                    placeholder="18000000"
-                  />
-                </div>
-                <div className="form-group">
-                  <label>FURNITURE</label>
-                  <select
-                    value={formData.furnitureTypeId}
-                    onChange={(event) =>
-                      handleInputChange("furnitureTypeId", event.target.value)
-                    }
-                  >
-                    <option value="">Select furniture</option>
-                    {furnitureOptions.map((option) => (
-                      <option key={option.id} value={option.id}>
-                        {option.description}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-            </div>
-
-            <div
-              className="apartment-type-preview-card"
-              style={{
-                background: "#0f172a",
-                color: "#fff",
-                borderRadius: "20px",
-                padding: "22px",
-                display: "flex",
-                flexDirection: "column",
-                gap: "18px",
-              }}
-            >
-              <div>
-                <p
-                  style={{
-                    margin: 0,
-                    fontSize: "12px",
-                    letterSpacing: "0.08em",
-                    textTransform: "uppercase",
-                    color: "#cbd5e1",
-                    fontWeight: "700",
-                  }}
-                >
-                  Preview
-                </p>
-                <h3
-                  style={{
-                    margin: "10px 0 8px",
-                    fontSize: "28px",
-                    fontWeight: "800",
-                    color: "#f8fafc",
-                  }}
-                >
-                  {formData.name || "New apartment type"}
-                </h3>
-                <p style={{ margin: 0, color: "#94a3b8", lineHeight: 1.7 }}>
-                  {formData.overview ||
-                    "A short summary for this apartment type will appear here."}
-                </p>
-              </div>
-
-              <div
-                className="apartment-type-preview-grid"
-                style={{
-                  display: "grid",
-                  gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
-                  gap: "12px",
-                }}
-              >
-                <div
-                  style={{
-                    background: "rgba(255,255,255,0.06)",
-                    borderRadius: "16px",
-                    padding: "14px",
-                  }}
-                >
-                  <div style={{ color: "#94a3b8", fontSize: "12px" }}>Area</div>
-                  <div style={{ marginTop: "6px", fontSize: "18px", fontWeight: "800" }}>
-                    {formData.designSqrt || "--"} sqm
-                  </div>
-                </div>
-                <div
-                  style={{
-                    background: "rgba(255,255,255,0.06)",
-                    borderRadius: "16px",
-                    padding: "14px",
-                  }}
-                >
-                  <div style={{ color: "#94a3b8", fontSize: "12px" }}>Layout</div>
-                  <div style={{ marginTop: "6px", fontSize: "18px", fontWeight: "800" }}>
-                    {formData.numberOfBedroom || 0} BR / {formData.numberOfBathroom || 0} BA
-                  </div>
-                </div>
-                <div
-                  style={{
-                    background: "rgba(255,255,255,0.06)",
-                    borderRadius: "16px",
-                    padding: "14px",
-                  }}
-                >
-                  <div style={{ color: "#94a3b8", fontSize: "12px" }}>Buy</div>
-                  <div style={{ marginTop: "6px", fontSize: "18px", fontWeight: "800" }}>
-                    {formData.commonPriceForBuying
-                      ? new Intl.NumberFormat("vi-VN").format(
-                        Number(formData.commonPriceForBuying),
-                      )
-                      : "--"}
-                  </div>
-                </div>
-                <div
-                  style={{
-                    background: "rgba(255,255,255,0.06)",
-                    borderRadius: "16px",
-                    padding: "14px",
-                  }}
-                >
-                  <div style={{ color: "#94a3b8", fontSize: "12px" }}>Rent</div>
-                  <div style={{ marginTop: "6px", fontSize: "18px", fontWeight: "800" }}>
-                    {formData.commonPriceForRent
-                      ? new Intl.NumberFormat("vi-VN").format(
-                        Number(formData.commonPriceForRent),
-                      )
-                      : "--"}
-                  </div>
-                </div>
-              </div>
-
-              <div
-                style={{
-                  background: "rgba(255,255,255,0.06)",
-                  borderRadius: "16px",
-                  padding: "14px",
-                }}
-              >
-                <div style={{ color: "#94a3b8", fontSize: "12px" }}>Furniture</div>
-                <div style={{ marginTop: "6px", fontSize: "16px", fontWeight: "700" }}>
-                  {furnitureOptions.find(
-                    (option) => String(option.id) === String(formData.furnitureTypeId),
-                  )?.description || "--"}
-                </div>
-              </div>
-
-              <div className="form-group" style={{ marginBottom: 0 }}>
-                <label style={{ color: "#e2e8f0" }}>OVERVIEW</label>
-                <textarea
-                  value={formData.overview}
-                  onChange={(event) =>
-                    handleInputChange("overview", event.target.value)
-                  }
-                  placeholder="Add a short description..."
-                  style={{
-                    width: "100%",
-                    minHeight: "120px",
-                    padding: "14px 16px",
-                    borderRadius: "14px",
-                    border: "1px solid rgba(255,255,255,0.08)",
-                    background: "rgba(255,255,255,0.04)",
-                    color: "#fff",
-                    resize: "vertical",
-                    fontFamily: "inherit",
-                    fontSize: "14px",
-                  }}
-                />
-              </div>
-            </div>
-          </div>
-
-          <div className="admin-lock-actions" style={{ marginTop: "20px" }}>
-            <button
-              type="submit"
-              className="btn-table-lock apartment-type-form-btn apartment-type-form-btn-primary"
-            >
-              {editingId ? "Update Type" : "Add Type"}
-            </button>
-            <button
-              type="button"
-              className="btn-table-edit apartment-type-form-btn"
-              onClick={resetForm}
-            >
-              Reset
-            </button>
-          </div>
-        </form>
-      </section>
-
-      <section
-        className="admin-table-wrapper apartment-type-table-card"
-        style={{
-          borderRadius: "22px",
-          boxShadow: "0 18px 42px rgba(15, 23, 42, 0.06)",
-        }}
-      >
-        <div className="admin-lock-header-row">
-          <h3 className="admin-lock-section-title">Type List</h3>
-          <div className="admin-lock-search">
-            <FaSearch />
-            <input
-              type="text"
-              value={searchTerm}
-              onChange={(event) => setSearchTerm(event.target.value)}
-              placeholder="Search types..."
-            />
-          </div>
-        </div>
-
-        <div className="admin-table-scroll">
-          <table
-            className="admin-custom-table bordered apartment-type-table"
-            style={{ tableLayout: "fixed", minWidth: "1060px" }}
-          >
-            <colgroup>
-              <col style={{ width: "24%" }} />
-              <col style={{ width: "10%" }} />
-              <col style={{ width: "13%" }} />
-              <col style={{ width: "17%" }} />
-              <col style={{ width: "28%" }} />
-              <col style={{ width: "8%" }} />
-            </colgroup>
+        <div className="staff-table-scroll">
+          <table className="admin-custom-table bordered">
             <thead>
               <tr>
-                <th>TYPE</th>
-                <th>AREA</th>
-                <th>LAYOUT</th>
-                <th>PRICE</th>
-                <th>DETAIL</th>
-                <th style={{ textAlign: "center" }}>ACTION</th>
+                <th>TYPE ID</th>
+                <th>CLASSIFICATION</th>
+                <th>DIMENSION (m²)</th>
+                <th>CHAMBERS</th>
+                <th>RENTING PRICE (VND)</th>
+                <th style={{ textAlign: "center" }}>STATUS</th>
               </tr>
             </thead>
             <tbody>
               {isLoading ? (
-                <tr>
-                  <td colSpan="6" style={{ textAlign: "center", padding: "24px" }}>
-                    Loading apartment types...
-                  </td>
-                </tr>
-              ) : filteredTypes.length === 0 ? (
-                <tr>
-                  <td colSpan="6" style={{ textAlign: "center", padding: "24px" }}>
-                    No apartment types found.
-                  </td>
-                </tr>
+                <tr><td colSpan="6" style={{ textAlign: "center", padding: "60px" }}>Synchronizing configuration data...</td></tr>
+              ) : types.length === 0 ? (
+                <tr><td colSpan="6" style={{ textAlign: "center", padding: "40px" }}>Inventory empty. No types found.</td></tr>
               ) : (
-                paginatedTypes.map((item) => (
-                  <tr key={item.id}>
-                    <td className="apartment-type-cell-type">
-                      <strong>{item.name || "Unnamed Type"}</strong>
-                    </td>
-                    <td className="apartment-type-cell-area">
-                      {item.designSqrt ? `${item.designSqrt} sqm` : "N/A"}
-                    </td>
-                    <td className="apartment-type-cell-layout">
-                      {item.numberOfBedroom || 0} BR / {item.numberOfBathroom || 0} BA
-                    </td>
-                    <td className="apartment-type-cell-price">
-                      <div className="apartment-type-price-line">
-                        Buy:{" "}
-                        <strong>
-                          {item.commonPriceForBuying
-                            ? new Intl.NumberFormat("vi-VN").format(
-                              Number(item.commonPriceForBuying),
-                            )
-                            : "N/A"}
-                        </strong>
-                      </div>
-                      <div className="apartment-type-price-line">
-                        Rent:{" "}
-                        <strong>
-                          {item.commonPriceForRent
-                            ? new Intl.NumberFormat("vi-VN").format(
-                              Number(item.commonPriceForRent),
-                            )
-                            : "N/A"}
-                        </strong>
-                      </div>
-                    </td>
-                    <td className="apartment-type-cell-detail">
-                      <div className="apartment-type-furniture-label">
-                        {item.furniture || "Not set"}
-                      </div>
-                      <div className="apartment-type-overview-text">
-                        {item.overview || "No description yet."}
-                      </div>
-                    </td>
-                    <td className="apartment-type-cell-action">
-                      <div className="apartment-type-actions">
-                        <button
-                          type="button"
-                          className="btn-table-edit"
-                          onClick={() => handleEdit(item)}
-                          title="Edit apartment type"
-                        >
-                          <FaEdit />
-                        </button>
-                        <button
-                          type="button"
-                          className="btn-table-delete"
-                          onClick={() => handleDelete(item.id)}
-                          title="Delete apartment type"
-                        >
-                          <FaTrashAlt />
-                        </button>
-                      </div>
+                types.map((type) => (
+                  <tr key={type.id} style={{ transition: "all 0.15s" }}>
+                    <td style={{ fontWeight: "600", fontSize: "13px" }}>#{type.id}</td>
+                    <td style={{ fontWeight: "900", color: "var(--admin-primary)", fontSize: "15px" }}>{type.typeName}</td>
+                    <td style={{ fontWeight: "700" }}>{type.area} m²</td>
+                    <td>{type.roomCount || "0"} rooms</td>
+                    <td style={{ fontWeight: "800", color: "#10b981" }}>{new Intl.NumberFormat("vi-VN").format(type.rentPrice || 0)}</td>
+                    <td style={{ textAlign: "center" }}>
+                       <span style={{ padding: "4px 12px", background: "var(--admin-success-light)", color: "var(--admin-success)", borderRadius: "20px", fontSize: "11px", fontWeight: "800" }}>ACTIVE</span>
                     </td>
                   </tr>
                 ))
@@ -4513,16 +3834,7 @@ export const AdminApartmentTypeManager = () => {
             </tbody>
           </table>
         </div>
-
-        <AdminPagination
-          currentPage={currentPage}
-          totalPages={totalPages}
-          onPageChange={setCurrentPage}
-          totalItems={filteredTypes.length}
-          pageSize={pageSize}
-          itemLabel="apartment types"
-        />
-      </section>
+      </div>
     </div>
   );
 };
