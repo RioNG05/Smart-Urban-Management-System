@@ -49,7 +49,13 @@ import {
   updateAccountById,
   updateResidentById,
 } from "../services/adminResidentService";
-import { getApartments } from "../services/apartmentService";
+import {
+  getApartments,
+  getApartmentTypes,
+  createApartmentType,
+  updateApartmentType,
+  deleteApartmentType,
+} from "../services/apartmentService";
 import {
   createVisitor,
   getAllBookings,
@@ -134,6 +140,30 @@ const getAdminTimestampValue = (value) => {
   const parsed = new Date(value);
   return Number.isNaN(parsed.getTime()) ? 0 : parsed.getTime();
 };
+
+const normalizeApartmentTypeRecord = (type, index = 0) => ({
+  id: type?.id ?? `apt-type-${Date.now()}-${index}`,
+  name: type?.name ?? "",
+  designSqrt: String(type?.designSqrt ?? ""),
+  numberOfBedroom: String(type?.numberOfBedroom ?? ""),
+  numberOfBathroom: String(type?.numberOfBathroom ?? ""),
+  commonPriceForBuying: String(type?.commonPriceForBuying ?? ""),
+  commonPriceForRent: String(type?.commonPriceForRent ?? ""),
+  furnitureTypeId: String(
+    type?.furnitureTypeId ?? type?.furnitureType?.id ?? "",
+  ),
+  furniture:
+    type?.furniture ??
+    type?.furnitureType?.description ??
+    type?.furnitureType?.name ??
+    "",
+  overview: type?.overview ?? "",
+  furnitureType: type?.furnitureType ?? null,
+  source: type?.source ?? "backend",
+  createdAt: type?.createdAt ?? new Date().toISOString(),
+  updatedAt: type?.updatedAt ?? type?.createdAt ?? new Date().toISOString(),
+});
+
 
 // --- ADMIN ROLE MANAGER ---
 const LegacyAdminRoleManager = () => {
@@ -1312,8 +1342,8 @@ export const AdminAccountManager = () => {
     if (role === "ADMIN" || role === "STAFF") return false;
 
     return (acc.username?.toLowerCase() || "").includes(searchTerm.toLowerCase()) ||
-           (acc.email?.toLowerCase() || "").includes(searchTerm.toLowerCase()) ||
-           (acc.role?.roleName?.toLowerCase() || "").includes(searchTerm.toLowerCase());
+      (acc.email?.toLowerCase() || "").includes(searchTerm.toLowerCase()) ||
+      (acc.role?.roleName?.toLowerCase() || "").includes(searchTerm.toLowerCase());
   });
 
   const paginatedItems = paginateItems(filteredAccounts, currentPage, pageSize);
@@ -2656,8 +2686,19 @@ export const AdminComplaintManager = () => {
               reply?.createdBy?.username ??
               "Staff/Admin",
             createdLabel: formatAdminDateTime(getComplaintTimestamp(reply)),
-          }));
+          }))
+            .sort(
+              (a, b) =>
+                getAdminTimestampValue(getComplaintTimestamp(a)) -
+                getAdminTimestampValue(getComplaintTimestamp(b)),
+            );
           const createdAt = getComplaintTimestamp(complaint);
+          const latestReplyAt =
+            replies.length > 0
+              ? getComplaintTimestamp(replies[replies.length - 1])
+              : null;
+          const lastActivityAt = latestReplyAt ?? createdAt;
+          const status = replies.length > 0 ? "replied" : "new";
 
           return {
             ...complaint,
@@ -2688,21 +2729,17 @@ export const AdminComplaintManager = () => {
             ),
             replies,
             replyCount: replies.length,
-            status: replies.length > 0 ? "replied" : "new",
-            statusLabel: replies.length > 0 ? "Replied" : "Pending review",
+            latestReplyAt,
             latestReplyLabel:
-              replies.length > 0
-                ? formatAdminDateTime(
-                  getComplaintTimestamp(replies[replies.length - 1]),
-                )
+              latestReplyAt !== null
+                ? formatAdminDateTime(latestReplyAt)
                 : "No replies yet",
-            sortPriority: replies.length > 0 ? 1 : 0,
-            sortTimestamp: Math.max(
-              getAdminTimestampValue(createdAt),
-              getAdminTimestampValue(
-                complaint?.updatedAt ?? complaint?.modifiedAt,
-              ),
-            ),
+            lastActivityAt,
+            lastActivityLabel: formatAdminDateTime(lastActivityAt),
+            status,
+            statusLabel: status === "replied" ? "Replied" : "Pending review",
+            sortPriority: status === "replied" ? 1 : 0,
+            sortTimestamp: getAdminTimestampValue(lastActivityAt),
           };
         })
         .sort((a, b) => {
@@ -2797,7 +2834,7 @@ export const AdminComplaintManager = () => {
     (complaint) => complaint.status === "replied",
   ).length;
   const latestComplaintDate =
-    complaints.length > 0 ? formatAdminDate(complaints[0].createdAt) : "N/A";
+    complaints.length > 0 ? formatAdminDate(complaints[0].lastActivityAt) : "N/A";
 
   const handleSubmitReply = async () => {
     if (!selectedComplaint || !replyDraft.trim()) {
@@ -2893,7 +2930,7 @@ export const AdminComplaintManager = () => {
                 icon: <FaExclamationTriangle />,
                 label: "Pending review",
                 value: newCount,
-                accent: "#f59e0b",
+                accent: "#c98b3c",
               },
               {
                 icon: <FaRegCommentDots />,
@@ -3043,72 +3080,71 @@ export const AdminComplaintManager = () => {
               </select>
             </div>
 
-
-            <div
-              style={{
-                display: "grid",
-                gap: "12px",
-                padding: "4px",
-                maxHeight: "720px",
-                overflowY: "auto",
-              }}
-            >
-              {isLoading ? (
-                <div style={{ textAlign: "center", padding: "40px", color: "#64748b" }}>Loading...</div>
-              ) : filteredComplaints.length === 0 ? (
-                <div style={{ textAlign: "center", padding: "40px", color: "#64748b" }}>No matches found.</div>
-              ) : (
-                paginatedComplaints.map((complaint) => {
-                  const isSelected = complaint.id === selectedComplaintId;
-                  const isPending = complaint.status === "new" || complaint.status === 0;
-
-                  return (
-                    <button
-                      key={complaint.id}
-                      type="button"
-                      onClick={() => setSelectedComplaintId(complaint.id)}
-                      style={{
-                        textAlign: "left",
-                        border: isSelected ? "1px solid #3b82f6" : "1px solid #e2e8f0",
-                        background: isSelected ? "#f0f7ff" : "#fff",
-                        borderRadius: "16px",
-                        padding: "18px",
-                        cursor: "pointer",
-                        boxShadow: isSelected ? "0 4px 12px rgba(59, 130, 246, 0.1)" : "0 2px 4px rgba(0,0,0,0.02)",
-                        transition: "all 0.2s ease"
-                      }}
-                    >
-                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "8px" }}>
-                        <div style={{ minWidth: 0 }}>
-                          <strong style={{ color: "#0f172a", fontSize: "15px", display: "block" }}>{complaint.ownerName}</strong>
-                          <span style={{ color: "#64748b", fontSize: "12px" }}>{complaint.ownerEmail}</span>
-                        </div>
-                        <span className={`status-badge ${isPending ? "locked" : "active"}`}>
-                          {complaint.statusLabel}
-                        </span>
-                      </div>
-                      <div
+            <div className="admin-table-wrapper">
+              <table className="admin-custom-table bordered">
+                <thead>
+                  <tr>
+                    <th>Resident</th>
+                    <th>Apartment</th>
+                    <th>Status</th>
+                    <th>Updated</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {isLoading ? (
+                    <tr>
+                      <td colSpan="5" style={{ textAlign: "center", padding: "28px" }}>
+                        Loading complaints from the backend...
+                      </td>
+                    </tr>
+                  ) : filteredComplaints.length === 0 ? (
+                    <tr>
+                      <td colSpan="5" style={{ textAlign: "center", padding: "28px" }}>
+                        No complaints match the current filters.
+                      </td>
+                    </tr>
+                  ) : (
+                    paginatedComplaints.map((complaint) => (
+                      <tr
+                        key={complaint.id}
+                        onClick={() => setSelectedComplaintId(complaint.id)}
                         style={{
-                          fontSize: "14px",
-                          color: "#475569",
-                          lineHeight: "1.5",
-                          display: "-webkit-box",
-                          WebkitLineClamp: 2,
-                          WebkitBoxOrient: "vertical",
-                          overflow: "hidden",
-                          marginBottom: "10px"
+                          cursor: "pointer",
+                          background:
+                            complaint.id === selectedComplaintId
+                              ? "rgba(201, 139, 60, 0.08)"
+                              : undefined,
                         }}
                       >
-                        {complaint.content}
-                      </div>
-                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderTop: "1px solid #f1f5f9", paddingTop: "8px" }}>
-                        <span style={{ fontSize: "12px", fontWeight: "700", color: "#334155" }}>Room {complaint.apartmentLabel}</span>
-                        <span style={{ fontSize: "12px", color: "#94a3b8" }}>{complaint.replyCount} replies</span>
-                      </div>
-                    </button>
-                  );
-                })
-              )}
+                        <td>
+                          <strong>{complaint.ownerName}</strong>
+                          <div style={{ color: "#64748b", fontSize: "11px", marginTop: "4px", wordBreak: "break-all" }}>
+                            {complaint.ownerEmail}
+                          </div>
+                        </td>
+                        <td>
+                          <strong>Room {complaint.apartmentLabel}</strong>
+                          <div style={{ color: "#64748b", fontSize: "12px", marginTop: "4px" }}>
+                            {complaint.floorNumber ? `Floor ${complaint.floorNumber}` : "Floor unknown"}
+                          </div>
+                        </td>
+                        <td>
+                          <span
+                            className={`status-badge ${complaint.status === "replied" ? "active" : "locked"
+                              }`}
+                          >
+                            {complaint.statusLabel}
+                          </span>
+                          <div style={{ color: "#64748b", fontSize: "12px", marginTop: "6px" }}>
+                            {complaint.replyCount} replies
+                          </div>
+                        </td>
+                        <td>{complaint.latestReplyLabel}</td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
             </div>
 
             <AdminPagination
@@ -3201,14 +3237,23 @@ export const AdminComplaintManager = () => {
                 <div
                   style={{
                     display: "grid",
-                    gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
+                    gridTemplateColumns: "1.43fr 0.57fr",
                     gap: "12px",
                     marginBottom: "18px",
                   }}
                 >
                   {[
                     { label: "Submitted", value: selectedComplaint.createdLabel },
-                    { label: "Updated", value: selectedComplaint.updatedLabel },
+                    {
+                      label:
+                        selectedComplaint.status === "new"
+                          ? "Awaiting reply"
+                          : "Last reply",
+                      value:
+                        selectedComplaint.status === "new"
+                          ? "Not replied yet"
+                          : selectedComplaint.latestReplyLabel,
+                    },
                     { label: "Email", value: selectedComplaint.ownerEmail },
                     { label: "Reply count", value: selectedComplaint.replyCount },
                   ].map((item) => (
@@ -3224,7 +3269,7 @@ export const AdminComplaintManager = () => {
                       <div style={{ fontSize: "12px", color: "#64748b", marginBottom: "6px" }}>
                         {item.label}
                       </div>
-                      <div style={{ color: "#0f172a", fontWeight: "700", lineHeight: "1.5" }}>
+                      <div style={{ color: "#0f172a", fontWeight: "700", lineHeight: "1.5", wordBreak: "break-all" }}>
                         {item.value}
                       </div>
                     </div>
@@ -3555,23 +3600,23 @@ export const AdminApartmentLayout = () => {
             </div>
             <div style={{ position: "relative", width: "260px", boxShadow: "0 4px 15px rgba(0,0,0,0.05)", borderRadius: "12px" }}>
               <FaSearch style={{ position: "absolute", left: "16px", top: "50%", transform: "translateY(-50%)", color: "#94a3b8", fontSize: "14px" }} />
-              <input 
-                type="text" 
-                placeholder="Find floor (e.g. 10)..." 
-                value={floorSearch} 
-                onChange={(e) => setFloorSearch(e.target.value)} 
+              <input
+                type="text"
+                placeholder="Find floor (e.g. 10)..."
+                value={floorSearch}
+                onChange={(e) => setFloorSearch(e.target.value)}
                 style={{ width: "100%", padding: "14px 16px 14px 44px", borderRadius: "12px", border: "1px solid #e2e8f0", fontSize: "14px", outline: "none", transition: "all 0.2s" }}
-                onFocus={(e) => e.target.style.borderColor = "#3b82f6"}
+                onFocus={(e) => e.target.style.borderColor = "#c98b3c"}
                 onBlur={(e) => e.target.style.borderColor = "#e2e8f0"}
               />
             </div>
           </div>
 
-          <div 
-            style={{ 
-              maxHeight: "max(600px, calc(100vh - 280px))", 
-              overflowY: "auto", 
-              borderRadius: "20px", 
+          <div
+            style={{
+              maxHeight: "max(600px, calc(100vh - 280px))",
+              overflowY: "auto",
+              borderRadius: "20px",
               paddingRight: "12px",
               paddingBottom: "20px",
               scrollbarWidth: "thin",
@@ -3580,7 +3625,7 @@ export const AdminApartmentLayout = () => {
           >
             {isLoading ? (
               <div style={{ textAlign: "center", padding: "120px 0" }}>
-                <FaSyncAlt className="spin" style={{ fontSize: "40px", color: "#3b82f6", marginBottom: "15px" }} />
+                <FaSyncAlt className="spin" style={{ fontSize: "40px", color: "#c98b3c", marginBottom: "15px" }} />
                 <p style={{ color: "#64748b", fontWeight: "600" }}>Architectural sync in progress...</p>
               </div>
             ) : filteredFloors.length === 0 ? (
@@ -3590,14 +3635,14 @@ export const AdminApartmentLayout = () => {
             ) : (
               <div style={{ display: "grid", gap: "20px" }}>
                 {filteredFloors.map(([floor, apts]) => (
-                  <div 
-                    key={floor} 
-                    style={{ 
-                      display: "flex", 
-                      gap: "24px", 
-                      padding: "24px", 
-                      background: "white", 
-                      borderRadius: "20px", 
+                  <div
+                    key={floor}
+                    style={{
+                      display: "flex",
+                      gap: "24px",
+                      padding: "24px",
+                      background: "white",
+                      borderRadius: "20px",
                       border: "1px solid #f1f5f9",
                       boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03)",
                       transition: "transform 0.2s ease, box-shadow 0.2s ease",
@@ -3605,43 +3650,45 @@ export const AdminApartmentLayout = () => {
                       overflow: "hidden"
                     }}
                   >
-                    <div 
-                      style={{ 
-                        minWidth: "100px", 
-                        background: "#f1f5f9", 
-                        color: "#475569", 
-                        borderRadius: "16px", 
-                        display: "flex", 
+                    <div
+                      style={{
+                        minWidth: "72px",
+                        padding: "12px 8px",
+                        background: "#c98b3c",
+                        color: "#ffffff",
+                        borderRadius: "16px",
+                        display: "flex",
                         flexDirection: "column",
-                        alignItems: "center", 
-                        justifyContent: "center", 
+                        alignItems: "center",
+                        justifyContent: "center",
                         fontWeight: "900",
-                        fontSize: "13px",
+                        fontSize: "12px",
                         letterSpacing: "0.05em",
-                        border: "1px solid #e2e8f0"
+                        border: "1px solid #b47d32",
+                        boxShadow: "0 4px 10px rgba(201, 139, 60, 0.15)"
                       }}
                     >
-                      <span style={{ fontSize: "10px", opacity: 0.6, marginBottom: "2px" }}>LEVEL</span>
+                      <span style={{ fontSize: "10px", opacity: 0.9, marginBottom: "2px" }}>FLOOR</span>
                       <span style={{ fontSize: "20px" }}>{floor}</span>
                     </div>
-                    
-                    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(130px, 1fr))", gap: "14px", flexGrow: 1 }}>
+
+                    <div style={{ display: "grid", gridTemplateColumns: "repeat(6, 1fr)", gap: "14px", flexGrow: 1 }}>
                       {apts.sort((a, b) => Number(a.roomNumber) - Number(b.roomNumber)).map(apt => {
                         const occupied = baseData.contracts.some(c => (c?.apartment?.id ?? c?.apartmentId) === apt.id && Number(c?.status ?? 1) === 1);
                         return (
-                          <div 
-                            key={apt.id} 
+                          <div
+                            key={apt.id}
                             onClick={() => setSelectedApartmentId(apt.id)}
-                            style={{ 
-                              padding: "20px 15px", 
-                              textAlign: "center", 
-                              borderRadius: "14px", 
-                              border: occupied ? "1px solid #bfdbfe" : "1px solid #f1f5f9", 
-                              cursor: "pointer", 
-                              background: occupied ? "#eff6ff" : "#fff", 
-                              color: occupied ? "#1e40af" : "#475569", 
+                            style={{
+                              padding: "14px 10px",
+                              textAlign: "center",
+                              borderRadius: "14px",
+                              border: occupied ? "1px solid #fde68a" : "1px solid #f1f5f9",
+                              cursor: "pointer",
+                              background: occupied ? "#fffbeb" : "#fff",
+                              color: occupied ? "#c98b3c" : "#475569",
                               fontWeight: "800",
-                              fontSize: "16px",
+                              fontSize: "15px",
                               transition: "all 0.2s cubic-bezier(0.4, 0, 0.2, 1)",
                               position: "relative",
                               boxShadow: occupied ? "none" : "inset 0 0 0 1px rgba(0,0,0,0.02)"
@@ -3653,7 +3700,7 @@ export const AdminApartmentLayout = () => {
                               {occupied ? "OCCUPIED" : "VACANT"}
                             </div>
                             {occupied && (
-                              <div style={{ position: "absolute", top: "6px", right: "6px", width: "6px", height: "6px", background: "#3b82f6", borderRadius: "50%" }}></div>
+                              <div style={{ position: "absolute", top: "6px", right: "6px", width: "6px", height: "6px", background: "#c98b3c", borderRadius: "50%" }}></div>
                             )}
                           </div>
                         );
@@ -3749,7 +3796,7 @@ export const AdminApartmentTypeManager = () => {
                 <th>CLASSIFICATION</th>
                 <th>DIMENSION (m²)</th>
                 <th>CHAMBERS</th>
-                <th>AVERAGE RENT (VND)</th>
+                <th>RENTING PRICE (VND)</th>
                 <th style={{ textAlign: "center" }}>STATUS</th>
               </tr>
             </thead>
@@ -3757,7 +3804,7 @@ export const AdminApartmentTypeManager = () => {
               {isLoading ? (
                 <tr><td colSpan="6" style={{ textAlign: "center", padding: "60px" }}>Synchronizing configuration data...</td></tr>
               ) : types.length === 0 ? (
-                <tr><td colSpan="6" style={{ textAlign: "center", padding: "60px" }}>Circuit empty. No types found in system.</td></tr>
+                <tr><td colSpan="6" style={{ textAlign: "center", padding: "40px" }}>Inventory empty. No types found.</td></tr>
               ) : (
                 types.map((type) => (
                   <tr key={type.id} style={{ transition: "all 0.15s" }}>
@@ -3767,7 +3814,7 @@ export const AdminApartmentTypeManager = () => {
                     <td>{type.roomCount || "0"} rooms</td>
                     <td style={{ fontWeight: "800", color: "#10b981" }}>{new Intl.NumberFormat("vi-VN").format(type.rentPrice || 0)}</td>
                     <td style={{ textAlign: "center" }}>
-                       <span style={{ padding: "4px 12px", background: "var(--admin-success-light)", color: "var(--admin-success)", borderRadius: "20px", fontSize: "11px", fontWeight: "800" }}>ACTIVE</span>
+                      <span style={{ padding: "4px 12px", background: "var(--admin-success-light)", color: "var(--admin-success)", borderRadius: "20px", fontSize: "11px", fontWeight: "800" }}>ACTIVE</span>
                     </td>
                   </tr>
                 ))
@@ -3779,4 +3826,3 @@ export const AdminApartmentTypeManager = () => {
     </div>
   );
 };
-
