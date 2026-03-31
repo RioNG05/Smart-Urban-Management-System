@@ -1,7 +1,10 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import NewsCard from "./NewsCard";
 import NewsSidebar from "./NewsSidebar";
 import { getNewsList } from "../../../services/newsService";
+import Pagination from "../../common/Pagination";
+
+const ITEMS_PER_PAGE = 6;
 
 const normalizeKeyword = (value) =>
   value
@@ -14,6 +17,7 @@ export default function NewsList({ activeTag = "" }) {
   const [newsList, setNewsList] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
 
   useEffect(() => {
     const fetchNews = async () => {
@@ -35,15 +39,34 @@ export default function NewsList({ activeTag = "" }) {
   }, []);
 
   const normalizedTag = normalizeKeyword(activeTag);
-  const filteredNews = newsList.filter((news) => {
-    if (!normalizedTag) return true;
+  const filteredNews = useMemo(
+    () =>
+      newsList.filter((news) => {
+        if (!normalizedTag) return true;
 
-    const searchableText = normalizeKeyword(
-      `${news.title} ${news.desc} ${news.content} ${news.author}`
-    );
+        const searchableText = normalizeKeyword(
+          `${news.title} ${news.desc} ${news.content} ${news.author}`
+        );
 
-    return searchableText.includes(normalizedTag);
-  });
+        return searchableText.includes(normalizedTag);
+      }),
+    [newsList, normalizedTag]
+  );
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [activeTag]);
+
+  const totalPages = Math.max(1, Math.ceil(filteredNews.length / ITEMS_PER_PAGE));
+  const safeCurrentPage = Math.min(currentPage, totalPages);
+  const startIndex = (safeCurrentPage - 1) * ITEMS_PER_PAGE;
+  const paginatedNews = filteredNews.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+
+  useEffect(() => {
+    if (safeCurrentPage !== currentPage) {
+      setCurrentPage(safeCurrentPage);
+    }
+  }, [safeCurrentPage, currentPage]);
 
   return (
     <section className="news-container">
@@ -77,7 +100,15 @@ export default function NewsList({ activeTag = "" }) {
 
         {!isLoading &&
           !error &&
-          filteredNews.map((news) => <NewsCard key={news.id} news={news} />)}
+          paginatedNews.map((news) => <NewsCard key={news.id} news={news} />)}
+
+        {!isLoading && !error && filteredNews.length > 0 ? (
+          <Pagination
+            currentPage={safeCurrentPage}
+            totalPages={totalPages}
+            onPageChange={setCurrentPage}
+          />
+        ) : null}
       </div>
 
       <NewsSidebar items={newsList.slice(0, 5)} />

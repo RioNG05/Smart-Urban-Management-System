@@ -91,6 +91,7 @@ const AdminSidebar = ({ isOpen, setIsOpen, upcomingCount }) => {
                         <NavLink to="/admin/contracts/create" className="staff-nav-item" style={{ padding: '8px 15px', fontSize: '13px' }}><FaFileContract style={{ marginRight: '10px' }} /> Create Contract</NavLink>
                         <NavLink to="/admin/contracts/view" className="staff-nav-item" style={{ padding: '8px 15px', fontSize: '13px' }}><FaClipboardList style={{ marginRight: '10px' }} /> View Contracts</NavLink>
                         <NavLink to="/admin/apartment-layout" className="staff-nav-item" style={{ padding: '8px 15px', fontSize: '13px' }}><FaBuilding style={{ marginRight: '10px' }} /> Apartment</NavLink>
+                        <NavLink to="/admin/apartment-types" className="staff-nav-item" style={{ padding: '8px 15px', fontSize: '13px' }}><FaLayerGroup style={{ marginRight: '10px' }} /> Apartment Types</NavLink>
                     </div>
                 )}
 

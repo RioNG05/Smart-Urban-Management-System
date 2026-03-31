@@ -48,7 +48,13 @@ import {
   updateAccountById,
   updateResidentById,
 } from "../services/adminResidentService";
-import { getApartments } from "../services/apartmentService";
+import {
+  getApartments,
+  getApartmentTypes,
+  createApartmentType,
+  updateApartmentType,
+  deleteApartmentType,
+} from "../services/apartmentService";
 import {
   createVisitor,
   getAllBookings,
@@ -133,6 +139,30 @@ const getAdminTimestampValue = (value) => {
   const parsed = new Date(value);
   return Number.isNaN(parsed.getTime()) ? 0 : parsed.getTime();
 };
+
+const normalizeApartmentTypeRecord = (type, index = 0) => ({
+  id: type?.id ?? `apt-type-${Date.now()}-${index}`,
+  name: type?.name ?? "",
+  designSqrt: String(type?.designSqrt ?? ""),
+  numberOfBedroom: String(type?.numberOfBedroom ?? ""),
+  numberOfBathroom: String(type?.numberOfBathroom ?? ""),
+  commonPriceForBuying: String(type?.commonPriceForBuying ?? ""),
+  commonPriceForRent: String(type?.commonPriceForRent ?? ""),
+  furnitureTypeId: String(
+    type?.furnitureTypeId ?? type?.furnitureType?.id ?? "",
+  ),
+  furniture:
+    type?.furniture ??
+    type?.furnitureType?.description ??
+    type?.furnitureType?.name ??
+    "",
+  overview: type?.overview ?? "",
+  furnitureType: type?.furnitureType ?? null,
+  source: type?.source ?? "backend",
+  createdAt: type?.createdAt ?? new Date().toISOString(),
+  updatedAt: type?.updatedAt ?? type?.createdAt ?? new Date().toISOString(),
+});
+
 
 // --- ADMIN ROLE MANAGER ---
 const LegacyAdminRoleManager = () => {
@@ -2428,8 +2458,19 @@ export const AdminComplaintManager = () => {
               reply?.createdBy?.username ??
               "Staff/Admin",
             createdLabel: formatAdminDateTime(getComplaintTimestamp(reply)),
-          }));
+          }))
+            .sort(
+              (a, b) =>
+                getAdminTimestampValue(getComplaintTimestamp(a)) -
+                getAdminTimestampValue(getComplaintTimestamp(b)),
+            );
           const createdAt = getComplaintTimestamp(complaint);
+          const latestReplyAt =
+            replies.length > 0
+              ? getComplaintTimestamp(replies[replies.length - 1])
+              : null;
+          const lastActivityAt = latestReplyAt ?? createdAt;
+          const status = replies.length > 0 ? "replied" : "new";
 
           return {
             ...complaint,
@@ -2460,21 +2501,17 @@ export const AdminComplaintManager = () => {
             ),
             replies,
             replyCount: replies.length,
-            status: replies.length > 0 ? "replied" : "new",
-            statusLabel: replies.length > 0 ? "Replied" : "Pending review",
+            latestReplyAt,
             latestReplyLabel:
-              replies.length > 0
-                ? formatAdminDateTime(
-                    getComplaintTimestamp(replies[replies.length - 1]),
-                  )
+              latestReplyAt !== null
+                ? formatAdminDateTime(latestReplyAt)
                 : "No replies yet",
-            sortPriority: replies.length > 0 ? 1 : 0,
-            sortTimestamp: Math.max(
-              getAdminTimestampValue(createdAt),
-              getAdminTimestampValue(
-                complaint?.updatedAt ?? complaint?.modifiedAt,
-              ),
-            ),
+            lastActivityAt,
+            lastActivityLabel: formatAdminDateTime(lastActivityAt),
+            status,
+            statusLabel: status === "replied" ? "Replied" : "Pending review",
+            sortPriority: status === "replied" ? 1 : 0,
+            sortTimestamp: getAdminTimestampValue(lastActivityAt),
           };
         })
         .sort((a, b) => {
@@ -2569,7 +2606,7 @@ export const AdminComplaintManager = () => {
     (complaint) => complaint.status === "replied",
   ).length;
   const latestComplaintDate =
-    complaints.length > 0 ? formatAdminDate(complaints[0].createdAt) : "N/A";
+    complaints.length > 0 ? formatAdminDate(complaints[0].lastActivityAt) : "N/A";
 
   const handleSubmitReply = async () => {
     if (!selectedComplaint || !replyDraft.trim()) {
@@ -2816,85 +2853,174 @@ export const AdminComplaintManager = () => {
             </div>
 
             <div className="admin-table-wrapper">
-              <table className="admin-custom-table bordered">
-                <thead>
-                  <tr>
-                    <th>Resident</th>
-                    <th>Apartment</th>
-                    <th>Content</th>
-                    <th>Status</th>
-                    <th>Updated</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {isLoading ? (
-                    <tr>
-                      <td colSpan="5" style={{ textAlign: "center", padding: "28px" }}>
-                        Loading complaints from the backend...
-                      </td>
-                    </tr>
-                  ) : filteredComplaints.length === 0 ? (
-                    <tr>
-                      <td colSpan="5" style={{ textAlign: "center", padding: "28px" }}>
-                        No complaints match the current filters.
-                      </td>
-                    </tr>
-                  ) : (
-                    paginatedComplaints.map((complaint) => (
-                      <tr
+              <div
+                style={{
+                  display: "grid",
+                  gap: "14px",
+                  padding: "6px",
+                  background: "#f8fafc",
+                  borderRadius: "18px",
+                }}
+              >
+                {isLoading ? (
+                  <div style={{ textAlign: "center", padding: "28px", color: "#64748b" }}>
+                    Loading complaints from the backend...
+                  </div>
+                ) : filteredComplaints.length === 0 ? (
+                  <div style={{ textAlign: "center", padding: "28px", color: "#64748b" }}>
+                    No complaints match the current filters.
+                  </div>
+                ) : (
+                  paginatedComplaints.map((complaint) => {
+                    const isSelected = complaint.id === selectedComplaintId;
+                    const isPending = complaint.status === "new";
+
+                    return (
+                      <button
                         key={complaint.id}
+                        type="button"
                         onClick={() => setSelectedComplaintId(complaint.id)}
                         style={{
+                          textAlign: "left",
+                          border: isSelected
+                            ? "1px solid rgba(59, 130, 246, 0.35)"
+                            : "1px solid #e2e8f0",
+                          background: isSelected
+                            ? "linear-gradient(180deg, rgba(219,234,254,0.9) 0%, #ffffff 100%)"
+                            : "#ffffff",
+                          borderRadius: "18px",
+                          padding: "18px",
                           cursor: "pointer",
-                          background:
-                            complaint.id === selectedComplaintId
-                              ? "rgba(59, 130, 246, 0.08)"
-                              : undefined,
+                          boxShadow: isSelected
+                            ? "0 14px 30px rgba(59, 130, 246, 0.14)"
+                            : "0 8px 18px rgba(15, 23, 42, 0.05)",
                         }}
                       >
-                        <td>
-                          <strong>{complaint.ownerName}</strong>
-                          <div style={{ color: "#64748b", fontSize: "12px", marginTop: "4px" }}>
-                            {complaint.ownerEmail}
+                        <div
+                          style={{
+                            display: "flex",
+                            justifyContent: "space-between",
+                            gap: "12px",
+                            alignItems: "flex-start",
+                            marginBottom: "12px",
+                          }}
+                        >
+                          <div style={{ minWidth: 0 }}>
+                            <div
+                              style={{
+                                display: "flex",
+                                alignItems: "center",
+                                gap: "10px",
+                                flexWrap: "wrap",
+                              }}
+                            >
+                              <strong style={{ color: "#0f172a", fontSize: "15px" }}>
+                                {complaint.ownerName}
+                              </strong>
+                              <span
+                                className={`status-badge ${
+                                  isPending ? "locked" : "active"
+                                }`}
+                              >
+                                {complaint.statusLabel}
+                              </span>
+                            </div>
+                            <div
+                              style={{
+                                color: "#64748b",
+                                fontSize: "12px",
+                                marginTop: "6px",
+                              }}
+                            >
+                              {complaint.ownerEmail}
+                            </div>
                           </div>
-                        </td>
-                        <td>
-                          <strong>Room {complaint.apartmentLabel}</strong>
-                          <div style={{ color: "#64748b", fontSize: "12px", marginTop: "4px" }}>
-                            {complaint.floorNumber ? `Floor ${complaint.floorNumber}` : "Floor unknown"}
-                          </div>
-                        </td>
-                        <td style={{ maxWidth: "280px" }}>
                           <div
                             style={{
-                              display: "-webkit-box",
-                              WebkitLineClamp: 2,
-                              WebkitBoxOrient: "vertical",
-                              overflow: "hidden",
-                              lineHeight: "1.5",
+                              fontSize: "12px",
+                              color: "#64748b",
+                              textAlign: "right",
+                              flexShrink: 0,
                             }}
                           >
-                            {complaint.content}
+                            <div>
+                              {isPending ? "Submitted" : "Last reply"}
+                            </div>
+                            <strong style={{ color: "#0f172a", display: "block", marginTop: "4px" }}>
+                              {isPending ? complaint.createdLabel : complaint.latestReplyLabel}
+                            </strong>
                           </div>
-                        </td>
-                        <td>
-                          <span
-                            className={`status-badge ${
-                              complaint.status === "replied" ? "active" : "locked"
-                            }`}
+                        </div>
+
+                        <div
+                          style={{
+                            display: "grid",
+                            gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))",
+                            gap: "10px",
+                            marginBottom: "14px",
+                          }}
+                        >
+                          <div
+                            style={{
+                              background: "#f8fafc",
+                              borderRadius: "12px",
+                              padding: "10px 12px",
+                            }}
                           >
-                            {complaint.statusLabel}
-                          </span>
-                          <div style={{ color: "#64748b", fontSize: "12px", marginTop: "6px" }}>
-                            {complaint.replyCount} replies
+                            <div style={{ fontSize: "11px", color: "#64748b", marginBottom: "4px" }}>
+                              Apartment
+                            </div>
+                            <div style={{ color: "#0f172a", fontWeight: "700" }}>
+                              Room {complaint.apartmentLabel}
+                            </div>
                           </div>
-                        </td>
-                        <td>{complaint.latestReplyLabel}</td>
-                      </tr>
-                    ))
-                  )}
-                </tbody>
-              </table>
+                          <div
+                            style={{
+                              background: "#f8fafc",
+                              borderRadius: "12px",
+                              padding: "10px 12px",
+                            }}
+                          >
+                            <div style={{ fontSize: "11px", color: "#64748b", marginBottom: "4px" }}>
+                              Replies
+                            </div>
+                            <div style={{ color: "#0f172a", fontWeight: "700" }}>
+                              {complaint.replyCount} {complaint.replyCount === 1 ? "reply" : "replies"}
+                            </div>
+                          </div>
+                          <div
+                            style={{
+                              background: "#f8fafc",
+                              borderRadius: "12px",
+                              padding: "10px 12px",
+                            }}
+                          >
+                            <div style={{ fontSize: "11px", color: "#64748b", marginBottom: "4px" }}>
+                              Phone
+                            </div>
+                            <div style={{ color: "#0f172a", fontWeight: "700" }}>
+                              {complaint.ownerPhone}
+                            </div>
+                          </div>
+                        </div>
+
+                        <div
+                          style={{
+                            color: "#334155",
+                            lineHeight: "1.65",
+                            display: "-webkit-box",
+                            WebkitLineClamp: 2,
+                            WebkitBoxOrient: "vertical",
+                            overflow: "hidden",
+                          }}
+                        >
+                          {complaint.content}
+                        </div>
+                      </button>
+                    );
+                  })
+                )}
+              </div>
             </div>
 
             <AdminPagination
@@ -2993,9 +3119,18 @@ export const AdminComplaintManager = () => {
                     marginBottom: "18px",
                   }}
                 >
-                  {[
+                  {[ 
                     { label: "Submitted", value: selectedComplaint.createdLabel },
-                    { label: "Updated", value: selectedComplaint.updatedLabel },
+                    {
+                      label:
+                        selectedComplaint.status === "new"
+                          ? "Awaiting reply"
+                          : "Last reply",
+                      value:
+                        selectedComplaint.status === "new"
+                          ? "Not replied yet"
+                          : selectedComplaint.latestReplyLabel,
+                    },
                     { label: "Email", value: selectedComplaint.ownerEmail },
                     { label: "Reply count", value: selectedComplaint.replyCount },
                   ].map((item) => (
@@ -4019,6 +4154,773 @@ export const AdminApartmentLayout = () => {
           />
         </div>
       )}
+    </div>
+  );
+};
+
+export const AdminApartmentTypeManager = () => {
+  const emptyForm = {
+    name: "",
+    designSqrt: "",
+    numberOfBedroom: "",
+    numberOfBathroom: "",
+    commonPriceForBuying: "",
+    commonPriceForRent: "",
+    furnitureTypeId: "",
+    overview: "",
+  };
+
+  const [apartmentTypes, setApartmentTypes] = useState([]);
+  const [furnitureOptions, setFurnitureOptions] = useState([]);
+  const [formData, setFormData] = useState(emptyForm);
+  const [editingId, setEditingId] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [feedback, setFeedback] = useState({ type: "", message: "" });
+  const [currentPage, setCurrentPage] = useState(1);
+  const pageSize = 6;
+
+  useEffect(() => {
+    let active = true;
+
+    const loadApartmentTypes = async () => {
+      try {
+        setIsLoading(true);
+        setFeedback({ type: "", message: "" });
+
+        const backendTypes = await getApartmentTypes();
+
+        if (!active) return;
+
+        const normalizedTypes = Array.isArray(backendTypes)
+          ? backendTypes.map((item, index) =>
+              normalizeApartmentTypeRecord(item, index),
+            )
+          : [];
+        setApartmentTypes(normalizedTypes);
+        setFurnitureOptions(
+          Array.from(
+            normalizedTypes.reduce((map, item) => {
+              if (item.furnitureTypeId && item.furniture) {
+                map.set(item.furnitureTypeId, {
+                  id: item.furnitureTypeId,
+                  description: item.furniture,
+                });
+              }
+              return map;
+            }, new Map()).values(),
+          ),
+        );
+      } catch (error) {
+        if (!active) return;
+
+        setFeedback({
+          type: "error",
+          message:
+            error?.response?.data?.message ||
+            "Unable to load apartment types right now.",
+        });
+        setApartmentTypes([]);
+      } finally {
+        if (active) {
+          setIsLoading(false);
+        }
+      }
+    };
+
+    loadApartmentTypes();
+
+    return () => {
+      active = false;
+    };
+  }, []);
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm]);
+
+  const handleRefresh = async () => {
+    try {
+      setIsLoading(true);
+      const backendTypes = await getApartmentTypes();
+      const normalizedTypes = Array.isArray(backendTypes)
+        ? backendTypes.map((item, index) =>
+            normalizeApartmentTypeRecord(item, index),
+          )
+        : [];
+
+      setApartmentTypes(normalizedTypes);
+      setFurnitureOptions(
+        Array.from(
+          normalizedTypes.reduce((map, item) => {
+            if (item.furnitureTypeId && item.furniture) {
+              map.set(item.furnitureTypeId, {
+                id: item.furnitureTypeId,
+                description: item.furniture,
+              });
+            }
+            return map;
+          }, new Map()).values(),
+        ),
+      );
+      setFeedback({
+        type: "success",
+        message: "Apartment types refreshed successfully.",
+      });
+    } catch (error) {
+      setFeedback({
+        type: "error",
+        message:
+          error?.response?.data?.message ||
+          "Unable to refresh apartment types.",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleInputChange = (field, value) => {
+    setFormData((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const resetForm = () => {
+    setFormData(emptyForm);
+    setEditingId(null);
+  };
+
+  const handleSubmit = (event) => {
+    event.preventDefault();
+
+    if (!formData.name.trim()) {
+      setFeedback({ type: "error", message: "Apartment type name is required." });
+      return;
+    }
+
+    const payload = {
+      name: formData.name.trim(),
+      designSqrt: Number(formData.designSqrt),
+      numberOfBedroom: Number(formData.numberOfBedroom),
+      numberOfBathroom: Number(formData.numberOfBathroom),
+      overview: formData.overview.trim(),
+      commonPriceForBuying: Number(formData.commonPriceForBuying),
+      commonPriceForRent: Number(formData.commonPriceForRent),
+      furnitureTypeId: Number(formData.furnitureTypeId),
+    };
+
+    if (
+      !payload.name ||
+      !payload.designSqrt ||
+      !payload.numberOfBedroom ||
+      !payload.numberOfBathroom ||
+      !payload.commonPriceForBuying ||
+      !payload.commonPriceForRent ||
+      !payload.furnitureTypeId
+    ) {
+      setFeedback({
+        type: "error",
+        message: "Please complete all required fields.",
+      });
+      return;
+    }
+
+    Promise.resolve()
+      .then(async () => {
+        const savedItem = editingId
+          ? await updateApartmentType(editingId, payload)
+          : await createApartmentType(payload);
+
+        const normalizedItem = normalizeApartmentTypeRecord(savedItem);
+
+        setApartmentTypes((prev) =>
+          editingId
+            ? prev.map((item) => (item.id === editingId ? normalizedItem : item))
+            : [normalizedItem, ...prev],
+        );
+
+        setFurnitureOptions((prev) => {
+          const next = new Map(
+            prev.map((option) => [String(option.id), option]),
+          );
+          if (normalizedItem.furnitureTypeId && normalizedItem.furniture) {
+            next.set(String(normalizedItem.furnitureTypeId), {
+              id: String(normalizedItem.furnitureTypeId),
+              description: normalizedItem.furniture,
+            });
+          }
+          return Array.from(next.values());
+        });
+
+        setFeedback({
+          type: "success",
+          message: editingId
+            ? "Apartment type updated successfully."
+            : "Apartment type created successfully.",
+        });
+        resetForm();
+      })
+      .catch((error) => {
+        setFeedback({
+          type: "error",
+          message:
+            error?.response?.data?.message ||
+            "Unable to save apartment type.",
+        });
+      });
+  };
+
+  const handleEdit = (item) => {
+    setEditingId(item.id);
+    setFormData({
+      name: item.name ?? "",
+      designSqrt: item.designSqrt ?? "",
+      numberOfBedroom: item.numberOfBedroom ?? "",
+      numberOfBathroom: item.numberOfBathroom ?? "",
+      commonPriceForBuying: item.commonPriceForBuying ?? "",
+      commonPriceForRent: item.commonPriceForRent ?? "",
+      furnitureTypeId: item.furnitureTypeId ?? "",
+      overview: item.overview ?? "",
+    });
+    setFeedback({ type: "", message: "" });
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const handleDelete = (id) => {
+    deleteApartmentType(id)
+      .then(() => {
+        const nextTypes = apartmentTypes.filter((item) => item.id !== id);
+        setApartmentTypes(nextTypes);
+        setFeedback({
+          type: "success",
+          message: "Apartment type deleted successfully.",
+        });
+
+        if (editingId === id) {
+          resetForm();
+        }
+      })
+      .catch((error) => {
+        setFeedback({
+          type: "error",
+          message:
+            error?.response?.data?.message ||
+            "Unable to delete apartment type.",
+        });
+      });
+  };
+
+  const filteredTypes = apartmentTypes.filter((item) => {
+    const keyword = searchTerm.trim().toLowerCase();
+    if (!keyword) return true;
+
+    return [
+      item.name,
+      item.designSqrt,
+      item.numberOfBedroom,
+      item.numberOfBathroom,
+      item.furniture,
+      item.overview,
+    ]
+      .filter(Boolean)
+      .some((value) => String(value).toLowerCase().includes(keyword));
+  });
+
+  useEffect(() => {
+    const nextTotalPages = Math.max(1, Math.ceil(filteredTypes.length / pageSize));
+    if (currentPage > nextTotalPages) {
+      setCurrentPage(nextTotalPages);
+    }
+  }, [currentPage, filteredTypes.length, pageSize]);
+
+  const paginatedTypes = paginateItems(filteredTypes, currentPage, pageSize);
+  const totalPages = Math.max(1, Math.ceil(filteredTypes.length / pageSize));
+
+  return (
+    <div className="admin-lock-resident-container">
+      <section
+        className="staff-form-container apartment-type-hero"
+        style={{
+          marginBottom: "24px",
+          background:
+            "linear-gradient(135deg, #fffdf7 0%, #ffffff 60%, #f8fafc 100%)",
+          border: "1px solid #efe3bf",
+          boxShadow: "0 18px 40px rgba(15, 23, 42, 0.08)",
+        }}
+      >
+        <div
+          className="admin-lock-header-row"
+          style={{ alignItems: "flex-start", gap: "16px", flexWrap: "wrap" }}
+        >
+          <div>
+            <div
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "10px",
+                padding: "8px 14px",
+                borderRadius: "999px",
+                background: "#fff7e6",
+                color: "#b7791f",
+                fontWeight: "700",
+                fontSize: "12px",
+                letterSpacing: "0.04em",
+                textTransform: "uppercase",
+                marginBottom: "14px",
+              }}
+            >
+              <FaLayerGroup />
+              Apartment Catalog
+            </div>
+            <h2 className="admin-page-title" style={{ margin: 0, fontSize: "32px" }}>
+              Apartment Types
+            </h2>
+            <p
+              style={{
+                margin: "10px 0 0",
+                color: "#64748b",
+                maxWidth: "720px",
+                lineHeight: 1.7,
+              }}
+            >
+              Manage layout, area, pricing, and furnishing details in one clean
+              workspace.
+            </p>
+          </div>
+          <div
+            style={{
+              display: "flex",
+              gap: "10px",
+              alignItems: "center",
+              flexWrap: "wrap",
+            }}
+          >
+            <span className="status-badge active">
+              {apartmentTypes.length} types
+            </span>
+            <button
+              type="button"
+              className="btn-table-edit apartment-type-toolbar-btn"
+              onClick={handleRefresh}
+            >
+              <FaSyncAlt style={{ marginRight: "6px" }} />
+              Refresh
+            </button>
+          </div>
+        </div>
+
+        {feedback.message ? (
+          <div
+            className={`admin-feedback ${feedback.type === "error" ? "error" : "success"}`}
+            style={{ marginTop: "16px", marginBottom: "20px" }}
+          >
+            {feedback.message}
+          </div>
+        ) : null}
+
+        <form onSubmit={handleSubmit}>
+          <div
+            className="apartment-type-form-shell"
+            style={{
+              display: "grid",
+              gridTemplateColumns: "minmax(0, 1.3fr) minmax(320px, 0.9fr)",
+              gap: "22px",
+            }}
+          >
+            <div
+              className="apartment-type-form-card"
+              style={{
+                background: "#fff",
+                border: "1px solid #e2e8f0",
+                borderRadius: "20px",
+                padding: "22px",
+              }}
+            >
+              <div className="admin-lock-form-grid">
+                <div className="form-group">
+                  <label>TYPE NAME</label>
+                  <input
+                    type="text"
+                    value={formData.name}
+                    onChange={(event) => handleInputChange("name", event.target.value)}
+                    placeholder="Sky Garden, Cozy 2BR..."
+                  />
+                </div>
+                <div className="form-group">
+                  <label>AREA</label>
+                  <input
+                    type="number"
+                    min="0"
+                    value={formData.designSqrt}
+                    onChange={(event) =>
+                      handleInputChange("designSqrt", event.target.value)
+                    }
+                    placeholder="75"
+                  />
+                </div>
+                <div className="form-group">
+                  <label>BEDROOMS</label>
+                  <input
+                    type="number"
+                    min="0"
+                    value={formData.numberOfBedroom}
+                    onChange={(event) =>
+                      handleInputChange("numberOfBedroom", event.target.value)
+                    }
+                    placeholder="2"
+                  />
+                </div>
+                <div className="form-group">
+                  <label>BATHROOMS</label>
+                  <input
+                    type="number"
+                    min="0"
+                    value={formData.numberOfBathroom}
+                    onChange={(event) =>
+                      handleInputChange("numberOfBathroom", event.target.value)
+                    }
+                    placeholder="2"
+                  />
+                </div>
+                <div className="form-group">
+                  <label>BUY PRICE</label>
+                  <input
+                    type="number"
+                    min="0"
+                    value={formData.commonPriceForBuying}
+                    onChange={(event) =>
+                      handleInputChange("commonPriceForBuying", event.target.value)
+                    }
+                    placeholder="3500000000"
+                  />
+                </div>
+                <div className="form-group">
+                  <label>RENT PRICE</label>
+                  <input
+                    type="number"
+                    min="0"
+                    value={formData.commonPriceForRent}
+                    onChange={(event) =>
+                      handleInputChange("commonPriceForRent", event.target.value)
+                    }
+                    placeholder="18000000"
+                  />
+                </div>
+                <div className="form-group">
+                  <label>FURNITURE</label>
+                  <select
+                    value={formData.furnitureTypeId}
+                    onChange={(event) =>
+                      handleInputChange("furnitureTypeId", event.target.value)
+                    }
+                  >
+                    <option value="">Select furniture</option>
+                    {furnitureOptions.map((option) => (
+                      <option key={option.id} value={option.id}>
+                        {option.description}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <div
+              className="apartment-type-preview-card"
+              style={{
+                background: "#0f172a",
+                color: "#fff",
+                borderRadius: "20px",
+                padding: "22px",
+                display: "flex",
+                flexDirection: "column",
+                gap: "18px",
+              }}
+            >
+              <div>
+                <p
+                  style={{
+                    margin: 0,
+                    fontSize: "12px",
+                    letterSpacing: "0.08em",
+                    textTransform: "uppercase",
+                    color: "#cbd5e1",
+                    fontWeight: "700",
+                  }}
+                >
+                  Preview
+                </p>
+                <h3
+                  style={{
+                    margin: "10px 0 8px",
+                    fontSize: "28px",
+                    fontWeight: "800",
+                    color: "#f8fafc",
+                  }}
+                >
+                  {formData.name || "New apartment type"}
+                </h3>
+                <p style={{ margin: 0, color: "#94a3b8", lineHeight: 1.7 }}>
+                  {formData.overview ||
+                    "A short summary for this apartment type will appear here."}
+                </p>
+              </div>
+
+              <div
+                className="apartment-type-preview-grid"
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
+                  gap: "12px",
+                }}
+              >
+                <div
+                  style={{
+                    background: "rgba(255,255,255,0.06)",
+                    borderRadius: "16px",
+                    padding: "14px",
+                  }}
+                >
+                  <div style={{ color: "#94a3b8", fontSize: "12px" }}>Area</div>
+                  <div style={{ marginTop: "6px", fontSize: "18px", fontWeight: "800" }}>
+                    {formData.designSqrt || "--"} sqm
+                  </div>
+                </div>
+                <div
+                  style={{
+                    background: "rgba(255,255,255,0.06)",
+                    borderRadius: "16px",
+                    padding: "14px",
+                  }}
+                >
+                  <div style={{ color: "#94a3b8", fontSize: "12px" }}>Layout</div>
+                  <div style={{ marginTop: "6px", fontSize: "18px", fontWeight: "800" }}>
+                    {formData.numberOfBedroom || 0} BR / {formData.numberOfBathroom || 0} BA
+                  </div>
+                </div>
+                <div
+                  style={{
+                    background: "rgba(255,255,255,0.06)",
+                    borderRadius: "16px",
+                    padding: "14px",
+                  }}
+                >
+                  <div style={{ color: "#94a3b8", fontSize: "12px" }}>Buy</div>
+                  <div style={{ marginTop: "6px", fontSize: "18px", fontWeight: "800" }}>
+                    {formData.commonPriceForBuying
+                      ? new Intl.NumberFormat("vi-VN").format(
+                          Number(formData.commonPriceForBuying),
+                        )
+                      : "--"}
+                  </div>
+                </div>
+                <div
+                  style={{
+                    background: "rgba(255,255,255,0.06)",
+                    borderRadius: "16px",
+                    padding: "14px",
+                  }}
+                >
+                  <div style={{ color: "#94a3b8", fontSize: "12px" }}>Rent</div>
+                  <div style={{ marginTop: "6px", fontSize: "18px", fontWeight: "800" }}>
+                    {formData.commonPriceForRent
+                      ? new Intl.NumberFormat("vi-VN").format(
+                          Number(formData.commonPriceForRent),
+                        )
+                      : "--"}
+                  </div>
+                </div>
+              </div>
+
+              <div
+                style={{
+                  background: "rgba(255,255,255,0.06)",
+                  borderRadius: "16px",
+                  padding: "14px",
+                }}
+              >
+                <div style={{ color: "#94a3b8", fontSize: "12px" }}>Furniture</div>
+                <div style={{ marginTop: "6px", fontSize: "16px", fontWeight: "700" }}>
+                  {furnitureOptions.find(
+                    (option) => String(option.id) === String(formData.furnitureTypeId),
+                  )?.description || "--"}
+                </div>
+              </div>
+
+              <div className="form-group" style={{ marginBottom: 0 }}>
+                <label style={{ color: "#e2e8f0" }}>OVERVIEW</label>
+                <textarea
+                  value={formData.overview}
+                  onChange={(event) =>
+                    handleInputChange("overview", event.target.value)
+                  }
+                  placeholder="Add a short description..."
+                  style={{
+                    width: "100%",
+                    minHeight: "120px",
+                    padding: "14px 16px",
+                    borderRadius: "14px",
+                    border: "1px solid rgba(255,255,255,0.08)",
+                    background: "rgba(255,255,255,0.04)",
+                    color: "#fff",
+                    resize: "vertical",
+                    fontFamily: "inherit",
+                    fontSize: "14px",
+                  }}
+                />
+              </div>
+            </div>
+          </div>
+
+          <div className="admin-lock-actions" style={{ marginTop: "20px" }}>
+            <button
+              type="submit"
+              className="btn-table-lock apartment-type-form-btn apartment-type-form-btn-primary"
+            >
+              {editingId ? "Update Type" : "Add Type"}
+            </button>
+            <button
+              type="button"
+              className="btn-table-edit apartment-type-form-btn"
+              onClick={resetForm}
+            >
+              Reset
+            </button>
+          </div>
+        </form>
+      </section>
+
+      <section
+        className="admin-table-wrapper apartment-type-table-card"
+        style={{
+          borderRadius: "22px",
+          boxShadow: "0 18px 42px rgba(15, 23, 42, 0.06)",
+        }}
+      >
+        <div className="admin-lock-header-row">
+          <h3 className="admin-lock-section-title">Type List</h3>
+          <div className="admin-lock-search">
+            <FaSearch />
+            <input
+              type="text"
+              value={searchTerm}
+              onChange={(event) => setSearchTerm(event.target.value)}
+              placeholder="Search types..."
+            />
+          </div>
+        </div>
+
+        <div className="admin-table-scroll">
+          <table
+            className="admin-custom-table bordered apartment-type-table"
+            style={{ tableLayout: "fixed", minWidth: "1060px" }}
+          >
+            <colgroup>
+              <col style={{ width: "24%" }} />
+              <col style={{ width: "10%" }} />
+              <col style={{ width: "13%" }} />
+              <col style={{ width: "17%" }} />
+              <col style={{ width: "28%" }} />
+              <col style={{ width: "8%" }} />
+            </colgroup>
+            <thead>
+              <tr>
+                <th>TYPE</th>
+                <th>AREA</th>
+                <th>LAYOUT</th>
+                <th>PRICE</th>
+                <th>DETAIL</th>
+                <th style={{ textAlign: "center" }}>ACTION</th>
+              </tr>
+            </thead>
+            <tbody>
+              {isLoading ? (
+                <tr>
+                  <td colSpan="6" style={{ textAlign: "center", padding: "24px" }}>
+                    Loading apartment types...
+                  </td>
+                </tr>
+              ) : filteredTypes.length === 0 ? (
+                <tr>
+                  <td colSpan="6" style={{ textAlign: "center", padding: "24px" }}>
+                    No apartment types found.
+                  </td>
+                </tr>
+              ) : (
+                paginatedTypes.map((item) => (
+                  <tr key={item.id}>
+                    <td className="apartment-type-cell-type">
+                      <strong>{item.name || "Unnamed Type"}</strong>
+                    </td>
+                    <td className="apartment-type-cell-area">
+                      {item.designSqrt ? `${item.designSqrt} sqm` : "N/A"}
+                    </td>
+                    <td className="apartment-type-cell-layout">
+                      {item.numberOfBedroom || 0} BR / {item.numberOfBathroom || 0} BA
+                    </td>
+                    <td className="apartment-type-cell-price">
+                      <div className="apartment-type-price-line">
+                        Buy:{" "}
+                        <strong>
+                          {item.commonPriceForBuying
+                            ? new Intl.NumberFormat("vi-VN").format(
+                                Number(item.commonPriceForBuying),
+                              )
+                            : "N/A"}
+                        </strong>
+                      </div>
+                      <div className="apartment-type-price-line">
+                        Rent:{" "}
+                        <strong>
+                          {item.commonPriceForRent
+                            ? new Intl.NumberFormat("vi-VN").format(
+                                Number(item.commonPriceForRent),
+                              )
+                            : "N/A"}
+                        </strong>
+                      </div>
+                    </td>
+                    <td className="apartment-type-cell-detail">
+                      <div className="apartment-type-furniture-label">
+                        {item.furniture || "Not set"}
+                      </div>
+                      <div className="apartment-type-overview-text">
+                        {item.overview || "No description yet."}
+                      </div>
+                    </td>
+                    <td className="apartment-type-cell-action">
+                      <div className="apartment-type-actions">
+                        <button
+                          type="button"
+                          className="btn-table-edit"
+                          onClick={() => handleEdit(item)}
+                          title="Edit apartment type"
+                        >
+                          <FaEdit />
+                        </button>
+                        <button
+                          type="button"
+                          className="btn-table-delete"
+                          onClick={() => handleDelete(item.id)}
+                          title="Delete apartment type"
+                        >
+                          <FaTrashAlt />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+
+        <AdminPagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={setCurrentPage}
+          totalItems={filteredTypes.length}
+          pageSize={pageSize}
+          itemLabel="apartment types"
+        />
+      </section>
     </div>
   );
 };
