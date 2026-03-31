@@ -12,12 +12,10 @@
   --admin-bg-sidebar-active: #475569;
   /* Slate 600 */
 
-  /* Primary Brand Colors - Switching to a Modern Premium Blue */
-  --admin-primary: #3b82f6;
-  /* Blue 500 */
-  --admin-primary-hover: #2563eb;
-  /* Blue 600 */
-  --admin-primary-light: #eff6ff;
+  /* Primary Brand Colors - Gold/Copper Brand Color */
+  --admin-primary: #c98b3c;
+  --admin-primary-hover: #b47d32;
+  --admin-primary-light: #fffbeb;
 
   /* Status Colors */
   --admin-success: #10b981;
