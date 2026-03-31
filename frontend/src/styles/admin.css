@@ -3,19 +3,21 @@
 /* GLOBAL VARIABLES FOR ADMIN - PREMIUM SAAS LOOK */
 :root {
   /* Colors */
-  --admin-bg-primary: #f8fafc;
+  --admin-bg-primary: #f4f6fa;
   --admin-bg-secondary: #ffffff;
-  --admin-bg-sidebar-dark: #1e293b;
+  --admin-bg-sidebar-dark: #0f172a;
+  /* Slate 900 */
+  --admin-bg-sidebar-hover: #1e293b;
   /* Slate 800 */
-  --admin-bg-sidebar-hover: #334155;
+  --admin-bg-sidebar-active: #334155;
   /* Slate 700 */
-  --admin-bg-sidebar-active: #475569;
-  /* Slate 600 */
 
-  /* Primary Brand Colors - Gold/Copper Brand Color */
-  --admin-primary: #c98b3c;
-  --admin-primary-hover: #b47d32;
-  --admin-primary-light: #fffbeb;
+  /* Primary Brand Colors */
+  --admin-primary: #c89b3c;
+  /* Gold */
+  --admin-primary-hover: #b08630;
+  /* Darker Gold */
+  --admin-primary-light: #fdf8eb;
 
   /* Status Colors */
   --admin-success: #10b981;
@@ -27,36 +29,36 @@
   --admin-danger: #ef4444;
   /* Red 500 */
   --admin-danger-light: #fee2e2;
-  --admin-info: #0ea5e9;
-  /* Sky 500 */
+  --admin-info: #6366f1;
+  /* Indigo 500 */
 
   /* Text Colors */
-  --admin-text-main: #0f172a;
+  --admin-text-main: #1e293b;
   --admin-text-muted: #64748b;
   --admin-text-light: #94a3b8;
   --admin-text-white: #ffffff;
 
   /* Borders & Shadows */
-  --admin-border-soft: #f1f5f9;
+  --admin-border-soft: #e2e8f0;
   --admin-shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
   --admin-shadow-md:
-    0 4px 6px -1px rgba(0, 0, 0, 0.02), 0 2px 4px -1px rgba(0, 0, 0, 0.02);
+    0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
   --admin-shadow-lg:
-    0 10px 15px -3px rgba(0, 0, 0, 0.04), 0 4px 6px -2px rgba(0, 0, 0, 0.02);
+    0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
   --admin-shadow-hover:
-    0 20px 25px -5px rgba(0, 0, 0, 0.08), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-  --admin-shadow-glow: 0 0 15px rgba(59, 130, 246, 0.15);
+    0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  --admin-shadow-glow: 0 0 15px rgba(200, 155, 60, 0.3);
 
   /* Border Radius */
-  --admin-radius-sm: 8px;
-  --admin-radius-md: 12px;
-  --admin-radius-lg: 18px;
+  --admin-radius-sm: 6px;
+  --admin-radius-md: 10px;
+  --admin-radius-lg: 16px;
   --admin-radius-xl: 24px;
   --admin-radius-pill: 9999px;
 
   /* Transitions */
-  --admin-transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-  --admin-transition-fast: all 0.1s ease-in-out;
+  --admin-transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  --admin-transition-fast: all 0.15s ease-in-out;
 }
 
 /* RESET ĐỂ TRÀN MÀN HÌNH */
@@ -1251,7 +1253,9 @@
   color: #334155;
 }
 
-.btn-table-edit, .btn-reject-mini, .btn-approve-mini {
+.btn-table-edit,
+.btn-reject-mini,
+.btn-approve-mini {
   padding: 8px;
   border-radius: 8px;
   border: none;
@@ -1266,7 +1270,7 @@
   background: #fff;
   color: #1e293b;
   border: 1.5px solid #e2e8f0;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
 .btn-table-edit:hover {
@@ -1280,7 +1284,7 @@
   background: #ef4444;
   color: #fff;
   border: none;
-  box-shadow: 0 4px 10px rgba(239,68,68,0.3);
+  box-shadow: 0 4px 10px rgba(239, 68, 68, 0.3);
 }
 
 .btn-reject-mini:hover {
@@ -1292,7 +1296,7 @@
   background: #10b981;
   color: #fff;
   border: none;
-  box-shadow: 0 4px 10px rgba(16,185,129,0.3);
+  box-shadow: 0 4px 10px rgba(16, 185, 129, 0.3);
 }
 
 .btn-approve-mini:hover {
@@ -1314,7 +1318,7 @@
   justify-content: center;
   cursor: pointer;
   transition: all 0.2s ease;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
 .btn-view-details:hover {
@@ -1838,7 +1842,127 @@
 }
 
 /* Responsive Handling */
+.apartment-type-toolbar-btn,
+.apartment-type-form-btn {
+  min-width: 110px;
+  height: 44px;
+  padding: 0 14px !important;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  white-space: nowrap;
+  font-weight: 700;
+  border-radius: 12px;
+}
+
+.apartment-type-form-btn-primary {
+  background: #c89b3c !important;
+  color: #fff !important;
+  border: none !important;
+}
+
+.apartment-type-table th,
+.apartment-type-table td {
+  vertical-align: top !important;
+}
+
+.apartment-type-table th {
+  text-align: left;
+}
+
+.apartment-type-cell-type strong {
+  display: block;
+  line-height: 1.5;
+  word-break: break-word;
+}
+
+.apartment-type-cell-area,
+.apartment-type-cell-layout,
+.apartment-type-cell-action {
+  white-space: nowrap;
+}
+
+.apartment-type-cell-area,
+.apartment-type-cell-layout {
+  padding-top: 22px !important;
+}
+
+.apartment-type-cell-price {
+  line-height: 1.65;
+}
+
+.apartment-type-price-line {
+  display: block;
+}
+
+.apartment-type-price-line strong {
+  font-weight: 800;
+}
+
+.apartment-type-cell-detail {
+  line-height: 1.65;
+  text-align: ceter;
+}
+
+.apartment-type-furniture-label {
+  font-weight: 700;
+  margin-bottom: 6px;
+  color: #1e293b;
+}
+
+.apartment-type-overview-text {
+  color: #64748b;
+  line-height: 1.7;
+  word-break: break-word;
+}
+
+.apartment-type-table th:nth-child(5) {
+  text-align: left !important;
+  padding-left: 18px !important;
+}
+
+.apartment-type-cell-action {
+  text-align: center;
+  padding-top: 22px !important;
+}
+
+.apartment-type-actions {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  white-space: nowrap;
+}
+
+.apartment-type-actions .btn-table-edit,
+.apartment-type-actions .btn-table-delete {
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
 @media (max-width: 1024px) {
+  .apartment-type-form-shell {
+    grid-template-columns: 1fr !important;
+  }
+
+  .apartment-type-preview-card {
+    min-height: auto;
+  }
+
+  .apartment-type-hero .admin-lock-header-row {
+    align-items: stretch;
+  }
+
+  .apartment-type-toolbar-btn,
+  .apartment-type-form-btn {
+    min-width: 96px;
+  }
+
   .resident-grid-form {
     grid-template-columns: repeat(2, 1fr);
   }
@@ -1849,6 +1973,45 @@
 }
 
 @media (max-width: 768px) {
+  .apartment-type-hero,
+  .apartment-type-table-card {
+    padding: 20px !important;
+    border-radius: 18px !important;
+  }
+
+  .apartment-type-form-card,
+  .apartment-type-preview-card {
+    padding: 18px !important;
+    border-radius: 18px !important;
+  }
+
+  .apartment-type-preview-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .apartment-type-hero .admin-page-title {
+    font-size: 26px !important;
+  }
+
+  .apartment-type-hero .admin-lock-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .apartment-type-hero .admin-lock-actions button {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .apartment-type-table-card .admin-lock-header-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .apartment-type-table {
+    min-width: 920px !important;
+  }
+
   .resident-grid-form {
     grid-template-columns: 1fr;
   }

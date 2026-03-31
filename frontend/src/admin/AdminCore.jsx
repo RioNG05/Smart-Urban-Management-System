@@ -132,9 +132,11 @@ export const AdminLayout = () => {
             <AdminSidebar isOpen={isOpen} setIsOpen={setIsOpen} upcomingCount={upcomingCount} />
             <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
                 <header className="staff-topbar" style={{ justifyContent: 'space-between' }}>
-
                     <nav className="staff-main-nav" style={{ marginRight: 0, alignItems: 'center' }}>
-                        <a href="/admin" className="admin-topbar-brand-title">VinaHouse Admin Management System</a>
+                        <a href="/admin" className="active">Admin</a>
+                        <a href="/staff/apartment">Staff Apartment</a>
+                        <a href="/staff/service">Staff Service</a>
+                        <a href="/staff/security">Staff Security</a>
                     </nav>
 
                     <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
@@ -313,10 +315,10 @@ export const AdminDashboard = () => {
         }, 0);
 
         return [
-            { title: 'Total Apartments', value: dashboardState.apartments.length.toLocaleString(), icon: <FaBuilding />, color: '#c98b3c', bg: '#fff7ed' },
-            { title: 'Active Residents', value: activeResidents.toLocaleString(), icon: <FaUsers />, color: '#b45309', bg: '#fffbeb' },
-            { title: 'Open Service Requests', value: openRequests.toLocaleString(), icon: <FaWrench />, color: '#d97706', bg: '#fef3c7' },
-            { title: 'Monthly Revenue', value: currencyFormatter.format(currentMonthRevenue || 0), icon: <FaMoneyBillWave />, color: '#92400e', bg: '#fffbeb' }
+            { title: 'Total Apartments', value: dashboardState.apartments.length.toLocaleString(), icon: <FaBuilding />, color: '#3b82f6', bg: '#eff6ff' },
+            { title: 'Active Residents', value: activeResidents.toLocaleString(), icon: <FaUsers />, color: '#10b981', bg: '#dcfce7' },
+            { title: 'Open Service Requests', value: openRequests.toLocaleString(), icon: <FaWrench />, color: '#f59e0b', bg: '#fef3c7' },
+            { title: 'Monthly Revenue', value: currencyFormatter.format(currentMonthRevenue || 0), icon: <FaMoneyBillWave />, color: '#c89b3c', bg: '#fefce8' }
         ];
     }, [currencyFormatter, currentDate, dashboardState]);
 
@@ -393,7 +395,7 @@ export const AdminDashboard = () => {
             .map(([name], index) => ({
                 key: `service_${index}`,
                 name,
-                color: ['#c98b3c', '#d97706', '#b45309', '#92400e', '#78350f', '#451a03'][index],
+                color: ['#3b82f6', '#10b981', '#c89b3c', '#ef4444', '#8b5cf6', '#f59e0b'][index],
             }));
     }, [dashboardState.serviceInvoices]);
 
@@ -471,16 +473,16 @@ export const AdminDashboard = () => {
                             <AreaChart data={apartmentRevenueData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                                 <defs>
                                     <linearGradient id="colorRent" x1="0" y1="0" x2="0" y2="1">
-                                        <stop offset="5%" stopColor="#c98b3c" stopOpacity={0.3} />
-                                        <stop offset="95%" stopColor="#c98b3c" stopOpacity={0} />
+                                        <stop offset="5%" stopColor="#10b981" stopOpacity={0.3} />
+                                        <stop offset="95%" stopColor="#10b981" stopOpacity={0} />
                                     </linearGradient>
                                     <linearGradient id="colorUtil" x1="0" y1="0" x2="0" y2="1">
-                                        <stop offset="5%" stopColor="#d97706" stopOpacity={0.3} />
-                                        <stop offset="95%" stopColor="#d97706" stopOpacity={0} />
+                                        <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3} />
+                                        <stop offset="95%" stopColor="#3b82f6" stopOpacity={0} />
                                     </linearGradient>
                                     <linearGradient id="colorMgmt" x1="0" y1="0" x2="0" y2="1">
-                                        <stop offset="5%" stopColor="#b45309" stopOpacity={0.3} />
-                                        <stop offset="95%" stopColor="#b45309" stopOpacity={0} />
+                                        <stop offset="5%" stopColor="#f59e0b" stopOpacity={0.3} />
+                                        <stop offset="95%" stopColor="#f59e0b" stopOpacity={0} />
                                     </linearGradient>
                                 </defs>
                                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
@@ -488,9 +490,9 @@ export const AdminDashboard = () => {
                                 <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#64748b' }} tickFormatter={(val) => currencyFormatter.format(val)} />
                                 <RechartsTooltip contentStyle={{ borderRadius: '8px', border: '1px solid #f1f5f9', boxShadow: '0 4px 6px rgba(0,0,0,0.05)', padding: '10px' }} />
                                 <Legend iconType="circle" wrapperStyle={{ fontSize: '13px', paddingTop: '10px' }} />
-                                <Area type="monotone" dataKey="rent" name="Contract Rent" stroke="#c98b3c" strokeWidth={3} fillOpacity={1} fill="url(#colorRent)" stackId="1" />
-                                <Area type="monotone" dataKey="utilities" name="Utilities" stroke="#d97706" strokeWidth={3} fillOpacity={1} fill="url(#colorUtil)" stackId="1" />
-                                <Area type="monotone" dataKey="management" name="Service Invoices" stroke="#b45309" strokeWidth={3} fillOpacity={1} fill="url(#colorMgmt)" stackId="1" />
+                                <Area type="monotone" dataKey="rent" name="Contract Rent" stroke="#10b981" strokeWidth={3} fillOpacity={1} fill="url(#colorRent)" stackId="1" />
+                                <Area type="monotone" dataKey="utilities" name="Utilities" stroke="#3b82f6" strokeWidth={3} fillOpacity={1} fill="url(#colorUtil)" stackId="1" />
+                                <Area type="monotone" dataKey="management" name="Service Invoices" stroke="#f59e0b" strokeWidth={3} fillOpacity={1} fill="url(#colorMgmt)" stackId="1" />
                             </AreaChart>
                         </ResponsiveContainer>
                     </div>
