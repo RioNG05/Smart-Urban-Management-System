@@ -7,10 +7,10 @@ export default function ServiceHero() {
     <section className="service-hero">
       <div className="service-hero-content">
         <p className="service-hero-badge">Premium resident experience</p>
-        <h1>Book standout services that make your urban lifestyle feel effortless.</h1>
+        <h1>Your City. One Touch Away.</h1>
         <p>
-          Discover curated wellness, recreation, and family-friendly amenities designed to turn
-          every day at your residence into a premium living experience.
+          Book a spa session, reserve the tennis court, or arrange childcare in seconds.
+          Welcome to the world’s most intuitive urban service ecosystem.
         </p>
         <button className="service-hero-cta" onClick={() => navigate("/booking")}>
           Booking Now

@@ -1,10 +1,13 @@
 package com.example.backend.Service;
 
+import com.example.backend.DTO.Response.ImageResponseDTO;
 import com.example.backend.Entity.*;
 import com.example.backend.Repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -48,4 +51,83 @@ public class ImageService {
 
         return url;
     }
+    public List<ImageResponseDTO> getAllApartmentImages() {
+        return apartmentTypeImageRepository
+                .findAll()
+                .stream()
+                .map(img -> new ImageResponseDTO(
+                        img.getId(),
+                        img.getImageUrl(),
+                        null
+                ))
+                .toList();
+    }
+    public List<ImageResponseDTO> getAllServiceImages() {
+        return serviceResourceImageRepository
+                .findAll()
+                .stream()
+                .map(img -> new ImageResponseDTO(
+                        img.getId(),
+                        img.getImageUrl(),
+                        img.getDescription()
+                ))
+                .toList();
+    }
+    public String updateApartmentImage(Integer imageId, MultipartFile file) {
+
+        ApartmentTypeImage image = apartmentTypeImageRepository.findById(imageId)
+                .orElseThrow(() -> new RuntimeException("Image not found"));
+
+        // nếu có file mới thì upload lại
+        if (file != null && !file.isEmpty()) {
+            String newUrl = imageUploadService.uploadFile(file);
+            image.setImageUrl(newUrl);
+        }
+
+        apartmentTypeImageRepository.save(image);
+
+        return image.getImageUrl();
+    }
+    public String updateServiceImage(Integer imageId, MultipartFile file, String description) {
+
+        ServiceResourceImage image = serviceResourceImageRepository.findById(imageId)
+                .orElseThrow(() -> new RuntimeException("Image not found"));
+
+        // update ảnh nếu có file mới
+        if (file != null && !file.isEmpty()) {
+            String newUrl = imageUploadService.uploadFile(file);
+            image.setImageUrl(newUrl);
+        }
+
+        // update description nếu có
+        if (description != null) {
+            image.setDescription(description);
+        }
+
+        serviceResourceImageRepository.save(image);
+
+        return image.getImageUrl();
+    }
+    public void deleteApartmentImage(Integer imageId) {
+
+        ApartmentTypeImage image = apartmentTypeImageRepository.findById(imageId)
+                .orElseThrow(() -> new RuntimeException("Image not found"));
+
+        // xóa cloudinary
+        imageUploadService.deleteFile(image.getImageUrl());
+
+        // xóa DB
+        apartmentTypeImageRepository.delete(image);
+    }
+    public void deleteServiceImage(Integer imageId) {
+
+        ServiceResourceImage image = serviceResourceImageRepository.findById(imageId)
+                .orElseThrow(() -> new RuntimeException("Image not found"));
+
+        imageUploadService.deleteFile(image.getImageUrl());
+
+        serviceResourceImageRepository.delete(image);
+    }
+
+
 }

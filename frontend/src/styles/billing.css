@@ -75,6 +75,7 @@
 .bill-table td {
   padding: 12px 0;
   border-top: 1px solid #f1f1f1;
+  vertical-align: top;
 }
 
 .bill-table tr:hover {
@@ -111,6 +112,10 @@
 }
 
 .property-item {
+  width: 100%;
+  text-align: left;
+  border: none;
+  background: transparent;
   padding: 8px;
   border-radius: 6px;
   cursor: pointer;
@@ -118,6 +123,12 @@
 
 .property-item:hover {
   background: #f3f4f6;
+}
+
+.property-item.active {
+  background: #e8f5e9;
+  color: #1b5e20;
+  font-weight: 600;
 }
 
 .payment-container {
@@ -141,6 +152,11 @@
 
 .pay-button:hover {
   background: #256b29;
+}
+
+.pay-button:disabled {
+  background: #9ca3af;
+  cursor: not-allowed;
 }
 
 .expense-chart {
@@ -168,6 +184,7 @@
 }
 
 .billing-filters select {
+  min-width: 180px;
   padding: 8px 12px;
   border: 1px solid #e5e7eb;
   border-radius: 6px;
@@ -200,6 +217,54 @@
 
 .payment-history tr:hover {
   background: #f9fafb;
+}
+
+.billing-empty {
+  color: #6b7280;
+  text-align: center;
+  padding: 20px 0;
+}
+
+.billing-muted {
+  color: #6b7280;
+  font-size: 13px;
+}
+
+.utility-breakdown {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 260px;
+}
+
+.utility-breakdown-item {
+  padding: 10px 12px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  background: #f9fafb;
+}
+
+.utility-breakdown-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: #111827;
+  margin-bottom: 6px;
+}
+
+.utility-breakdown-meta {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px 12px;
+  font-size: 12px;
+  color: #4b5563;
+}
+
+.billing-note {
+  background: #fff8e1;
+  border: 1px solid #f3d57a;
+  color: #8a6d1d;
+  border-radius: 10px;
+  padding: 12px 14px;
 }
 .report-button {
   background: #2e7d32;
@@ -305,4 +370,36 @@
 .complaint-message.admin {
   background: white;
   border: 1px solid #e5e7eb;
+}
+
+@media (max-width: 900px) {
+  .billing-container {
+    grid-template-columns: 1fr;
+  }
+
+  .summary-row {
+    grid-template-columns: 1fr;
+  }
+
+  .billing-filters {
+    flex-direction: column;
+  }
+
+  .payment-container {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .bill-table {
+    overflow-x: auto;
+  }
+
+  .utility-breakdown {
+    min-width: 220px;
+  }
+
+  .utility-breakdown-meta {
+    grid-template-columns: 1fr;
+  }
 }

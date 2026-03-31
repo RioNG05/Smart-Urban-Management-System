@@ -25,4 +25,24 @@ public class ImageUploadService {
             throw new RuntimeException("Upload failed: " + e.getMessage());
         }
     }
+    public void deleteFile(String imageUrl) {
+        try {
+            // extract public_id từ URL
+            String publicId = extractPublicId(imageUrl);
+
+            cloudinary.uploader().destroy(publicId, Map.of());
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException("Delete failed: " + e.getMessage());
+        }
+    }
+    private String extractPublicId(String imageUrl) {
+        try {
+            String[] parts = imageUrl.split("/");
+            String fileName = parts[parts.length - 1]; // sample.jpg
+            return fileName.substring(0, fileName.lastIndexOf(".")); // sample
+        } catch (Exception e) {
+            throw new RuntimeException("Invalid image URL");
+        }
+    }
 }

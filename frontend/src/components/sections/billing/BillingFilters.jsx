@@ -1,8 +1,10 @@
 export default function BillingFilters({
   apartment,
   setApartment,
-  month,
-  setMonth,
+  monthKey,
+  setMonthKey,
+  apartments,
+  months,
 }) {
   return (
     <div className="billing-filters">
@@ -13,20 +15,24 @@ export default function BillingFilters({
           value={apartment}
           onChange={(e) => setApartment(e.target.value)}
         >
-          <option>A101</option>
-          <option>B202</option>
-          <option>C303</option>
+          {apartments.map((item) => (
+            <option key={item.id} value={item.id}>
+              Apartment {item.label}
+            </option>
+          ))}
         </select>
       </div>
 
       <div>
         <label>Month</label>
 
-        <select value={month} onChange={(e) => setMonth(e.target.value)}>
-          <option>January</option>
-          <option>February</option>
-          <option>March</option>
-          <option>April</option>
+        <select value={monthKey} onChange={(e) => setMonthKey(e.target.value)}>
+          <option value="all">All months</option>
+          {months.map((item) => (
+            <option key={item.value} value={item.value}>
+              {item.label}
+            </option>
+          ))}
         </select>
       </div>
     </div>
