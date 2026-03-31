@@ -4,8 +4,6 @@ import com.example.backend.DTO.Request.account.AccountCreateRequest;
 import com.example.backend.DTO.Request.account.AccountUpdateRequest;
 import com.example.backend.DTO.Response.ApiResponse;
 import com.example.backend.Entity.Account;
-import com.example.backend.Entity.Role;
-import com.example.backend.Repository.RoleRepository;
 import com.example.backend.Service.AccountService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,8 +18,6 @@ public class AccountController {
 
     @Autowired
     private AccountService accountService;
-    @Autowired
-    private RoleRepository roleRepository;
 
     @GetMapping
     @PreAuthorize("hasAuthority('Account_R_01')")

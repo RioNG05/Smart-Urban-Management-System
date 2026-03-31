@@ -8,7 +8,6 @@ import com.example.backend.Service.IoTSyncLogService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
-import com.example.backend.DTO.Request.iot.*;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;

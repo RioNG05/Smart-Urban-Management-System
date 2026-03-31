@@ -1,6 +1,5 @@
 package com.example.backend.DTO.Request.apartmentType;
 
-import com.example.backend.Entity.FurnitureType;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;

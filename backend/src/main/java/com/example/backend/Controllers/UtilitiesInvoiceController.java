@@ -1,13 +1,9 @@
 package com.example.backend.Controllers;
 
-import com.example.backend.DTO.Request.contract.ContractCreateRequest;
-import com.example.backend.DTO.Request.contract.ContractUpdateRequest;
 import com.example.backend.DTO.Request.utilitiesInvoice.UICreateRequest;
 import com.example.backend.DTO.Request.utilitiesInvoice.UIUpdateRequest;
 import com.example.backend.DTO.Response.ApiResponse;
-import com.example.backend.Entity.Contract;
 import com.example.backend.Entity.UtilitiesInvoice;
-import com.example.backend.Service.ContractService;
 import com.example.backend.Service.UtilitiesInvoiceService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;

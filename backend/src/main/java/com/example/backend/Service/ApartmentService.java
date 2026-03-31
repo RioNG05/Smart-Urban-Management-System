@@ -79,17 +79,12 @@ public class ApartmentService {
         findById(id);
         repository.deleteById(id);
     }
-    public boolean isOwned(Integer apartmentId, Integer accountId) {
-        List<Contract> contractList = contractRepository.findAllByApartmentId(apartmentId);
+    public boolean isOwned(Integer apartmentId) {
+        List<Contract> contractList = contractRepository.findAllByApartmentIdOrderByIdDesc(apartmentId);
 
-        for (Contract contract : contractList) {
-            if(contract.getAccount().getId().equals(accountId)){
-                if(contract.getStatus() == 1){
-                    return true;
-                }
-            }
+        if(contractList.isEmpty()){
+            return false;
         }
-
-        return false;
+        return contractList.getFirst().getStatus() != 0;
     }
 }
