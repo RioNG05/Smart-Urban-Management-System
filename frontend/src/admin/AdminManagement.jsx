@@ -3666,25 +3666,27 @@ export const AdminApartmentLayout = () => {
                   >
                     <div
                       style={{
-                        minWidth: "100px",
-                        background: "#f1f5f9",
-                        color: "#475569",
+                        minWidth: "72px",
+                        padding: "12px 8px",
+                        background: "#c98b3c",
+                        color: "#ffffff",
                         borderRadius: "16px",
                         display: "flex",
                         flexDirection: "column",
                         alignItems: "center",
                         justifyContent: "center",
                         fontWeight: "900",
-                        fontSize: "13px",
+                        fontSize: "12px",
                         letterSpacing: "0.05em",
-                        border: "1px solid #e2e8f0"
+                        border: "1px solid #b47d32",
+                        boxShadow: "0 4px 10px rgba(201, 139, 60, 0.15)"
                       }}
                     >
-                      <span style={{ fontSize: "10px", opacity: 0.6, marginBottom: "2px" }}>LEVEL</span>
+                      <span style={{ fontSize: "10px", opacity: 0.9, marginBottom: "2px" }}>FLOOR</span>
                       <span style={{ fontSize: "20px" }}>{floor}</span>
                     </div>
 
-                    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(130px, 1fr))", gap: "14px", flexGrow: 1 }}>
+                    <div style={{ display: "grid", gridTemplateColumns: "repeat(6, 1fr)", gap: "14px", flexGrow: 1 }}>
                       {apts.sort((a, b) => Number(a.roomNumber) - Number(b.roomNumber)).map(apt => {
                         const occupied = baseData.contracts.some(c => (c?.apartment?.id ?? c?.apartmentId) === apt.id && Number(c?.status ?? 1) === 1);
                         return (
@@ -3692,15 +3694,15 @@ export const AdminApartmentLayout = () => {
                             key={apt.id}
                             onClick={() => setSelectedApartmentId(apt.id)}
                             style={{
-                              padding: "20px 15px",
+                              padding: "14px 10px",
                               textAlign: "center",
                               borderRadius: "14px",
-                              border: occupied ? "1px solid #bfdbfe" : "1px solid #f1f5f9",
+                              border: occupied ? "1px solid #fde68a" : "1px solid #f1f5f9",
                               cursor: "pointer",
-                              background: occupied ? "#eff6ff" : "#fff",
-                              color: occupied ? "#1e40af" : "#475569",
+                              background: occupied ? "#fffbeb" : "#fff",
+                              color: occupied ? "#c98b3c" : "#475569",
                               fontWeight: "800",
-                              fontSize: "16px",
+                              fontSize: "15px",
                               transition: "all 0.2s cubic-bezier(0.4, 0, 0.2, 1)",
                               position: "relative",
                               boxShadow: occupied ? "none" : "inset 0 0 0 1px rgba(0,0,0,0.02)"
@@ -3826,7 +3828,7 @@ export const AdminApartmentTypeManager = () => {
                     <td>{type.roomCount || "0"} rooms</td>
                     <td style={{ fontWeight: "800", color: "#10b981" }}>{new Intl.NumberFormat("vi-VN").format(type.rentPrice || 0)}</td>
                     <td style={{ textAlign: "center" }}>
-                       <span style={{ padding: "4px 12px", background: "var(--admin-success-light)", color: "var(--admin-success)", borderRadius: "20px", fontSize: "11px", fontWeight: "800" }}>ACTIVE</span>
+                      <span style={{ padding: "4px 12px", background: "var(--admin-success-light)", color: "var(--admin-success)", borderRadius: "20px", fontSize: "11px", fontWeight: "800" }}>ACTIVE</span>
                     </td>
                   </tr>
                 ))
