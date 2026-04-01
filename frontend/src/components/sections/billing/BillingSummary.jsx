@@ -2,7 +2,7 @@ export default function BillingSummary({ summary, formatCurrency }) {
   return (
     <div className="summary-row">
       <div className="summary-box">
-        <div className="summary-label">Total due</div>
+        <div className="summary-label">Have to paid</div>
 
         <div className="summary-value">
           {formatCurrency(summary.totalDue)}
@@ -16,7 +16,7 @@ export default function BillingSummary({ summary, formatCurrency }) {
       </div>
 
       <div className="summary-box">
-        <div className="summary-label">Paid this month</div>
+        <div className="summary-label">Total Paid</div>
 
         <div className="summary-value">
           {formatCurrency(summary.paidThisMonth)}

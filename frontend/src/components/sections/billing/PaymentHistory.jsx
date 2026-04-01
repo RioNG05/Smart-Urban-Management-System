@@ -29,9 +29,9 @@ export default function PaymentHistory({ payments, formatCurrency, formatDate })
         <table className="admin-custom-table align-middle">
           <thead className="table-light">
             <tr>
-              <th>Date</th>
+              <th>Create Time</th>
               <th>Amount</th>
-              <th>Method</th>
+              <th>Invoice Type</th>
             </tr>
           </thead>
 
@@ -42,7 +42,9 @@ export default function PaymentHistory({ payments, formatCurrency, formatDate })
                   <td>{formatDate(payment.date)}</td>
                   <td className="fw-semibold text-success">{formatCurrency(payment.amount)}</td>
                   <td>
-                    <span className="badge bg-secondary">{payment.method}</span>
+                    <span className={`badge ${payment.method === "Service Invoice" ? "bg-primary" : "bg-success"}`}>
+                      {payment.method}
+                    </span>
                   </td>
                 </tr>
               ))

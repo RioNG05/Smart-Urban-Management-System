@@ -1,18 +1,19 @@
-import React, { useState, useMemo } from "react";
-import { FaRegSquare, FaRegCheckSquare } from "react-icons/fa";
+import React, { useState } from "react";
+import { FaRegSquare, FaCheckSquare } from "react-icons/fa";
+import { isPreviousMonth } from "../../../utils/billingUtils";
+import InvoiceSidebar from "./InvoiceSidebar";
 
 export default function CurrentMonthInvoice({ bills, formatCurrency, formatDate }) {
   const [selected, setSelected] = useState([]);
 
-  // Get most recent unpaid bills month
   const unpaidBills = bills.filter(b => b.statusKey !== 'paid');
-
-  const latestMonthKey = useMemo(() => {
-    if (unpaidBills.length === 0) return null;
-    return unpaidBills[0].monthKey;
-  }, [unpaidBills]);
-
-  const currentMonthBills = unpaidBills.filter(b => b.monthKey === latestMonthKey);
+  
+  // "exactly 1 month ago" relative to the current local date using createdAt
+  const currentMonthBills = bills.filter(b => {
+    if (b.statusKey === 'paid') return false;
+    if (!b.createdAt) return false;
+    return isPreviousMonth(new Date(b.createdAt));
+  });
 
   const utilityBills = currentMonthBills.filter(b => b.source === "utility");
   const serviceBills = currentMonthBills.filter(b => b.source === "service");
@@ -33,44 +34,32 @@ export default function CurrentMonthInvoice({ bills, formatCurrency, formatDate 
 
   const invoiceDate = currentMonthBills[0].dueDate;
 
-  const totalAmount = currentMonthBills.reduce((sum, b) => sum + b.amount, 0);
-  const selectedAmount = currentMonthBills
-    .filter(b => selected.includes(b.id))
-    .reduce((sum, b) => sum + b.amount, 0);
-
-  const utilityTotalRaw = utilityBills.reduce((sum, b) => sum + b.amount, 0);
-  const serviceTotal = serviceBills.reduce((sum, b) => sum + b.amount, 0);
-
-  // Adding 500k flat management per utility bill.
-  const staticManagementFee = 500000;
-  const utilityTotal = utilityTotalRaw + (utilityBills.length * staticManagementFee);
-  const globalTotal = totalAmount + (utilityBills.length * staticManagementFee);
-
-  const selectedUtilityCount = utilityBills.filter(u => selected.includes(u.id)).length;
-  const globalSelected = selectedAmount + (selectedUtilityCount * staticManagementFee);
-  const globalUnpaid = globalTotal - globalSelected;
+  const selectedBills = currentMonthBills.filter(b => selected.includes(b.id));
 
   return (
-    <div className="bg-white p-4 p-md-5 mb-4" style={{ width: "100%", margin: '0 auto', border: '5px solid #2e7d32', borderRadius: '12px' }}>
-      <h2 className="fs-1 text-dark mb-1" style={{ fontWeight: '600' }}>Monthly Invoice</h2>
-      <p className="fs-5 text-dark mb-2">Mandatory Invoice</p>
-      <p className="small text-dark mb-4 fw-medium">
-        Invoice Date: {formatDate(invoiceDate)}
-      </p>
+    <div className="row g-4 mb-4">
+      {/* Tables Column */}
+      <div className="col-12 col-lg-9">
+        <div className="bg-white p-4 p-md-5 h-100" style={{ border: '5px solid #2e7d32', borderRadius: '12px' }}>
+          <h2 className="fs-1 text-dark mb-1" style={{ fontWeight: '600' }}>Monthly Invoice</h2>
+          <p className="fs-5 text-dark mb-2">Mandatory Invoice</p>
+          <p className="small text-dark mb-4 fw-medium">
+            Invoice Date: {invoiceDate ? formatDate(invoiceDate) : "N/A"}
+          </p>
 
-      {/* Utility / Mandatory Section */}
-      <div className="mb-4">
-        {utilityBills.length > 0 ? (
-          <div className="table-responsive">
+          {/* Utility / Mandatory Section */}
+          <div className="mb-4">
+            {utilityBills.length > 0 ? (
+              <div className="table-responsive">
             <table className="table table-borderless align-middle mb-0" style={{ borderTop: '2px solid #000', borderBottom: '2px solid #000' }}>
               <thead>
                 <tr className="border-bottom border-dark fw-bold">
                   <th style={{ width: '40px' }} className="py-2"></th>
-                  <th className="py-2 fw-normal">Name</th>
-                  <th className="py-2 fw-normal">Detail</th>
-                  <th className="py-2 fw-normal">Value</th>
-                  <th className="py-2 fw-normal">Measurement</th>
-                  <th className="py-2 fw-normal text-end">Price</th>
+                  <th style={{ width: '200px' }} className="py-2 fw-normal">Name</th>
+                  <th style={{ width: '60px' }} className="py-2 fw-normal">Detail</th>
+                  <th style={{ width: '60px' }} className="py-2 fw-normal">Value</th>
+                  <th style={{ width: '40px' }} className="py-2 fw-normal">Measurement</th>
+                  <th style={{ width: '40px' }} className="py-2 fw-normal text-end">Price</th>
                 </tr>
               </thead>
               <tbody>
@@ -80,8 +69,11 @@ export default function CurrentMonthInvoice({ bills, formatCurrency, formatDate 
                     <React.Fragment key={bill.id}>
                       <tr>
                         <td rowSpan={details.length + 2} className="align-top pt-3">
-                          <div style={{ cursor: 'pointer', fontSize: '1.4rem' }} onClick={() => toggleSelect(bill.id)}>
-                            {isSelected(bill.id) ? <FaRegCheckSquare className="text-dark" /> : <FaRegSquare className="text-dark" />}
+                          <div 
+                            style={{ cursor: 'pointer', fontSize: '1.2rem', color: isSelected(bill.id) ? '#2e7d32' : '#9ca3af', transition: 'color 0.2s' }} 
+                            onClick={() => toggleSelect(bill.id)}
+                          >
+                            {isSelected(bill.id) ? <FaCheckSquare /> : <FaRegSquare />}
                           </div>
                         </td>
                         <td rowSpan={details.length + 2} className="align-top pt-3 text-dark fs-6" style={{ width: '150px' }}>
@@ -100,7 +92,7 @@ export default function CurrentMonthInvoice({ bills, formatCurrency, formatDate 
                         <td className="py-1 text-dark">Management</td>
                         <td className="py-1 text-dark">1</td>
                         <td className="py-1 text-dark">Month</td>
-                        <td className="py-1 text-dark text-end">{formatCurrency(staticManagementFee)}</td>
+                        <td className="py-1 text-dark text-end">{formatCurrency(bill.managementFee || 0)}</td>
                       </tr>
                     </React.Fragment>
                   );
@@ -108,9 +100,9 @@ export default function CurrentMonthInvoice({ bills, formatCurrency, formatDate 
               </tbody>
             </table>
 
-            <div className="d-flex justify-content-between text-dark py-2 px-2 fw-bold" style={{ borderBottom: '2px solid #000' }}>
+            <div className="d-flex justify-content-between text-dark py-2 px-2 fw-bold fs-5" style={{ borderBottom: '2px solid #000' }}>
               <span>TOTAL AMOUNT</span>
-              <span>{formatCurrency(utilityTotal)}</span>
+              <span style={{color: "#2e7d32"}}>{formatCurrency(utilityBills.reduce((sum, b) => sum + b.amount + (b.managementFee || 0), 0))}</span>
             </div>
           </div>
         ) : (
@@ -136,9 +128,12 @@ export default function CurrentMonthInvoice({ bills, formatCurrency, formatDate 
               <tbody>
                 {serviceBills.map((bill) => (
                   <tr key={bill.id} className="border-bottom border-secondary-subtle">
-                    <td className="py-3 ">
-                      <div style={{ cursor: 'pointer', fontSize: '1.4rem' }} onClick={() => toggleSelect(bill.id)}>
-                        {isSelected(bill.id) ? <FaRegCheckSquare className="text-dark" /> : <FaRegSquare className="text-dark" />}
+                    <td className="py-3">
+                      <div 
+                        style={{ cursor: 'pointer', fontSize: '1.2rem', color: isSelected(bill.id) ? '#2e7d32' : '#9ca3af', transition: 'color 0.2s' }} 
+                        onClick={() => toggleSelect(bill.id)}
+                      >
+                        {isSelected(bill.id) ? <FaCheckSquare /> : <FaRegSquare />}
                       </div>
                     </td>
                     <td className="py-3 text-dark">{bill.name}</td>
@@ -150,38 +145,23 @@ export default function CurrentMonthInvoice({ bills, formatCurrency, formatDate 
             </table>
             <div className="d-flex justify-content-between text-dark py-3 px-2 fw-bold fs-5 border-top border-dark" style={{ borderBottom: '2px solid #000' }}>
               <span>TOTAL AMOUNT</span>
-              <span style={{ color: "#2e7d32" }} >{formatCurrency(serviceTotal)}</span>
+              <span style={{ color: "#2e7d32" }} >{formatCurrency(serviceBills.reduce((sum, b) => sum + b.amount, 0))}</span>
             </div>
           </div>
         ) : (
           <p className="text-muted fst-italic small mb-0">No service invoices.</p>
         )}
       </div>
+        </div>
+      </div>
 
-      {/* Final Totals & Actions */}
-      <div className="mt-5 pt-3 fw-bold">
-        <div className="d-flex justify-content-between mb-3 text-dark fs-5">
-          <span>Total Amount: </span>
-          <span style={{ color: "#2e7d32" }}>{formatCurrency(globalTotal)}</span>
-        </div>
-        <div className="d-flex justify-content-between mb-3 text-dark fs-5">
-          <span>Total Selected: </span>
-          <span style={{ color: "#2e7d32" }}>{formatCurrency(globalSelected)}</span>
-        </div>
-        <div className="d-flex justify-content-between mb-4 text-dark fs-5">
-          <span>Unpaid Amount: </span>
-          <span style={{ color: "#d32f2f" }}>{formatCurrency(globalUnpaid)}</span>
-        </div>
-
-        <div className="d-flex justify-content-end mt-4">
-          <button
-            className="btn px-4 py-2 fw-semibold shadow-sm text-white"
-            disabled={selected.length === 0}
-            style={{ backgroundColor: selected.length === 0 ? '#9ca3af' : '#2e7d32', border: 'none' }}
-          >
-            Pay Selected Bills
-          </button>
-        </div>
+      {/* Sidebar Column */}
+      <div className="col-12 col-lg-3">
+        <InvoiceSidebar 
+          selectedBills={selectedBills}
+          allUnpaidBills={currentMonthBills}
+          formatCurrency={formatCurrency}
+        />
       </div>
     </div>
   );

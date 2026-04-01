@@ -16,150 +16,19 @@ import {
   getBookingsByAccountId,
   getServiceInvoices,
   getUtilitiesInvoicesByApartmentId,
-} from "../services/billingService";
-import { getMyAccount } from "../services/profileService";
-import { getServices } from "../services/serviceService";
+  getMandatoryServices
+} from "../services/myHomeService";
+import { getCurrentUser } from "../services/authService";
 
 import "../styles/billing.css";
 
-const MONTH_FORMATTER = new Intl.DateTimeFormat("en-US", {
-  month: "long",
-  year: "numeric",
-});
-
-const DATE_FORMATTER = new Intl.DateTimeFormat("en-US", {
-  day: "numeric",
-  month: "short",
-  year: "numeric",
-});
-
-const CURRENCY_FORMATTER = new Intl.NumberFormat("vi-VN", {
-  style: "currency",
-  currency: "VND",
-  maximumFractionDigits: 0,
-});
-
-const getMonthKey = (year, month) =>
-  year && month ? `${year}-${String(month).padStart(2, "0")}` : "unknown";
-
-const getInvoiceStatus = (status) =>
-  Number(status) === 1
-    ? { key: "paid", label: "Paid" }
-    : { key: "unpaid", label: "Unpaid" };
-
-const getBookingLabel = (booking) =>
-  booking?.serviceResource?.service?.serviceName ||
-  booking?.serviceResource?.serviceName ||
-  booking?.serviceName ||
-  null;
-
-const sortByBillingPeriod = (items) =>
-  [...items].sort((a, b) => {
-    const yearA = Number(a?.billingYear ?? 0);
-    const yearB = Number(b?.billingYear ?? 0);
-    const monthA = Number(a?.billingMonth ?? 0);
-    const monthB = Number(b?.billingMonth ?? 0);
-
-    if (yearA !== yearB) return yearA - yearB;
-    return monthA - monthB;
-  });
-
-const buildUtilityBills = (utilityInvoices, utilityRates) => {
-  const sortedInvoices = sortByBillingPeriod(utilityInvoices);
-  let electricityReading = 0;
-  let waterReading = 0;
-
-  return sortedInvoices.map((invoice) => {
-    const status = getInvoiceStatus(invoice.status);
-    const invoiceMonthKey = getMonthKey(
-      invoice.billingYear,
-      invoice.billingMonth
-    );
-    const createdAt = invoice.createdAt ? new Date(invoice.createdAt) : null;
-    const electricityUsage = Number(invoice.totalElectricUsed ?? 0);
-    const waterUsage = Number(invoice.totalWaterUsed ?? 0);
-
-    const electricityRate =
-      Number(utilityRates.electricity?.feePerUnit ?? 0) || 0;
-    const waterRate = Number(utilityRates.water?.feePerUnit ?? 0) || 0;
-
-    const electricityAmount = electricityUsage * electricityRate;
-    const waterAmount = waterUsage * waterRate;
-
-    const previousElectricityReading = electricityReading;
-    const currentElectricityReading =
-      previousElectricityReading + electricityUsage;
-
-    const previousWaterReading = waterReading;
-    const currentWaterReading = previousWaterReading + waterUsage;
-
-    electricityReading = currentElectricityReading;
-    waterReading = currentWaterReading;
-
-    return {
-      id: `utility-${invoice.id}`,
-      source: "utility",
-      name: `Utilities Invoice #${invoice.id}`,
-      monthKey: invoiceMonthKey,
-      dueDate: createdAt,
-      amount: electricityAmount + waterAmount,
-      statusKey: status.key,
-      statusLabel: status.label,
-      utilityDetails: {
-        electricity: {
-          label: "Electricity",
-          unit: "kWh",
-          previousReading: previousElectricityReading,
-          currentReading: currentElectricityReading,
-          rate: electricityRate,
-          amount: electricityAmount,
-          usage: electricityUsage,
-        },
-        water: {
-          label: "Water",
-          unit: "m3",
-          previousReading: previousWaterReading,
-          currentReading: currentWaterReading,
-          rate: waterRate,
-          amount: waterAmount,
-          usage: waterUsage,
-        },
-      },
-    };
-  });
-};
-
-const buildServiceBillFromBooking = (booking, invoice) => {
-  const status = getInvoiceStatus(invoice?.status ?? booking?.status);
-  const sourceDate = invoice?.paymentDate
-    ? new Date(invoice.paymentDate)
-    : booking?.bookFrom
-    ? new Date(booking.bookFrom)
-    : booking?.bookAt
-    ? new Date(booking.bookAt)
-    : invoice?.createdAt
-    ? new Date(invoice.createdAt)
-    : null;
-
-  return {
-    id: invoice?.id
-      ? `service-${invoice.id}`
-      : `service-booking-${booking?.id ?? "unknown"}`,
-    source: "service",
-    name:
-      getBookingLabel(booking || invoice?.bookingService) ||
-      (invoice?.id
-        ? `Service Invoice #${invoice.id}`
-        : `Service Booking #${booking?.id}`),
-    monthKey: sourceDate
-      ? getMonthKey(sourceDate.getFullYear(), sourceDate.getMonth() + 1)
-      : "unknown",
-    dueDate: sourceDate,
-    amount: Number(invoice?.amount ?? booking?.totalAmount ?? 0),
-    statusKey: status.key,
-    statusLabel: status.label,
-  };
-};
+import {
+  MONTH_FORMATTER,
+  CURRENCY_FORMATTER,
+  formatDate,
+  buildUtilityBills,
+  buildServiceBillFromBooking
+} from "../utils/billingUtils";
 
 export default function BillingPage() {
   const [accountId, setAccountId] = useState(null);
@@ -192,7 +61,7 @@ export default function BillingPage() {
     const loadApartments = async () => {
       try {
         const [account, apartmentList] = await Promise.all([
-          getMyAccount(),
+          getCurrentUser(),
           getBillingApartmentsForCurrentUser(),
         ]);
 
@@ -243,17 +112,17 @@ export default function BillingPage() {
       setLoading(true);
 
       try {
-        const [utilityInvoices, serviceInvoiceResponse, bookings, services] =
+        const [utilityInvoices, serviceInvoiceResponse, bookings, mandatoryServices] =
           await Promise.all([
             getUtilitiesInvoicesByApartmentId(apartment),
             getServiceInvoices(),
             getBookingsByAccountId(accountId),
-            getServices(),
+            getMandatoryServices(),
           ]);
 
         if (!active) return;
 
-        const utilityRates = services.reduce(
+        const utilityRates = mandatoryServices.reduce(
           (acc, service) => {
             if (service.serviceCode === "ELEC_01") {
               acc.electricity = service;
@@ -263,9 +132,13 @@ export default function BillingPage() {
               acc.water = service;
             }
 
+            if (service.serviceCode === "MNG_FEE") {
+              acc.management = service;
+            }
+
             return acc;
           },
-          { electricity: null, water: null }
+          { electricity: null, water: null, management: null }
         );
 
         const bookingMap = new Map(
@@ -366,24 +239,24 @@ export default function BillingPage() {
   }, [bills, monthKey]);
 
   const summary = useMemo(() => {
-    const totalDue = filteredBills
+    const totalDue = bills
       .filter((bill) => bill.statusKey !== "paid")
-      .reduce((sum, bill) => sum + bill.amount, 0);
+      .reduce((sum, bill) => sum + bill.amount + (bill.managementFee || 0), 0);
 
-    const unpaidBills = filteredBills.filter(
+    const unpaidBills = bills.filter(
       (bill) => bill.statusKey !== "paid"
     ).length;
 
-    const paidThisMonth = filteredBills
+    const paidThisMonth = bills
       .filter((bill) => bill.statusKey === "paid")
-      .reduce((sum, bill) => sum + bill.amount, 0);
+      .reduce((sum, bill) => sum + bill.amount + (bill.managementFee || 0), 0);
 
     return {
       totalDue,
       unpaidBills,
       paidThisMonth,
     };
-  }, [filteredBills]);
+  }, [bills]);
 
   const allUnpaidBills = useMemo(() => {
     return bills
@@ -414,28 +287,21 @@ export default function BillingPage() {
         .filter((bill) => bill.statusKey === "paid")
         .map((bill) => ({
           id: bill.id,
-          date: bill.dueDate,
+          date: bill.createdAt,
           amount: bill.amount,
-          method: bill.source === "service" ? "Service Invoice" : "Utilities Invoice",
+          method: bill.source === "service" ? "Service Invoice" : "Mandatory Invoice",
         })),
     [filteredBills]
   );
-
-  const formatCurrency = (value) => CURRENCY_FORMATTER.format(Number(value || 0));
-
-  const formatDate = (value) => {
-    if (!value) return "N/A";
-    const parsedDate = value instanceof Date ? value : new Date(value);
-    if (Number.isNaN(parsedDate.getTime())) return "N/A";
-    return DATE_FORMATTER.format(parsedDate);
-  };
+  
+  const formatCurrencyLocal = (value) => CURRENCY_FORMATTER.format(Number(value || 0));
 
   return (
     <>
       <Navbar />
 
       <div className="billing-page">
-        <div className="container-xl billing-container p-3 d-flex flex-column flex-md-row gap-4 mb-5">
+        <div className="container-fluid billing-container p-3 d-flex flex-column flex-md-row gap-4 mb-5">
           <PropertySidebar
             apartments={apartments}
             selectedApartmentId={apartment}
@@ -500,7 +366,7 @@ export default function BillingPage() {
                 {billingSubTab === "current" && (
                    <CurrentMonthInvoice 
                       bills={bills} 
-                      formatCurrency={formatCurrency} 
+                      formatCurrency={formatCurrencyLocal} 
                       formatDate={formatDate}
                    />
                 )}
@@ -508,7 +374,7 @@ export default function BillingPage() {
                 {billingSubTab === "pending" && (
                    <PendingServices 
                       bills={allUnpaidBills}
-                      formatCurrency={formatCurrency}
+                      formatCurrency={formatCurrencyLocal}
                       formatDate={formatDate}
                       loading={loading}
                    />
@@ -526,7 +392,7 @@ export default function BillingPage() {
                      filteredBills={filteredBills}
                      chartData={chartData}
                      payments={payments}
-                     formatCurrency={formatCurrency}
+                     formatCurrency={formatCurrencyLocal}
                      formatDate={formatDate}
                      loading={loading}
                   />

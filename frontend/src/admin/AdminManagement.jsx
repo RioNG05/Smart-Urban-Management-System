@@ -3756,7 +3756,9 @@ export const AdminApartmentTypeManager = () => {
     try {
       setIsLoading(true);
       const data = await getApartmentTypes();
-      setTypes(data || []);
+      console.log(data);
+      setTypes(data);
+      console.log(types);
     } catch (err) {
       setError("Failed to load apartment types from server.");
     } finally {

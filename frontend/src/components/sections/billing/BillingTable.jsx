@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { FaRegSquare, FaCheckSquare } from "react-icons/fa";
 import BillingPagination from "./BillingPagination";
 
 export default function BillingTable({
@@ -7,8 +8,13 @@ export default function BillingTable({
   formatDate,
   loading,
   showPaymentAction = true,
+  externalSelected,
+  onToggleSelection,
 }) {
-  const [selected, setSelected] = useState([]);
+  const [internalSelected, setInternalSelected] = useState([]);
+  
+  // Use external selected bills if provided, otherwise internal
+  const selected = externalSelected || internalSelected;
   const [currentPage, setCurrentPage] = useState(1);
   const ITEMS_PER_PAGE = 10;
 
@@ -23,16 +29,22 @@ export default function BillingTable({
   };
 
   useEffect(() => {
-    setSelected([]);
+    if (!externalSelected) {
+      setInternalSelected([]);
+    }
     setCurrentPage(1);
-  }, [bills]);
+  }, [bills, externalSelected]);
 
   const toggle = (billId) => {
-    setSelected((current) =>
-      current.includes(billId)
-        ? current.filter((id) => id !== billId)
-        : [...current, billId]
-    );
+    if (onToggleSelection) {
+      onToggleSelection(billId);
+    } else {
+      setInternalSelected((current) =>
+        current.includes(billId)
+          ? current.filter((id) => id !== billId)
+          : [...current, billId]
+      );
+    }
   };
 
   const total = bills
@@ -60,7 +72,7 @@ export default function BillingTable({
               </th>
               <th>Bill Name</th>
               <th>Details</th>
-              <th>Due Date</th>
+              <th>Create Date</th>
               <th>Amount</th>
               <th>Status</th>
             </tr>
@@ -78,14 +90,21 @@ export default function BillingTable({
               currentBills.map((bill) => (
                 <tr key={bill.id}>
                   <td style={{ textAlign: "center" }}>
-                    <input
-                      className="form-check-input"
-                      style={{ cursor: "pointer" }}
-                      type="checkbox"
-                      checked={selected.includes(bill.id)}
-                      disabled={bill.statusKey === "paid"}
-                      onChange={() => toggle(bill.id)}
-                    />
+                    <div 
+                      style={{ 
+                        cursor: bill.statusKey === "paid" ? "not-allowed" : "pointer", 
+                        fontSize: "1.2rem", 
+                        color: selected.includes(bill.id) ? "#2e7d32" : (bill.statusKey === "paid" ? "#e5e7eb" : "#9ca3af"),
+                        transition: "color 0.2s"
+                      }} 
+                      onClick={() => {
+                        if (bill.statusKey !== "paid") {
+                          toggle(bill.id);
+                        }
+                      }}
+                    >
+                      {selected.includes(bill.id) ? <FaCheckSquare /> : <FaRegSquare />}
+                    </div>
                   </td>
 
                   <td className="fw-semibold">{bill.name}</td>
@@ -125,7 +144,7 @@ export default function BillingTable({
                     )}
                   </td>
 
-                  <td>{formatDate(bill.dueDate)}</td>
+                  <td>{formatDate(bill.createdAt)}</td>
 
                   <td className="fw-bold text-danger">{formatCurrency(bill.amount)}</td>
 
