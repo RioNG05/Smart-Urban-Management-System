@@ -3,7 +3,6 @@ package com.example.backend.Controllers;
 import com.example.backend.DTO.Request.resident.ResidentCreateRequest;
 import com.example.backend.DTO.Request.resident.ResidentUpdateRequest;
 import com.example.backend.DTO.Response.ApiResponse;
-import com.example.backend.Entity.Account;
 import com.example.backend.Entity.Resident;
 import com.example.backend.Service.ResidentService;
 import jakarta.validation.Valid;

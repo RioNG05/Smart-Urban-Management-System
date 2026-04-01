@@ -73,6 +73,6 @@ public class Account implements UserDetails {
     @Override
     @JsonIgnore
     public boolean isEnabled() {
-        return UserDetails.super.isEnabled();
+        return this.isActive;
     }
 }

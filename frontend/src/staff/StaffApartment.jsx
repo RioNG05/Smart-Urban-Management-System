@@ -6,7 +6,7 @@ import {
     FaComments, FaBuilding, FaSignOutAlt
 } from 'react-icons/fa';
 import StaffApartmentMainContent from './StaffApartmentMainContent';
-import '../styles/staff.css';
+import '../styles/manager.css';
 
 const StaffApartment = () => {
     const { logout } = useAuth();

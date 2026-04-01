@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { LuEye, LuEyeOff } from "react-icons/lu";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "./AuthContext";
 import { toast } from "react-toastify";
@@ -7,6 +8,8 @@ import api from "../../../services/api";
 function AuthForm() {
   const { login } = useAuth();
   const [isLogin, setIsLogin] = useState(true);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const [loginData, setLoginData] = useState({
     username: "",
@@ -21,6 +24,16 @@ function AuthForm() {
   });
 
   const navigate = useNavigate();
+
+  // SHOW PASSWORD
+
+  const handleShowPassword = () => {
+    setShowPassword(!showPassword);
+  };
+
+  const handleShowConfirmPassword = () => {
+    setShowConfirmPassword(!showConfirmPassword);
+  };
 
   // LOGIN
   const handleLogin = async (e) => {
@@ -118,18 +131,29 @@ function AuthForm() {
               setLoginData({ ...loginData, username: e.target.value })
             }
           />
-
-          <input
-            type="password"
-            placeholder="Password"
-            value={loginData.password}
-            onChange={(e) =>
-              setLoginData({ ...loginData, password: e.target.value })
-            }
-          />
+          <div className="position-relative">
+            <input
+              className=""
+              type={showPassword ? "text" : "password"}
+              placeholder="Password"
+              value={loginData.password}
+              onChange={(e) =>
+                setLoginData({ ...loginData, password: e.target.value })
+              }
+            />
+            <span className="position-absolute top-50 end-0 translate-middle-y me-3" style={{ cursor: "pointer" }} onClick={handleShowPassword}>
+              {showPassword ? (
+                <LuEyeOff size={20} />
+              ) : (
+                <LuEye size={20} />
+              )}
+            </span>
+          </div>
 
           <div className="forgot-row">
-            <a href="#" className="forgot-link">Forgot password?</a>
+            <a href="#" className="forgot-link">
+              Forgot password?
+            </a>
           </div>
 
           <button type="submit" className="primary-btn">
@@ -175,25 +199,41 @@ function AuthForm() {
               setRegisterData({ ...registerData, email: e.target.value })
             }
           />
-
-          <input
-            type="password"
-            placeholder="Password"
-            onChange={(e) =>
-              setRegisterData({ ...registerData, password: e.target.value })
-            }
-          />
-
-          <input
-            type="password"
-            placeholder="Confirm Password"
-            onChange={(e) =>
-              setRegisterData({
-                ...registerData,
-                confirmPassword: e.target.value,
-              })
-            }
-          />
+          <div className="position-relative">
+            <input
+              type={showPassword ? "text" : "password"}
+              placeholder="Password"
+              onChange={(e) =>
+                setRegisterData({ ...registerData, password: e.target.value })
+              }
+            />
+            <span className="position-absolute top-50 end-0 translate-middle-y me-3" style={{ cursor: "pointer" }} onClick={handleShowPassword}>
+              {showPassword ? (
+                <LuEyeOff size={20} />
+              ) : (
+                <LuEye size={20} />
+              )}
+            </span>
+          </div>
+          <div className="position-relative">
+            <input
+              type={showConfirmPassword ? "text" : "password"}
+              placeholder="Confirm Password"
+              onChange={(e) =>
+                setRegisterData({
+                  ...registerData,
+                  confirmPassword: e.target.value,
+                })
+              }
+            />
+            <span className="position-absolute top-50 end-0 translate-middle-y me-3" style={{ cursor: "pointer" }} onClick={handleShowConfirmPassword}>
+              {showConfirmPassword ? (
+                <LuEyeOff size={20} />
+              ) : (
+                <LuEye size={20} />
+              )}
+            </span>
+          </div>
 
           <button type="submit" className="primary-btn">
             Sign Up

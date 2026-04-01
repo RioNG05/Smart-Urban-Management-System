@@ -6,7 +6,6 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.jspecify.annotations.NonNull;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 
@@ -76,7 +75,7 @@ public class AccessValidate {
     }
 
     /**
-     * Check xem account đang gửi request có phải resident không
+     * Check xem account đang gửi Request có phải resident không
      * @param auth authentication header
      * @return true nếu có, false nếu không;
      */
@@ -86,7 +85,7 @@ public class AccessValidate {
     }
 
     /**
-     * Check xem account gửi request có quyền xem 1 booking cụ thể không
+     * Check xem account gửi Request có quyền xem 1 booking cụ thể không
      * @param bookingId booking service đang được gửi yêu cầu xem
      * @param authentication authentication header
      * @return true nếu có quyền xem, false nếu không
@@ -105,7 +104,7 @@ public class AccessValidate {
     }
 
     /**
-     * check xem account gửi request có quyền xem 1 complaint cụ thể không
+     * check xem account gửi Request có quyền xem 1 complaint cụ thể không
      * @param complaintId complaint Id được xem
      * @param auth authentication header
      * @return true nếu có, false nếu không
@@ -124,7 +123,7 @@ public class AccessValidate {
     }
 
     /**
-     * check xem account gửi request có quyền xem 1 reply cụ thể không
+     * check xem account gửi Request có quyền xem 1 reply cụ thể không
      * @param replyId reply Id được xem
      * @param auth authentication header
      * @return true nếu có, false nếu không

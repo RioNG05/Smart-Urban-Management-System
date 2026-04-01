@@ -17,19 +17,19 @@ import BillingPage from "../pages/BillingPage";
 import BookingPage from "../pages/BookingPage";
 
 // --- ADMIN SYSTEM ---
-import { AdminLayout, AdminDashboard } from "../admin/AdminCore";
+import { AdminLayout, Dashboard } from "../admin/AdminCore";
 import {
-  AdminRoleManager,
-  AdminLockResident,
-  AdminCreateContract,
-  AdminPropertyManager,
-  AdminApartmentLayout,
-  AdminApartmentTypeManager,
-  AdminBookingManager,
-  AdminServiceFeeStats,
-  AdminVisitorManager,
-  AdminComplaintManager,
-  AdminAccountManager,
+  PermissionManager,
+  ResidentAccount,
+  CreateContract,
+  ViewContracts,
+  ApartmentLayout,
+  ApartmentTypeManager,
+  BookingManager,
+  ServiceFeeStats,
+  VisitorManager,
+  ComplaintManager,
+  AccountManager
 } from "../admin/AdminManagement";
 
 import StaffApartment from "../staff/StaffApartment";
@@ -106,23 +106,20 @@ function AppRoutes() {
             </PrivateRoute>
           }
         >
-          <Route index element={<AdminDashboard />} />
-          <Route path="roles" element={<AdminRoleManager />} />
-          <Route path="resident-account" element={<AdminLockResident />} />
-          <Route path="accounts" element={<AdminAccountManager />} />
-          <Route path="contracts/create" element={<AdminCreateContract />} />
-          <Route path="contracts/view" element={<AdminPropertyManager />} />
-          <Route path="apartment-layout" element={<AdminApartmentLayout />} />
-          <Route
-            path="apartment-types"
-            element={<AdminApartmentTypeManager />}
-          />
+          <Route index element={<Dashboard />} />
+          <Route path="roles" element={<PermissionManager />} />
+          <Route path="resident-account" element={<ResidentAccount />} />
+          <Route path="accounts" element={<AccountManager />} />
+          <Route path="contracts/create" element={<CreateContract />} />
+          <Route path="contracts/view" element={<ViewContracts />} />
+          <Route path="apartment-layout" element={<ApartmentLayout />} />
+          <Route path="apartment-types" element={<ApartmentTypeManager />} />
 
           {/* Service & Security routes */}
-          <Route path="bookings" element={<AdminBookingManager />} />
-          <Route path="service-fees" element={<AdminServiceFeeStats />} />
-          <Route path="complaints" element={<AdminComplaintManager />} />
-          <Route path="visitors" element={<AdminVisitorManager />} />
+          <Route path="bookings" element={<BookingManager />} />
+          <Route path="service-fees" element={<ServiceFeeStats />} />
+          <Route path="complaints" element={<ComplaintManager />} />
+          <Route path="visitors" element={<VisitorManager />} />
         </Route>
 
         {/* --- STAFF SYSTEM --- */}
