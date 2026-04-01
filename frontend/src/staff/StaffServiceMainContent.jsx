@@ -12,6 +12,7 @@ import {
   FaGolfBall,
   FaSpa,
   FaUsers,
+  FaShoppingBag,
 } from "react-icons/fa";
 import { getAccounts, getResidents } from "../services/adminResidentService";
 import {
@@ -44,6 +45,7 @@ const getServiceIcon = (service) => {
   if (service.includes("Golf")) return <FaGolfBall />;
   if (service.includes("Sauna")) return <FaSpa />;
   if (service.includes("Community")) return <FaUsers />;
+  if (service.includes("Shopping")) return <FaShoppingBag />;
   return <FaCalendarCheck />;
 };
 
@@ -318,18 +320,16 @@ const StaffServiceMainContent = ({ activeTab }) => {
     <main className="staff-content-area">
       {activeTab === "bookings" && (
         <div className="staff-tab-content">
-          <div
-            className="staff-form-container"
-            style={{ borderLeft: "5px solid #c89b3c" }}
-          >
-            <h3>
-              <FaCalendarCheck /> Amenity Booking Management
+          <div className="staff-form-container gold-border">
+            <h3 style={{ fontSize: '24px', fontWeight: 800, color: '#0f172a', display: 'flex', alignItems: 'center', gap: '15px' }}>
+              <FaCalendarCheck style={{ color: 'var(--admin-primary)' }} /> Amenity Booking Management
             </h3>
             <p
               style={{
                 color: "#64748b",
                 fontSize: "14px",
-                marginBottom: "20px",
+                marginBottom: "30px",
+                fontWeight: 500
               }}
             >
               Review and manage resident requests using live backend booking
@@ -367,12 +367,12 @@ const StaffServiceMainContent = ({ activeTab }) => {
               <table className="admin-custom-table bordered">
                 <thead>
                   <tr>
-                    <th>Resident</th>
-                    <th>Service</th>
-                    <th>Start Time</th>
-                    <th>Schedule</th>
-                    <th style={{ textAlign: "center" }}>Status</th>
-                    <th style={{ textAlign: "center" }}>Actions</th>
+                    <th>RESIDENT</th>
+                    <th>SERVICE</th>
+                    <th>START TIME</th>
+                    <th>SCHEDULE</th>
+                    <th style={{ textAlign: "center" }}>STATUS</th>
+                    <th style={{ textAlign: "center" }}>ACTIONS</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -471,18 +471,16 @@ const StaffServiceMainContent = ({ activeTab }) => {
 
       {activeTab === "fees" && (
         <div className="staff-tab-content">
-          <div
-            className="staff-form-container"
-            style={{ borderLeft: "5px solid #c89b3c" }}
-          >
-            <h3>
-              <FaCreditCard /> Service Fee Statistics
+          <div className="staff-form-container gold-border">
+            <h3 style={{ fontSize: '24px', fontWeight: 800, color: '#0f172a', display: 'flex', alignItems: 'center', gap: '15px' }}>
+              <FaCreditCard style={{ color: 'var(--admin-primary)' }} /> Service Fee Statistics
             </h3>
             <p
               style={{
                 color: "#64748b",
                 fontSize: "14px",
-                marginBottom: "20px",
+                marginBottom: "30px",
+                fontWeight: 500
               }}
             >
               Track facility usage fees and payment history from the backend
@@ -520,12 +518,12 @@ const StaffServiceMainContent = ({ activeTab }) => {
               <table className="admin-custom-table bordered">
                 <thead>
                   <tr>
-                    <th>Resident</th>
-                    <th>Apartment</th>
-                    <th>Service Used</th>
-                    <th>Amount</th>
-                    <th>Usage Date</th>
-                    <th style={{ textAlign: "center" }}>Payment Status</th>
+                    <th>RESIDENT</th>
+                    <th>APARTMENT</th>
+                    <th>SERVICE USED</th>
+                    <th>AMOUNT</th>
+                    <th>USAGE DATE</th>
+                    <th style={{ textAlign: "center" }}>PAYMENT STATUS</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -558,22 +556,20 @@ const StaffServiceMainContent = ({ activeTab }) => {
                         <td>
                           <strong>{fee.resident}</strong>
                         </td>
-                        <td>{fee.apartment}</td>
+                        <td>
+                          <span style={{ fontWeight: 500, color: '#64748b' }}>{fee.apartment}</span>
+                        </td>
                         <td>
                           <div className="service-row-item">
                             {getServiceIcon(fee.service)} {fee.service}
                           </div>
                         </td>
-                        <td
-                          style={{
-                            fontWeight: "800",
-                            color: "#0f172a",
-                            fontSize: "15px",
-                          }}
-                        >
-                          {fee.amount}
+                        <td>
+                          <span style={{ fontWeight: 800, color: '#0f172a', fontSize: '15px' }}>
+                            {fee.amount.replace("₫", "đ")}
+                          </span>
                         </td>
-                        <td>{fee.date}</td>
+                        <td style={{ color: '#64748b', fontSize: '13px' }}>{fee.date}</td>
                         <td style={{ textAlign: "center" }}>
                           <span
                             className={`status-badge ${fee.status.className}`}

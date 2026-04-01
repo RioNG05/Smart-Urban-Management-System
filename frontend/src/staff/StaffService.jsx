@@ -8,7 +8,7 @@ import {
 } from 'react-icons/fa';
 
 import StaffServiceMainContent from './StaffServiceMainContent';
-import '../styles/staff.css';
+import '../styles/manager.css';
 
 const StaffService = () => {
     const { logout } = useAuth();
