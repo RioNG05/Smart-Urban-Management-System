@@ -583,8 +583,9 @@
 }
 .status-badge.approved { background: #ecfdf5; color: #059669; border: 1px solid #a7f3d0; }
 .status-badge.pending { background: #fffbeb; color: #d97706; border: 1px solid #fde68a; }
-.status-badge.denied { background: #fef2f2; color: #dc2626; border: 1px solid #fecaca; }
-.status-badge.deny { background: #fef2f2; color: #dc2626; border: 1px solid #fecaca; }
+.status-badge.denied, .status-badge.deny { background: #fef2f2; color: #dc2626; border: 1px solid #fecaca; }
+.status-badge.paid { background: #ecfdf5; color: #059669; border: 1px solid #a7f3d0; }
+.status-badge.unpaid { background: #fff1f2; color: #e11d48; border: 1px solid #fecdd3; }
 
 /* Modal styles for Invoices */
 .invoice-modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: flex; justify-content: center; align-items: center; z-index: 1000; }
