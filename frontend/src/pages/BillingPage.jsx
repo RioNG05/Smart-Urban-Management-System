@@ -5,6 +5,8 @@ import Navbar from "../components/layout/Navbar";
 
 import PropertySidebar from "../components/sections/billing/PropertySidebar";
 import BillingSummary from "../components/sections/billing/BillingSummary";
+import BillingPayableBreakdown from "../components/sections/billing/BillingPayableBreakdown";
+import BillingPricingTable from "../components/sections/billing/BillingPricingTable";
 import BillingTable from "../components/sections/billing/BillingTable";
 import BillingChart from "../components/sections/billing/BillingChart";
 import BillingFilters from "../components/sections/billing/BillingFilters";
@@ -15,8 +17,6 @@ import ComplaintList from "../components/sections/complaint/ComplaintList";
 
 import {
   getBillingApartmentsForCurrentUser,
-  getBookingsByAccountId,
-  getServiceInvoices,
   getUtilitiesInvoicesByApartmentId,
 } from "../services/billingService";
 import { getMyAccount } from "../services/profileService";
@@ -48,12 +48,6 @@ const getInvoiceStatus = (status) =>
   Number(status) === 1
     ? { key: "paid", label: "Paid" }
     : { key: "unpaid", label: "Unpaid" };
-
-const getBookingLabel = (booking) =>
-  booking?.serviceResource?.service?.serviceName ||
-  booking?.serviceResource?.serviceName ||
-  booking?.serviceName ||
-  null;
 
 const sortByBillingPeriod = (items) =>
   [...items].sort((a, b) => {
@@ -101,6 +95,7 @@ const buildUtilityBills = (utilityInvoices, utilityRates) => {
     return {
       id: `utility-${invoice.id}`,
       source: "utility",
+      category: "utility",
       name: `Utilities Invoice #${invoice.id}`,
       monthKey: invoiceMonthKey,
       dueDate: createdAt,
@@ -131,38 +126,6 @@ const buildUtilityBills = (utilityInvoices, utilityRates) => {
   });
 };
 
-const buildServiceBillFromBooking = (booking, invoice) => {
-  const status = getInvoiceStatus(invoice?.status ?? booking?.status);
-  const sourceDate = invoice?.paymentDate
-    ? new Date(invoice.paymentDate)
-    : booking?.bookFrom
-    ? new Date(booking.bookFrom)
-    : booking?.bookAt
-    ? new Date(booking.bookAt)
-    : invoice?.createdAt
-    ? new Date(invoice.createdAt)
-    : null;
-
-  return {
-    id: invoice?.id
-      ? `service-${invoice.id}`
-      : `service-booking-${booking?.id ?? "unknown"}`,
-    source: "service",
-    name:
-      getBookingLabel(booking || invoice?.bookingService) ||
-      (invoice?.id
-        ? `Service Invoice #${invoice.id}`
-        : `Service Booking #${booking?.id}`),
-    monthKey: sourceDate
-      ? getMonthKey(sourceDate.getFullYear(), sourceDate.getMonth() + 1)
-      : "unknown",
-    dueDate: sourceDate,
-    amount: Number(invoice?.amount ?? booking?.totalAmount ?? 0),
-    statusKey: status.key,
-    statusLabel: status.label,
-  };
-};
-
 export default function BillingPage() {
   const [accountId, setAccountId] = useState(null);
   const [apartment, setApartment] = useState("");
@@ -170,7 +133,7 @@ export default function BillingPage() {
   const [apartments, setApartments] = useState([]);
   const [bills, setBills] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [serviceInvoiceWarning, setServiceInvoiceWarning] = useState("");
+  const formatCurrency = (value) => CURRENCY_FORMATTER.format(Number(value || 0));
 
   useEffect(() => {
     const complaintToast = sessionStorage.getItem("billingComplaintToast");
@@ -238,13 +201,10 @@ export default function BillingPage() {
       setLoading(true);
 
       try {
-        const [utilityInvoices, serviceInvoiceResponse, bookings, services] =
-          await Promise.all([
-            getUtilitiesInvoicesByApartmentId(apartment),
-            getServiceInvoices(),
-            getBookingsByAccountId(accountId),
-            getServices(),
-          ]);
+        const [utilityInvoices, services] = await Promise.all([
+          getUtilitiesInvoicesByApartmentId(apartment),
+          getServices(),
+        ]);
 
         if (!active) return;
 
@@ -263,50 +223,13 @@ export default function BillingPage() {
           { electricity: null, water: null }
         );
 
-        const bookingMap = new Map(
-          bookings
-            .filter((booking) => booking?.id)
-            .map((booking) => [booking.id, booking])
-        );
-        const invoiceByBookingId = new Map(
-          serviceInvoiceResponse.items
-            .filter((invoice) => invoice?.bookingService?.id)
-            .map((invoice) => [invoice.bookingService.id, invoice])
-        );
-
         const utilityBills = buildUtilityBills(utilityInvoices, utilityRates);
-
-        const serviceBills = bookings.map((booking) =>
-          buildServiceBillFromBooking(
-            booking,
-            invoiceByBookingId.get(booking.id) ?? null
-          )
-        );
-
-        const unlinkedServiceInvoices = serviceInvoiceResponse.items
-          .filter((invoice) => {
-            const bookingId = invoice?.bookingService?.id;
-            return !bookingId || !bookingMap.has(bookingId);
-          })
-          .map((invoice) =>
-            buildServiceBillFromBooking(invoice?.bookingService, invoice)
-          );
-
-        const allBills = [
-          ...utilityBills,
-          ...serviceBills,
-          ...unlinkedServiceInvoices,
-        ].sort((a, b) => {
+        const allBills = [...utilityBills].sort((a, b) => {
           const timeA = a.dueDate ? new Date(a.dueDate).getTime() : 0;
           const timeB = b.dueDate ? new Date(b.dueDate).getTime() : 0;
           return timeB - timeA;
         });
 
-        setServiceInvoiceWarning(
-          serviceInvoiceResponse.restricted
-            ? "Service invoice details are limited for this account, so the billing page is showing your real booking charges from the backend where invoice records are not accessible."
-            : ""
-        );
         setBills(allBills);
       } catch (error) {
         console.error(error);
@@ -380,6 +303,139 @@ export default function BillingPage() {
     };
   }, [filteredBills]);
 
+  const payableBills = useMemo(
+    () => filteredBills.filter((bill) => bill.statusKey !== "paid"),
+    [filteredBills]
+  );
+
+  const payableBreakdown = useMemo(() => {
+    return filteredBills.reduce(
+      (acc, bill) => {
+        if (bill.statusKey === "paid") return acc;
+
+        if (bill.source === "utility" && bill.utilityDetails) {
+          acc.electricity += Number(bill.utilityDetails.electricity?.amount ?? 0);
+          acc.water += Number(bill.utilityDetails.water?.amount ?? 0);
+        }
+
+        acc.total += Number(bill.amount ?? 0);
+        return acc;
+      },
+      { electricity: 0, water: 0, service: 0, total: 0 }
+    );
+  }, [filteredBills]);
+
+  const payablePricingRows = useMemo(() => {
+    const rows = [];
+    const utilityAccumulator = filteredBills.reduce(
+      (acc, bill) => {
+        if (bill.statusKey === "paid" || bill.source !== "utility") return acc;
+
+        acc.electricity.usage += Number(
+          bill.utilityDetails?.electricity?.usage ?? 0
+        );
+        acc.electricity.amount += Number(
+          bill.utilityDetails?.electricity?.amount ?? 0
+        );
+        acc.electricity.rate =
+          Number(bill.utilityDetails?.electricity?.rate ?? 0) || acc.electricity.rate;
+
+        acc.water.usage += Number(bill.utilityDetails?.water?.usage ?? 0);
+        acc.water.amount += Number(bill.utilityDetails?.water?.amount ?? 0);
+        acc.water.rate =
+          Number(bill.utilityDetails?.water?.rate ?? 0) || acc.water.rate;
+
+        return acc;
+      },
+      {
+        electricity: { usage: 0, amount: 0, rate: 0 },
+        water: { usage: 0, amount: 0, rate: 0 },
+      }
+    );
+
+    if (utilityAccumulator.electricity.amount > 0) {
+      rows.push({
+        key: "payable-electricity",
+        label: "Electricity",
+        description: "Electricity charges from utility invoices",
+        unitPriceLabel:
+          utilityAccumulator.electricity.rate > 0
+            ? `${formatCurrency(utilityAccumulator.electricity.rate)} / kWh`
+            : "N/A",
+        quantityLabel: `${utilityAccumulator.electricity.usage.toLocaleString(
+          "vi-VN"
+        )} kWh`,
+        amount: utilityAccumulator.electricity.amount,
+      });
+    }
+
+    if (utilityAccumulator.water.amount > 0) {
+      rows.push({
+        key: "payable-water",
+        label: "Water",
+        description: "Water charges from utility invoices",
+        unitPriceLabel:
+          utilityAccumulator.water.rate > 0
+            ? `${formatCurrency(utilityAccumulator.water.rate)} / m3`
+            : "N/A",
+        quantityLabel: `${utilityAccumulator.water.usage.toLocaleString(
+          "vi-VN"
+        )} m3`,
+        amount: utilityAccumulator.water.amount,
+      });
+    }
+
+    return rows;
+  }, [filteredBills]);
+
+  const categoryRates = useMemo(() => {
+    const rows = [];
+    const seen = new Set();
+
+    const appendRate = (service, fallbackLabel) => {
+      const key = `${service?.serviceCode || fallbackLabel}-${service?.id || ""}`;
+      if (seen.has(key)) return;
+      seen.add(key);
+      rows.push({
+        key,
+        label: fallbackLabel || service?.title || "Unnamed category",
+        serviceCode: service?.serviceCode || null,
+        unitType: service?.unitType || null,
+        unitPrice:
+          service?.feePerUnit === null || service?.feePerUnit === undefined
+            ? null
+            : Number(service.feePerUnit),
+      });
+    };
+
+    const electricityBill = filteredBills.find((bill) => bill.utilityDetails);
+    if (electricityBill?.utilityDetails?.electricity) {
+      appendRate(
+        {
+          id: "electricity",
+          serviceCode: "ELEC_01",
+          unitType: electricityBill.utilityDetails.electricity.unit,
+          feePerUnit: electricityBill.utilityDetails.electricity.rate,
+        },
+        "Electricity"
+      );
+    }
+
+    if (electricityBill?.utilityDetails?.water) {
+      appendRate(
+        {
+          id: "water",
+          serviceCode: "WAT_01",
+          unitType: electricityBill.utilityDetails.water.unit,
+          feePerUnit: electricityBill.utilityDetails.water.rate,
+        },
+        "Water"
+      );
+    }
+
+    return rows;
+  }, [filteredBills]);
+
   const chartData = useMemo(() => {
     const grouped = filteredBills.reduce((acc, bill) => {
       const current = acc.get(bill.name) ?? 0;
@@ -401,12 +457,10 @@ export default function BillingPage() {
           id: bill.id,
           date: bill.dueDate,
           amount: bill.amount,
-          method: bill.source === "service" ? "Service Invoice" : "Utilities Invoice",
+          method: "Utilities Invoice",
         })),
     [filteredBills]
   );
-
-  const formatCurrency = (value) => CURRENCY_FORMATTER.format(Number(value || 0));
 
   const formatDate = (value) => {
     if (!value) return "N/A";
@@ -443,17 +497,19 @@ export default function BillingPage() {
               months={monthOptions}
             />
 
-            {serviceInvoiceWarning ? (
-              <div className="billing-note">{serviceInvoiceWarning}</div>
-            ) : null}
-
             <BillingSummary
               summary={summary}
               formatCurrency={formatCurrency}
             />
 
+            <BillingPayableBreakdown
+              totals={payableBreakdown}
+              pricingRows={payablePricingRows}
+              formatCurrency={formatCurrency}
+            />
+
             <BillingTable
-              bills={filteredBills}
+              bills={payableBills}
               formatCurrency={formatCurrency}
               formatDate={formatDate}
               loading={loading}
@@ -461,6 +517,11 @@ export default function BillingPage() {
 
             <BillingChart
               data={chartData}
+              formatCurrency={formatCurrency}
+            />
+
+            <BillingPricingTable
+              rates={categoryRates}
               formatCurrency={formatCurrency}
             />
 
