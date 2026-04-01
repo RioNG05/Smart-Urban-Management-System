@@ -1621,7 +1621,7 @@ VALUES
 --batch 2
 INSERT INTO Services (ServiceName, ServiceCode, FeePerUnit, UnitType, ImageUrl, Description, IsBookable)
 VALUES 
-('Gym & Yoga Facilities', 'GYM_YOGA', 500000.00, 'Month', 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48', 'High-end fitness centers and dedicated yoga studios.', 0), -- Gym thường mua thẻ tháng, không cần đặt giờ
+('Gym & Yoga Facilities', 'GYM_YOGA',0.00, 'Month', 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48', 'High-end fitness centers and dedicated yoga studios.', 0), -- Gym thường mua thẻ tháng, không cần đặt giờ
 ('Education System', 'EDU_K12', 0.00, 'Semester', 'https://vcdn1-vnexpress.vnecdn.net/2023/12/13/v1-5551-1702452332.jpg?w=680&h=0&q=100&dpr=2&fit=crop&s=vTDtn5c45HktGxyMQtP20w', 'International standard curriculums for the next generation.', 0),
 ('Smart Parking', 'SMART_PARK', 0.00, 'Month', 'https://sliving.vn/static/bg-parking-55d4ba544730bb343bfb7709c4c8e50b.jpg', 'Automated parking systems with real-time slot tracking.', 0),
 ('BBQ Park', 'BBQ_PARK', 100000.00, 'Hour', 'https://vinhomebysalereal.vn/wp-content/uploads/2024/08/khu-bbq-garden-vinhomes-ocean-park-3.jpg', 'Dedicated outdoor BBQ areas equipped with grills.', 1); -- BBQ cần đặt chỗ trước
