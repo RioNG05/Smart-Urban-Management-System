@@ -139,7 +139,7 @@ export const AdminLayout = () => {
 
                     <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
                         <button className="btn-header-home" onClick={() => navigate('/')}>
-                            Home
+                            <FaHome /> Home
                         </button>
                         <div className="staff-profile-trigger" onClick={() => setShowIdCard(!showIdCard)}>
                             <div className="profile-icon-wrapper">

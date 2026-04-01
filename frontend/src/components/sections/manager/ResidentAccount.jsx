@@ -405,33 +405,44 @@ const ResidentAccount = () => {
     );
   
     return (
-      <div className="admin-lock-resident-container">
-        <div className="resident-stats-banner">
-          <div className="stats-icon-box">
-            <FaUsers />
+      <div className="admin-lock-resident-container" style={{ animation: 'fadeIn 0.5s ease-out' }}>
+        
+        {/* NEW MODERN COMPACT BANNER WITH SEARCH */}
+        <div className="account-banner-container" style={{ justifyContent: 'space-between' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '25px' }}>
+            <div className="account-banner-icon-box">
+              <FaUsers />
+            </div>
+            <div className="account-banner-info-group">
+              <p>RESIDENT ACCESS CONTROL</p>
+              <h3 style={{ display: 'flex', alignItems: 'baseline', gap: '12px' }}>
+                {residents.length} <span style={{ fontSize: '14px', color: 'rgba(255,255,255,0.6)', fontWeight: 400 }}>Residents from backend API</span>
+              </h3>
+            </div>
           </div>
-          <div className="stats-info">
-            <p>Resident access control</p>
-            <h3>
-              {residents.length} <span>Residents from backend API</span>
-            </h3>
+
+          <div className="account-banner-search-wrapper">
+            <FaSearch className="search-icon" />
+            <input
+              type="text"
+              placeholder="Search residents..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
           </div>
         </div>
   
-        <section className="resident-form-section">
-          <div className="form-header">
-            {isEditMode ? <FaEdit /> : <FaUserPlus />}
-            <span>
-              {isEditMode
-                ? "Update Resident Account"
-                : "Issue New Resident Account"}
-            </span>
+        {/* FORM SECTION - ISSUING NEW ACCOUNT */}
+        <section className="staff-form-container" style={{ padding: '35px', borderRadius: '24px', marginBottom: '35px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '25px' }}>
+            {isEditMode ? <FaEdit style={{ color: 'var(--admin-primary)', fontSize: '22px' }} /> : <FaUserPlus style={{ color: 'var(--admin-primary)', fontSize: '22px' }} />}
+            <h4 style={{ margin: 0, fontWeight: 800, fontSize: '18px' }}>
+               {isEditMode ? "Update Resident Account" : "Issue New Resident Account"}
+            </h4>
           </div>
   
           {feedback.message && (
-            <div
-              className={`admin-feedback ${feedback.type === "error" ? "error" : "success"}`}
-            >
+            <div className={`admin-feedback ${feedback.type === "error" ? "error" : "success"}`} style={{ padding: '12px 20px', borderRadius: '12px', marginBottom: '25px' }}>
               {feedback.message}
             </div>
           )}
@@ -446,13 +457,21 @@ const ResidentAccount = () => {
                 onChange={(e) => handleInputChange("fullName", e.target.value)}
               />
             </div>
-  
+            <div className="form-group">
+              <label>ID CARD / PASSPORT</label>
+              <input
+                type="text"
+                value={formData.identityId}
+                placeholder="Enter 12-digit ID number"
+                onChange={(e) => handleInputChange("identityId", e.target.value)}
+              />
+            </div>
             <div className="form-group">
               <label>USERNAME</label>
               <input
                 type="text"
                 value={formData.username}
-                placeholder="Enter username"
+                placeholder="meomeomeo"
                 onChange={(e) => handleInputChange("username", e.target.value)}
               />
             </div>
@@ -508,30 +527,20 @@ const ResidentAccount = () => {
               <input
                 type="password"
                 value={formData.password}
-                placeholder={
-                  isEditMode
-                    ? "Leave blank to keep current password"
-                    : "Enter account password"
-                }
+                placeholder="........"
                 onChange={(e) => handleInputChange("password", e.target.value)}
               />
             </div>
           </div>
   
-          <div
-            className="admin-lock-actions"
-            style={{ display: "flex", gap: "15px" }}
-          >
+          <div style={{ display: "flex", gap: "15px" }}>
             <button
-              className="btn-add-resident"
+              className="admin-btn-add"
+              style={{ width: 'auto', padding: '14px 40px' }}
               onClick={handleAddOrUpdate}
               disabled={isSubmitting}
             >
-              {isSubmitting
-                ? "PROCESSING..."
-                : isEditMode
-                  ? "CONFIRM UPDATE"
-                  : "ISSUE ACCOUNT"}
+              {isSubmitting ? "PROCESSING..." : isEditMode ? "CONFIRM UPDATE" : "ISSUE ACCOUNT"}
             </button>
             {isEditMode && (
               <button
@@ -546,127 +555,71 @@ const ResidentAccount = () => {
           </div>
         </section>
   
-        <section className="admin-table-wrapper">
-          <div className="admin-lock-header-row">
-            <h3 className="admin-lock-section-title">Issued Accounts List</h3>
-            <div className="admin-lock-search">
-              <FaSearch />
-              <input
-                type="text"
-                placeholder="Search accounts..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
-            </div>
+        {/* LIST SECTION - ISSUED ACCOUNTS */}
+        <section className="admin-table-wrapper" style={{ borderLeft: '6px solid #c98b3c' }}>
+          <div className="resident-list-header">
+            <h4 style={{ margin: 0, fontWeight: 800, fontSize: '18px' }}>Issued Accounts List</h4>
           </div>
   
           <div className="admin-table-scroll">
             <table className="admin-custom-table bordered">
               <thead>
                 <tr>
-                  <th>USERNAME</th>
-                  <th>OWNER</th>
-                  <th>APARTMENT</th>
-                  <th>GENDER</th>
-                  <th>DOB</th>
-  
-                  <th>STATUS</th>
-                  <th style={{ textAlign: "center" }}>ACTION</th>
+                  <th style={{ width: '12%' }}>USERNAME</th>
+                  <th style={{ width: '18%' }}>OWNER</th>
+                  <th style={{ width: '10%' }}>APARTMENT</th>
+                  <th style={{ width: '10%' }}>GENDER</th>
+                  <th style={{ width: '12%' }}>DOB</th>
+                  <th style={{ width: '15%' }}>ID CARD</th>
+                  <th style={{ width: '10%', textAlign: 'center' }}>STATUS</th>
+                  <th style={{ width: '13%', textAlign: "center" }}>ACTION</th>
                 </tr>
               </thead>
               <tbody>
                 {isLoading ? (
-                  <tr>
-                    <td
-                      colSpan="8"
-                      style={{
-                        textAlign: "center",
-                        padding: "30px",
-                        color: "#64748b",
-                      }}
-                    >
-                      Loading data from server...
-                    </td>
-                  </tr>
+                  <tr><td colSpan="8" style={{ textAlign: "center", padding: "60px 0", color: "#64748b" }}>Loading resident data...</td></tr>
                 ) : filteredResidents.length === 0 ? (
-                  <tr>
-                    <td
-                      colSpan="8"
-                      style={{
-                        textAlign: "center",
-                        padding: "30px",
-                        color: "#64748b",
-                      }}
-                    >
-                      No matching residents found.
-                    </td>
-                  </tr>
+                  <tr><td colSpan="8" style={{ textAlign: "center", padding: "60px 0", color: "#64748b" }}>No matching residents found.</td></tr>
                 ) : (
                   paginatedResidents.map((resident) => (
-                    <tr
-                      key={resident.residentId}
-                      style={{
-                        opacity: resident.isActive ? 1 : 0.7,
-                        backgroundColor: resident.isActive
-                          ? "transparent"
-                          : "#f8fafc",
-                      }}
-                    >
-                      <td>
-                        <strong>{resident.username}</strong>
-                      </td>
-                      <td>{resident.fullName}</td>
+                    <tr key={resident.residentId} style={{ opacity: resident.isActive ? 1 : 0.65 }}>
+                      <td><span style={{ fontWeight: 800, fontSize: '14px' }}>{resident.username}</span></td>
+                      <td><span style={{ color: 'var(--admin-text-main)', fontSize: '14px' }}>{resident.fullName}</span></td>
                       <td>
                         {resident.apartments.length > 0 ? (
-                          <span className="apartment-tag">
+                          <span className="apartment-tag-orange">
                             {resident.apartments[0].roomNumber}
                           </span>
                         ) : (
-                          <span className="admin-subtle-text">N/A</span>
+                          <span style={{ color: '#94a3b8' }}>N/A</span>
                         )}
                       </td>
                       <td>{resident.gender || "Other"}</td>
-                      <td>{resident.dateOfBirth || "N/A"}</td>
-  
-                      <td>
-                        <span
-                          style={{
-                            padding: "4px 12px",
-                            borderRadius: "20px",
-                            fontSize: "11px",
-                            fontWeight: "bold",
-                            background: resident.isActive ? "#dcfce7" : "#fee2e2",
-                            color: resident.isActive ? "#10b981" : "#ef4444",
-                          }}
-                        >
-                          {resident.isActive ? "Active" : "Locked"}
+                      <td><span style={{ fontSize: '13px' }}>{resident.dateOfBirth || "N/A"}</span></td>
+                      <td><span style={{ fontSize: '13px', color: '#64748b' }}>{resident.identityId || "N/A"}</span></td>
+                      <td style={{ textAlign: 'center' }}>
+                        <span className={`status-badge ${resident.isActive ? 'approved' : 'denied'}`} style={{ fontSize: '10px', padding: '4px 10px' }}>
+                          {resident.isActive ? "ACTIVE" : "LOCKED"}
                         </span>
                       </td>
                       <td style={{ textAlign: "center" }}>
-                        <div className="action-flex">
+                        <div style={{ display: 'flex', gap: '10px', justifyContent: 'center' }}>
                           <button
-                            className="btn-table-edit"
+                            className="action-btn-styled"
                             onClick={() => handleEditClick(resident)}
                             disabled={isSubmitting}
-                            title="Edit Account"
+                            title="Edit Resident"
                           >
-                            <FaUserEdit />
+                            <FaUserEdit style={{ color: '#64748b' }} />
                           </button>
                           <button
-                            className={
-                              resident.isActive
-                                ? "btn-reject-mini"
-                                : "btn-approve-mini"
-                            }
+                            className="action-btn-styled"
+                            style={{ color: resident.isActive ? 'var(--admin-danger)' : 'var(--admin-success)' }}
                             onClick={() => handleToggleLock(resident)}
                             disabled={isSubmitting}
-                            title={
-                              resident.isActive
-                                ? "Lock Account"
-                                : "Unlock Account"
-                            }
+                            title={resident.isActive ? "Lock Account" : "Unlock Account"}
                           >
-                            {resident.isActive ? <FaLock /> : <FaUnlock />}
+                            {resident.isActive ? <FaUnlock /> : <FaLock />}
                           </button>
                         </div>
                       </td>
@@ -676,14 +629,20 @@ const ResidentAccount = () => {
               </tbody>
             </table>
           </div>
-          <AdminPagination
-            currentPage={currentPage}
-            totalPages={totalPages}
-            onPageChange={setCurrentPage}
-            totalItems={filteredResidents.length}
-            pageSize={pageSize}
-            itemLabel="residents"
-          />
+          
+          <div style={{ marginTop: '25px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div style={{ fontSize: '13px', color: 'var(--admin-text-muted)' }}>
+              Showing {((currentPage - 1) * pageSize) + 1}-{Math.min(currentPage * pageSize, filteredResidents.length)} of {filteredResidents.length} residents
+            </div>
+            <AdminPagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={setCurrentPage}
+              totalItems={filteredResidents.length}
+              pageSize={pageSize}
+              itemLabel="residents"
+            />
+          </div>
         </section>
       </div>
     );

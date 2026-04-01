@@ -107,13 +107,13 @@ const PermissionManager = () => {
 
         <div className="role-pill-group">
           <div className="role-stat-pill">
-            ROLES DETECTED: {stats.totalRoles}
+            <FaUserShield /> Roles Detected: <span>{stats.totalRoles}</span>
           </div>
           <div className="role-stat-pill">
-            ACTIVE ACCOUNTS: {stats.activeUsers}
+            <FaUsers /> Active Accounts: <span>{stats.activeUsers}</span>
           </div>
           <div className="role-stat-pill">
-            LOCKED ACCOUNTS: {stats.lockedUsers}
+            <FaLock /> Locked Accounts: <span>{stats.lockedUsers}</span>
           </div>
         </div>
       </header>

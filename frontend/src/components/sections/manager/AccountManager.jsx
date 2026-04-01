@@ -116,117 +116,122 @@ const AccountManager = () => {
     const totalPages = Math.max(1, Math.ceil(filteredAccounts.length / pageSize));
   
     return (
-      <div className="admin-lock-resident-container">
-        <div className="resident-stats-banner" style={{ background: 'linear-gradient(135deg, #0f172a 0%, #334155 100%)' }}>
-          <div className="stats-icon-box"><FaUsers /></div>
-          <div className="stats-info">
-            <p>Access Control System</p>
-            <h3>Account & Role Management</h3>
+      <div className="admin-lock-resident-container" style={{ animation: 'fadeIn 0.5s ease-out' }}>
+        
+        {/* MODERN COMPACT BANNER WITH SEARCH */}
+        <div className="account-banner-container" style={{ justifyContent: 'space-between' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '25px' }}>
+            <div className="account-banner-icon-box">
+              <FaUsers />
+            </div>
+            <div className="account-banner-info-group">
+              <p>Access Control System</p>
+              <h3>Account & Role Management</h3>
+            </div>
+          </div>
+
+          <div className="account-banner-search-wrapper">
+            <FaSearch className="search-icon" />
+            <input
+              type="text"
+              placeholder="Search accounts..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
           </div>
         </div>
   
-        <section className="resident-list-section">
-          <div className="list-toolbar" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', gap: '20px' }}>
-            <div className="admin-lock-search" style={{ flex: 1, margin: 0 }}>
-              <FaSearch />
-              <input
-                type="text"
-                placeholder="Search by username, email or role..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
+        <section className="resident-list-section" style={{ marginTop: '30px' }}>
+          {feedback.message && (
+            <div className={`admin-feedback ${feedback.type}`} style={{ marginBottom: '25px', padding: '12px 20px', borderRadius: '12px' }}>
+              {feedback.message}
             </div>
-            {feedback.message && (
-              <div className={`admin-feedback ${feedback.type}`} style={{ margin: 0, padding: '10px 20px', borderRadius: '8px' }}>
-                {feedback.message}
-              </div>
-            )}
-          </div>
+          )}
   
           {error && (
             <div className="admin-feedback error" style={{ marginBottom: "20px" }}>{error}</div>
           )}
   
-          <div className="admin-table-wrapper">
-            <table className="admin-custom-table">
-              <thead>
-                <tr>
-                  <th>Username</th>
-                  <th>Email</th>
-                  <th style={{ minWidth: '180px' }}>Assign Role</th>
-                  <th>Status</th>
-                  <th style={{ textAlign: 'center' }}>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {isLoading ? (
-                  <tr><td colSpan="6" style={{ textAlign: 'center', padding: '40px' }}>Loading accounts...</td></tr>
-                ) : paginatedItems.length === 0 ? (
-                  <tr><td colSpan="6" style={{ textAlign: 'center', padding: '40px' }}>No accounts found.</td></tr>
-                ) : (
-                  paginatedItems.map(account => {
-                    const currentRoleName = (account.role?.roleName || "").toUpperCase();
-  
-                    return (
-                      <tr key={account.id} style={{ opacity: account.isActive !== false ? 1 : 0.6 }}>
-                        <td><strong>{account.username}</strong></td>
-                        <td>{account.email}</td>
-                        <td>
-                          <select
-                            className="role-selector"
-                            value={currentRoleName}
-                            onChange={(e) => handleRoleChange(account, e.target.value)}
-                            disabled={isSubmitting}
-                            style={{
-                              padding: '6px 12px',
-                              borderRadius: '6px',
-                              border: '1px solid #cbd5e1',
-                              fontSize: '13px',
-                              background: currentRoleName ? '#f0f9ff' : '#fef2f2',
-                              fontWeight: '600',
-                              width: '100%',
-                              color: currentRoleName ? '#0369a1' : '#b91c1c'
-                            }}
-                          >
-                            <option value="" disabled>-- DETECTING ROLE --</option>
-                            {availableRoles.map(role => (
-                              <option key={role.name} value={role.name}>
-                                {role.name}
-                              </option>
-                            ))}
-                          </select>
-                        </td>
-                        <td>
-                          <span className={`status-badge ${account.isActive !== false ? 'active' : 'locked'}`}>
-                            {account.isActive !== false ? 'Active' : 'Locked'}
-                          </span>
-                        </td>
-                        <td style={{ textAlign: 'center' }}>
-                          <button
-                            className={`action-btn-circle ${account.isActive !== false ? 'deny' : 'approve'}`}
-                            title={account.isActive !== false ? "Lock Account" : "Unlock Account"}
-                            onClick={() => handleToggleLock(account)}
-                            disabled={isSubmitting}
-                          >
-                            {account.isActive !== false ? <FaUserLock /> : <FaUnlock />}
-                          </button>
-                        </td>
-                      </tr>
-                    );
-                  })
-                )}
-              </tbody>
-            </table>
+          <div className="admin-table-wrapper" style={{ borderLeft: '6px solid var(--admin-primary)' }}>
+            <div className="admin-table-scroll">
+              <table className="admin-custom-table bordered">
+                <thead>
+                  <tr>
+                    <th style={{ width: '15%' }}>USERNAME</th>
+                    <th style={{ width: '25%' }}>EMAIL</th>
+                    <th style={{ width: '30%' }}>ASSIGN ROLE</th>
+                    <th style={{ width: '15%', textAlign: 'center' }}>STATUS</th>
+                    <th style={{ width: '15%', textAlign: 'center' }}>ACTIONS</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {isLoading ? (
+                    <tr><td colSpan="5" style={{ textAlign: 'center', padding: '60px' }}>Loading accounts...</td></tr>
+                  ) : paginatedItems.length === 0 ? (
+                    <tr><td colSpan="5" style={{ textAlign: 'center', padding: '60px' }}>No accounts found.</td></tr>
+                  ) : (
+                    paginatedItems.map(account => {
+                      const currentRoleName = (account.role?.roleName || "").toUpperCase();
+    
+                      return (
+                        <tr key={account.id} style={{ opacity: account.isActive !== false ? 1 : 0.6 }}>
+                          <td><span style={{ fontWeight: 800, fontSize: '14px' }}>{account.username}</span></td>
+                          <td><span style={{ color: 'var(--admin-text-muted)', fontSize: '13.5px' }}>{account.email}</span></td>
+                          <td>
+                            <select
+                              className="role-selector-modern"
+                              value={currentRoleName}
+                              onChange={(e) => handleRoleChange(account, e.target.value)}
+                              disabled={isSubmitting}
+                            >
+                              <option value="" disabled>-- SELECT ROLE --</option>
+                              {availableRoles.map(role => (
+                                <option key={role.name} value={role.name}>
+                                  {role.name}
+                                </option>
+                              ))}
+                            </select>
+                          </td>
+                          <td style={{ textAlign: 'center' }}>
+                            <span className={`status-badge ${account.isActive !== false ? 'approved' : 'denied'}`} style={{ fontSize: '10px', padding: '4px 10px' }}>
+                              {account.isActive !== false ? 'ACTIVE' : 'LOCKED'}
+                            </span>
+                          </td>
+                          <td style={{ textAlign: 'center' }}>
+                            <button
+                              className="action-btn-styled"
+                              style={{ 
+                                color: account.isActive !== false ? 'var(--admin-danger)' : 'var(--admin-success)'
+                              }}
+                              title={account.isActive !== false ? "Lock Account" : "Unlock Account"}
+                              onClick={() => handleToggleLock(account)}
+                              disabled={isSubmitting}
+                            >
+                              {account.isActive !== false ? <FaUserLock /> : <FaUnlock />}
+                            </button>
+                          </td>
+                        </tr>
+                      );
+                    })
+                  )}
+                </tbody>
+              </table>
+            </div>
           </div>
   
-          <AdminPagination
-            currentPage={currentPage}
-            totalPages={totalPages}
-            onPageChange={setCurrentPage}
-            totalItems={filteredAccounts.length}
-            pageSize={pageSize}
-            itemLabel="accounts"
-          />
+          <div style={{ marginTop: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div style={{ fontSize: '13px', color: 'var(--admin-text-muted)' }}>
+              Showing {((currentPage - 1) * pageSize) + 1}-{Math.min(currentPage * pageSize, filteredAccounts.length)} of {filteredAccounts.length} accounts
+            </div>
+            <AdminPagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={setCurrentPage}
+              totalItems={filteredAccounts.length}
+              pageSize={pageSize}
+              itemLabel="accounts"
+            />
+          </div>
         </section>
       </div>
     );

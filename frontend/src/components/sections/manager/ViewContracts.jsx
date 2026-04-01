@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { FaSearch, FaEdit } from "react-icons/fa";
+import { FaSearch, FaEdit, FaFileContract } from "react-icons/fa";
 import AdminPagination from "../../common/AdminPagination";
 import { getAllContracts, updateContractById } from "../../../services/adminService";
 import { getAccounts, getResidents } from "../../../services/adminResidentService";
@@ -148,38 +148,27 @@ const ViewContracts = () => {
     };
   
     return (
-      <div className="admin-reports-container">
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            marginBottom: "25px",
-            flexWrap: "wrap",
-            gap: "15px",
-          }}
-        >
-          <h2 className="admin-page-title" style={{ margin: 0 }}>
-            Apartment & Contract List
-          </h2>
-  
-          <div
-            className="admin-lock-search"
-            style={{ margin: 0, minWidth: "320px" }}
-          >
-            <FaSearch style={{ color: "#94a3b8" }} />
+      <div className="admin-lock-resident-container" style={{ animation: 'fadeIn 0.5s ease-out' }}>
+        
+        {/* MODERN COMPACT BANNER WITH SEARCH */}
+        <div className="account-banner-container" style={{ justifyContent: 'space-between', marginBottom: '35px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '25px' }}>
+            <div className="account-banner-icon-box">
+              <FaFileContract />
+            </div>
+            <div className="account-banner-info-group">
+              <p>ACCESS CONTROL SYSTEM</p>
+              <h3>Apartment & Contract List</h3>
+            </div>
+          </div>
+
+          <div className="account-banner-search-wrapper">
+            <FaSearch className="search-icon" />
             <input
               type="text"
-              placeholder="Search by apartment, owner, username..."
+              placeholder="Search contracts..."
               value={searchTerm}
-              onChange={(event) => setSearchTerm(event.target.value)}
-              style={{
-                border: "none",
-                background: "transparent",
-                outline: "none",
-                width: "100%",
-                marginLeft: "10px",
-              }}
+              onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
         </div>

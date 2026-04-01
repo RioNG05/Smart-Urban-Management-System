@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { FaSearch, FaSyncAlt } from "react-icons/fa";
+import { FaSearch, FaSyncAlt, FaBuilding, FaDoorOpen, FaUserAlt, FaHistory, FaCreditCard, FaLayerGroup, FaPercentage } from "react-icons/fa";
 import AdminPagination from "../../common/AdminPagination";
 import {
   getApartments,
@@ -171,122 +171,103 @@ const ApartmentLayout = () => {
     const paginatedHistory = paginateItems(transactionHistory, historyPage, 8);
     const historyTotalPages = Math.ceil(transactionHistory.length / 8) || 1;
   
+    const totalApartments = baseData.apartments.length;
+    const occupiedApartments = baseData.contracts.filter(c => Number(c?.status ?? 1) === 1).length;
+    const occupancyRate = totalApartments > 0 ? ((occupiedApartments / totalApartments) * 100).toFixed(1) : 0;
+  
     return (
       <div className="admin-apartment-layout-wrapper">
         {error && <div className="admin-feedback error" style={{ marginBottom: "20px" }}>{error}</div>}
   
         {!selectedApartmentId ? (
-          <div className="staff-form-container building-container" style={{ padding: "0 5px" }}>
-  
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "28px", padding: "10px 5px" }}>
-              <div>
-                <h3 style={{ margin: 0, fontSize: "28px", fontWeight: "900", color: "#0f172a", letterSpacing: "-0.02em" }}>VinaHouse Building</h3>
-                <p style={{ margin: "5px 0 0", color: "#64748b", fontSize: "14px" }}>Visualized apartment occupation and structural layout.</p>
+          <div className="apartment-layout-main">
+            
+            {/* Professional Banner Header */}
+            <div className="apt-layout-banner">
+              <div className="apt-layout-banner-title">VinaHouse Building</div>
+              <p className="apt-layout-banner-desc">
+                Comprehensive architectural visualization of apartment occupancy and building structural layout. 
+                Manage assets and monitor real-time availability across all floors.
+              </p>
+              
+              <div className="apt-stats-pills">
+                <div className="apt-stat-pill">
+                  <FaLayerGroup /> Total Floors: <span>{floors.length}</span>
+                </div>
+                <div className="apt-stat-pill">
+                  <FaBuilding /> Total Apartments: <span>{totalApartments}</span>
+                </div>
+                <div className="apt-stat-pill">
+                  <FaPercentage /> Occupancy: <span>{occupancyRate}%</span>
+                </div>
               </div>
-              <div style={{ position: "relative", width: "260px", boxShadow: "0 4px 15px rgba(0,0,0,0.05)", borderRadius: "12px" }}>
-                <FaSearch style={{ position: "absolute", left: "16px", top: "50%", transform: "translateY(-50%)", color: "#94a3b8", fontSize: "14px" }} />
-                <input
-                  type="text"
-                  placeholder="Find floor (e.g. 10)..."
-                  value={floorSearch}
-                  onChange={(e) => setFloorSearch(e.target.value)}
-                  style={{ width: "100%", padding: "14px 16px 14px 44px", borderRadius: "12px", border: "1px solid #e2e8f0", fontSize: "14px", outline: "none", transition: "all 0.2s" }}
-                  onFocus={(e) => e.target.style.borderColor = "#c98b3c"}
-                  onBlur={(e) => e.target.style.borderColor = "#e2e8f0"}
-                />
+
+              {/* Integrated Search */}
+              <div style={{ position: "absolute", bottom: "30px", right: "40px", width: "260px" }}>
+                <div style={{ position: "relative" }}>
+                  <input
+                    type="text"
+                    placeholder="Search by floor..."
+                    value={floorSearch}
+                    onChange={(e) => setFloorSearch(e.target.value)}
+                    style={{ 
+                      width: "100%", 
+                      padding: "12px 16px 12px 42px", 
+                      borderRadius: "12px", 
+                      border: "1px solid rgba(255,255,255,0.1)", 
+                      background: "rgba(255,255,255,0.05)",
+                      color: "white",
+                      fontSize: "14px", 
+                      outline: "none", 
+                      backdropFilter: "blur(10px)"
+                    }}
+                  />
+                  <FaSearch style={{ position: "absolute", left: "16px", top: "50%", transform: "translateY(-50%)", color: "rgba(255,255,255,0.7)", zIndex: 1, pointerEvents: "none", fontSize: "16px" }} />
+                </div>
               </div>
             </div>
   
             <div
               style={{
-                maxHeight: "max(600px, calc(100vh - 280px))",
+                maxHeight: "calc(100vh - 380px)",
                 overflowY: "auto",
-                borderRadius: "20px",
-                paddingRight: "12px",
-                paddingBottom: "20px",
-                scrollbarWidth: "thin",
-                scrollbarColor: "#cbd5e1 transparent"
+                paddingRight: "10px",
+                paddingBottom: "40px",
+                scrollbarWidth: "thin"
               }}
             >
               {isLoading ? (
                 <div style={{ textAlign: "center", padding: "120px 0" }}>
-                  <FaSyncAlt className="spin" style={{ fontSize: "40px", color: "#c98b3c", marginBottom: "15px" }} />
-                  <p style={{ color: "#64748b", fontWeight: "600" }}>Architectural sync in progress...</p>
+                  <FaSyncAlt className="spin" style={{ fontSize: "40px", color: "var(--admin-primary)", marginBottom: "15px" }} />
+                  <p style={{ color: "var(--admin-text-muted)", fontWeight: "600" }}>Synchronizing building data...</p>
                 </div>
               ) : filteredFloors.length === 0 ? (
                 <div style={{ textAlign: "center", padding: "80px", background: "#f8fafc", borderRadius: "16px", border: "2px dashed #e2e8f0" }}>
-                  <p style={{ color: "#64748b", margin: 0 }}>No floor data matches your search.</p>
+                  <p style={{ color: "#64748b", margin: 0 }}>No floor data matches your search query.</p>
                 </div>
               ) : (
-                <div style={{ display: "grid", gap: "20px" }}>
+                <div style={{ display: "flex", flexDirection: "column", gap: "25px" }}>
                   {filteredFloors.map(([floor, apts]) => (
-                    <div
-                      key={floor}
-                      style={{
-                        display: "flex",
-                        gap: "24px",
-                        padding: "24px",
-                        background: "white",
-                        borderRadius: "20px",
-                        border: "1px solid #f1f5f9",
-                        boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03)",
-                        transition: "transform 0.2s ease, box-shadow 0.2s ease",
-                        position: "relative",
-                        overflow: "hidden"
-                      }}
-                    >
-                      <div
-                        style={{
-                          minWidth: "72px",
-                          padding: "12px 8px",
-                          background: "#c98b3c",
-                          color: "#ffffff",
-                          borderRadius: "16px",
-                          display: "flex",
-                          flexDirection: "column",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          fontWeight: "900",
-                          fontSize: "12px",
-                          letterSpacing: "0.05em",
-                          border: "1px solid #b47d32",
-                          boxShadow: "0 4px 10px rgba(201, 139, 60, 0.15)"
-                        }}
-                      >
-                        <span style={{ fontSize: "10px", opacity: 0.9, marginBottom: "2px" }}>FLOOR</span>
-                        <span style={{ fontSize: "20px" }}>{floor}</span>
+                    <div key={floor} className="floor-card">
+                      <div className="floor-badge">
+                        <span className="label">FLOOR</span>
+                        <span className="number">{floor}</span>
                       </div>
   
-                      <div style={{ display: "grid", gridTemplateColumns: "repeat(6, 1fr)", gap: "14px", flexGrow: 1 }}>
+                      <div className="apt-item-grid">
                         {apts.sort((a, b) => Number(a.roomNumber) - Number(b.roomNumber)).map(apt => {
                           const occupied = baseData.contracts.some(c => (c?.apartment?.id ?? c?.apartmentId) === apt.id && Number(c?.status ?? 1) === 1);
                           return (
                             <div
                               key={apt.id}
                               onClick={() => setSelectedApartmentId(apt.id)}
-                              style={{
-                                padding: "14px 10px",
-                                textAlign: "center",
-                                borderRadius: "14px",
-                                border: occupied ? "1px solid #fde68a" : "1px solid #f1f5f9",
-                                cursor: "pointer",
-                                background: occupied ? "#fffbeb" : "#fff",
-                                color: occupied ? "#c98b3c" : "#475569",
-                                fontWeight: "800",
-                                fontSize: "15px",
-                                transition: "all 0.2s cubic-bezier(0.4, 0, 0.2, 1)",
-                                position: "relative",
-                                boxShadow: occupied ? "none" : "inset 0 0 0 1px rgba(0,0,0,0.02)"
-                              }}
-                              className="apt-box-hover"
+                              className={`apt-box ${occupied ? 'occupied' : ''}`}
                             >
-                              {apt.roomNumber}
-                              <div style={{ fontSize: "10px", marginTop: "4px", opacity: 0.6, fontWeight: "600" }}>
-                                {occupied ? "OCCUPIED" : "VACANT"}
+                              <div className="apt-number">{apt.roomNumber}</div>
+                              <div className={`apt-status-tag ${occupied ? 'occupied' : 'vacant'}`}>
+                                {occupied ? "Occupied" : "Vacant"}
                               </div>
-                              {occupied && (
-                                <div style={{ position: "absolute", top: "6px", right: "6px", width: "6px", height: "6px", background: "#c98b3c", borderRadius: "50%" }}></div>
-                              )}
+                              <div className="apt-indicator"></div>
                             </div>
                           );
                         })}
@@ -298,38 +279,136 @@ const ApartmentLayout = () => {
             </div>
           </div>
         ) : (
-          <div className="staff-form-container apartment-detail-view" style={{ minHeight: "80vh" }}>
-            <button onClick={() => setSelectedApartmentId(null)} className="btn-back">← Back to Layout</button>
+          <div className="apartment-detail-view-container">
+            <button 
+              onClick={() => setSelectedApartmentId(null)} 
+              className="btn-action-dark" 
+              style={{ marginBottom: "25px", display: "flex", alignItems: "center", gap: "10px", padding: "10px 20px" }}
+            >
+              ← Return to Building Layout
+            </button>
+
             {selectedApartment && (
-              <>
-                <h3 style={{ marginTop: "15px", fontSize: "24px", fontWeight: "800", color: "var(--admin-primary)" }}>Apartment Details: {selectedApartment.roomNumber}</h3>
-                <div style={{ background: "#f8fafc", padding: "25px", borderRadius: "12px", marginTop: "20px" }}>
-                  <p><strong>Floor:</strong> {selectedApartment.floorNumber}</p>
-                  <p><strong>Tenant:</strong> {activeResident?.fullName || activeAccount?.username || "No active contract"}</p>
-                  <p><strong>Residents:</strong> {isDetailLoading ? "..." : stayHistory.filter(i => !i?.moveOut).length} people</p>
+              <div style={{ animation: "slideUp 0.4s ease-out" }}>
+                <div className="apt-detail-header-card">
+                  <div className="apt-detail-title-group">
+                    <h3>Apartment {selectedApartment.roomNumber}</h3>
+                    <div className="apt-detail-badge">
+                      <FaBuilding /> Floor {selectedApartment.floorNumber}
+                    </div>
+                  </div>
+                  <div style={{ textAlign: "right" }}>
+                    <div className={`status-badge ${activeContract && Number(activeContract.status) === 1 ? 'approved' : 'pending'}`} style={{ padding: "10px 20px", fontSize: "13px" }}>
+                      {activeContract && Number(activeContract.status) === 1 ? 'LIVE CONTRACT' : 'NO ACTIVE CONTRACT'}
+                    </div>
+                  </div>
                 </div>
-                <h4 style={{ marginTop: "35px", marginBottom: "15px", fontWeight: "800" }}>Current Charges</h4>
-                <div className="admin-table-wrapper" style={{ padding: 0, border: "none" }}>
-                  <table className="admin-custom-table bordered">
-                    <thead><tr><th>DESCRIPTION</th><th>DETAIL</th><th>AMOUNT (VND)</th><th>STATUS</th></tr></thead>
-                    <tbody>{currentMonthRows.length === 0 ? <tr><td colSpan="4" style={{ textAlign: "center", padding: "24px" }}>No charge data found.</td></tr> : paginatedCharges.map(r => <tr key={`${r.name}-${r.detail}`}><td>{r.name}</td><td>{r.detail}</td><td style={{ fontWeight: "bold" }}>{new Intl.NumberFormat("vi-VN").format(r.amount)}</td><td style={{ color: r.status === "Paid" ? "#10b981" : "#ef4444", fontWeight: "700" }}>{r.status}</td></tr>)}</tbody>
-                  </table>
+
+                <div className="apt-summary-grid">
+                  <div className="apt-summary-card">
+                    <div className="icon"><FaUserAlt /></div>
+                    <div className="info">
+                      <div className="label">Primary Tenant</div>
+                      <div className="value">{activeResident?.fullName || activeAccount?.username || "Vacant"}</div>
+                    </div>
+                  </div>
+                  <div className="apt-summary-card">
+                    <div className="icon"><FaDoorOpen /></div>
+                    <div className="info">
+                      <div className="label">Occupancy Status</div>
+                      <div className="value">{isDetailLoading ? "..." : `${stayHistory.filter(i => !i?.moveOut).length} Residents`}</div>
+                    </div>
+                  </div>
+                  <div className="apt-summary-card">
+                    <div className="icon"><FaCreditCard /></div>
+                    <div className="info">
+                      <div className="label">Monthly Charges</div>
+                      <div className="value">{new Intl.NumberFormat("vi-VN").format(currentMonthRows.reduce((acc, curr) => acc + curr.amount, 0))} VND</div>
+                    </div>
+                  </div>
                 </div>
-                <AdminPagination currentPage={chargesPage} totalPages={chargesTotalPages} onPageChange={setChargesPage} totalItems={currentMonthRows.length} pageSize={6} itemLabel="charges" />
-                <h4 style={{ marginTop: "35px", marginBottom: "15px", fontWeight: "800" }}>Transaction History</h4>
-                <div className="admin-table-wrapper" style={{ padding: 0, border: "none" }}>
-                  <table className="admin-custom-table bordered">
-                    <thead><tr><th>MONTH</th><th>PAYER</th><th>TOTAL (VND)</th><th>STATUS</th></tr></thead>
-                    <tbody>{transactionHistory.length === 0 ? <tr><td colSpan="4" style={{ textAlign: "center", padding: "24px" }}>No history found.</td></tr> : paginatedHistory.map(i => <tr key={i.id}><td>{i.month}</td><td>{i.payer}</td><td style={{ fontWeight: "bold" }}>{new Intl.NumberFormat("vi-VN").format(i.total)}</td><td style={{ color: i.status === "Paid" ? "#10b981" : "#ef4444", fontWeight: "bold" }}>{i.status}</td></tr>)}</tbody>
-                  </table>
+
+                <div className="staff-form-container" style={{ padding: "30px" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "20px" }}>
+                    <FaCreditCard style={{ color: "var(--admin-primary)", fontSize: "20px" }} />
+                    <h4 style={{ margin: 0, fontWeight: "800", fontSize: "18px" }}>Current Billing Cycle</h4>
+                  </div>
+                  <div className="admin-table-wrapper" style={{ padding: 0, border: "none", boxShadow: "none", marginBottom: 0 }}>
+                    <table className="admin-custom-table">
+                      <thead>
+                        <tr>
+                          <th>DESCRIPTION</th>
+                          <th>DETAIL</th>
+                          <th>AMOUNT</th>
+                          <th>STATUS</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {currentMonthRows.length === 0 ? (
+                          <tr><td colSpan="4" style={{ textAlign: "center", padding: "40px", color: "var(--admin-text-muted)" }}>No billing data for the current cycle.</td></tr>
+                        ) : (
+                          paginatedCharges.map(r => (
+                            <tr key={`${r.name}-${r.detail}`}>
+                              <td style={{ fontWeight: "600" }}>{r.name}</td>
+                              <td>{r.detail}</td>
+                              <td style={{ fontWeight: "800", color: "var(--admin-text-main)" }}>{new Intl.NumberFormat("vi-VN").format(r.amount)} VND</td>
+                              <td>
+                                <span className={`status-badge ${r.status === "Paid" ? 'approved' : 'denied'}`}>
+                                  {r.status}
+                                </span>
+                              </td>
+                            </tr>
+                          ))
+                        )}
+                      </tbody>
+                    </table>
+                  </div>
+                  <AdminPagination currentPage={chargesPage} totalPages={chargesTotalPages} onPageChange={setChargesPage} totalItems={currentMonthRows.length} pageSize={6} itemLabel="charges" />
                 </div>
-                <AdminPagination currentPage={historyPage} totalPages={historyTotalPages} onPageChange={setHistoryPage} totalItems={transactionHistory.length} pageSize={8} itemLabel="transactions" />
-              </>
+
+                <div className="staff-form-container" style={{ padding: "30px", marginTop: "30px" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "20px" }}>
+                    <FaHistory style={{ color: "var(--admin-primary)", fontSize: "20px" }} />
+                    <h4 style={{ margin: 0, fontWeight: "800", fontSize: "18px" }}>Unified Transaction History</h4>
+                  </div>
+                  <div className="admin-table-wrapper" style={{ padding: 0, border: "none", boxShadow: "none", marginBottom: 0 }}>
+                    <table className="admin-custom-table">
+                      <thead>
+                        <tr>
+                          <th>MONTH</th>
+                          <th>PAYER</th>
+                          <th>TOTAL AMOUNT</th>
+                          <th>STATUS</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {transactionHistory.length === 0 ? (
+                          <tr><td colSpan="4" style={{ textAlign: "center", padding: "40px", color: "var(--admin-text-muted)" }}>No transaction history found.</td></tr>
+                        ) : (
+                          paginatedHistory.map(i => (
+                            <tr key={i.id}>
+                              <td>{i.month}</td>
+                              <td style={{ fontWeight: "600" }}>{i.payer}</td>
+                              <td style={{ fontWeight: "800" }}>{new Intl.NumberFormat("vi-VN").format(i.total)} VND</td>
+                              <td>
+                                <span className={`status-badge ${i.status === "Paid" ? 'approved' : 'denied'}`}>
+                                  {i.status}
+                                </span>
+                              </td>
+                            </tr>
+                          ))
+                        )}
+                      </tbody>
+                    </table>
+                  </div>
+                  <AdminPagination currentPage={historyPage} totalPages={historyTotalPages} onPageChange={setHistoryPage} totalItems={transactionHistory.length} pageSize={8} itemLabel="transactions" />
+                </div>
+              </div>
             )}
           </div>
         )}
       </div>
     );
   };
-
+  
   export default ApartmentLayout;
