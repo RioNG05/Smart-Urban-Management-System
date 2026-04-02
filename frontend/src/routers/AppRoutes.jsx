@@ -56,7 +56,7 @@ function AppRoutes() {
         />
         <Route path="/service" element={<ServicePage />} />
         <Route path="/services" element={<ServicePage />} />
-        <Route path="/booking" element={<BookingPage />} />
+        {/* <Route path="/booking" element={<BookingPage />} /> */}
         <Route path="/market" element={<MarketPage />} />
         <Route path="/contact" element={<ContactPage />} />
         <Route path="/product/:id" element={<Product />} />
@@ -83,6 +83,14 @@ function AppRoutes() {
           element={
             <PrivateRoute roles={["resident", "staff", "manager"]}>
               <ServicePage />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/booking"
+          element={
+            <PrivateRoute roles={["resident", "staff", "manager"]}>
+              <BookingPage />
             </PrivateRoute>
           }
         />
