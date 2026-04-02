@@ -23,9 +23,6 @@ const AdminPagination = ({
 
   return (
     <div className="admin-pagination">
-      <div className="admin-pagination-summary">
-        Showing {startItem}-{endItem} of {totalItems} {itemLabel}
-      </div>
       <div className="admin-pagination-controls">
         <button
           type="button"

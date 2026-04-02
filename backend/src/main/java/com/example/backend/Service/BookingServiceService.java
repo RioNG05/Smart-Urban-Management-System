@@ -27,7 +27,7 @@ public class BookingServiceService {
     }
 
     public List<BookingService> findAll() {
-        return bookingRepository.findAll();
+        return bookingRepository.findAllByOrderByBookAtDesc();
     }
 
     public BookingService findById(Integer id) {

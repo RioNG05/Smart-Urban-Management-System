@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { Outlet, NavLink, useOutletContext, useNavigate } from 'react-router-dom';
+import { Outlet, NavLink, useOutletContext, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../components/sections/auth/AuthContext';
 import {
     FaHome, FaUserShield, FaBuilding, FaNewspaper, FaBars,
@@ -20,7 +20,8 @@ import {
     FaLayerGroup,
     FaShieldAlt,
     FaSignOutAlt,
-    FaComments
+    FaComments,
+    FaFileInvoiceDollar
 } from 'react-icons/fa';
 
 import "../styles/manager.css";
@@ -29,38 +30,72 @@ export { Dashboard };
 
 
 const AdminSidebar = ({ isOpen, setIsOpen, upcomingCount }) => {
+    const location = useLocation();
     const [openMenus, setOpenMenus] = useState({
         access: false,
         apartment: false,
+        contracts: false,
         service: false,
-        support: false
+        security: false,
     });
-
-
 
     const toggleMenu = (menu) => {
         if (!isOpen) setIsOpen(true);
         setOpenMenus(prev => ({ ...prev, [menu]: !prev[menu] }));
     };
 
-    const CategoryHeader = ({ title, menuKey, icon: Icon }) => (
-        <div
-            onClick={() => toggleMenu(menuKey)}
-            className={`staff-nav-item`}
-            style={{
-                cursor: 'pointer',
-                justifyContent: isOpen ? 'space-between' : 'center',
-                padding: isOpen ? '12px 15px' : '15px 0'
-            }}
-            title={title}
-        >
-            <div style={{ display: 'flex', alignItems: 'center' }}>
-                <Icon style={{ marginRight: isOpen ? '15px' : '0' }} />
-                {isOpen && <span style={{ fontWeight: '700', fontSize: '13px' }}>{title}</span>}
+    // Định nghĩa các route thuộc về từng category để check active state
+    const categoryRoutes = {
+        access: ['/admin/roles', '/admin/accounts', '/admin/resident-account'],
+        apartment: ['/admin/apartment-layout', '/admin/apartment-types'],
+        contracts: ['/admin/contracts/create', '/admin/contracts/view'],
+        service: [ '/admin/utilities-invoices','/admin/bookings', '/admin/service-fees'],
+        security: ['/admin/visitors'],
+    };
+
+    const isCategoryActive = (menuKey) => {
+        const routes = categoryRoutes[menuKey] || [];
+        return routes.some(route => location.pathname.startsWith(route));
+    };
+
+    const CategoryHeader = ({ title, menuKey, icon: Icon }) => {
+        const active = isCategoryActive(menuKey);
+        
+        return (
+            <div
+                onClick={() => toggleMenu(menuKey)}
+                className={`staff-nav-item ${(!isOpen && active) ? 'active' : ''}`}
+                style={{
+                    cursor: 'pointer',
+                    justifyContent: isOpen ? 'space-between' : 'center',
+                    padding: isOpen ? '12px 15px' : '15px 0',
+                    color: (!isOpen && active) ? 'var(--admin-primary)' : 'inherit'
+                }}
+                title={title}
+            >
+                <div style={{ display: 'flex', alignItems: 'center' }}>
+                    <Icon style={{ marginRight: isOpen ? '15px' : '0' }} />
+                    {isOpen && (
+                        <span style={{ 
+                            fontWeight: '800', 
+                            fontSize: '11.5px', 
+                            textTransform: 'uppercase',
+                            letterSpacing: '1px'
+                        }}>
+                            {title}
+                        </span>
+                    )}
+                </div>
+                {isOpen && (openMenus[menuKey] ? <FaChevronDown style={{ fontSize: '11px' }} /> : <FaChevronRight style={{ fontSize: '11px' }} />)}
             </div>
-            {isOpen && (openMenus[menuKey] ? <FaChevronDown style={{ fontSize: '12px' }} /> : <FaChevronRight style={{ fontSize: '12px' }} />)}
-        </div>
-    );
+        );
+    };
+
+    const subNavLinkStyle = {
+        padding: '9px 15px',
+        fontSize: '14.5px', // Tăng size cho đề mục nhỏ
+        fontWeight: '500'
+    };
 
     return (
         <aside className={`staff-sidebar ${isOpen ? '' : 'closed'}`}>
@@ -70,42 +105,62 @@ const AdminSidebar = ({ isOpen, setIsOpen, upcomingCount }) => {
             </div>
 
             <nav className="staff-sidebar-nav">
-
+                {/* Home */}
                 <NavLink to="/admin" end className="staff-nav-item" style={{ justifyContent: isOpen ? 'flex-start' : 'center', padding: isOpen ? '12px 15px' : '15px 0' }}>
-                    <FaHome style={{ marginRight: isOpen ? '15px' : '0' }} /> {isOpen && "Dashboard Home"}
+                    <FaHome style={{ marginRight: isOpen ? '15px' : '0' }} /> {isOpen && <span style={{ fontWeight: '800', fontSize: '11.5px', textTransform: 'uppercase', letterSpacing: '1px' }}>Dashboard Home</span>}
                 </NavLink>
 
+                {/* 1. ACCESS CONTROL */}
                 <CategoryHeader title="ACCESS CONTROL" menuKey="access" icon={FaLock} />
                 {(isOpen && openMenus.access) && (
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '2px', paddingLeft: '20px', marginBottom: '10px' }}>
-                        <NavLink to="/admin/roles" className="staff-nav-item" style={{ padding: '8px 15px', fontSize: '13px' }}><FaUserShield style={{ marginRight: '10px' }} /> Permissions</NavLink>
-
-                        <NavLink to="/admin/accounts" className="staff-nav-item" style={{ padding: '8px 15px', fontSize: '13px' }}><FaUsers style={{ marginRight: '10px' }} /> Account Management</NavLink>
-                        <NavLink to="/admin/resident-account" className="staff-nav-item" style={{ padding: '8px 15px', fontSize: '13px' }}><FaUserLock style={{ marginRight: '10px' }} /> Resident Account</NavLink>
+                        <NavLink to="/admin/roles" className="staff-nav-item" style={subNavLinkStyle}><FaUserShield style={{ marginRight: '10px' }} /> Permissions</NavLink>
+                        <NavLink to="/admin/accounts" className="staff-nav-item" style={subNavLinkStyle}><FaUsers style={{ marginRight: '10px' }} /> Account Management</NavLink>
+                        <NavLink to="/admin/resident-account" className="staff-nav-item" style={subNavLinkStyle}><FaUserLock style={{ marginRight: '10px' }} /> Resident Account</NavLink>
                     </div>
                 )}
 
-                <CategoryHeader title="APARTMENT & CONTRACT" menuKey="apartment" icon={FaLayerGroup} />
+                {/* 2. APARTMENT */}
+                <CategoryHeader title="APARTMENT" menuKey="apartment" icon={FaBuilding} />
                 {(isOpen && openMenus.apartment) && (
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '2px', paddingLeft: '20px', marginBottom: '10px' }}>
-                        <NavLink to="/admin/contracts/create" className="staff-nav-item" style={{ padding: '8px 15px', fontSize: '13px' }}><FaFileContract style={{ marginRight: '10px' }} /> Create Contract</NavLink>
-                        <NavLink to="/admin/contracts/view" className="staff-nav-item" style={{ padding: '8px 15px', fontSize: '13px' }}><FaClipboardList style={{ marginRight: '10px' }} /> View Contracts</NavLink>
-                        <NavLink to="/admin/apartment-layout" className="staff-nav-item" style={{ padding: '8px 15px', fontSize: '13px' }}><FaBuilding style={{ marginRight: '10px' }} /> Apartment</NavLink>
-                        <NavLink to="/admin/apartment-types" className="staff-nav-item" style={{ padding: '8px 15px', fontSize: '13px' }}><FaLayerGroup style={{ marginRight: '10px' }} /> Apartment Types</NavLink>
+                        <NavLink to="/admin/apartment-layout" className="staff-nav-item" style={subNavLinkStyle}><FaBuilding style={{ marginRight: '10px' }} /> Apartment</NavLink>
+                        <NavLink to="/admin/apartment-types" className="staff-nav-item" style={subNavLinkStyle}><FaLayerGroup style={{ marginRight: '10px' }} /> Apartment Types</NavLink>
                     </div>
                 )}
 
-                <CategoryHeader title="SERVICE & SECURITY" menuKey="service" icon={FaShieldAlt} />
+                {/* 3. CONTRACTS */}
+                <CategoryHeader title="CONTRACTS" menuKey="contracts" icon={FaFileContract} />
+                {(isOpen && openMenus.contracts) && (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '2px', paddingLeft: '20px', marginBottom: '10px' }}>
+                        <NavLink to="/admin/contracts/create" className="staff-nav-item" style={subNavLinkStyle}><FaFileContract style={{ marginRight: '10px' }} /> Create Contract</NavLink>
+                        <NavLink to="/admin/contracts/view" className="staff-nav-item" style={subNavLinkStyle}><FaClipboardList style={{ marginRight: '10px' }} /> View Contracts</NavLink>
+                    </div>
+                )}
+
+                {/* 4. SERVICE & INVOICE (Đưa lên trước Security) */}
+                <CategoryHeader title="SERVICE & INVOICE" menuKey="service" icon={FaFileInvoiceDollar} />
                 {(isOpen && openMenus.service) && (
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '2px', paddingLeft: '20px', marginBottom: '10px' }}>
-                        <NavLink to="/admin/bookings" className="staff-nav-item" style={{ padding: '8px 15px', fontSize: '13px' }}><FaConciergeBell style={{ marginRight: '10px' }} /> Booking Management</NavLink>
-                        <NavLink to="/admin/service-fees" className="staff-nav-item" style={{ padding: '8px 15px', fontSize: '13px' }}><FaCreditCard style={{ marginRight: '10px' }} /> Service Fee Stats</NavLink>
-                        <NavLink to="/admin/visitors" className="staff-nav-item" style={{ padding: '8px 15px', fontSize: '13px' }}><FaUserPlus style={{ marginRight: '10px' }} /> Visitor Management</NavLink>
+                        <NavLink to="/admin/utilities-invoices" className="staff-nav-item" style={subNavLinkStyle}><FaFileInvoiceDollar style={{ marginRight: '10px' }} /> Utilities Invoice</NavLink>
+                        <NavLink to="/admin/bookings" className="staff-nav-item" style={subNavLinkStyle}><FaConciergeBell style={{ marginRight: '10px' }} /> Booking Management</NavLink>
+                        <NavLink to="/admin/service-fees" className="staff-nav-item" style={subNavLinkStyle}><FaCreditCard style={{ marginRight: '10px' }} /> Service Fee Stats</NavLink>
+                        
                     </div>
                 )}
 
+                {/* 5. SECURITY */}
+                <CategoryHeader title="SECURITY" menuKey="security" icon={FaShieldAlt} />
+                {(isOpen && openMenus.security) && (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '2px', paddingLeft: '20px', marginBottom: '10px' }}>
+                        <NavLink to="/admin/visitors" className="staff-nav-item" style={subNavLinkStyle}><FaUserPlus style={{ marginRight: '10px' }} /> Visitor Management</NavLink>
+                    </div>
+                )}
+
+                {/* 6. COMPLAINTS (Standalone) */}
                 <NavLink to="/admin/complaints" end className="staff-nav-item" style={{ justifyContent: isOpen ? 'flex-start' : 'center', padding: isOpen ? '12px 15px' : '15px 0' }}>
-                    <FaComments style={{ marginRight: isOpen ? '15px' : '0' }} /> {isOpen && "Complaints"}
+                    <FaComments style={{ marginRight: isOpen ? '15px' : '0' }} /> 
+                    {isOpen && <span style={{ fontWeight: '800', fontSize: '11.5px', textTransform: 'uppercase', letterSpacing: '1px' }}>Complaints</span>}
                 </NavLink>
             </nav>
         </aside>
@@ -177,4 +232,3 @@ export const AdminLayout = () => {
         </div>
     );
 };
-
