@@ -1,15 +1,19 @@
 package com.example.backend.Service;
 
 import com.example.backend.DTO.Request.bookingservice.BookingServiceCreateRequest;
+import com.example.backend.DTO.Request.bookingservice.BookingServiceUpdateRequest;
+import com.example.backend.DTO.Request.serviceInvoce.SICreateRequest;
 import com.example.backend.Entity.Account;
 import com.example.backend.Entity.BookingService;
 import com.example.backend.Entity.ServiceResource;
 import com.example.backend.Repository.AccountRepository;
 import com.example.backend.Repository.BookingServiceRepository;
+import com.example.backend.Repository.ServiceInvoiceRepository;
 import com.example.backend.Repository.ServicesResourceRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class BookingServiceService {
@@ -17,13 +21,15 @@ public class BookingServiceService {
     private final BookingServiceRepository bookingRepository;
     private final AccountRepository accountRepository;
     private final ServicesResourceRepository resourceRepository;
+    private final ServiceInvoiceService serviceInvoiceService;
 
     public BookingServiceService(BookingServiceRepository bookingRepository,
                                  AccountRepository accountRepository,
-                                 ServicesResourceRepository resourceRepository) {
+                                 ServicesResourceRepository resourceRepository, ServiceInvoiceService serviceInvoiceService) {
         this.bookingRepository = bookingRepository;
         this.accountRepository = accountRepository;
         this.resourceRepository = resourceRepository;
+        this.serviceInvoiceService = serviceInvoiceService;
     }
 
     public List<BookingService> findAll() {
@@ -49,15 +55,17 @@ public class BookingServiceService {
         booking.setServiceResource(resource);
         booking.setBookFrom(request.getBookFrom());
         booking.setBookTo(request.getBookTo());
-        booking.setStatus(request.getStatus());
+        booking.setStatus(0);
         booking.setTotalAmount(request.getTotalAmount());
 
         return bookingRepository.save(booking);
     }
 
-    public BookingService update(Integer id, BookingServiceCreateRequest request) {
+    public BookingService update(Integer id, BookingServiceUpdateRequest request) {
 
         BookingService booking = findById(id);
+
+        int oldStatus = booking.getStatus();
 
         Account account = accountRepository.findById(request.getAccountId())
                 .orElseThrow(() -> new RuntimeException("Account not found"));
@@ -72,6 +80,10 @@ public class BookingServiceService {
         booking.setStatus(request.getStatus());
         booking.setTotalAmount(request.getTotalAmount());
 
+        if(isApproved(oldStatus, booking.getStatus())){
+            createInvoice(booking);
+        }
+
         return bookingRepository.save(booking);
     }
 
@@ -81,5 +93,19 @@ public class BookingServiceService {
 
     public List<BookingService> findByAccount(Integer accountId) {
         return bookingRepository.findByAccountId(accountId);
+    }
+
+    private boolean isApproved(Integer currentStatus, Integer updateStatus){
+        return currentStatus == 0 && updateStatus == 1;
+    }
+
+    private void createInvoice(BookingService bookingService){
+        SICreateRequest request = SICreateRequest.builder()
+                .bookingServiceId(bookingService.getId())
+                .status(0)
+                .amount(bookingService.getTotalAmount())
+                .build();
+
+        serviceInvoiceService.create(request);
     }
 }

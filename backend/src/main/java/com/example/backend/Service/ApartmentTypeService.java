@@ -28,7 +28,7 @@ public class ApartmentTypeService {
     FurnitureTypeRepository furnitureTypeRepository;
 
     public List<ApartmentType> findAll() {
-        return repository.findAll();
+        return repository.findAllByOrderByCreatedAtDesc();
     }
 
     public ApartmentType findById(Integer id) {
