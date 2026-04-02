@@ -2,7 +2,7 @@ import { FaWallet, FaExclamationTriangle, FaCheckCircle } from "react-icons/fa";
 
 export default function BillingSummary({ summary, formatCurrency }) {
   return (
-    <div className="summary-row">
+    <div className="billing-summary">
       <div className="summary-box">
         <div className="summary-icon">
           <FaWallet />
