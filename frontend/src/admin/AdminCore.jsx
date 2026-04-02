@@ -161,6 +161,12 @@ const AdminSidebar = ({ isOpen, setIsOpen, upcomingCount }) => {
                 )}
 
                 {/* 6. COMPLAINTS (Standalone) */}
+                <NavLink to="/admin/news" end className="staff-nav-item" style={{ justifyContent: isOpen ? 'flex-start' : 'center', padding: isOpen ? '12px 15px' : '15px 0' }}>
+                    <FaNewspaper style={{ marginRight: isOpen ? '15px' : '0' }} />
+                    {isOpen && <span style={{ fontWeight: '800', fontSize: '11.5px', textTransform: 'uppercase', letterSpacing: '1px' }}>News</span>}
+                </NavLink>
+
+                {/* 7. COMPLAINTS (Standalone) */}
                 <NavLink to="/admin/complaints" end className="staff-nav-item" style={{ justifyContent: isOpen ? 'flex-start' : 'center', padding: isOpen ? '12px 15px' : '15px 0' }}>
                     <FaComments style={{ marginRight: isOpen ? '15px' : '0' }} /> 
                     {isOpen && <span style={{ fontWeight: '800', fontSize: '11.5px', textTransform: 'uppercase', letterSpacing: '1px' }}>Complaints</span>}

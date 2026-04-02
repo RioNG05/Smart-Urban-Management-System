@@ -26,6 +26,7 @@ import {
   ApartmentTypeManager,
   BookingManager,
   ServiceManager,
+  NewsManager,
   ServiceFeeStats,
   VisitorManager,
   ComplaintManager,
@@ -128,6 +129,7 @@ function AppRoutes() {
 
           {/* Service & Security routes */}
           <Route path="services" element={<ServiceManager />} />
+          <Route path="news" element={<NewsManager />} />
           <Route path="bookings" element={<BookingManager />} />
           <Route path="service-fees" element={<ServiceFeeStats />} />
           <Route path="complaints" element={<ComplaintManager />} />
