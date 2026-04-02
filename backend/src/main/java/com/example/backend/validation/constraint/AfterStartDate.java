@@ -1,21 +1,19 @@
 package com.example.backend.validation.constraint;
 
-import com.example.backend.validation.validator.AppointmentTimeValidator;
+import com.example.backend.validation.validator.AfterStartDateValidator; // ✅ sửa import
 import jakarta.validation.Constraint;
 import jakarta.validation.Payload;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import java.lang.annotation.*;
 
 @Target({ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
 @Constraint(validatedBy = {
-        AppointmentTimeValidator.class
+        AfterStartDateValidator.class   // ✅ FIX CHỖ NÀY
 })
 public @interface AfterStartDate {
-    String message() default "End date must be after start time";
+
+    String message() default "bookTo must be after bookFrom";
 
     Class<?>[] groups() default {};
 
