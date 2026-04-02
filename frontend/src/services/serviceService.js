@@ -2,6 +2,7 @@ import api from "./api";
 import { serviceCatalog } from "../data/serviceCatalog";
 
 const getPayload = (data) => data?.result ?? data;
+const BOOKING_VISIBILITY_STORAGE_KEY = "serviceBookingVisibility";
 
 const normalizeKey = (value) =>
   String(value ?? "")
@@ -69,10 +70,13 @@ export const normalizeServiceItem = (item) => {
   return {
     id: item?.id,
     title: item?.serviceName || "Unnamed service",
+    serviceName: item?.serviceName || "Unnamed service",
     desc:
       formattedFee
         ? `Current service fee: ${formattedFee}. Contact the management team for booking details and availability.`
         : "Contact the management team for booking details and availability.",
+    description: item?.description || null,
+    imageUrl: item?.imageUrl || item?.image || item?.thumbnailUrl || null,
     image: resolveImageUrl(
       item?.imageUrl,
       item?.image,
@@ -93,6 +97,7 @@ export const normalizeServiceItem = (item) => {
     serviceCode: item?.serviceCode || null,
     feePerUnit: item?.feePerUnit ?? null,
     unitType: item?.unitType || null,
+    isBookable: item?.isBookable === true || item?.bookable === true,
   };
 };
 
@@ -103,6 +108,79 @@ export const getServices = async () => {
   if (!Array.isArray(payload)) return [];
 
   return payload.map(normalizeServiceItem);
+};
+
+const parseBookingVisibilityMap = () => {
+  if (typeof window === "undefined") return {};
+
+  try {
+    const rawValue = window.localStorage.getItem(BOOKING_VISIBILITY_STORAGE_KEY);
+    const parsed = rawValue ? JSON.parse(rawValue) : {};
+    return parsed && typeof parsed === "object" ? parsed : {};
+  } catch {
+    return {};
+  }
+};
+
+const writeBookingVisibilityMap = (value) => {
+  if (typeof window === "undefined") return;
+  window.localStorage.setItem(
+    BOOKING_VISIBILITY_STORAGE_KEY,
+    JSON.stringify(value),
+  );
+};
+
+export const getBookingVisibilityMap = () => parseBookingVisibilityMap();
+
+export const isServiceVisibleOnBooking = (serviceId) => {
+  const visibilityMap = parseBookingVisibilityMap();
+  return visibilityMap[String(serviceId)] !== false;
+};
+
+export const setServiceBookingVisibility = (serviceId, isVisible) => {
+  const visibilityMap = parseBookingVisibilityMap();
+  visibilityMap[String(serviceId)] = Boolean(isVisible);
+  writeBookingVisibilityMap(visibilityMap);
+  return visibilityMap;
+};
+
+export const removeServiceBookingVisibility = (serviceId) => {
+  const visibilityMap = parseBookingVisibilityMap();
+  delete visibilityMap[String(serviceId)];
+  writeBookingVisibilityMap(visibilityMap);
+  return visibilityMap;
+};
+
+export const getBookingVisibleServices = async () => {
+  const services = await getServices();
+  return services.filter((service) => isServiceVisibleOnBooking(service.id));
+};
+
+const buildServicePayload = (payload = {}) => ({
+  serviceName: String(payload.serviceName ?? "").trim(),
+  serviceCode: String(payload.serviceCode ?? "").trim(),
+  feePerUnit: payload.feePerUnit === "" || payload.feePerUnit == null
+    ? null
+    : Number(payload.feePerUnit),
+  unitType: String(payload.unitType ?? "").trim(),
+  description: String(payload.description ?? "").trim(),
+  imageUrl: String(payload.imageUrl ?? "").trim(),
+  isBookable: Boolean(payload.isBookable),
+});
+
+export const createService = async (payload) => {
+  const res = await api.post("/services", buildServicePayload(payload));
+  return normalizeServiceItem(getPayload(res.data));
+};
+
+export const updateService = async (id, payload) => {
+  const res = await api.put(`/services/${id}`, buildServicePayload(payload));
+  return normalizeServiceItem(getPayload(res.data));
+};
+
+export const deleteService = async (id) => {
+  const res = await api.delete(`/services/${id}`);
+  return getPayload(res.data);
 };
 
 export const normalizeServiceResource = (item) => ({
@@ -150,4 +228,22 @@ export const getServiceResources = async () => {
 export const createBooking = async (payload) => {
   const res = await api.post("/bookings", payload);
   return getPayload(res.data);
+};
+
+export const getAllBookings = async () => {
+  try {
+    const res = await api.get("/bookings");
+    const payload = getPayload(res.data);
+    if (!Array.isArray(payload)) return [];
+    return payload.map((item) => ({
+      id: item?.id,
+      resourceId: item?.bookingService?.serviceResource?.id ?? item?.resourceId ?? null,
+      accountId: item?.bookingService?.account?.id ?? item?.accountId ?? null,
+      bookFrom: item?.bookFrom ?? item?.bookingService?.bookFrom ?? null,
+      bookTo: item?.bookTo ?? item?.bookingService?.bookTo ?? null,
+      status: item?.status ?? item?.bookingService?.status ?? null,
+    }));
+  } catch {
+    return [];
+  }
 };

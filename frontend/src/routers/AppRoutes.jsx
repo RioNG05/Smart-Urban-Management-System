@@ -25,10 +25,13 @@ import {
   ApartmentLayout,
   ApartmentTypeManager,
   BookingManager,
+  ServiceManager,
+  NewsManager,
   ServiceFeeStats,
   VisitorManager,
   ComplaintManager,
   AccountManager,
+  UtilitiesInvoiceManager,
   StayHistoryManager
 } from "../admin/AdminManagement";
 
@@ -56,7 +59,7 @@ function AppRoutes() {
         />
         <Route path="/service" element={<ServicePage />} />
         <Route path="/services" element={<ServicePage />} />
-        <Route path="/booking" element={<BookingPage />} />
+        {/* <Route path="/booking" element={<BookingPage />} /> */}
         <Route path="/market" element={<MarketPage />} />
         <Route path="/contact" element={<ContactPage />} />
         <Route path="/product/:id" element={<Product />} />
@@ -83,6 +86,14 @@ function AppRoutes() {
           element={
             <PrivateRoute roles={["resident", "staff", "manager"]}>
               <ServicePage />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/booking"
+          element={
+            <PrivateRoute roles={["resident", "staff", "manager"]}>
+              <BookingPage />
             </PrivateRoute>
           }
         />
@@ -114,8 +125,11 @@ function AppRoutes() {
     <Route path="contracts" element={<ContractManagement />} />
     <Route path="apartment-layout" element={<ApartmentLayout />} />
           <Route path="apartment-types" element={<ApartmentTypeManager />} />
+          <Route path="utilities-invoices" element={<UtilitiesInvoiceManager />} />
 
           {/* Service & Security routes */}
+          <Route path="services" element={<ServiceManager />} />
+          <Route path="news" element={<NewsManager />} />
           <Route path="bookings" element={<BookingManager />} />
           <Route path="service-fees" element={<ServiceFeeStats />} />
           <Route path="complaints" element={<ComplaintManager />} />

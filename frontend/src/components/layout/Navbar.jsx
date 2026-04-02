@@ -1,6 +1,6 @@
 import { useState, useCallback, useRef, useEffect } from "react";
 import { FaUserCircle } from "react-icons/fa";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import useScrollEffect from "../../hooks/useScrollEffect";
 import { useAuth } from "../../components/sections/auth/AuthContext";
 import logoImg from "../../assets/logo.jpg";
@@ -11,11 +11,25 @@ export default function Navbar({ solid = false }) {
   const [loadingUser, setLoadingUser] = useState(true);
 
   const navigate = useNavigate();
+  const location = useLocation();
   const handleNavigation = (path) => {
     navigate(path);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
   const menuRef = useRef(null);
+
+  const isActive = (path) => {
+    if (path === "/") return location.pathname === "/";
+    return location.pathname.startsWith(path);
+  };
+
+  const isBillingPage = location.pathname.startsWith("/billing");
+
+  const getLinkStyle = (path) => {
+    if (isActive(path)) return { color: "#c89b3c", fontWeight: "600" };
+    if (isBillingPage) return { color: "#111" };
+    return {};
+  };
 
   const { token, user, role, logout, isAuthenticated } = useAuth();
   const displayRole = user?.role?.roleName || role;
@@ -62,22 +76,34 @@ export default function Navbar({ solid = false }) {
         {/* LOGO */}
         <div className="nav-logo" onClick={() => handleNavigation("/")}>
           <img src={logoImg} alt="VINAHOUSES Logo" className="nav-logoImg" />
-          <span className="nav-logoText">VINAHOUSE</span>
+          <span className="nav-logoText" style={isBillingPage ? { color: "#111" } : {}}>VINAHOUSE</span>
         </div>
 
         <ul className="nav-links">
-          <li onClick={() => handleNavigation("/")}>Home</li>
-          <li onClick={() => handleNavigation("/about")}>About</li>
-          <li onClick={() => handleNavigation("/market")}>Projects</li>
-          <li onClick={() => handleNavigation("/services")}>Services</li>
-          <li onClick={() => handleNavigation("/news")}>News</li>
-          <li onClick={() => handleNavigation("/contact")}>Contact</li>
+          {[
+            { path: "/", label: "Home" },
+            { path: "/about", label: "About" },
+            { path: "/market", label: "Projects" },
+            { path: "/services", label: "Services" },
+            { path: "/news", label: "News" },
+            { path: "/contact", label: "Contact" },
+          ].map((item) => (
+            <li
+              key={item.path}
+              className={isActive(item.path) ? "active-nav-link" : ""}
+              onClick={() => handleNavigation(item.path)}
+              style={getLinkStyle(item.path)}
+            >
+              {item.label}
+            </li>
+          ))}
         </ul>
 
         <div className="nav-actions">
           <div className="user-menu" ref={menuRef}>
             <FaUserCircle
               className="user-icon"
+              style={isBillingPage ? { color: "#c89b3c" } : {}}
               onClick={(e) => {
                 e.stopPropagation();
 

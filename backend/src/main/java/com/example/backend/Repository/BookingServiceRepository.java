@@ -41,4 +41,5 @@ public interface BookingServiceRepository extends JpaRepository<BookingService, 
                                              @Param("bookFrom") LocalDateTime bookFrom,
                                              @Param("bookTo") LocalDateTime bookTo,
                                              @Param("activeStatuses") List<Integer> activeStatuses);
+    List<BookingService> findAllByOrderByBookAtDesc();
 }

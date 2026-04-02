@@ -1,6 +1,7 @@
 import React from "react";
+import "../../../styles/billing.css"; // Ensure any specific overrides can act here
 
-const AdminPagination = ({
+const BillingPagination = ({
   currentPage,
   totalPages,
   onPageChange,
@@ -23,6 +24,9 @@ const AdminPagination = ({
 
   return (
     <div className="admin-pagination">
+      <div className="admin-pagination-summary">
+        Showing {startItem}-{endItem} of {totalItems} {itemLabel}
+      </div>
       <div className="admin-pagination-controls">
         <button
           type="button"
@@ -36,7 +40,8 @@ const AdminPagination = ({
           <button
             key={page}
             type="button"
-            className={`admin-pagination-btn ${page === currentPage ? "active" : ""}`}
+            className={`admin-pagination-btn ${page === currentPage ? "billing-active-page" : ""}`}
+            style={page === currentPage ? { backgroundColor: '#2e7d32', color: '#fff', borderColor: '#2e7d32' } : {}}
             onClick={() => onPageChange(page)}
           >
             {page}
@@ -55,4 +60,4 @@ const AdminPagination = ({
   );
 };
 
-export default AdminPagination;
+export default BillingPagination;

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import ComplaintModal from "./ComplaintModal";
 
-export default function ComplaintButton() {
+export default function ComplaintButton({ onSuccess }) {
   const [open, setOpen] = useState(false);
 
   return (
@@ -10,7 +10,7 @@ export default function ComplaintButton() {
         Report Issue
       </button>
 
-      <ComplaintModal open={open} setOpen={setOpen} />
+      <ComplaintModal open={open} setOpen={setOpen} onSuccess={onSuccess} />
     </>
   );
 }

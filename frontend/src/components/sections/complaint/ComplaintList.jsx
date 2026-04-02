@@ -3,14 +3,14 @@ import axios from "axios";
 import ComplaintDetail from "./ComplaintDetail";
 import { useAuth } from "../auth/AuthContext";
 
-export default function ComplaintList() {
+export default function ComplaintList({ refreshKey = 0, apartmentId }) {
   const [complaints, setComplaints] = useState([]);
   const [selected, setSelected] = useState(null);
   const { user } = useAuth();
 
   useEffect(() => {
     setSelected(null);
-  }, [user?.id]);
+  }, [user?.id, refreshKey]);
 
   useEffect(() => {
     if (!user?.id) {
@@ -27,30 +27,36 @@ export default function ComplaintList() {
           complaint.accountId ??
           complaint.createdBy?.id;
 
-        return String(complaintOwnerId) === String(user.id);
+        const isOwner = String(complaintOwnerId) === String(user.id);
+        const matchesApartment = !apartmentId || String(complaint.apartmentId) === String(apartmentId);
+        
+        return isOwner && matchesApartment;
       });
 
       setComplaints(ownComplaints);
     });
-  }, [user?.id]);
+  }, [user?.id, refreshKey]);
 
   return (
     <div className="complaint-list">
-      <h3 className="section-title">My Complaints</h3>
-
       {complaints.length === 0 && (
-        <div className="complaint-item">Ban chua gui complaint nao.</div>
+        <div className="alert alert-info border-0 rounded-3 shadow-sm">
+          Bạn chưa gửi complaint nào.
+        </div>
       )}
 
-      {complaints.map((c) => (
-        <div
-          key={c.id}
-          className="complaint-item"
-          onClick={() => setSelected(c)}
-        >
-          {c.content}
-        </div>
-      ))}
+      <div className="list-group shadow-sm rounded-3">
+        {complaints.map((c) => (
+          <button
+            key={c.id}
+            type="button"
+            className="list-group-item list-group-item-action p-3"
+            onClick={() => setSelected(c)}
+          >
+            {c.content}
+          </button>
+        ))}
+      </div>
 
       {selected && <ComplaintDetail complaint={selected} />}
     </div>

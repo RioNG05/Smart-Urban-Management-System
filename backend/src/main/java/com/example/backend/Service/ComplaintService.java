@@ -16,7 +16,7 @@ public class ComplaintService {
     private final AccountRepository accountRepository;
 
     public ComplaintService(ComplaintRepository complaintRepository,
-                            AccountRepository accountRepository) {
+            AccountRepository accountRepository) {
         this.complaintRepository = complaintRepository;
         this.accountRepository = accountRepository;
     }
