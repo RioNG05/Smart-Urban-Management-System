@@ -135,8 +135,7 @@ const AdminSidebar = ({ isOpen, setIsOpen, upcomingCount }) => {
                 <CategoryHeader title="CONTRACTS" menuKey="contracts" icon={FaFileContract} />
                 {(isOpen && openMenus.contracts) && (
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '2px', paddingLeft: '20px', marginBottom: '10px' }}>
-                        <NavLink to="/admin/contracts/create" className="staff-nav-item" style={subNavLinkStyle}><FaFileContract style={{ marginRight: '10px' }} /> Create Contract</NavLink>
-                        <NavLink to="/admin/contracts/view" className="staff-nav-item" style={subNavLinkStyle}><FaClipboardList style={{ marginRight: '10px' }} /> View Contracts</NavLink>
+                        <NavLink to="/admin/contracts" className="staff-nav-item" style={subNavLinkStyle}><FaFileContract style={{ marginRight: '10px' }} /> Contracts</NavLink>
                     </div>
                 )}
 
