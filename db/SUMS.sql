@@ -1255,20 +1255,112 @@ CREATE TABLE Accounts (
 
 INSERT INTO Accounts (Email, Username, Password, RoleId, IsActive)
 VALUES 
-('admin@tems.com', 'admin', 'admin_secret', 1, 1),           -- Tài khoản Admin tổng
-('resident.tuan@gmail.com', 'tuan01', 'tuan_pass', 2, 1),    -- Tài khoản Cư dân mẫu
-('staff.building@tems.com', 'buildingstaff', 'apart_pass', 3, 1),   -- Nhân viên quản lý căn hộ
-('staff.finance@tems.com', 'financestaff', 'service_pass', 4, 1),  -- Nhân viên kế toán/dịch vụ
-('staff.guard@tems.com','guardstaff', 'security_pass', 5, 1);    -- Nhân viên an ninh
+('admin@tems.com', 'admin', '$2a$10$2t8T/IEmhhSuXuVFsqDhKeB5PUYq07eCrJuUJrVcLmrKSAn8co99W', 1, 1),           -- Tài khoản Admin tổng
+('resident.tuan@gmail.com', 'tuan01', '$2a$10$2t8T/IEmhhSuXuVFsqDhKeB5PUYq07eCrJuUJrVcLmrKSAn8co99W', 2, 1),    -- Tài khoản Cư dân mẫu
+('staff.building@tems.com', 'buildingstaff', '$2a$10$2t8T/IEmhhSuXuVFsqDhKeB5PUYq07eCrJuUJrVcLmrKSAn8co99W', 3, 1),   -- Nhân viên quản lý căn hộ
+('staff.finance@tems.com', 'financestaff', '$2a$10$2t8T/IEmhhSuXuVFsqDhKeB5PUYq07eCrJuUJrVcLmrKSAn8co99W', 4, 1),  -- Nhân viên kế toán/dịch vụ
+('staff.guard@tems.com','guardstaff', '$2a$10$2t8T/IEmhhSuXuVFsqDhKeB5PUYq07eCrJuUJrVcLmrKSAn8co99W', 5, 1);		-- Nhân viên an ninh
 GO
 
 -- add thêm resident. 
 -- Giả định RoleId = 2 là RESIDENT
 INSERT INTO Accounts (Email, Username, Password, RoleId, IsActive)
 VALUES 
-('thao.tran@gmail.com', 'thao01', 'thao_pass123', 2, 1),
-('hoang.le@gmail.com','hoang01', 'hoang_pass456', 2, 1),
-('lan.anh@gmail.com','lan01', 'lananh_pass789', 2, 1);
+('thao.tran@gmail.com', 'thao01', '$2a$10$2t8T/IEmhhSuXuVFsqDhKeB5PUYq07eCrJuUJrVcLmrKSAn8co99W', 2, 1),
+('hoang.le@gmail.com','hoang01', '$2a$10$2t8T/IEmhhSuXuVFsqDhKeB5PUYq07eCrJuUJrVcLmrKSAn8co99W', 2, 1),
+('lan.anh@gmail.com','lan01', '$2a$10$2t8T/IEmhhSuXuVFsqDhKeB5PUYq07eCrJuUJrVcLmrKSAn8co99W', 2, 1);
+GO
+
+-- add 20 thk user
+DECLARE @i INT = 1;
+DECLARE @MaxUsers INT = 20;
+DECLARE @PasswordHash NVARCHAR(255) = '$2a$10$2t8T/IEmhhSuXuVFsqDhKeB5PUYq07eCrJuUJrVcLmrKSAn8co99W';
+DECLARE @RoleId INT = 6;
+
+WHILE @i <= @MaxUsers
+BEGIN
+    INSERT INTO Accounts (Email, Username, Password, RoleId, IsActive)
+    VALUES (
+        CONCAT('user', @i, '@smarturban.com'), -- Email: user1@smarturban.com, user2...
+        CONCAT('user_test_', @i),              -- Username: user_test_1, user_test_2...
+        @PasswordHash, 
+        @RoleId, 
+        1                                      -- IsActive = 1
+    );
+    
+    SET @i = @i + 1;
+END;
+
+PRINT 'Đã nạp xong 20 anh em vào hệ thống! Hẹ hẹ.';
+GO
+
+-- 3. Nhóm Building Staff - Quản lý căn hộ (10 người - RoleId = 3)
+INSERT INTO Accounts (Email, Username, Password, RoleId, IsActive) VALUES 
+('staff.building.01@tems.com', 'buildingstaff01', '$2a$10$2t8T/IEmhhSuXuVFsqDhKeB5PUYq07eCrJuUJrVcLmrKSAn8co99W', 3, 1),
+('staff.building.02@tems.com', 'buildingstaff02', '$2a$10$2t8T/IEmhhSuXuVFsqDhKeB5PUYq07eCrJuUJrVcLmrKSAn8co99W', 3, 1),
+('staff.building.03@tems.com', 'buildingstaff03', '$2a$10$2t8T/IEmhhSuXuVFsqDhKeB5PUYq07eCrJuUJrVcLmrKSAn8co99W', 3, 1),
+('staff.building.04@tems.com', 'buildingstaff04', '$2a$10$2t8T/IEmhhSuXuVFsqDhKeB5PUYq07eCrJuUJrVcLmrKSAn8co99W', 3, 1),
+('staff.building.05@tems.com', 'buildingstaff05', '$2a$10$2t8T/IEmhhSuXuVFsqDhKeB5PUYq07eCrJuUJrVcLmrKSAn8co99W', 3, 1),
+('staff.building.06@tems.com', 'buildingstaff06', '$2a$10$2t8T/IEmhhSuXuVFsqDhKeB5PUYq07eCrJuUJrVcLmrKSAn8co99W', 3, 1),
+('staff.building.07@tems.com', 'buildingstaff07', '$2a$10$2t8T/IEmhhSuXuVFsqDhKeB5PUYq07eCrJuUJrVcLmrKSAn8co99W', 3, 1),
+('staff.building.08@tems.com', 'buildingstaff08', '$2a$10$2t8T/IEmhhSuXuVFsqDhKeB5PUYq07eCrJuUJrVcLmrKSAn8co99W', 3, 1),
+('staff.building.09@tems.com', 'buildingstaff09', '$2a$10$2t8T/IEmhhSuXuVFsqDhKeB5PUYq07eCrJuUJrVcLmrKSAn8co99W', 3, 1),
+('staff.building.10@tems.com', 'buildingstaff10', '$2a$10$2t8T/IEmhhSuXuVFsqDhKeB5PUYq07eCrJuUJrVcLmrKSAn8co99W', 3, 1);
+
+-- 4. Nhóm Finance Staff - Kế toán/Dịch vụ (10 người - RoleId = 4)
+INSERT INTO Accounts (Email, Username, Password, RoleId, IsActive) VALUES 
+('staff.finance.01@tems.com', 'financestaff01', '$2a$10$2t8T/IEmhhSuXuVFsqDhKeB5PUYq07eCrJuUJrVcLmrKSAn8co99W', 4, 1),
+('staff.finance.02@tems.com', 'financestaff02', '$2a$10$2t8T/IEmhhSuXuVFsqDhKeB5PUYq07eCrJuUJrVcLmrKSAn8co99W', 4, 1),
+('staff.finance.03@tems.com', 'financestaff03', '$2a$10$2t8T/IEmhhSuXuVFsqDhKeB5PUYq07eCrJuUJrVcLmrKSAn8co99W', 4, 1),
+('staff.finance.04@tems.com', 'financestaff04', '$2a$10$2t8T/IEmhhSuXuVFsqDhKeB5PUYq07eCrJuUJrVcLmrKSAn8co99W', 4, 1),
+('staff.finance.05@tems.com', 'financestaff05', '$2a$10$2t8T/IEmhhSuXuVFsqDhKeB5PUYq07eCrJuUJrVcLmrKSAn8co99W', 4, 1),
+('staff.finance.06@tems.com', 'financestaff06', '$2a$10$2t8T/IEmhhSuXuVFsqDhKeB5PUYq07eCrJuUJrVcLmrKSAn8co99W', 4, 1),
+('staff.finance.07@tems.com', 'financestaff07', '$2a$10$2t8T/IEmhhSuXuVFsqDhKeB5PUYq07eCrJuUJrVcLmrKSAn8co99W', 4, 1),
+('staff.finance.08@tems.com', 'financestaff08', '$2a$10$2t8T/IEmhhSuXuVFsqDhKeB5PUYq07eCrJuUJrVcLmrKSAn8co99W', 4, 1),
+('staff.finance.09@tems.com', 'financestaff09', '$2a$10$2t8T/IEmhhSuXuVFsqDhKeB5PUYq07eCrJuUJrVcLmrKSAn8co99W', 4, 1),
+('staff.finance.10@tems.com', 'financestaff10', '$2a$10$2t8T/IEmhhSuXuVFsqDhKeB5PUYq07eCrJuUJrVcLmrKSAn8co99W', 4, 1);
+
+-- 5. Nhóm Guard Staff - An ninh (10 người - RoleId = 5)
+INSERT INTO Accounts (Email, Username, Password, RoleId, IsActive) VALUES 
+('staff.guard.01@tems.com', 'guardstaff01', '$2a$10$2t8T/IEmhhSuXuVFsqDhKeB5PUYq07eCrJuUJrVcLmrKSAn8co99W', 5, 1),
+('staff.guard.02@tems.com', 'guardstaff02', '$2a$10$2t8T/IEmhhSuXuVFsqDhKeB5PUYq07eCrJuUJrVcLmrKSAn8co99W', 5, 1),
+('staff.guard.03@tems.com', 'guardstaff03', '$2a$10$2t8T/IEmhhSuXuVFsqDhKeB5PUYq07eCrJuUJrVcLmrKSAn8co99W', 5, 1),
+('staff.guard.04@tems.com', 'guardstaff04', '$2a$10$2t8T/IEmhhSuXuVFsqDhKeB5PUYq07eCrJuUJrVcLmrKSAn8co99W', 5, 1),
+('staff.guard.05@tems.com', 'guardstaff05', '$2a$10$2t8T/IEmhhSuXuVFsqDhKeB5PUYq07eCrJuUJrVcLmrKSAn8co99W', 5, 1),
+('staff.guard.06@tems.com', 'guardstaff06', '$2a$10$2t8T/IEmhhSuXuVFsqDhKeB5PUYq07eCrJuUJrVcLmrKSAn8co99W', 5, 1),
+('staff.guard.07@tems.com', 'guardstaff07', '$2a$10$2t8T/IEmhhSuXuVFsqDhKeB5PUYq07eCrJuUJrVcLmrKSAn8co99W', 5, 1),
+('staff.guard.08@tems.com', 'guardstaff08', '$2a$10$2t8T/IEmhhSuXuVFsqDhKeB5PUYq07eCrJuUJrVcLmrKSAn8co99W', 5, 1),
+('staff.guard.09@tems.com', 'guardstaff09', '$2a$10$2t8T/IEmhhSuXuVFsqDhKeB5PUYq07eCrJuUJrVcLmrKSAn8co99W', 5, 1),
+('staff.guard.10@tems.com', 'guardstaff10', '$2a$10$2t8T/IEmhhSuXuVFsqDhKeB5PUYq07eCrJuUJrVcLmrKSAn8co99W', 5, 1);
+GO
+
+DECLARE @i INT = 1;
+DECLARE @Username VARCHAR(50);
+
+WHILE @i <= 50
+BEGIN
+    SET @Username = 'resident_' + RIGHT('00' + CAST(@i AS VARCHAR), 2);
+    
+    -- Cập nhật lại mật khẩu cho đúng hội "đồng môn"
+    UPDATE Accounts 
+    SET [Password] = '$2a$10$2t8T/IEmhhSuXuVFsqDhKeB5PUYq07eCrJuUJrVcLmrKSAn8co99W'
+    WHERE Username = @Username;
+
+    -- Nếu chưa có thì chèn mới (Phòng trường hợp ông xóa đi làm lại)
+    IF @@ROWCOUNT = 0
+    BEGIN
+        INSERT INTO Accounts (Email, Username, [Password], RoleId, IsActive)
+        VALUES (
+            @Username + '@tems.com.vn', 
+            @Username, 
+            '$2a$10$2t8T/IEmhhSuXuVFsqDhKeB5PUYq07eCrJuUJrVcLmrKSAn8co99W', 
+            2, 
+            1
+        );
+    END
+    
+    SET @i = @i + 1;
+END
 GO
 
 --bảng 5 
@@ -1529,7 +1621,7 @@ VALUES
 --batch 2
 INSERT INTO Services (ServiceName, ServiceCode, FeePerUnit, UnitType, ImageUrl, Description, IsBookable)
 VALUES 
-('Gym & Yoga Facilities', 'GYM_YOGA',0.00, 'Month', 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48', 'High-end fitness centers and dedicated yoga studios.', 0), -- Gym thường mua thẻ tháng, không cần đặt giờ
+('Gym & Yoga Facilities', 'GYM_YOGA', 500000.00, 'Month', 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48', 'High-end fitness centers and dedicated yoga studios.', 0), -- Gym thường mua thẻ tháng, không cần đặt giờ
 ('Education System', 'EDU_K12', 0.00, 'Semester', 'https://vcdn1-vnexpress.vnecdn.net/2023/12/13/v1-5551-1702452332.jpg?w=680&h=0&q=100&dpr=2&fit=crop&s=vTDtn5c45HktGxyMQtP20w', 'International standard curriculums for the next generation.', 0),
 ('Smart Parking', 'SMART_PARK', 0.00, 'Month', 'https://sliving.vn/static/bg-parking-55d4ba544730bb343bfb7709c4c8e50b.jpg', 'Automated parking systems with real-time slot tracking.', 0),
 ('BBQ Park', 'BBQ_PARK', 100000.00, 'Hour', 'https://vinhomebysalereal.vn/wp-content/uploads/2024/08/khu-bbq-garden-vinhomes-ocean-park-3.jpg', 'Dedicated outdoor BBQ areas equipped with grills.', 1); -- BBQ cần đặt chỗ trước
