@@ -8,6 +8,7 @@ import VisitorManager from '../components/sections/manager/VisitorManager';
 import ComplaintManager from '../components/sections/manager/ComplaintManager';
 import ApartmentLayout from '../components/sections/manager/ApartmentLayout';
 import ApartmentTypeManager from '../components/sections/manager/ApartmentTypeManager';
+import UtilitiesInvoiceManager from '../components/sections/manager/UtilitiesInvoiceManager';
 import StayHistoryManager from '../components/sections/manager/StayHistoryManager';
 
 export {
@@ -21,5 +22,6 @@ export {
   ComplaintManager,
   ApartmentLayout,
   ApartmentTypeManager,
+  UtilitiesInvoiceManager,
   StayHistoryManager
 };

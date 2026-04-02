@@ -14,9 +14,8 @@ import java.time.LocalDateTime;
 public class SICreateRequest {
     @NotBlank(message = "Không được để trống id booking dịch vụ")
     private Integer bookingServiceId;
-    @NotBlank(message = "Không được để trống số lượng")
+    @NotBlank(message = "Không được để trống giá tiền")
     private BigDecimal amount;
     private Integer status = 0;
-    @NotBlank(message = "Không được để trống ngày thanh toán")
     private LocalDateTime paymentDate;
 }

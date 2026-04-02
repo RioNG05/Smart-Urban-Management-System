@@ -8,6 +8,7 @@ import com.example.backend.Repository.*;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -28,7 +29,11 @@ public class UtilitiesInvoiceService {
 
 
     public List<UtilitiesInvoice> findAll() {
-        return repository.findAll();
+        Sort sort = Sort.by(
+                Sort.Order.desc("billingYear"),
+                Sort.Order.desc("billingMonth")
+        );
+        return repository.findAll(sort);
     }
 
     public List<UtilitiesInvoice> findAllByApartmentId(Integer apartmentId){
