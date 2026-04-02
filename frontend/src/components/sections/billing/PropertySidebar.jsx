@@ -1,28 +1,34 @@
+import { FaHome, FaBuilding } from "react-icons/fa";
+
 export default function PropertySidebar({
   apartments,
   selectedApartmentId,
   onSelectApartment,
 }) {
   return (
-    <div className="property-sidebar">
-      <h3 className="property-title">Properties</h3>
-
-      {apartments.length > 0 ? (
-        apartments.map((apartment) => (
+    <aside className="property-sidebar">
+      <h3 className="property-title">My Properties</h3>
+      
+      <div className="property-list">
+        {apartments.map((apt) => (
           <button
-            key={apartment.id}
-            type="button"
+            key={apt.id}
             className={`property-item ${
-              apartment.id === selectedApartmentId ? "active" : ""
+              String(selectedApartmentId) === String(apt.id) ? "active" : ""
             }`}
-            onClick={() => onSelectApartment(String(apartment.id))}
+            onClick={() => onSelectApartment(String(apt.id))}
           >
-            Apartment {apartment.label}
+            <div className="property-icon">
+              {String(selectedApartmentId) === String(apt.id) ? <FaBuilding /> : <FaHome />}
+            </div>
+            <span>Apartment {apt.label}</span>
           </button>
-        ))
-      ) : (
-        <div className="billing-empty">No linked apartment found.</div>
-      )}
-    </div>
+        ))}
+        
+        {apartments.length === 0 && (
+          <div className="billing-empty">No apartments linked.</div>
+        )}
+      </div>
+    </aside>
   );
 }

@@ -1,5 +1,13 @@
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "react-toastify";
+import { motion, AnimatePresence } from "framer-motion";
+import { 
+  FaFileInvoiceDollar, 
+  FaExclamationCircle, 
+  FaHome,
+  FaWallet,
+  FaHistory
+} from "react-icons/fa";
 
 import Navbar from "../components/layout/Navbar";
 
@@ -18,128 +26,39 @@ import ComplaintList from "../components/sections/complaint/ComplaintList";
 import {
   getBillingApartmentsForCurrentUser,
   getUtilitiesInvoicesByApartmentId,
-} from "../services/billingService";
+  getMandatoryServices
+} from "../services/billingService"; // Unified service name mapping from fe-quanganh
 import { getMyAccount } from "../services/profileService";
 import { getServices } from "../services/serviceService";
 
+import {
+  MONTH_FORMATTER,
+  formatCurrency,
+  formatDate,
+  buildUtilityBills,
+} from "../utils/billingUtils";
+
 import "../styles/billing.css";
 
-const MONTH_FORMATTER = new Intl.DateTimeFormat("en-US", {
-  month: "long",
-  year: "numeric",
-});
-
-const DATE_FORMATTER = new Intl.DateTimeFormat("en-US", {
-  day: "numeric",
-  month: "short",
-  year: "numeric",
-});
-
-const CURRENCY_FORMATTER = new Intl.NumberFormat("vi-VN", {
-  style: "currency",
-  currency: "VND",
-  maximumFractionDigits: 0,
-});
-
-const getMonthKey = (year, month) =>
-  year && month ? `${year}-${String(month).padStart(2, "0")}` : "unknown";
-
-const getInvoiceStatus = (status) =>
-  Number(status) === 1
-    ? { key: "paid", label: "Paid" }
-    : { key: "unpaid", label: "Unpaid" };
-
-const sortByBillingPeriod = (items) =>
-  [...items].sort((a, b) => {
-    const yearA = Number(a?.billingYear ?? 0);
-    const yearB = Number(b?.billingYear ?? 0);
-    const monthA = Number(a?.billingMonth ?? 0);
-    const monthB = Number(b?.billingMonth ?? 0);
-
-    if (yearA !== yearB) return yearA - yearB;
-    return monthA - monthB;
-  });
-
-const buildUtilityBills = (utilityInvoices, utilityRates) => {
-  const sortedInvoices = sortByBillingPeriod(utilityInvoices);
-  let electricityReading = 0;
-  let waterReading = 0;
-
-  return sortedInvoices.map((invoice) => {
-    const status = getInvoiceStatus(invoice.status);
-    const invoiceMonthKey = getMonthKey(
-      invoice.billingYear,
-      invoice.billingMonth
-    );
-    const createdAt = invoice.createdAt ? new Date(invoice.createdAt) : null;
-    const electricityUsage = Number(invoice.totalElectricUsed ?? 0);
-    const waterUsage = Number(invoice.totalWaterUsed ?? 0);
-
-    const electricityRate =
-      Number(utilityRates.electricity?.feePerUnit ?? 0) || 0;
-    const waterRate = Number(utilityRates.water?.feePerUnit ?? 0) || 0;
-
-    const electricityAmount = electricityUsage * electricityRate;
-    const waterAmount = waterUsage * waterRate;
-
-    const previousElectricityReading = electricityReading;
-    const currentElectricityReading =
-      previousElectricityReading + electricityUsage;
-
-    const previousWaterReading = waterReading;
-    const currentWaterReading = previousWaterReading + waterUsage;
-
-    electricityReading = currentElectricityReading;
-    waterReading = currentWaterReading;
-
-    return {
-      id: `utility-${invoice.id}`,
-      source: "utility",
-      category: "utility",
-      name: `Utilities Invoice #${invoice.id}`,
-      monthKey: invoiceMonthKey,
-      dueDate: createdAt,
-      amount: electricityAmount + waterAmount,
-      statusKey: status.key,
-      statusLabel: status.label,
-      utilityDetails: {
-        electricity: {
-          label: "Electricity",
-          unit: "kWh",
-          previousReading: previousElectricityReading,
-          currentReading: currentElectricityReading,
-          rate: electricityRate,
-          amount: electricityAmount,
-          usage: electricityUsage,
-        },
-        water: {
-          label: "Water",
-          unit: "m3",
-          previousReading: previousWaterReading,
-          currentReading: currentWaterReading,
-          rate: waterRate,
-          amount: waterAmount,
-          usage: waterUsage,
-        },
-      },
-    };
-  });
-};
-
 export default function BillingPage() {
+  const [activeTab, setActiveTab] = useState("overview"); // "overview" or "support"
   const [accountId, setAccountId] = useState(null);
   const [apartment, setApartment] = useState("");
   const [monthKey, setMonthKey] = useState("all");
   const [apartments, setApartments] = useState([]);
   const [bills, setBills] = useState([]);
   const [loading, setLoading] = useState(true);
-  const formatCurrency = (value) => CURRENCY_FORMATTER.format(Number(value || 0));
+
+  const selectedApartmentLabel = useMemo(() => {
+    const found = apartments.find(a => String(a.id) === String(apartment));
+    return found ? found.label : "Select Apartment";
+  }, [apartments, apartment]);
 
   useEffect(() => {
     const complaintToast = sessionStorage.getItem("billingComplaintToast");
 
     if (complaintToast === "success") {
-      toast.success("Gui complaint thanh cong");
+      toast.success("Complaint submitted successfully");
       sessionStorage.removeItem("billingComplaintToast");
     }
   }, []);
@@ -173,7 +92,7 @@ export default function BillingPage() {
       } catch (error) {
         console.error(error);
         if (active) {
-          toast.error("Khong the tai du lieu billing tu backend");
+          toast.error("Failed to load billing data");
           setAccountId(null);
           setApartments([]);
           setBills([]);
@@ -201,26 +120,23 @@ export default function BillingPage() {
       setLoading(true);
 
       try {
-        const [utilityInvoices, services] = await Promise.all([
+        const [utilityInvoices, services, mandatoryServices] = await Promise.all([
           getUtilitiesInvoicesByApartmentId(apartment),
           getServices(),
+          getMandatoryServices(),
         ]);
 
         if (!active) return;
 
-        const utilityRates = services.reduce(
+        // Use mandatory services for rates as seen in fe-quanganh logic
+        const utilityRates = mandatoryServices.reduce(
           (acc, service) => {
-            if (service.serviceCode === "ELEC_01") {
-              acc.electricity = service;
-            }
-
-            if (service.serviceCode === "WAT_01") {
-              acc.water = service;
-            }
-
+            if (service.serviceCode === "ELEC_01") acc.electricity = service;
+            if (service.serviceCode === "WAT_01") acc.water = service;
+            if (service.serviceCode === "MNG_FEE") acc.management = service;
             return acc;
           },
-          { electricity: null, water: null }
+          { electricity: null, water: null, management: null }
         );
 
         const utilityBills = buildUtilityBills(utilityInvoices, utilityRates);
@@ -234,7 +150,6 @@ export default function BillingPage() {
       } catch (error) {
         console.error(error);
         if (active) {
-          toast.error("Khong the tai hoa don tu backend");
           setBills([]);
         }
       } finally {
@@ -286,7 +201,7 @@ export default function BillingPage() {
   const summary = useMemo(() => {
     const totalDue = filteredBills
       .filter((bill) => bill.statusKey !== "paid")
-      .reduce((sum, bill) => sum + bill.amount, 0);
+      .reduce((sum, bill) => sum + bill.amount + (bill.managementFee || 0), 0);
 
     const unpaidBills = filteredBills.filter(
       (bill) => bill.statusKey !== "paid"
@@ -294,7 +209,7 @@ export default function BillingPage() {
 
     const paidThisMonth = filteredBills
       .filter((bill) => bill.statusKey === "paid")
-      .reduce((sum, bill) => sum + bill.amount, 0);
+      .reduce((sum, bill) => sum + bill.amount + (bill.managementFee || 0), 0);
 
     return {
       totalDue,
@@ -318,7 +233,7 @@ export default function BillingPage() {
           acc.water += Number(bill.utilityDetails.water?.amount ?? 0);
         }
 
-        acc.total += Number(bill.amount ?? 0);
+        acc.total += Number(bill.amount ?? 0) + Number(bill.managementFee ?? 0);
         return acc;
       },
       { electricity: 0, water: 0, service: 0, total: 0 }
@@ -357,14 +272,9 @@ export default function BillingPage() {
       rows.push({
         key: "payable-electricity",
         label: "Electricity",
-        description: "Electricity charges from utility invoices",
-        unitPriceLabel:
-          utilityAccumulator.electricity.rate > 0
-            ? `${formatCurrency(utilityAccumulator.electricity.rate)} / kWh`
-            : "N/A",
-        quantityLabel: `${utilityAccumulator.electricity.usage.toLocaleString(
-          "vi-VN"
-        )} kWh`,
+        description: "Usage based charges",
+        unitPriceLabel: `${formatCurrency(utilityAccumulator.electricity.rate)}/kWh`,
+        quantityLabel: `${utilityAccumulator.electricity.usage.toLocaleString()} kWh`,
         amount: utilityAccumulator.electricity.amount,
       });
     }
@@ -373,14 +283,9 @@ export default function BillingPage() {
       rows.push({
         key: "payable-water",
         label: "Water",
-        description: "Water charges from utility invoices",
-        unitPriceLabel:
-          utilityAccumulator.water.rate > 0
-            ? `${formatCurrency(utilityAccumulator.water.rate)} / m3`
-            : "N/A",
-        quantityLabel: `${utilityAccumulator.water.usage.toLocaleString(
-          "vi-VN"
-        )} m3`,
+        description: "Usage based charges",
+        unitPriceLabel: `${formatCurrency(utilityAccumulator.water.rate)}/m3`,
+        quantityLabel: `${utilityAccumulator.water.usage.toLocaleString()} m3`,
         amount: utilityAccumulator.water.amount,
       });
     }
@@ -392,54 +297,30 @@ export default function BillingPage() {
     const rows = [];
     const seen = new Set();
 
-    const appendRate = (service, fallbackLabel) => {
-      const key = `${service?.serviceCode || fallbackLabel}-${service?.id || ""}`;
-      if (seen.has(key)) return;
-      seen.add(key);
-      rows.push({
-        key,
-        label: fallbackLabel || service?.title || "Unnamed category",
-        serviceCode: service?.serviceCode || null,
-        unitType: service?.unitType || null,
-        unitPrice:
-          service?.feePerUnit === null || service?.feePerUnit === undefined
-            ? null
-            : Number(service.feePerUnit),
-      });
-    };
-
-    const electricityBill = filteredBills.find((bill) => bill.utilityDetails);
-    if (electricityBill?.utilityDetails?.electricity) {
-      appendRate(
-        {
-          id: "electricity",
-          serviceCode: "ELEC_01",
-          unitType: electricityBill.utilityDetails.electricity.unit,
-          feePerUnit: electricityBill.utilityDetails.electricity.rate,
-        },
-        "Electricity"
-      );
-    }
-
-    if (electricityBill?.utilityDetails?.water) {
-      appendRate(
-        {
-          id: "water",
-          serviceCode: "WAT_01",
-          unitType: electricityBill.utilityDetails.water.unit,
-          feePerUnit: electricityBill.utilityDetails.water.rate,
-        },
-        "Water"
-      );
-    }
+    filteredBills.forEach(bill => {
+      if (bill.utilityDetails) {
+        Object.entries(bill.utilityDetails).forEach(([key, details]) => {
+          if (!seen.has(key)) {
+            seen.add(key);
+            rows.push({
+               key,
+               label: details.label,
+               unitType: details.unit,
+               unitPrice: details.rate
+            });
+          }
+        });
+      }
+    });
 
     return rows;
   }, [filteredBills]);
 
   const chartData = useMemo(() => {
     const grouped = filteredBills.reduce((acc, bill) => {
-      const current = acc.get(bill.name) ?? 0;
-      acc.set(bill.name, current + bill.amount);
+      const label = bill.monthKey;
+      const current = acc.get(label) ?? 0;
+      acc.set(label, current + bill.amount);
       return acc;
     }, new Map());
 
@@ -457,21 +338,19 @@ export default function BillingPage() {
           id: bill.id,
           date: bill.dueDate,
           amount: bill.amount,
-          method: "Utilities Invoice",
+          method: bill.source === "utility" ? "Utility Payment" : "Service Payment",
         })),
     [filteredBills]
   );
 
-  const formatDate = (value) => {
-    if (!value) return "N/A";
-    const parsedDate = value instanceof Date ? value : new Date(value);
-    if (Number.isNaN(parsedDate.getTime())) return "N/A";
-    return DATE_FORMATTER.format(parsedDate);
-  };
+  const tabs = [
+    { id: "overview", label: "Financial Overview", icon: <FaFileInvoiceDollar /> },
+    { id: "support", label: "Resident Support", icon: <FaExclamationCircle /> },
+  ];
 
   return (
     <>
-      <Navbar />
+      <Navbar solid={true} />
 
       <div className="billing-page">
         <div className="billing-container">
@@ -481,59 +360,151 @@ export default function BillingPage() {
             onSelectApartment={setApartment}
           />
 
-          <div className="billing-content">
-            <h2 className="billing-title">Billing Dashboard</h2>
+          <main className="billing-content">
+            {/* HERO BANNER */}
+            <header className="billing-banner">
+              <div className="banner-overlay"></div>
+              <div className="banner-content">
+                <div className="banner-header">
+                  <div className="banner-title-box">
+                    <motion.h1
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.5 }}
+                    >
+                      Residential Dashboard
+                    </motion.h1>
+                    <p className="banner-subtitle">
+                      Professional billing management for your properties.
+                    </p>
+                  </div>
+                  <div className="banner-badge">
+                    <FaHome style={{ marginRight: "8px" }} />
+                    Apartment {selectedApartmentLabel}
+                  </div>
+                </div>
+              </div>
+            </header>
 
-            {/* Report Issue Button */}
-            <ComplaintButton />
+            {/* TAB SYSTEM */}
+            <nav className="billing-tabs">
+              {tabs.map((tab) => (
+                <button
+                  key={tab.id}
+                  className={`tab-item ${activeTab === tab.id ? "active" : ""}`}
+                  onClick={() => setActiveTab(tab.id)}
+                >
+                  <span style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                    {tab.icon} {tab.label}
+                  </span>
+                  {activeTab === tab.id && (
+                    <motion.div
+                      layoutId="activeTab"
+                      className="tab-indicator"
+                      transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                    />
+                  )}
+                </button>
+              ))}
+            </nav>
 
-            {/* Filters */}
-            <BillingFilters
-              apartment={apartment}
-              setApartment={setApartment}
-              monthKey={monthKey}
-              setMonthKey={setMonthKey}
-              apartments={apartments}
-              months={monthOptions}
-            />
+            <AnimatePresence mode="wait">
+              {activeTab === "overview" ? (
+                <motion.div
+                  key="overview"
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: 10 }}
+                  className="billing-content"
+                >
+                  <div className="billing-filter-bar">
+                    <div className="section-title">Billing Records</div>
+                    <BillingFilters
+                      apartment={apartment}
+                      setApartment={setApartment}
+                      monthKey={monthKey}
+                      setMonthKey={setMonthKey}
+                      apartments={apartments}
+                      months={monthOptions}
+                    />
+                  </div>
 
-            <BillingSummary
-              summary={summary}
-              formatCurrency={formatCurrency}
-            />
+                  <BillingSummary
+                    summary={summary}
+                    formatCurrency={formatCurrency}
+                  />
 
-            <BillingPayableBreakdown
-              totals={payableBreakdown}
-              pricingRows={payablePricingRows}
-              formatCurrency={formatCurrency}
-            />
+                  <BillingPayableBreakdown
+                    totals={payableBreakdown}
+                    pricingRows={payablePricingRows}
+                    formatCurrency={formatCurrency}
+                  />
 
-            <BillingTable
-              bills={payableBills}
-              formatCurrency={formatCurrency}
-              formatDate={formatDate}
-              loading={loading}
-            />
+                  <div className="billing-panel">
+                    <div className="billing-panel-header">
+                      <div>
+                        <h3 className="section-title">Invoice List</h3>
+                        <p className="billing-panel-subtitle">View your pending utility invoices.</p>
+                      </div>
+                    </div>
+                    <BillingTable
+                      bills={payableBills}
+                      formatCurrency={formatCurrency}
+                      formatDate={formatDate}
+                      loading={loading}
+                    />
+                  </div>
 
-            <BillingChart
-              data={chartData}
-              formatCurrency={formatCurrency}
-            />
+                  <div className="summary-row">
+                    <div className="billing-panel" style={{ gridColumn: "span 2" }}>
+                      <h3 className="section-title" style={{ marginBottom: "20px" }}>Spending Analysis</h3>
+                      <BillingChart
+                        data={chartData}
+                        formatCurrency={formatCurrency}
+                      />
+                    </div>
+                    <div className="billing-panel">
+                      <h3 className="section-title" style={{ marginBottom: "20px" }}>Unit Rates</h3>
+                      <BillingPricingTable
+                        rates={categoryRates}
+                        formatCurrency={formatCurrency}
+                      />
+                    </div>
+                  </div>
 
-            <BillingPricingTable
-              rates={categoryRates}
-              formatCurrency={formatCurrency}
-            />
-
-            <PaymentHistory
-              payments={payments}
-              formatCurrency={formatCurrency}
-              formatDate={formatDate}
-            />
-
-            {/* Complaint Center */}
-            <ComplaintList />
-          </div>
+                  <div className="billing-panel">
+                    <h3 className="section-title" style={{ marginBottom: "20px" }}>Payment History</h3>
+                    <PaymentHistory
+                      payments={payments}
+                      formatCurrency={formatCurrency}
+                      formatDate={formatDate}
+                    />
+                  </div>
+                </motion.div>
+              ) : (
+                <motion.div
+                  key="support"
+                  initial={{ opacity: 0, x: 10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -10 }}
+                  className="billing-content"
+                >
+                  <div className="billing-panel" style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                    <div>
+                      <h3 className="section-title">Resident Support</h3>
+                      <p className="billing-panel-subtitle">Report issues or send feedback.</p>
+                    </div>
+                    <ComplaintButton />
+                  </div>
+                  
+                  <div className="billing-panel">
+                    <h3 className="section-title" style={{ marginBottom: "20px" }}>My Reports</h3>
+                    <ComplaintList />
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </main>
         </div>
       </div>
     </>
