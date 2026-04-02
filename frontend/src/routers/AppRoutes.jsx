@@ -25,6 +25,7 @@ import {
   ApartmentLayout,
   ApartmentTypeManager,
   BookingManager,
+  ServiceManager,
   ServiceFeeStats,
   VisitorManager,
   ComplaintManager,
@@ -126,6 +127,7 @@ function AppRoutes() {
           <Route path="utilities-invoices" element={<UtilitiesInvoiceManager />} />
 
           {/* Service & Security routes */}
+          <Route path="services" element={<ServiceManager />} />
           <Route path="bookings" element={<BookingManager />} />
           <Route path="service-fees" element={<ServiceFeeStats />} />
           <Route path="complaints" element={<ComplaintManager />} />

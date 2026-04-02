@@ -13,6 +13,7 @@ import {
     FaClipboardList,
     FaConciergeBell,
     FaCreditCard,
+    FaCogs,
     FaUserPlus,
     FaChevronDown,
     FaChevronRight,
@@ -50,7 +51,7 @@ const AdminSidebar = ({ isOpen, setIsOpen, upcomingCount }) => {
         access: ['/admin/roles', '/admin/accounts', '/admin/resident-account'],
         apartment: ['/admin/apartment-layout', '/admin/apartment-types'],
         contracts: ['/admin/contracts/create', '/admin/contracts/view'],
-        service: [ '/admin/utilities-invoices','/admin/bookings', '/admin/service-fees'],
+        service: ['/admin/services', '/admin/utilities-invoices', '/admin/bookings', '/admin/service-fees'],
         security: ['/admin/visitors'],
     };
 
@@ -144,6 +145,7 @@ const AdminSidebar = ({ isOpen, setIsOpen, upcomingCount }) => {
                 {(isOpen && openMenus.service) && (
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '2px', paddingLeft: '20px', marginBottom: '10px' }}>
                         <NavLink to="/admin/utilities-invoices" className="staff-nav-item" style={subNavLinkStyle}><FaFileInvoiceDollar style={{ marginRight: '10px' }} /> Utilities Invoice</NavLink>
+                        <NavLink to="/admin/services" className="staff-nav-item" style={subNavLinkStyle}><FaCogs style={{ marginRight: '10px' }} /> Service Management</NavLink>
                         <NavLink to="/admin/bookings" className="staff-nav-item" style={subNavLinkStyle}><FaConciergeBell style={{ marginRight: '10px' }} /> Booking Management</NavLink>
                         <NavLink to="/admin/service-fees" className="staff-nav-item" style={subNavLinkStyle}><FaCreditCard style={{ marginRight: '10px' }} /> Service Fee Stats</NavLink>
                         

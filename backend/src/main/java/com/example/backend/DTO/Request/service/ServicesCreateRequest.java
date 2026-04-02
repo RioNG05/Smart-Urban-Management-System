@@ -17,7 +17,7 @@ public class ServicesCreateRequest {
     String serviceName;
     @NotBlank(message = "Không được để trống mã dịch vụ")
     String serviceCode;
-    @NotBlank(message = "Không được để trống đơn giá")
+    @NotNull(message = "Không được để trống đơn giá")
     BigDecimal feePerUnit;
     @NotBlank(message = "Không được để trống đơn vị")
     String unitType;

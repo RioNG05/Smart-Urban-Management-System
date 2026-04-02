@@ -4,6 +4,7 @@ import AccountManager from '../components/sections/manager/AccountManager';
 import ContractManagement from '../components/sections/manager/ContractManagement';
 import BookingManager from '../components/sections/manager/BookingManager';
 import ServiceFeeStats from '../components/sections/manager/ServiceFeeStats';
+import ServiceManager from '../components/sections/manager/ServiceManager';
 import VisitorManager from '../components/sections/manager/VisitorManager';
 import ComplaintManager from '../components/sections/manager/ComplaintManager';
 import ApartmentLayout from '../components/sections/manager/ApartmentLayout';
@@ -17,6 +18,7 @@ export {
   AccountManager,
   ContractManagement,
   BookingManager,
+  ServiceManager,
   ServiceFeeStats,
   VisitorManager,
   ComplaintManager,
