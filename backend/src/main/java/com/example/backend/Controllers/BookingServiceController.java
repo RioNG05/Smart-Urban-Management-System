@@ -1,6 +1,7 @@
 package com.example.backend.Controllers;
 
 import com.example.backend.DTO.Request.bookingservice.BookingServiceCreateRequest;
+import com.example.backend.DTO.Request.bookingservice.BookingServiceUpdateRequest;
 import com.example.backend.Entity.BookingService;
 import com.example.backend.Service.BookingServiceService;
 import jakarta.validation.Valid;
@@ -40,7 +41,7 @@ public class BookingServiceController {
     @PutMapping("/{id}")
     @PreAuthorize("hasAuthority('BookingServices_U_01') or @accessValidate.canViewBookingService(#id, authentication)")
     public BookingService update(@PathVariable Integer id,
-                                 @Valid @RequestBody BookingServiceCreateRequest request) {
+                                 @Valid @RequestBody BookingServiceUpdateRequest request) {
         return service.update(id, request);
     }
 

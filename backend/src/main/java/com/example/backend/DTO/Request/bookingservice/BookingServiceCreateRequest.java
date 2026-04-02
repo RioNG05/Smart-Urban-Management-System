@@ -25,9 +25,6 @@ public class BookingServiceCreateRequest {
     @NotNull(message = "bookTo can not be empty")
     private LocalDateTime bookTo;
 
-    @NotNull(message = "status can not be empty")
-    private Integer status;
-
     @NotNull(message = "totalAmount can not be empty")
     private BigDecimal totalAmount;
 }

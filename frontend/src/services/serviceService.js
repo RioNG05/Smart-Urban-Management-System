@@ -73,6 +73,7 @@ export const normalizeServiceItem = (item) => {
       formattedFee
         ? `Current service fee: ${formattedFee}. Contact the management team for booking details and availability.`
         : "Contact the management team for booking details and availability.",
+    description: item?.description || null,
     image: resolveImageUrl(
       item?.imageUrl,
       item?.image,
@@ -93,6 +94,7 @@ export const normalizeServiceItem = (item) => {
     serviceCode: item?.serviceCode || null,
     feePerUnit: item?.feePerUnit ?? null,
     unitType: item?.unitType || null,
+    isBookable: item?.isBookable === true || item?.bookable === true,
   };
 };
 
@@ -150,4 +152,22 @@ export const getServiceResources = async () => {
 export const createBooking = async (payload) => {
   const res = await api.post("/bookings", payload);
   return getPayload(res.data);
+};
+
+export const getAllBookings = async () => {
+  try {
+    const res = await api.get("/bookings");
+    const payload = getPayload(res.data);
+    if (!Array.isArray(payload)) return [];
+    return payload.map((item) => ({
+      id: item?.id,
+      resourceId: item?.bookingService?.serviceResource?.id ?? item?.resourceId ?? null,
+      accountId: item?.bookingService?.account?.id ?? item?.accountId ?? null,
+      bookFrom: item?.bookFrom ?? item?.bookingService?.bookFrom ?? null,
+      bookTo: item?.bookTo ?? item?.bookingService?.bookTo ?? null,
+      status: item?.status ?? item?.bookingService?.status ?? null,
+    }));
+  } catch {
+    return [];
+  }
 };

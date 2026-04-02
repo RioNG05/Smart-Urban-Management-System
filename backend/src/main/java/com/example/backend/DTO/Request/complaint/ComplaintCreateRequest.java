@@ -12,4 +12,6 @@ public class ComplaintCreateRequest {
 
     @NotNull
     private Integer userId;
+
+    private Integer apartmentId;
 }

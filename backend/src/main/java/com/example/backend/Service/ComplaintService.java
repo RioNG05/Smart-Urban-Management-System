@@ -38,6 +38,7 @@ public class ComplaintService {
         Complaint complaint = new Complaint();
         complaint.setContent(request.getContent());
         complaint.setMadeByUser(user);
+        complaint.setApartmentId(request.getApartmentId());
 
         return complaintRepository.save(complaint);
     }

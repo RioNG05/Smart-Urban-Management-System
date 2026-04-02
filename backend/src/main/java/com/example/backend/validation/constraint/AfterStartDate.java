@@ -1,6 +1,7 @@
 package com.example.backend.validation.constraint;
 
 import com.example.backend.validation.validator.AppointmentTimeValidator;
+import com.example.backend.validation.validator.BookingDateValidator;
 import jakarta.validation.Constraint;
 import jakarta.validation.Payload;
 
@@ -12,7 +13,7 @@ import java.lang.annotation.Target;
 @Target({ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
 @Constraint(validatedBy = {
-        AppointmentTimeValidator.class
+        BookingDateValidator.class
 })
 public @interface AfterStartDate {
     String message() default "End date must be after start time";
