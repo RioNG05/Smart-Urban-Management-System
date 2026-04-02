@@ -20,7 +20,8 @@ import {
     FaLayerGroup,
     FaShieldAlt,
     FaSignOutAlt,
-    FaComments
+    FaComments,
+    FaHistory
 } from 'react-icons/fa';
 
 import "../styles/manager.css";
@@ -79,19 +80,18 @@ const AdminSidebar = ({ isOpen, setIsOpen, upcomingCount }) => {
                 {(isOpen && openMenus.access) && (
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '2px', paddingLeft: '20px', marginBottom: '10px' }}>
                         <NavLink to="/admin/roles" className="staff-nav-item" style={{ padding: '8px 15px', fontSize: '13px' }}><FaUserShield style={{ marginRight: '10px' }} /> Permissions</NavLink>
-
                         <NavLink to="/admin/accounts" className="staff-nav-item" style={{ padding: '8px 15px', fontSize: '13px' }}><FaUsers style={{ marginRight: '10px' }} /> Account Management</NavLink>
-                        <NavLink to="/admin/resident-account" className="staff-nav-item" style={{ padding: '8px 15px', fontSize: '13px' }}><FaUserLock style={{ marginRight: '10px' }} /> Resident Account</NavLink>
+                        <NavLink to="/admin/resident-account" className="staff-nav-item" style={{ padding: '8px 15px', fontSize: '13px' }}><FaUserLock style={{ marginRight: '10px' }} /> Resident Management</NavLink>
                     </div>
                 )}
 
                 <CategoryHeader title="APARTMENT & CONTRACT" menuKey="apartment" icon={FaLayerGroup} />
                 {(isOpen && openMenus.apartment) && (
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '2px', paddingLeft: '20px', marginBottom: '10px' }}>
-                        <NavLink to="/admin/contracts/create" className="staff-nav-item" style={{ padding: '8px 15px', fontSize: '13px' }}><FaFileContract style={{ marginRight: '10px' }} /> Create Contract</NavLink>
-                        <NavLink to="/admin/contracts/view" className="staff-nav-item" style={{ padding: '8px 15px', fontSize: '13px' }}><FaClipboardList style={{ marginRight: '10px' }} /> View Contracts</NavLink>
+                        <NavLink to="/admin/contracts" className="staff-nav-item" style={{ padding: '8px 15px', fontSize: '13px' }}><FaFileContract style={{ marginRight: '10px' }} /> Contract Management</NavLink>
                         <NavLink to="/admin/apartment-layout" className="staff-nav-item" style={{ padding: '8px 15px', fontSize: '13px' }}><FaBuilding style={{ marginRight: '10px' }} /> Apartment</NavLink>
                         <NavLink to="/admin/apartment-types" className="staff-nav-item" style={{ padding: '8px 15px', fontSize: '13px' }}><FaLayerGroup style={{ marginRight: '10px' }} /> Apartment Types</NavLink>
+                        <NavLink to="/admin/stay-history" className="staff-nav-item" style={{ padding: '8px 15px', fontSize: '13px' }}><FaHistory style={{ marginRight: '10px' }} /> Stay At History</NavLink>
                     </div>
                 )}
 

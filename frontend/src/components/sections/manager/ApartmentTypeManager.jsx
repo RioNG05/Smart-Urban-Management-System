@@ -1,24 +1,26 @@
 import React, { useState, useEffect } from "react";
-import { FaLayerGroup, FaPlus, FaUndo, FaSyncAlt, FaEdit, FaTrash, FaCheckCircle, FaBuilding } from "react-icons/fa";
-import { getApartmentTypes, createApartmentType, deleteApartmentType } from "../../../services/apartmentService";
+import { FaLayerGroup, FaSyncAlt, FaEdit, FaTrash, FaBuilding } from "react-icons/fa";
+import { getApartmentTypes, createApartmentType, updateApartmentType, deleteApartmentType, getApartmentsByTypeId } from "../../../services/apartmentService";
+import { normalizeApartmentTypeRecord } from "./utils";
 
 const ApartmentTypeManager = () => {
     const [types, setTypes] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [editingTypeId, setEditingTypeId] = useState(null);
     const [error, setError] = useState("");
     const [searchTerm, setSearchTerm] = useState("");
 
     // Form state
     const initialForm = {
-      typeName: "",
-      area: "",
-      roomCount: "",
-      bathroomCount: "",
-      buyPrice: "",
-      rentPrice: "",
-      furniture: "None",
-      shortDescription: ""
+      name: "",
+      designSqrt: "",
+      numberOfBedroom: "",
+      numberOfBathroom: "",
+      commonPriceForBuying: "",
+      commonPriceForRent: "",
+      furnitureTypeId: "0",
+      overview: ""
     };
     const [formData, setFormData] = useState(initialForm);
 
@@ -26,9 +28,9 @@ const ApartmentTypeManager = () => {
       try {
         setIsLoading(true);
         const data = await getApartmentTypes();
-        setTypes(data || []);
+        setTypes((data || []).map((item, index) => normalizeApartmentTypeRecord(item, index)));
       } catch (err) {
-        setError("Failed to load apartment types.");
+        setError(err?.response?.data?.message || "Failed to load apartment types.");
       } finally {
         setIsLoading(false);
       }
@@ -44,45 +46,99 @@ const ApartmentTypeManager = () => {
 
     const handleReset = () => {
       setFormData(initialForm);
+      setEditingTypeId(null);
       setError("");
     };
 
-    const handleAddType = async () => {
-      if (!formData.typeName || !formData.area) {
-        setError("Type Name and Area are required.");
+    const buildPayload = () => ({
+      name: formData.name.trim(),
+      designSqrt: Number(formData.designSqrt),
+      numberOfBedroom: Number(formData.numberOfBedroom || 0),
+      numberOfBathroom: Number(formData.numberOfBathroom || 0),
+      commonPriceForBuying: Number(formData.commonPriceForBuying || 0),
+      commonPriceForRent: Number(formData.commonPriceForRent || 0),
+      furnitureTypeId: Number(formData.furnitureTypeId),
+      overview: formData.overview.trim()
+    });
+
+    const handleEdit = (type) => {
+      setEditingTypeId(type.id);
+      setFormData({
+        name: type.name ?? "",
+        designSqrt: type.designSqrt ?? "",
+        numberOfBedroom: type.numberOfBedroom ?? "",
+        numberOfBathroom: type.numberOfBathroom ?? "",
+        commonPriceForBuying: type.commonPriceForBuying ?? "",
+        commonPriceForRent: type.commonPriceForRent ?? "",
+        furnitureTypeId: type.furnitureTypeId || "0",
+        overview: type.overview ?? ""
+      });
+      setError("");
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    };
+
+    const handleSubmit = async () => {
+      if (!formData.name || !formData.designSqrt) {
+        setError("Type name and area are required.");
         return;
       }
       try {
         setIsSubmitting(true);
-        await createApartmentType({
-          ...formData,
-          area: Number(formData.area),
-          roomCount: Number(formData.roomCount),
-          bathroomCount: Number(formData.bathroomCount),
-          buyPrice: Number(formData.buyPrice),
-          rentPrice: Number(formData.rentPrice)
-        });
+        setError("");
+        const payload = buildPayload();
+
+        if (editingTypeId) {
+          await updateApartmentType(editingTypeId, payload);
+        } else {
+          await createApartmentType(payload);
+        }
+
         handleReset();
         await loadTypes();
       } catch (err) {
-        setError("Error creating apartment type.");
+        setError(
+          err?.response?.data?.message ||
+            (editingTypeId
+              ? "Error updating apartment type."
+              : "Error creating apartment type."),
+        );
       } finally {
         setIsSubmitting(false);
       }
     };
 
     const handleDelete = async (id) => {
-      if (!window.confirm("Are you sure you want to delete this type?")) return;
       try {
+        setError("");
+        const apartments = await getApartmentsByTypeId(id);
+
+        if ((apartments || []).length > 0) {
+          setError("This apartment type is still being used by apartments, so it cannot be deleted.");
+          return;
+        }
+
+        if (!window.confirm("Are you sure you want to delete this type?")) return;
         await deleteApartmentType(id);
+        if (editingTypeId === id) {
+          handleReset();
+        }
         await loadTypes();
       } catch (err) {
-        alert("Error deleting type.");
+        const serverMessage = err?.response?.data?.message?.trim();
+        const fallbackMessage =
+          "This apartment type could not be deleted because it is still linked to existing data.";
+
+        setError(
+          serverMessage &&
+            !serverMessage.toLowerCase().includes("could not execute statement")
+            ? serverMessage
+            : fallbackMessage,
+        );
       }
     };
 
     const filteredTypes = types.filter(t => 
-      t.typeName?.toLowerCase().includes(searchTerm.toLowerCase())
+      t.name?.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
     return (
@@ -129,8 +185,8 @@ const ApartmentTypeManager = () => {
                   type="text" 
                   placeholder="e.g., Sky Garden, Cozy Studio..." 
                   style={{ height: '45px', fontSize: '13.5px', borderRadius: '12px' }}
-                  value={formData.typeName}
-                  onChange={(e) => handleInputChange('typeName', e.target.value)}
+                  value={formData.name}
+                  onChange={(e) => handleInputChange('name', e.target.value)}
                 />
               </div>
 
@@ -141,8 +197,8 @@ const ApartmentTypeManager = () => {
                   type="number" 
                   placeholder="e.g., 75" 
                   style={{ height: '50px', fontSize: '14px', borderRadius: '14px' }}
-                  value={formData.area}
-                  onChange={(e) => handleInputChange('area', e.target.value)}
+                  value={formData.designSqrt}
+                  onChange={(e) => handleInputChange('designSqrt', e.target.value)}
                 />
               </div>
 
@@ -154,8 +210,8 @@ const ApartmentTypeManager = () => {
                     type="number" 
                     placeholder="2" 
                     style={{ height: '50px', fontSize: '14px', borderRadius: '14px' }}
-                    value={formData.roomCount}
-                    onChange={(e) => handleInputChange('roomCount', e.target.value)}
+                    value={formData.numberOfBedroom}
+                    onChange={(e) => handleInputChange('numberOfBedroom', e.target.value)}
                   />
                 </div>
                 <div className="form-group">
@@ -164,8 +220,8 @@ const ApartmentTypeManager = () => {
                     type="number" 
                     placeholder="1" 
                     style={{ height: '50px', fontSize: '14px', borderRadius: '14px' }}
-                    value={formData.bathroomCount}
-                    onChange={(e) => handleInputChange('bathroomCount', e.target.value)}
+                    value={formData.numberOfBathroom}
+                    onChange={(e) => handleInputChange('numberOfBathroom', e.target.value)}
                   />
                 </div>
               </div>
@@ -178,8 +234,8 @@ const ApartmentTypeManager = () => {
                     type="number" 
                     placeholder="2,500,000,000" 
                     style={{ height: '50px', fontSize: '14px', borderRadius: '14px' }}
-                    value={formData.buyPrice}
-                    onChange={(e) => handleInputChange('buyPrice', e.target.value)}
+                    value={formData.commonPriceForBuying}
+                    onChange={(e) => handleInputChange('commonPriceForBuying', e.target.value)}
                   />
                 </div>
                 <div className="form-group">
@@ -188,8 +244,8 @@ const ApartmentTypeManager = () => {
                     type="number" 
                     placeholder="12,000,000" 
                     style={{ height: '50px', fontSize: '14px', borderRadius: '14px' }}
-                    value={formData.rentPrice}
-                    onChange={(e) => handleInputChange('rentPrice', e.target.value)}
+                    value={formData.commonPriceForRent}
+                    onChange={(e) => handleInputChange('commonPriceForRent', e.target.value)}
                   />
                 </div>
               </div>
@@ -199,13 +255,14 @@ const ApartmentTypeManager = () => {
                 <label style={{ fontSize: '10px', color: '#94a3b8', fontWeight: 800, letterSpacing: '0.5px', marginBottom: '8px', display: 'block' }}>FURNITURE LEVEL</label>
                 <select 
                   style={{ height: '50px', fontSize: '14px', borderRadius: '14px' }}
-                  value={formData.furniture}
-                  onChange={(e) => handleInputChange('furniture', e.target.value)}
+                  value={formData.furnitureTypeId}
+                  onChange={(e) => handleInputChange('furnitureTypeId', e.target.value)}
                 >
-                  <option value="None">None (Basic Shell)</option>
-                  <option value="Basic">Standard Furnishing</option>
-                  <option value="Full">Fully Furnished</option>
-                  <option value="Luxury">Premium Luxury</option>
+                  <option value="0">None (Basic Shell)</option>
+                  <option value="1">Standard Furnishing</option>
+                  <option value="2">Fully Furnished</option>
+                  <option value="3">Premium</option>
+                  <option value="4">Luxury</option>
                 </select>
               </div>
             </div>
@@ -213,8 +270,8 @@ const ApartmentTypeManager = () => {
             {error && <p style={{ color: '#e11d48', fontSize: '12px', fontWeight: 700, marginTop: '15px', padding: '8px 12px', background: '#fff1f2', borderRadius: '8px' }}>{error}</p>}
 
             <div style={{ display: 'flex', gap: '15px', marginTop: '35px' }}>
-              <button className="admin-btn-add" style={{ flex: 1, height: '50px', borderRadius: '14px', fontWeight: 800, fontSize: '13px' }} onClick={handleAddType} disabled={isSubmitting}>
-                {isSubmitting ? 'PROCESSING...' : 'ADD NEW CLASSIFICATION'}
+              <button className="admin-btn-add" style={{ flex: 1, height: '50px', borderRadius: '14px', fontWeight: 800, fontSize: '13px' }} onClick={handleSubmit} disabled={isSubmitting}>
+                {isSubmitting ? 'PROCESSING...' : editingTypeId ? 'UPDATE CLASSIFICATION' : 'ADD NEW CLASSIFICATION'}
               </button>
               <button 
                 onClick={handleReset}
@@ -233,25 +290,25 @@ const ApartmentTypeManager = () => {
                 <span style={{ fontSize: '10px', fontWeight: 800, color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: '2px' }}>LIVE PREVIEW</span>
               </div>
               
-              <h3 style={{ fontSize: '28px', fontWeight: 800, color: 'white', margin: '0 0 10px 0' }}>{formData.typeName || 'New apartment type'}</h3>
+              <h3 style={{ fontSize: '28px', fontWeight: 800, color: 'white', margin: '0 0 10px 0' }}>{formData.name || 'New apartment type'}</h3>
               <p style={{ color: 'rgba(255,255,255,0.45)', fontSize: '14px', lineHeight: '1.6', marginBottom: '35px' }}>Preview the exact catalog entry that will be visible in the resident inventory.</p>
 
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '35px' }}>
                 <div style={{ background: 'rgba(255,255,255,0.08)', padding: '22px', borderRadius: '20px', border: '1px solid rgba(255,255,255,0.12)', boxShadow: 'inset 0 0 20px rgba(255,255,255,0.02)' }}>
                   <p style={{ fontSize: '10px', color: 'rgba(255,255,255,0.9)', fontWeight: 900, marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '1.2px', opacity: 1 }}>AREA</p>
-                  <p style={{ fontSize: '20px', fontWeight: 900, color: '#ffffff', margin: 0, textShadow: '0 0 20px rgba(255,255,255,0.3)' }}>{formData.area || '--'} <span style={{ fontSize: '12px', fontWeight: 400, color: 'rgba(255,255,255,0.6)' }}>sqm</span></p>
+                  <p style={{ fontSize: '20px', fontWeight: 900, color: '#ffffff', margin: 0, textShadow: '0 0 20px rgba(255,255,255,0.3)' }}>{formData.designSqrt || '--'} <span style={{ fontSize: '12px', fontWeight: 400, color: 'rgba(255,255,255,0.6)' }}>sqm</span></p>
                 </div>
                 <div style={{ background: 'rgba(255,255,255,0.08)', padding: '22px', borderRadius: '20px', border: '1px solid rgba(255,255,255,0.12)', boxShadow: 'inset 0 0 20px rgba(255,255,255,0.02)' }}>
                   <p style={{ fontSize: '10px', color: 'rgba(255,255,255,0.9)', fontWeight: 900, marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '1.2px', opacity: 1 }}>LAYOUT</p>
-                  <p style={{ fontSize: '20px', fontWeight: 900, color: '#ffffff', margin: 0, textShadow: '0 0 20px rgba(255,255,255,0.3)' }}>{formData.roomCount || '0'}BR / {formData.bathroomCount || '0'}BA</p>
+                  <p style={{ fontSize: '20px', fontWeight: 900, color: '#ffffff', margin: 0, textShadow: '0 0 20px rgba(255,255,255,0.3)' }}>{formData.numberOfBedroom || '0'}BR / {formData.numberOfBathroom || '0'}BA</p>
                 </div>
                 <div style={{ background: 'rgba(255,255,255,0.08)', padding: '22px', borderRadius: '20px', border: '1px solid rgba(255,255,255,0.12)', boxShadow: 'inset 0 0 20px rgba(255,255,255,0.02)' }}>
                   <p style={{ fontSize: '10px', color: 'rgba(255,255,255,0.9)', fontWeight: 900, marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '1.2px', opacity: 1 }}>MARKET PRICE</p>
-                  <p style={{ fontSize: '20px', fontWeight: 900, color: '#ffc107', margin: 0, textShadow: '0 0 25px rgba(255, 193, 7, 0.4)' }}>{formData.buyPrice ? new Intl.NumberFormat('vi-VN').format(formData.buyPrice) : '--'}</p>
+                  <p style={{ fontSize: '20px', fontWeight: 900, color: '#ffc107', margin: 0, textShadow: '0 0 25px rgba(255, 193, 7, 0.4)' }}>{formData.commonPriceForBuying ? new Intl.NumberFormat('vi-VN').format(formData.commonPriceForBuying) : '--'}</p>
                 </div>
                 <div style={{ background: 'rgba(255,255,255,0.08)', padding: '22px', borderRadius: '20px', border: '1px solid rgba(255,255,255,0.12)', boxShadow: 'inset 0 0 20px rgba(255,255,255,0.02)' }}>
                   <p style={{ fontSize: '10px', color: 'rgba(255,255,255,0.9)', fontWeight: 900, marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '1.2px', opacity: 1 }}>MONTHLY RENT</p>
-                  <p style={{ fontSize: '20px', fontWeight: 900, color: '#ffc107', margin: 0, textShadow: '0 0 25px rgba(255, 193, 7, 0.4)' }}>{formData.rentPrice ? new Intl.NumberFormat('vi-VN').format(formData.rentPrice) : '--'}</p>
+                  <p style={{ fontSize: '20px', fontWeight: 900, color: '#ffc107', margin: 0, textShadow: '0 0 25px rgba(255, 193, 7, 0.4)' }}>{formData.commonPriceForRent ? new Intl.NumberFormat('vi-VN').format(formData.commonPriceForRent) : '--'}</p>
                 </div>
               </div>
 
@@ -274,8 +331,8 @@ const ApartmentTypeManager = () => {
                     fontWeight: 600,
                     boxShadow: 'inset 0 2px 10px rgba(0,0,0,0.2)'
                   }}
-                  value={formData.shortDescription}
-                  onChange={(e) => handleInputChange('shortDescription', e.target.value)}
+                  value={formData.overview}
+                  onChange={(e) => handleInputChange('overview', e.target.value)}
                 ></textarea>
               </div>
             </div>
@@ -316,24 +373,24 @@ const ApartmentTypeManager = () => {
                 ) : (
                   filteredTypes.map((type) => (
                     <tr key={type.id}>
-                      <td><span style={{ fontWeight: 800, fontSize: '14.5px', color: '#0f172a' }}>{type.typeName}</span></td>
-                      <td><span style={{ fontWeight: 600 }}>{type.area} sqm</span></td>
-                      <td><span style={{ fontSize: '13px' }}>{type.roomCount || 0} BR / {type.bathroomCount || 0} BA</span></td>
+                      <td><span style={{ fontWeight: 800, fontSize: '14.5px', color: '#0f172a' }}>{type.name}</span></td>
+                      <td><span style={{ fontWeight: 600 }}>{type.designSqrt} sqm</span></td>
+                      <td><span style={{ fontSize: '13px' }}>{type.numberOfBedroom || 0} BR / {type.numberOfBathroom || 0} BA</span></td>
                       <td>
                         <div style={{ fontSize: '13px', fontWeight: 700 }}>
-                          <span style={{ color: '#64748b', fontSize: '11px' }}>B:</span> {new Intl.NumberFormat('vi-VN').format(type.buyPrice || 0)}<br/>
-                          <span style={{ color: '#64748b', fontSize: '11px' }}>R:</span> <span style={{ color: 'var(--admin-primary)' }}>{new Intl.NumberFormat('vi-VN').format(type.rentPrice || 0)}</span>
+                          <span style={{ color: '#64748b', fontSize: '11px' }}>B:</span> {new Intl.NumberFormat('vi-VN').format(type.commonPriceForBuying || 0)}<br/>
+                          <span style={{ color: '#64748b', fontSize: '11px' }}>R:</span> <span style={{ color: 'var(--admin-primary)' }}>{new Intl.NumberFormat('vi-VN').format(type.commonPriceForRent || 0)}</span>
                         </div>
                       </td>
                       <td>
                         <div style={{ fontSize: '12px', color: '#64748b', maxWidth: '250px' }}>
                           <strong style={{ color: '#334155' }}>{type.furniture}</strong><br/>
-                          {type.shortDescription || 'No description provided.'}
+                          {type.overview || 'No description provided.'}
                         </div>
                       </td>
                       <td style={{ textAlign: 'center' }}>
                         <div style={{ display: 'flex', gap: '8px', justifyContent: 'center' }}>
-                          <button className="action-btn-styled" title="Edit"><FaEdit /></button>
+                          <button className="action-btn-styled" title="Edit" onClick={() => handleEdit(type)}><FaEdit /></button>
                           <button className="action-btn-styled" style={{ color: 'var(--admin-danger)' }} onClick={() => handleDelete(type.id)} title="Delete"><FaTrash /></button>
                         </div>
                       </td>

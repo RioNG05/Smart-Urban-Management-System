@@ -21,15 +21,15 @@ import { AdminLayout, Dashboard } from "../admin/AdminCore";
 import {
   PermissionManager,
   ResidentAccount,
-  CreateContract,
-  ViewContracts,
+  ContractManagement,
   ApartmentLayout,
   ApartmentTypeManager,
   BookingManager,
   ServiceFeeStats,
   VisitorManager,
   ComplaintManager,
-  AccountManager
+  AccountManager,
+  StayHistoryManager
 } from "../admin/AdminManagement";
 
 import StaffApartment from "../staff/StaffApartment";
@@ -109,10 +109,10 @@ function AppRoutes() {
           <Route index element={<Dashboard />} />
           <Route path="roles" element={<PermissionManager />} />
           <Route path="resident-account" element={<ResidentAccount />} />
-          <Route path="accounts" element={<AccountManager />} />
-          <Route path="contracts/create" element={<CreateContract />} />
-          <Route path="contracts/view" element={<ViewContracts />} />
-          <Route path="apartment-layout" element={<ApartmentLayout />} />
+    <Route path="stay-history" element={<StayHistoryManager />} />
+    <Route path="accounts" element={<AccountManager />} />
+    <Route path="contracts" element={<ContractManagement />} />
+    <Route path="apartment-layout" element={<ApartmentLayout />} />
           <Route path="apartment-types" element={<ApartmentTypeManager />} />
 
           {/* Service & Security routes */}

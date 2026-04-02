@@ -137,6 +137,8 @@ const StaffServiceMainContent = ({ activeTab }) => {
   const [isUpdating, setIsUpdating] = useState(false);
   const [bookingPage, setBookingPage] = useState(1);
   const [feePage, setFeePage] = useState(1);
+  const [bookingStatusFilter, setBookingStatusFilter] = useState("All");
+  const [feeStatusFilter, setFeeStatusFilter] = useState("All");
 
   const loadData = async () => {
     try {
@@ -186,9 +188,9 @@ const StaffServiceMainContent = ({ activeTab }) => {
         sortPriority: getBookingSortPriority(booking?.status),
         sortTimestamp: toTimestamp(
           booking?.createdAt ||
-            booking?.updatedAt ||
-            booking?.bookFrom ||
-            booking?.bookTo,
+          booking?.updatedAt ||
+          booking?.bookFrom ||
+          booking?.bookTo,
         ),
         raw: booking,
       }));
@@ -216,9 +218,9 @@ const StaffServiceMainContent = ({ activeTab }) => {
           sortPriority: Number(invoice?.status) === 1 ? 1 : 0,
           sortTimestamp: toTimestamp(
             invoice?.createdAt ||
-              invoice?.updatedAt ||
-              invoice?.paymentDate ||
-              booking?.bookFrom,
+            invoice?.updatedAt ||
+            invoice?.paymentDate ||
+            booking?.bookFrom,
           ),
         };
       });
@@ -228,7 +230,7 @@ const StaffServiceMainContent = ({ activeTab }) => {
     } catch (loadError) {
       setError(
         loadError?.response?.data?.message ||
-          "Unable to load service bookings and fee statistics from backend.",
+        "Unable to load service bookings and fee statistics from backend.",
       );
     } finally {
       setIsLoading(false);
@@ -252,15 +254,17 @@ const StaffServiceMainContent = ({ activeTab }) => {
     [serviceFees],
   );
 
-  const filteredBookings =
-    bookingFilter === "All"
-      ? bookings
-      : bookings.filter((booking) => booking.service === bookingFilter);
+  const filteredBookings = bookings.filter((booking) => {
+    const matchesService = bookingFilter === "All" || booking.service === bookingFilter;
+    const matchesStatus = bookingStatusFilter === "All" || booking.status.label === bookingStatusFilter;
+    return matchesService && matchesStatus;
+  });
 
-  const filteredFees =
-    feeFilter === "All"
-      ? serviceFees
-      : serviceFees.filter((fee) => fee.service === feeFilter);
+  const filteredFees = serviceFees.filter((fee) => {
+    const matchesService = feeFilter === "All" || fee.service === feeFilter;
+    const matchesStatus = feeStatusFilter === "All" || fee.status.label === feeStatusFilter;
+    return matchesService && matchesStatus;
+  });
 
   const sortedBookings = [...filteredBookings].sort((left, right) =>
     comparePriorityThenNewest(
@@ -282,11 +286,11 @@ const StaffServiceMainContent = ({ activeTab }) => {
 
   useEffect(() => {
     setBookingPage(1);
-  }, [bookingFilter, bookings.length]);
+  }, [bookingFilter, bookingStatusFilter, bookings.length]);
 
   useEffect(() => {
     setFeePage(1);
-  }, [feeFilter, serviceFees.length]);
+  }, [feeFilter, feeStatusFilter, serviceFees.length]);
 
   const paginatedBookings = sortedBookings.slice(
     (bookingPage - 1) * 8,
@@ -308,8 +312,8 @@ const StaffServiceMainContent = ({ activeTab }) => {
     } catch (updateError) {
       setError(
         updateError?.response?.data?.message ||
-          updateError?.response?.data?.error ||
-          "Could not update booking status on the backend.",
+        updateError?.response?.data?.error ||
+        "Could not update booking status on the backend.",
       );
     } finally {
       setIsUpdating(false);
@@ -317,120 +321,113 @@ const StaffServiceMainContent = ({ activeTab }) => {
   };
 
   return (
-    <main className="staff-content-area">
+    <main className="staff-content-area" style={{ animation: 'fadeIn 0.5s ease-out' }}>
       {activeTab === "bookings" && (
         <div className="staff-tab-content">
-          <div className="staff-form-container gold-border">
-            <h3 style={{ fontSize: '24px', fontWeight: 800, color: '#0f172a', display: 'flex', alignItems: 'center', gap: '15px' }}>
-              <FaCalendarCheck style={{ color: 'var(--admin-primary)' }} /> Amenity Booking Management
-            </h3>
-            <p
-              style={{
-                color: "#64748b",
-                fontSize: "14px",
-                marginBottom: "30px",
-                fontWeight: 500
-              }}
-            >
-              Review and manage resident requests using live backend booking
-              data.
-            </p>
-
-            {error ? (
-              <div
-                className="admin-feedback error"
-                style={{ marginBottom: "16px" }}
-              >
-                {error}
+          {/* MODERN BANNER */}
+          <div className="account-banner-container" style={{ justifyContent: 'space-between', marginBottom: '30px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '25px' }}>
+              <div className="account-banner-icon-box">
+                <FaCalendarCheck />
               </div>
-            ) : null}
-
-            <div className="staff-sub-nav">
-              {bookingCategories.map((category) => (
-                <div
-                  key={category}
-                  className={`sub-nav-item ${bookingFilter === category ? "active" : ""}`}
-                  onClick={() => setBookingFilter(category)}
-                >
-                  {category === "All" ? (
-                    "All Services"
-                  ) : (
-                    <>
-                      {getServiceIcon(category)} {category}
-                    </>
-                  )}
-                </div>
-              ))}
+              <div className="account-banner-info-group">
+                <p>FACILITY BOOKING MANAGEMENT</p>
+                <h3 style={{ display: 'flex', alignItems: 'baseline', gap: '12px' }}>
+                  {filteredBookings.length} <span style={{ fontSize: '14px', color: 'rgba(255,255,255,0.6)', fontWeight: 400 }}>Matching Requests</span>
+                </h3>
+              </div>
             </div>
 
-            <div className="staff-table-scroll">
+            <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+              <span style={{ fontSize: '11px', fontWeight: 800, color: 'rgba(255,255,255,0.6)', letterSpacing: '1px' }}>FILTER STATUS</span>
+              <select
+                className="banner-status-select"
+                value={bookingStatusFilter}
+                onChange={(e) => setBookingStatusFilter(e.target.value)}
+              >
+                <option value="All">All</option>
+                <option value="Pending">Pending</option>
+                <option value="Approved">Approved</option>
+                <option value="Denied">Denied</option>
+              </select>
+            </div>
+          </div>
+
+          <div className="staff-sub-nav">
+            {bookingCategories.map((category) => (
+              <div
+                key={category}
+                className={`sub-nav-item ${bookingFilter === category ? "active" : ""}`}
+                onClick={() => setBookingFilter(category)}
+              >
+                {category === "All" ? (
+                  "All Services"
+                ) : (
+                  <>
+                    {getServiceIcon(category)} {category}
+                  </>
+                )}
+              </div>
+            ))}
+          </div>
+
+          <div className="admin-table-wrapper gold-border" style={{ marginTop: '10px' }}>
+            <div className="resident-list-header">
+              <h4 style={{ margin: 0, fontWeight: 800, fontSize: '18px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <FaCalendarCheck /> Amenity Booking Requests
+              </h4>
+            </div>
+
+            <div className="admin-table-scroll">
               <table className="admin-custom-table bordered">
                 <thead>
                   <tr>
-                    <th>RESIDENT</th>
-                    <th>SERVICE</th>
-                    <th>START TIME</th>
-                    <th>SCHEDULE</th>
-                    <th style={{ textAlign: "center" }}>STATUS</th>
-                    <th style={{ textAlign: "center" }}>ACTIONS</th>
+                    <th style={{ width: '18%' }}>RESIDENT</th>
+                    <th style={{ width: '18%' }}>SERVICE</th>
+                    <th style={{ width: '18%' }}>START TIME</th>
+                    <th style={{ width: '22%' }}>FULL SCHEDULE</th>
+                    <th style={{ width: '12%', textAlign: "center" }}>STATUS</th>
+                    <th style={{ width: '12%', textAlign: "center" }}>ACTIONS</th>
                   </tr>
                 </thead>
                 <tbody>
                   {isLoading ? (
                     <tr>
-                      <td
-                        colSpan="6"
-                        style={{ textAlign: "center", padding: "40px" }}
-                      >
-                        Loading live backend bookings...
+                      <td colSpan="6" style={{ textAlign: "center", padding: "60px 0", color: "#64748b" }}>
+                        Fetching live booking requests...
                       </td>
                     </tr>
                   ) : filteredBookings.length === 0 ? (
                     <tr>
-                      <td
-                        colSpan="6"
-                        style={{
-                          textAlign: "center",
-                          color: "#94a3b8",
-                          padding: "40px",
-                        }}
-                      >
+                      <td colSpan="6" style={{ textAlign: "center", padding: "60px 0", color: "#94a3b8" }}>
                         <FaInfoCircle style={{ marginRight: "10px" }} />
-                        No bookings found for {bookingFilter}.
+                        No booking requests found for {bookingFilter}.
                       </td>
                     </tr>
                   ) : (
                     paginatedBookings.map((booking) => (
                       <tr key={booking.id}>
                         <td>
-                          <strong>{booking.resident}</strong>
+                          <span style={{ fontWeight: 800, color: '#0f172a' }}>{booking.resident}</span>
                         </td>
                         <td>
                           <div className="service-row-item">
                             {getServiceIcon(booking.service)} {booking.service}
                           </div>
                         </td>
-                        <td>{booking.date}</td>
-                        <td>{booking.time}</td>
+                        <td style={{ color: '#64748b', fontSize: '13.5px' }}>{booking.date}</td>
+                        <td style={{ color: '#64748b', fontSize: '13.5px' }}>{booking.time}</td>
                         <td style={{ textAlign: "center" }}>
-                          <span
-                            className={`status-badge ${booking.status.className}`}
-                          >
+                          <span className={`status-badge ${booking.status.className}`}>
                             {booking.status.label}
                           </span>
                         </td>
                         <td style={{ textAlign: "center" }}>
                           {booking.status.label === "Pending" ? (
-                            <div
-                              style={{
-                                display: "flex",
-                                gap: "8px",
-                                justifyContent: "center",
-                              }}
-                            >
+                            <div style={{ display: "flex", gap: "10px", justifyContent: "center" }}>
                               <button
                                 className="action-btn-circle approve"
-                                title="Approve"
+                                title="Approve Request"
                                 onClick={() => handleStatusUpdate(booking, 1)}
                                 disabled={isUpdating}
                               >
@@ -438,7 +435,7 @@ const StaffServiceMainContent = ({ activeTab }) => {
                               </button>
                               <button
                                 className="action-btn-circle deny"
-                                title="Deny"
+                                title="Deny Request"
                                 onClick={() => handleStatusUpdate(booking, 2)}
                                 disabled={isUpdating}
                               >
@@ -446,9 +443,7 @@ const StaffServiceMainContent = ({ activeTab }) => {
                               </button>
                             </div>
                           ) : (
-                            <span className="action-processed-text">
-                              Processed
-                            </span>
+                            <span className="action-processed-text">PROCESSED</span>
                           )}
                         </td>
                       </tr>
@@ -457,95 +452,101 @@ const StaffServiceMainContent = ({ activeTab }) => {
                 </tbody>
               </table>
             </div>
-            <AdminPagination
-              currentPage={bookingPage}
-              totalPages={bookingTotalPages}
-              onPageChange={setBookingPage}
-              totalItems={filteredBookings.length}
-              pageSize={8}
-              itemLabel="bookings"
-            />
+
+            <div style={{ marginTop: '25px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0 5px' }}>
+              <div style={{ fontSize: '13px', color: 'var(--admin-text-muted)', fontWeight: 500 }}>
+                Showing {filteredBookings.length > 0 ? ((bookingPage - 1) * 8) + 1 : 0}-{Math.min(bookingPage * 8, filteredBookings.length)} of {filteredBookings.length} records
+              </div>
+              <AdminPagination
+                currentPage={bookingPage}
+                totalPages={bookingTotalPages}
+                onPageChange={setBookingPage}
+                totalItems={filteredBookings.length}
+                pageSize={8}
+                itemLabel="bookings"
+              />
+            </div>
           </div>
         </div>
       )}
 
       {activeTab === "fees" && (
         <div className="staff-tab-content">
-          <div className="staff-form-container gold-border">
-            <h3 style={{ fontSize: '24px', fontWeight: 800, color: '#0f172a', display: 'flex', alignItems: 'center', gap: '15px' }}>
-              <FaCreditCard style={{ color: 'var(--admin-primary)' }} /> Service Fee Statistics
-            </h3>
-            <p
-              style={{
-                color: "#64748b",
-                fontSize: "14px",
-                marginBottom: "30px",
-                fontWeight: 500
-              }}
-            >
-              Track facility usage fees and payment history from the backend
-              service invoices.
-            </p>
-
-            {error ? (
-              <div
-                className="admin-feedback error"
-                style={{ marginBottom: "16px" }}
-              >
-                {error}
+          {/* MODERN BANNER */}
+          <div className="account-banner-container" style={{ justifyContent: 'space-between', marginBottom: '30px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '25px' }}>
+              <div className="account-banner-icon-box">
+                <FaCreditCard />
               </div>
-            ) : null}
-
-            <div className="staff-sub-nav">
-              {feeCategories.map((category) => (
-                <div
-                  key={category}
-                  className={`sub-nav-item ${feeFilter === category ? "active" : ""}`}
-                  onClick={() => setFeeFilter(category)}
-                >
-                  {category === "All" ? (
-                    "All Services"
-                  ) : (
-                    <>
-                      {getServiceIcon(category)} {category}
-                    </>
-                  )}
-                </div>
-              ))}
+              <div className="account-banner-info-group">
+                <p>SERVICE FEE STATISTICS</p>
+                <h3 style={{ display: 'flex', alignItems: 'baseline', gap: '12px' }}>
+                  {filteredFees.length} <span style={{ fontSize: '14px', color: 'rgba(255,255,255,0.6)', fontWeight: 400 }}>Matching Invoices</span>
+                </h3>
+              </div>
             </div>
 
-            <div className="staff-table-scroll">
+            <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+              <span style={{ fontSize: '11px', fontWeight: 800, color: 'rgba(255,255,255,0.6)', letterSpacing: '1px' }}>PAYMENT STATE</span>
+              <select
+                className="banner-status-select"
+                value={feeStatusFilter}
+                onChange={(e) => setFeeStatusFilter(e.target.value)}
+              >
+                <option value="All">All Payments</option>
+                <option value="Paid">Paid</option>
+                <option value="Unpaid">Unpaid</option>
+              </select>
+            </div>
+          </div>
+
+          <div className="staff-sub-nav">
+            {feeCategories.map((category) => (
+              <div
+                key={category}
+                className={`sub-nav-item ${feeFilter === category ? "active" : ""}`}
+                onClick={() => setFeeFilter(category)}
+              >
+                {category === "All" ? (
+                  "All Services"
+                ) : (
+                  <>
+                    {getServiceIcon(category)} {category}
+                  </>
+                )}
+              </div>
+            ))}
+          </div>
+
+          <div className="admin-table-wrapper gold-border" style={{ marginTop: '10px' }}>
+            <div className="resident-list-header">
+              <h4 style={{ margin: 0, fontWeight: 800, fontSize: '18px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <FaCreditCard /> Service Revenue & Invoices
+              </h4>
+            </div>
+
+            <div className="admin-table-scroll">
               <table className="admin-custom-table bordered">
                 <thead>
                   <tr>
-                    <th>RESIDENT</th>
-                    <th>APARTMENT</th>
-                    <th>SERVICE USED</th>
-                    <th>AMOUNT</th>
-                    <th>USAGE DATE</th>
-                    <th style={{ textAlign: "center" }}>PAYMENT STATUS</th>
+                    <th style={{ width: '18%' }}>RESIDENT</th>
+                    <th style={{ width: '12%' }}>APARTMENT</th>
+                    <th style={{ width: '20%' }}>SERVICE USED</th>
+                    <th style={{ width: '15%' }}>AMOUNT</th>
+                    <th style={{ width: '18%' }}>USAGE DATE</th>
+                    <th style={{ width: '17%', textAlign: "center" }}>PAYMENT STATUS</th>
                   </tr>
                 </thead>
                 <tbody>
                   {isLoading ? (
                     <tr>
-                      <td
-                        colSpan="6"
-                        style={{ textAlign: "center", padding: "40px" }}
-                      >
-                        Loading live fee statistics...
+                      <td colSpan="6" style={{ textAlign: "center", padding: "60px 0", color: "#64748b" }}>
+                        Loading financial records...
                       </td>
                     </tr>
                   ) : filteredFees.length === 0 ? (
                     <tr>
-                      <td
-                        colSpan="6"
-                        style={{
-                          textAlign: "center",
-                          color: "#94a3b8",
-                          padding: "40px",
-                        }}
-                      >
+                      <td colSpan="6" style={{ textAlign: "center", padding: "60px 0", color: "#94a3b8" }}>
                         <FaInfoCircle style={{ marginRight: "10px" }} />
                         No fee records found for {feeFilter}.
                       </td>
@@ -554,10 +555,10 @@ const StaffServiceMainContent = ({ activeTab }) => {
                     paginatedFees.map((fee) => (
                       <tr key={fee.id}>
                         <td>
-                          <strong>{fee.resident}</strong>
+                          <span style={{ fontWeight: 800, color: '#0f172a' }}>{fee.resident}</span>
                         </td>
                         <td>
-                          <span style={{ fontWeight: 500, color: '#64748b' }}>{fee.apartment}</span>
+                          <span className="apartment-tag-orange">{fee.apartment}</span>
                         </td>
                         <td>
                           <div className="service-row-item">
@@ -565,15 +566,13 @@ const StaffServiceMainContent = ({ activeTab }) => {
                           </div>
                         </td>
                         <td>
-                          <span style={{ fontWeight: 800, color: '#0f172a', fontSize: '15px' }}>
+                          <span className="service-fee-amount">
                             {fee.amount.replace("₫", "đ")}
                           </span>
                         </td>
-                        <td style={{ color: '#64748b', fontSize: '13px' }}>{fee.date}</td>
+                        <td style={{ color: '#64748b', fontSize: '13.5px' }}>{fee.date}</td>
                         <td style={{ textAlign: "center" }}>
-                          <span
-                            className={`status-badge ${fee.status.className}`}
-                          >
+                          <span className={`status-badge ${fee.status.className}`}>
                             {fee.status.label}
                           </span>
                         </td>
@@ -583,14 +582,20 @@ const StaffServiceMainContent = ({ activeTab }) => {
                 </tbody>
               </table>
             </div>
-            <AdminPagination
-              currentPage={feePage}
-              totalPages={feeTotalPages}
-              onPageChange={setFeePage}
-              totalItems={filteredFees.length}
-              pageSize={8}
-              itemLabel="fee records"
-            />
+
+            <div style={{ marginTop: '25px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0 5px' }}>
+              <div style={{ fontSize: '13px', color: 'var(--admin-text-muted)', fontWeight: 500 }}>
+                Showing {filteredFees.length > 0 ? ((feePage - 1) * 8) + 1 : 0}-{Math.min(feePage * 8, filteredFees.length)} of {filteredFees.length} records
+              </div>
+              <AdminPagination
+                currentPage={feePage}
+                totalPages={feeTotalPages}
+                onPageChange={setFeePage}
+                totalItems={filteredFees.length}
+                pageSize={8}
+                itemLabel="fee records"
+              />
+            </div>
           </div>
         </div>
       )}

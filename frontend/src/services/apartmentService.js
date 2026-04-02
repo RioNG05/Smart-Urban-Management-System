@@ -1,22 +1,27 @@
 import api from "./api";
 
 export const getApartments = async () => {
-  const res = await api.get("/apartments");
+  const res = await api.get("/apartments", { skipAuth: true });
   return res.data.result;
 };
 
 export const getApartmentById = async (id) => {
-  const res = await api.get(`/apartments/${id}`);
+  const res = await api.get(`/apartments/${id}`, { skipAuth: true });
+  return res.data.result;
+};
+
+export const getApartmentsByTypeId = async (id) => {
+  const res = await api.get(`/apartments/type/${id}`, { skipAuth: true });
   return res.data.result;
 };
 
 export const getApartmentTypes = async () => {
-  const res = await api.get("/apartments/type");
+  const res = await api.get("/apartments/type", { skipAuth: true });
   return res.data.result;
 };
 
 export const getApartmentTypeById = async (id) => {
-  const res = await api.get(`/apartments/type/${id}`);
+  const res = await api.get(`/apartments/type/${id}`, { skipAuth: true });
   return res.data.result;
 };
 
