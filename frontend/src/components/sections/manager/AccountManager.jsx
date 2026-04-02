@@ -85,7 +85,7 @@ const AccountManager = () => {
         const payload = {
           username: account.username,
           email: account.email,
-          role: roleInfo.id ? { id: roleInfo.id, roleName: roleInfo.name } : { roleName: roleInfo.name }
+          roleId: roleInfo.id
         };
   
         console.log("SENDING UPDATE PAYLOAD:", payload);

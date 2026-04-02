@@ -33,9 +33,6 @@ public class Complaint {
     @Column(name = "CreatedAt", insertable = false, updatable = false)
     private LocalDateTime createdAt;
 
-    @Column(name = "ApartmentId")
-    private Integer apartmentId;
-
     // Quan hệ 1 Complaint -> nhiều Reply
     @OneToMany(mappedBy = "complaint", cascade = CascadeType.ALL)
     @JsonIgnore
