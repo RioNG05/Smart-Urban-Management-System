@@ -51,6 +51,26 @@ export default function BillingPage() {
   const [utilityBills, setUtilityBills] = useState([]);
   const [serviceBills, setServiceBills] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [selectedIds, setSelectedIds] = useState([]);
+
+  const handleToggleBill = (billId, categories) => {
+    setSelectedIds(prev => {
+      const billKeys = categories.map(cat => `${billId}:${cat}`);
+      const allSelected = billKeys.every(key => prev.includes(key));
+      if (allSelected) {
+        return prev.filter(id => !billKeys.includes(id));
+      } else {
+        return [...new Set([...prev, ...billKeys])];
+      }
+    });
+  };
+
+  const handleToggleSubItem = (billId, category) => {
+    const key = `${billId}:${category}`;
+    setSelectedIds(prev => 
+      prev.includes(key) ? prev.filter(id => id !== key) : [...prev, key]
+    );
+  };
 
   const selectedApartmentLabel = useMemo(() => {
     if (selection.type === "service") return "Service Bookings";
@@ -539,6 +559,9 @@ export default function BillingPage() {
                         formatDate={formatDate}
                         loading={loading}
                         selectedIds={selectedIds}
+                        onToggleBill={handleToggleBill}
+                        onToggleSubItem={handleToggleSubItem}
+                        totalSelected={selectedIds.length}
                       />
                     </motion.div>
                   )}

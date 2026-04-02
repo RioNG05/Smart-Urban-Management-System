@@ -131,7 +131,7 @@ const ContractManagement = () => {
 
         try {
             setIsSaving(true);
-            await api.post("/api/contracts", payload);
+            await api.post("/contracts", payload);
             alert("Contract created successfully!");
             setShowCreateForm(false);
             setCreateFormData({
@@ -140,8 +140,10 @@ const ContractManagement = () => {
             });
             setApartmentInfo(null);
             await loadContracts();
-        } catch {
-            alert("Error creating contract!");
+        } catch (err) {
+            console.error("Error creating contract:", err);
+            const msg = err?.response?.data?.message || "Error creating contract!";
+            alert(msg);
         } finally {
             setIsSaving(false);
         }
