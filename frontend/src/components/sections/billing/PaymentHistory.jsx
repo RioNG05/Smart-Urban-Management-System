@@ -21,17 +21,13 @@ export default function PaymentHistory({ payments, formatCurrency, formatDate })
 
   return (
     <div className="payment-history">
-      <div className="d-flex justify-content-between align-items-center mb-4 border-bottom pb-2">
-        <h3 className="section-title fs-4 fw-bold mb-0">Payment History</h3>
-      </div>
-
-      <div className="admin-table-wrapper mb-3 border rounded shadow-sm">
-        <table className="admin-custom-table align-middle">
-          <thead className="table-light">
+      <div className="bill-table">
+        <table>
+          <thead>
             <tr>
-              <th>Create Time</th>
-              <th>Amount</th>
-              <th>Invoice Type</th>
+              <th>Date</th>
+              <th>Payment Category</th>
+              <th style={{ textAlign: "right" }}>Amount</th>
             </tr>
           </thead>
 
@@ -39,19 +35,23 @@ export default function PaymentHistory({ payments, formatCurrency, formatDate })
             {currentPayments.length > 0 ? (
               currentPayments.map((payment) => (
                 <tr key={payment.id}>
-                  <td>{formatDate(payment.date)}</td>
-                  <td className="fw-semibold text-success">{formatCurrency(payment.amount)}</td>
+                  <td style={{ color: "var(--text-muted)", fontSize: "13px" }}>
+                    {formatDate(payment.date)}
+                  </td>
                   <td>
-                    <span className={`badge ${payment.method === "Service Invoice" ? "bg-primary" : "bg-success"}`}>
+                    <span className="payment-badge">
                       {payment.method}
                     </span>
+                  </td>
+                  <td style={{ textAlign: "right", fontWeight: "700", color: "var(--primary-color)" }}>
+                    {formatCurrency(payment.amount)}
                   </td>
                 </tr>
               ))
             ) : (
               <tr>
-                <td colSpan="3" className="text-center py-4 text-muted fst-italic">
-                  No payment history yet.
+                <td colSpan="3" className="billing-empty">
+                  No payment history recorded.
                 </td>
               </tr>
             )}

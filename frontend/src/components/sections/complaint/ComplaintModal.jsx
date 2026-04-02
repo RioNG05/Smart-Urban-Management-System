@@ -3,7 +3,7 @@ import axios from "axios";
 import { toast } from "react-toastify";
 import { useAuth } from "../auth/AuthContext";
 
-export default function ComplaintModal({ open, setOpen, onSuccess }) {
+export default function ComplaintModal({ open, setOpen, onSuccess, apartmentId }) {
   const [content, setContent] = useState("");
   const { user } = useAuth();
   const userId = user?.id;
@@ -25,6 +25,7 @@ export default function ComplaintModal({ open, setOpen, onSuccess }) {
       await axios.post("http://localhost:8080/api/complaints", {
         content: trimmedContent,
         userId,
+        apartmentId: Number(apartmentId)
       });
 
       setContent("");

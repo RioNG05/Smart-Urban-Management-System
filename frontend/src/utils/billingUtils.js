@@ -78,9 +78,9 @@ export const buildUtilityBills = (utilityInvoices, utilityRates) => {
     const waterUsage = Number(invoice.totalWaterUsed ?? 0);
 
     const electricityRate =
-      Number(utilityRates.electricity?.basePrice ?? utilityRates.electricity?.feePerUnit ?? 0) || 0;
-    const waterRate = Number(utilityRates.water?.basePrice ?? utilityRates.water?.feePerUnit ?? 0) || 0;
-    const managementRate = Number(utilityRates.management?.basePrice ?? 500000) || 500000;
+      Number(invoice.electricPrice ?? utilityRates.electricity?.basePrice ?? utilityRates.electricity?.feePerUnit ?? 0) || 0;
+    const waterRate = Number(invoice.waterPrice ?? utilityRates.water?.basePrice ?? utilityRates.water?.feePerUnit ?? 0) || 0;
+    const managementRate = Number(invoice.managementPrice ?? utilityRates.management?.basePrice ?? 0) || 0;
 
     const electricityAmount = electricityUsage * electricityRate;
     const waterAmount = waterUsage * waterRate;

@@ -1,23 +1,15 @@
-import { useEffect, useState } from "react";
-import { FaRegSquare, FaCheckSquare } from "react-icons/fa";
-import BillingPagination from "./BillingPagination";
+import { FaCheckSquare, FaRegSquare } from "react-icons/fa";
 
 export default function BillingTable({
   bills,
   formatCurrency,
   formatDate,
   loading,
-  showPaymentAction = true,
-  externalSelected,
-  onToggleSelection,
+  selectedIds,
+  onToggleBill,
+  onToggleSubItem,
+  totalSelected,
 }) {
-  const [internalSelected, setInternalSelected] = useState([]);
-  
-  // Use external selected bills if provided, otherwise internal
-  const selected = externalSelected || internalSelected;
-  const [currentPage, setCurrentPage] = useState(1);
-  const ITEMS_PER_PAGE = 10;
-
   const formatReading = (value, unit) => {
     if (value === null || value === undefined || Number.isNaN(Number(value))) {
       return "N/A";
@@ -28,168 +20,187 @@ export default function BillingTable({
     })} ${unit}`;
   };
 
-  useEffect(() => {
-    if (!externalSelected) {
-      setInternalSelected([]);
-    }
-    setCurrentPage(1);
-  }, [bills, externalSelected]);
-
-  const toggle = (billId) => {
-    if (onToggleSelection) {
-      onToggleSelection(billId);
-    } else {
-      setInternalSelected((current) =>
-        current.includes(billId)
-          ? current.filter((id) => id !== billId)
-          : [...current, billId]
-      );
-    }
+  const isSubItemSelected = (billId, category) => {
+    return selectedIds.includes(`${billId}:${category}`);
   };
 
-  const total = bills
-    .filter((bill) => selected.includes(bill.id) && bill.statusKey !== "paid")
-    .reduce((sum, bill) => sum + bill.amount, 0);
+  const getBillCategories = (bill) => {
+    if (bill.source === "service") return ["service"];
+    const cats = [];
+    if (bill.utilityDetails?.electricity) cats.push("electricity");
+    if (bill.utilityDetails?.water) cats.push("water");
+    if (bill.managementFee > 0) cats.push("management");
+    return cats;
+  };
 
-  const totalPages = Math.ceil(bills.length / ITEMS_PER_PAGE);
-  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-  const currentBills = bills.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+  const isWholeBillSelected = (bill) => {
+    const cats = getBillCategories(bill);
+    if (cats.length === 0) return false;
+    return cats.every(cat => isSubItemSelected(bill.id, cat));
+  };
 
-  const handlePageChange = (newPage) => {
-    if (newPage >= 1 && newPage <= totalPages) {
-      setCurrentPage(newPage);
-    }
+  const isPartiallySelected = (bill) => {
+    const cats = getBillCategories(bill);
+    const selectedCount = cats.filter(cat => isSubItemSelected(bill.id, cat)).length;
+    return selectedCount > 0 && selectedCount < cats.length;
   };
 
   return (
-    <>
-      <div className="admin-table-wrapper mb-3 border rounded shadow-sm">
-        <table className="admin-custom-table align-middle">
-          <thead className="table-light">
-            <tr>
-              <th style={{ width: "50px", textAlign: "center" }}>
-                Select
-              </th>
-              <th>Bill Name</th>
-              <th>Details</th>
-              <th>Create Date</th>
-              <th>Amount</th>
-              <th>Status</th>
-            </tr>
-          </thead>
+    <div className="bill-table">
+      <table>
+        <thead>
+          <tr>
+            <th style={{ width: "50px", textAlign: "center" }}>Select</th>
+            <th>Bill Information</th>
+            <th>Usage Details</th>
+            <th>Due Date</th>
+            <th>Total Amount</th>
+            <th>Status</th>
+          </tr>
+        </thead>
 
-          <tbody>
-            {loading ? (
-              <tr>
-                <td colSpan="6" className="text-center py-4 text-muted">
-                  <div className="spinner-border spinner-border-sm me-2" role="status"></div>
-                  Loading billing data...
-                </td>
-              </tr>
-            ) : currentBills.length > 0 ? (
-              currentBills.map((bill) => (
-                <tr key={bill.id}>
+        <tbody>
+          {loading ? (
+            <tr>
+              <td colSpan="6" className="billing-empty">
+                <div style={{ padding: "40px", textAlign: "center", color: "var(--text-muted)" }}>
+                  Loading billing records...
+                </div>
+              </td>
+            </tr>
+          ) : bills.length > 0 ? (
+            bills.map((bill) => {
+              const categories = getBillCategories(bill);
+              const isSelected = isWholeBillSelected(bill);
+              const isPartial = isPartiallySelected(bill);
+
+              return (
+                <tr key={bill.id} className={isSelected || isPartial ? "row-selected" : ""}>
                   <td style={{ textAlign: "center" }}>
                     <div 
                       style={{ 
-                        cursor: bill.statusKey === "paid" ? "not-allowed" : "pointer", 
-                        fontSize: "1.2rem", 
-                        color: selected.includes(bill.id) ? "#2e7d32" : (bill.statusKey === "paid" ? "#e5e7eb" : "#9ca3af"),
-                        transition: "color 0.2s"
-                      }} 
-                      onClick={() => {
-                        if (bill.statusKey !== "paid") {
-                          toggle(bill.id);
-                        }
+                        cursor: bill.statusKey === "paid" ? "not-allowed" : "pointer",
+                        color: isSelected ? "var(--primary-color)" : isPartial ? "var(--primary-color)" : "#ccc",
+                        fontSize: "1.1rem",
+                        opacity: isPartial ? 0.7 : 1
                       }}
+                      onClick={() => bill.statusKey !== "paid" && onToggleBill(bill.id, categories)}
                     >
-                      {selected.includes(bill.id) ? <FaCheckSquare /> : <FaRegSquare />}
+                      {isSelected ? <FaCheckSquare /> : isPartial ? <FaCheckSquare style={{ opacity: 0.5 }} /> : <FaRegSquare />}
                     </div>
                   </td>
-
-                  <td className="fw-semibold">{bill.name}</td>
+                  <td style={{ fontWeight: "600", color: "var(--text-dark)" }}>
+                    {bill.name}
+                  </td>
 
                   <td>
                     {bill.source === "utility" && bill.utilityDetails ? (
-                      <div className="permission-tags d-flex flex-column gap-1">
-                        {Object.values(bill.utilityDetails).map((item) => {
-                          const isElectric = item.label.toLowerCase().includes("electric");
-                          const badgeClass = isElectric ? "badge-warning text-dark" : "badge-info text-dark";
-
-                          return (
-                            <div key={item.label} className="d-flex align-items-center gap-2" style={{ fontSize: '13px' }}>
-                              <span className={`badge ${badgeClass} text-uppercase text-start`} style={{ width: '90px' }}>
-                                {item.label}
-                              </span>
-                              <span className="text-dark fw-medium">
-                                {formatReading(item.usage, item.unit)}
-                              </span>
+                      <div className="utility-breakdown">
+                        {bill.utilityDetails.electricity && (
+                          <div className={`utility-item-row ${isSubItemSelected(bill.id, "electricity") ? "active" : ""}`}>
+                            <div 
+                              className="sub-item-check"
+                              onClick={() => bill.statusKey !== "paid" && onToggleSubItem(bill.id, "electricity")}
+                            >
+                              {isSubItemSelected(bill.id, "electricity") ? <FaCheckSquare /> : <FaRegSquare />}
                             </div>
-                          );
-                        })}
-                        {/* Static Management Fee for UI purposes */}
-                        <div className="d-flex align-items-center gap-2 mt-1" style={{ fontSize: '13px' }}>
-                          <span className={`badge bg-secondary text-uppercase text-start`} style={{ width: '90px' }}>
-                            Management
-                          </span>
-                          <span className="text-dark fw-medium">
-                            1 Month
-                          </span>
+                            <div className="utility-item-content">
+                              <div className="utility-header">
+                                <span>Electricity</span>
+                                <span className="item-amount">{formatCurrency(bill.utilityDetails.electricity.amount)}</span>
+                              </div>
+                              <div className="utility-meta">
+                                <span>Prev: {formatReading(bill.utilityDetails.electricity.previousReading, "kWh")}</span>
+                                <span>Curr: {formatReading(bill.utilityDetails.electricity.currentReading, "kWh")}</span>
+                              </div>
+                            </div>
+                          </div>
+                        )}
+                        
+                        {bill.utilityDetails.water && (
+                          <div className={`utility-item-row ${isSubItemSelected(bill.id, "water") ? "active" : ""}`}>
+                            <div 
+                              className="sub-item-check"
+                              onClick={() => bill.statusKey !== "paid" && onToggleSubItem(bill.id, "water")}
+                            >
+                              {isSubItemSelected(bill.id, "water") ? <FaCheckSquare /> : <FaRegSquare />}
+                            </div>
+                            <div className="utility-item-content">
+                              <div className="utility-header">
+                                <span>Water</span>
+                                <span className="item-amount">{formatCurrency(bill.utilityDetails.water.amount)}</span>
+                              </div>
+                              <div className="utility-meta">
+                                <span>Prev: {formatReading(bill.utilityDetails.water.previousReading, "m3")}</span>
+                                <span>Curr: {formatReading(bill.utilityDetails.water.currentReading, "m3")}</span>
+                              </div>
+                            </div>
+                          </div>
+                        )}
+
+                        {bill.managementFee > 0 && (
+                          <div className={`utility-item-row ${isSubItemSelected(bill.id, "management") ? "active" : ""}`}>
+                            <div 
+                              className="sub-item-check"
+                              onClick={() => bill.statusKey !== "paid" && onToggleSubItem(bill.id, "management")}
+                            >
+                              {isSubItemSelected(bill.id, "management") ? <FaCheckSquare /> : <FaRegSquare />}
+                            </div>
+                            <div className="utility-item-content">
+                              <div className="utility-header">
+                                <span>Management Fee</span>
+                                <span className="item-amount">{formatCurrency(bill.managementFee)}</span>
+                              </div>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    ) : bill.source === "service" ? (
+                       <div className={`utility-item-row ${isSubItemSelected(bill.id, "service") ? "active" : ""}`}>
+                        <div 
+                          className="sub-item-check"
+                          onClick={() => bill.statusKey !== "paid" && onToggleSubItem(bill.id, "service")}
+                        >
+                          {isSubItemSelected(bill.id, "service") ? <FaCheckSquare /> : <FaRegSquare />}
+                        </div>
+                        <div className="utility-item-content">
+                          <div className="utility-header">
+                            <span>{bill.title || "Service Booking"}</span>
+                            <span className="item-amount">{formatCurrency(bill.amount)}</span>
+                          </div>
                         </div>
                       </div>
                     ) : (
-                      <span className="text-muted fst-italic" style={{ fontSize: '13px' }}>
-                        No usage details
-                      </span>
+                      <span className="billing-muted">No details available</span>
                     )}
                   </td>
 
-                  <td>{formatDate(bill.createdAt)}</td>
+                  <td>{formatDate(bill.dueDate)}</td>
 
-                  <td className="fw-bold text-danger">{formatCurrency(bill.amount)}</td>
+                  <td style={{ fontWeight: "700", color: "var(--text-dark)" }}>
+                    {formatCurrency(bill.amount + (bill.managementFee || 0))}
+                  </td>
 
                   <td>
-                    <span className={`status-badge ${bill.statusKey === 'paid' ? 'active' : 'locked'}`}>
+                    <span className={`status-badge status-${bill.statusKey}`}>
                       {bill.statusLabel}
                     </span>
                   </td>
                 </tr>
-              ))
-            ) : (
-              <tr>
-                <td colSpan="6" className="text-center py-4 text-muted fst-italic">
-                  No records to display.
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
-      </div>
+              );
+            })
+          ) : (
+            <tr>
+              <td colSpan="6" className="billing-empty">
+                <div style={{ padding: "40px", textAlign: "center", color: "var(--text-muted)" }}>
+                  No records found for this period.
+                </div>
+              </td>
+            </tr>
+          )}
+        </tbody>
+      </table>
 
-      <BillingPagination
-        currentPage={currentPage}
-        totalPages={totalPages}
-        onPageChange={handlePageChange}
-        totalItems={bills.length}
-        pageSize={ITEMS_PER_PAGE}
-        itemLabel="bills"
-      />
-
-      {showPaymentAction && bills.some(bill => bill.statusKey !== 'paid') && (
-        <div className="d-flex justify-content-between align-items-center mt-4 pt-3 border-top">
-          <div className="fs-5 fw-bold text-dark">
-            Total Selected: <span className="text-danger ms-2">{formatCurrency(total)}</span>
-          </div>
-
-          <button
-            className="btn px-4 py-2 fw-semibold shadow-sm text-white"
-            disabled={selected.length === 0}
-            style={{ backgroundColor: selected.length === 0 ? '#9ca3af' : '#2e7d32', border: 'none' }}
-          >
-            Pay Selected Bills ({selected.length})
-          </button>
-        </div>
-      )}
-    </>
+    </div>
   );
 }

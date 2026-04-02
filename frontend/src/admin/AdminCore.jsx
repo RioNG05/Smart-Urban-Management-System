@@ -21,7 +21,8 @@ import {
     FaShieldAlt,
     FaSignOutAlt,
     FaComments,
-    FaFileInvoiceDollar
+    FaFileInvoiceDollar,
+    FaHistory
 } from 'react-icons/fa';
 
 import "../styles/manager.css";
@@ -126,6 +127,7 @@ const AdminSidebar = ({ isOpen, setIsOpen, upcomingCount }) => {
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '2px', paddingLeft: '20px', marginBottom: '10px' }}>
                         <NavLink to="/admin/apartment-layout" className="staff-nav-item" style={subNavLinkStyle}><FaBuilding style={{ marginRight: '10px' }} /> Apartment</NavLink>
                         <NavLink to="/admin/apartment-types" className="staff-nav-item" style={subNavLinkStyle}><FaLayerGroup style={{ marginRight: '10px' }} /> Apartment Types</NavLink>
+                        <NavLink to="/admin/stay-history" className="staff-nav-item" style={subNavLinkStyle}><FaHistory style={{ marginRight: '10px' }} /> Stay At History</NavLink>
                     </div>
                 )}
 

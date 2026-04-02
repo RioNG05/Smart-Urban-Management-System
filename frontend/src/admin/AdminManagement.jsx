@@ -1,27 +1,33 @@
 import PermissionManager from '../components/sections/manager/PermissionManager';
 import ResidentAccount from '../components/sections/manager/ResidentAccount';
 import AccountManager from '../components/sections/manager/AccountManager';
-import CreateContract from '../components/sections/manager/CreateContract';
-import ViewContracts from '../components/sections/manager/ViewContracts';
+import ContractManagement from '../components/sections/manager/ContractManagement';
 import BookingManager from '../components/sections/manager/BookingManager';
 import ServiceFeeStats from '../components/sections/manager/ServiceFeeStats';
 import VisitorManager from '../components/sections/manager/VisitorManager';
 import ComplaintManager from '../components/sections/manager/ComplaintManager';
 import ApartmentLayout from '../components/sections/manager/ApartmentLayout';
 import ApartmentTypeManager from '../components/sections/manager/ApartmentTypeManager';
+<<<<<<< HEAD
 import UtilitiesInvoiceManager from '../components/sections/manager/UtilitiesInvoiceManager';
+=======
+import StayHistoryManager from '../components/sections/manager/StayHistoryManager';
+>>>>>>> dev
 
 export {
   PermissionManager,
   ResidentAccount,
   AccountManager,
-  CreateContract,
-  ViewContracts,
+  ContractManagement,
   BookingManager,
   ServiceFeeStats,
   VisitorManager,
   ComplaintManager,
   ApartmentLayout,
   ApartmentTypeManager,
+<<<<<<< HEAD
   UtilitiesInvoiceManager,
+=======
+  StayHistoryManager
+>>>>>>> dev
 };

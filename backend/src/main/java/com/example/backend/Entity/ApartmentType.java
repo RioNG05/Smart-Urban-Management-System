@@ -1,5 +1,8 @@
 package com.example.backend.Entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
@@ -14,6 +17,7 @@ import java.math.BigDecimal;
 @Getter @Setter @NoArgsConstructor @AllArgsConstructor
 @Builder
 @EntityListeners(AuditingEntityListener.class)
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class ApartmentType {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -47,6 +51,16 @@ public class ApartmentType {
 
     @ManyToOne
     @JoinColumn(name = "FurnitureTypeId")
+    @JsonIgnore
     private FurnitureType furnitureType;
 
+    @JsonProperty("furnitureTypeId")
+    public Integer getFurnitureTypeId() {
+        return furnitureType != null ? furnitureType.getId() : null;
+    }
+
+    @JsonProperty("furniture")
+    public String getFurnitureDescription() {
+        return furnitureType != null ? furnitureType.getDescription() : null;
+    }
 }
