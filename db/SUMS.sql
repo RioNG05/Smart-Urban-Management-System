@@ -1436,16 +1436,16 @@ CREATE TABLE Complaints (
     CONSTRAINT FK_Complaints_Accounts FOREIGN KEY (MadeByUserId) REFERENCES Accounts(Id)
 );
 
--- Chèn 4 khiếu nại cho các Account ID: 2, 6, 7, 8
+-- Insert 4 complaints for Account IDs: 2, 6, 7, 8
 INSERT INTO Complaints (Content, MadeByUserId, CreatedAt)
 VALUES 
-(N'Căn hộ tầng trên thường xuyên gây tiếng ồn lớn sau 11 giờ đêm, ảnh hưởng đến việc nghỉ ngơi.', 2, GETDATE()),
+(N'The upstairs apartment frequently makes loud noises after 11 PM, affecting residents'' rest and sleep.', 2, GETDATE()),
 
-(N'Khu vực hành lang tầng 7 chưa được dọn dẹp vệ sinh sạch sẽ trong 2 ngày qua.', 6, GETDATE()),
+(N'The hallway on the 7th floor has not been cleaned properly for the past 2 days.', 6, GETDATE()),
 
-(N'Thang máy tòa B có hiện tượng rung lắc mạnh khi di chuyển giữa tầng 10 và 15, cần kiểm tra kỹ thuật.', 7, GETDATE()),
+(N'Elevator in Block B experiences strong vibrations when moving between the 10th and 15th floors; technical inspection is required.', 7, GETDATE()),
 
-(N'Hệ thống đèn chiếu sáng tại khu vực bãi đỗ xe máy dưới hầm bị hỏng, gây khó khăn khi di chuyển vào buổi tối.', 8, GETDATE());
+(N'The lighting system in the basement motorbike parking area is broken, making it difficult to commute at night.', 8, GETDATE());
 GO
 
 
@@ -1483,53 +1483,50 @@ CREATE TABLE News (
 
 INSERT INTO News (Title, Content, ImageUrl, CreatedByUserId)
 VALUES 
-(N'Thông báo bảo trì thang máy tòa S1', 
-N'Ban quản lý xin thông báo, ngày 15/03/2024 sẽ tiến hành bảo trì thang máy số 2 tòa S1 từ 00h00 đến 04h00 sáng. Xin lỗi quý cư dân vì sự bất tiện này.',
+(N'Elevator Maintenance Notice - Block S1', 
+N'Management Office informs that maintenance for elevator No. 2 in Block S1 will take place on March 15, 2024, from 00:00 to 04:00 AM. We apologize for this inconvenience.',
 'https://tse4.mm.bing.net/th/id/OIP.WIHz1g556WcPRXcu3nbpDwHaE7?rs=1&pid=ImgDetMain&o=7&rm=3', 1),
 
-(N'Lễ hội ẩm thực cuối tuần', 
-N'Kính mời toàn thể cư dân tham gia lễ hội ẩm thực tại khu vực nướng BBQ vào cuối tuần này.', 
+(N'Weekend Food Festival', 
+N'All residents are cordially invited to join the Food Festival at the BBQ area this weekend.', 
 'https://nld.mediacdn.vn/291774122806476800/2022/8/25/le-hoi-am-thuc-anh-hoang-trieu22-16614300460151286487996.jpg', 1),
 
-(N'Kế hoạch phun thuốc diệt côn trùng định kỳ',
-N'Vào sáng thứ Bảy tuần này (14/03/2026), ban quản lý sẽ tiến hành phun thuốc diệt côn trùng tại các khu vực hành lang, tầng hầm và khuôn viên chung. Cư dân vui lòng đóng kín cửa sổ và hạn chế ra ngoài trong thời gian trên.', 
+(N'Scheduled Pest Control Plan',
+N'On Saturday morning (March 14, 2026), the management will conduct pest control spraying in hallways, basements, and common areas. Residents are advised to close windows and stay indoors during this time.', 
  'https://th.bing.com/th/id/R.8ce64a608b9ddfba419f579b41972c42?rik=cqTsV6Eq4cFSYg&pid=ImgRaw&r=0', 1),
 
-(N'Nâng cấp hệ thống chiếu sáng tầng hầm B1', 
- N'Hệ thống đèn LED cảm biến mới sẽ được lắp đặt tại tầng hầm B1 từ ngày 16/03 đến 18/03. Việc thi công sẽ không làm ảnh hưởng đến khu vực đỗ xe, tuy nhiên quý cư dân lưu ý di chuyển cẩn thận qua các khu vực có biển báo.', 
+(N'B1 Basement Lighting System Upgrade', 
+ N'New LED sensor lights will be installed in the B1 basement from March 16 to March 18. Construction will not affect parking areas, but please proceed with caution near marked zones.', 
  'https://th.bing.com/th/id/R.fcbdd54c679a0511fa44735e3728ff91?rik=FuErExljl0HfuA&pid=ImgRaw&r=0', 1);
 GO
+
+-- 6-7. Clubs & Safety
 INSERT INTO News (Title, Content, ImageUrl, CreatedByUserId)
 VALUES 
--- 6. Khai trương CLB Bóng bàn
-(N'Khai trương Câu lạc bộ Bóng bàn cư dân The Sakura', 
-N'Nhằm tăng cường giao lưu và sức khỏe, CLB Bóng bàn chính thức hoạt động tại tầng 1 tòa S2. Kính mời các tay vợt cư dân đăng ký tham gia vào 18h hàng ngày.', 
+(N'Grand Opening: The Sakura Table Tennis Club', 
+N'To promote fitness and networking, the Table Tennis Club is now open on the 1st floor of Block S2. Residents are invited to register at 6:00 PM daily.', 
 'https://tse1.mm.bing.net/th/id/OIP.5m7n2yXOj-HM6B1HzuFVeQHaEK?rs=1&pid=ImgDetMain&o=7&rm=3', 1),
 
--- 7. Cảnh báo an ninh PCCC định kỳ
-(N'Diễn tập Phòng cháy chữa cháy (PCCC) toàn khu đô thị', 
-N'Vào sáng Chủ nhật (20/03/2026), BQL phối hợp cùng lực lượng chức năng tổ chức diễn tập PCCC. Sẽ có còi báo động giả định, cư dân lưu ý không hoảng loạn.', 
+(N'Routine Fire Safety Drill', 
+N'On Sunday morning (March 20, 2026), Management will coordinate with local authorities for a fire drill. Simulated sirens will be used; please remain calm.', 
 'https://tse3.mm.bing.net/th/id/OIP.EFtqYeJQYXxWfFTBTclBNwHaE7?rs=1&pid=ImgDetMain&o=7&rm=3', 1);
 
--- 8. Lịch cắt điện tạm thời để bảo trì trạm biến áp
+-- 8-10. Regulations & Events
 INSERT INTO News (Title, Content, ImageUrl, CreatedByUserId)
-VALUES (N'Thông báo tạm ngừng cấp điện để bảo dưỡng trạm biến áp', 
-N'Để đảm bảo hệ thống điện vận hành ổn định trong mùa hè, Điện lực sẽ tạm cắt điện khu vực sảnh và hầm từ 01h00 đến 03h00 sáng ngày 22/03/2026.', 
+VALUES (N'Scheduled Power Outage for Substation Maintenance', 
+N'To ensure stable operation during summer, the utility company will temporarily cut power in the lobby and basement areas from 01:00 to 03:00 AM on March 22, 2026.', 
 'https://visaho.vn/upload_images/images/2022/03/30/bao-tri-dien-toa-nha-1-min.jpg', 1);
 
--- 9. Quy định về nuôi thú cưng trong chung cư
 INSERT INTO News (Title, Content, ImageUrl, CreatedByUserId)
-VALUES (N'Nhắc nhở quy định về nuôi giữ thú cưng tại khu vực chung', 
-N'Yêu cầu cư dân khi đưa thú cưng ra khu vực công cộng phải có dây xích, rọ mõm và đảm bảo vệ sinh môi trường. Mọi hành vi vi phạm sẽ bị nhắc nhở theo nội quy.', 
+VALUES (N'Reminder: Pet Ownership Regulations in Common Areas', 
+N'Residents must use leashes and muzzles when bringing pets to public areas and ensure environmental hygiene. Violations will be handled according to building regulations.', 
 'https://i.ebayimg.com/images/g/-9gAAOSwhV9mwF4j/s-l960.jpg', 1);
 
--- 10. Chào mừng ngày Quốc tế Phụ nữ 8/3
 INSERT INTO News (Title, Content, ImageUrl, CreatedByUserId)
-VALUES (N'Chương trình tặng hoa tri ân nhân ngày Quốc tế Phụ nữ', 
-N'BQL xin gửi lời chúc mừng đến toàn thể chị em cư dân. Vào sáng 08/03, mỗi cư dân nữ đi qua sảnh sẽ nhận được một nhành hoa hồng thay lời tri ân.', 
+VALUES (N'International Women''s Day Celebration - March 8th', 
+N'Management sends best wishes to all female residents. On the morning of March 8th, every female resident passing through the lobby will receive a rose as a token of appreciation.', 
 'https://tse4.mm.bing.net/th/id/OIP.5fntcb0-8rMEbyeRGa1zWgHaEo?rs=1&pid=ImgDetMain&o=7&rm=3', 1);
 GO
-
 -- =============================================
 -- BATCH 16.1: BỔ SUNG 20 BÀI VIẾT NEWS (TỔNG 30)
 -- Nội dung: Thông báo, Sự kiện, Mẹo vặt cư dân
@@ -1537,67 +1534,67 @@ GO
 
 INSERT INTO News (Title, Content, ImageUrl, CreatedByUserId)
 VALUES 
--- 11. Thông báo phí gửi xe
-(N'Cập nhật biểu phí trông giữ phương tiện năm 2026', 
-N'Từ ngày 01/04/2026, phí gửi xe máy sẽ giữ nguyên, xe ô tô thứ hai trở đi sẽ có mức điều chỉnh nhẹ. Chi tiết vui lòng xem tại bảng tin sảnh tòa nhà.', 
+-- 11. Parking Fee Notice
+(N'2026 Parking Fee Schedule Update', 
+N'Effective April 1, 2026, motorbike parking fees remain unchanged, while fees for the second car onwards will undergo a slight adjustment. Please see the lobby bulletin board for details.', 
 'https://tse4.mm.bing.net/th/id/OIP.p61hM9_C3eNcRQUo7dBZLAHaEd?rs=1&pid=ImgDetMain&o=7&rm=3', 1),
 
--- 12. Mẹo tiết kiệm điện
-(N'5 mẹo tiết kiệm điện năng trong mùa nắng nóng', 
-N'Sử dụng rèm cửa sáng màu, bảo trì điều hòa định kỳ và tận dụng ánh sáng tự nhiên sẽ giúp hóa đơn tiền điện nhà bạn giảm đáng kể.', 
+-- 12. Energy Saving Tips
+(N'5 Tips to Save Electricity During Hot Season', 
+N'Using light-colored curtains, performing regular AC maintenance, and utilizing natural light will significantly reduce your electricity bill.', 
 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQISs5eaae3w4Wx3-EcCNNpbiGTgef1eXuJSw&s', 1),
 
--- 13. Giải bóng đá cư dân
-(N'Khai mạc giải bóng đá nam cư dân TEMS Championship', 
-N'Giải đấu quy tụ 12 đội bóng đến từ các block s1, s2. Trận khai mạc sẽ diễn ra vào lúc 15h00 chiều thứ Bảy tại sân bóng khu đô thị.', 
+-- 13. Football Championship
+(N'Opening Ceremony: TEMS Residents Football Championship', 
+N'The tournament features 12 teams from blocks S1 and S2. The opening match kicks off at 3:00 PM this Saturday at the urban area football field.', 
 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQWGK8uq1tHrb9BM-QnZbUicS3EXX7gPxCk4g&s', 1),
 
--- 14. Quy định tiếng ồn
-(N'Nhắc nhở quy định về tiếng ồn sau 22h00', 
-N'Để đảm bảo không gian yên tĩnh cho cư dân nghỉ ngơi, yêu cầu quý vị không khoan đục, ca hát karaoke quá âm lượng quy định sau 10 giờ tối.', 
+-- 14. Noise Regulation
+(N'Reminder: Noise Regulations After 10:00 PM', 
+N'To ensure a quiet environment for residents, please refrain from drilling, loud singing, or high-volume karaoke after 10:00 PM.', 
 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT_LLrL9hjmp1n69hd9eP97YfR8TeWSEmFWQw&s', 1),
 
--- 15. Lớp học bơi cho bé
-(N'Mở lớp dạy bơi miễn phí cho trẻ em cư dân', 
-N'Chương trình "Mùa hè an toàn" khai giảng lớp dạy bơi cơ bản tại bể bơi ngoài trời vào các buổi sáng thứ 3-5-7 hàng tuần.', 
+-- 15. Swimming Class
+(N'Free Swimming Classes for Resident Children', 
+N'The "Safe Summer" program offers basic swimming lessons at the outdoor pool every Tuesday, Thursday, and Saturday morning.', 
 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS58alheI0CHjups94Qglyn-FLe2WJ8KhVOEw&s', 1),
 
--- 16. Bảo trì lọc nước
-(N'Kiểm tra định kỳ hệ thống lọc nước tổng tòa nhà', 
-N'Đội kỹ thuật sẽ súc rửa bồn chứa nước sạch từ 23h00 đêm nay. Nước có thể hơi đục nhẹ trong 5-10 phút đầu khi cấp lại, cư dân lưu ý.', 
+-- 16. Water Filter Maintenance
+(N'Scheduled Building Water Filtration System Inspection', 
+N'The technical team will clean the freshwater tanks starting at 11:00 PM tonight. Water may appear slightly cloudy for the first 5-10 minutes after supply resumes.', 
 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ-zgJHN8c2WERoRIiEL4DsZd9ea00scEu07w&s', 1),
 
--- 17. Ngày hội đổi rác lấy quà
-(N'Ngày hội sống xanh: Đổi pin cũ lấy cây xanh', 
-N'Hãy cùng chung tay bảo vệ môi trường bằng cách mang pin đã qua sử dụng đến quầy lễ tân để đổi lấy những chậu sen đá xinh xắn.', 
+-- 17. Green Exchange Day
+(N'Green Living Festival: Exchange Old Batteries for Plants', 
+N'Let''s protect the environment together by bringing used batteries to the reception desk in exchange for lovely succulent pots.', 
 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQWtHe2KhjAQ0COD1uVf4i7GAjwZ_HN3Q5F6Q&s', 1),
 
--- 18. Cảnh báo lừa đảo
-(N'Cảnh báo các thủ đoạn lừa đảo giả danh nhân viên điện lực', 
-N'Hiện có đối tượng gọi điện yêu cầu đóng tiền điện qua tài khoản cá nhân. BQL nhắc nhở cư dân chỉ thanh toán qua App chính thức hoặc tại ngân hàng.', 
+-- 18. Fraud Warning
+(N'Scam Alert: Impersonation of Utility Company Employees', 
+N'Be aware of individuals calling to request electricity payments via personal accounts. Please only pay via the official App or at the bank.', 
 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTftPfa1-Zg1q9DowvB0UntIgglpk0diXfpbw&s', 1),
 
--- 19. Hội thảo đầu tư
-(N'Hội thảo quản lý tài chính cá nhân cho cư dân trẻ', 
-N'Diễn giả hàng đầu sẽ chia sẻ về cách tối ưu hóa dòng tiền và quản lý nợ trong buổi tối thứ Tư tuần tới tại sảnh sinh hoạt cộng đồng.', 
+-- 19. Investment Seminar
+(N'Personal Finance Workshop for Young Residents', 
+N'Leading speakers will share insights on optimizing cash flow and debt management next Wednesday evening at the community hall.', 
 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSbZnh_YbJ6fcTKi2hnlMSouXnqBq7TgpSuaA&s', 1),
 
--- 20. Khuyến mãi Spa
-(N'Ưu đãi 30% dịch vụ Massage thảo mộc tại Spa tòa nhà', 
-N'Chào đón cư dân mới, phòng Spa (ID 9, 10) giảm giá sâu cho các gói chăm sóc da và bấm huyệt trong suốt tháng 3.', 
+-- 20. Spa Promotion
+(N'30% Off Herbal Massage at the Resident Spa', 
+N'Welcoming new residents, the Spa (ID 9, 10) is offering deep discounts on skincare and acupressure packages throughout March.', 
 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRiVKcqyxJfwqZRbjBEvHSckx1Fmq93M1f3yw&s', 1),
 
--- 21-30. Các tin tức bổ sung nhanh (Loop nội dung)
-(N'Lịch thu gom rác thải cồng kềnh tháng 4', N'Cư dân có nhu cầu bỏ giường, tủ cũ vui lòng đăng ký trước ngày 05/04.', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT4nzT8tYwc95h0r7tu8peoY5F6b_exo2lEdg&s', 1),
-(N'Vệ sinh lưới chắn rác ban công mùa mưa', N'BQL khuyến nghị cư dân kiểm tra phễu thoát sàn ban công tránh ngập úng.', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR_slxYfoxTTHdeAMQYgehv82AlpwBeJVEFzA&s', 1),
-(N'Câu lạc bộ Yoga sảnh S2 tuyển thành viên', N'Lớp học buổi sáng sớm giúp tinh thần sảng khoái, bắt đầu từ 5h30 sáng.', 'https://static.hotdeal.vn/images/822/822188/500x500/190116-khoa-hoc-yoga-8-buoi-tai-clb-yoga-newlife.jpg', 1),
-(N'Hướng dẫn sử dụng khóa cửa thông minh Yale', N'Video hướng dẫn cách đổi mã master và thêm vân tay cho người giúp việc.', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSyIuQ1fHt-1j4jOME6VD4h2Poz_YX0akMAXA&s', 1),
-(N'Hợp tác cung cấp thực phẩm sạch tại sảnh', N'Gian hàng rau củ organic từ Đà Lạt sẽ phục vụ cư dân vào mỗi sáng sớm.', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTk10CsnRAVZAjxiSvRKc1SUZ72UPeSElqiPQ&s', 1),
-(N'Tổ chức Tết Trung Thu sớm cho các bé', N'Chương trình rước đèn và múa lân sôi động tại quảng trường trung tâm.', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ5vSien6-6fEwacR3Yb_Wbf4jA3eOzmRyi3g&s', 1),
-(N'Nhắc nhở nộp phí dịch vụ đúng hạn', N'Quý cư dân vui lòng hoàn tất phí dịch vụ trước ngày 10 hàng tháng để tránh gián đoạn.', 'https://thdlog.com/wp-content/uploads/2025/08/3-2.jpg', 1),
-(N'Lắp đặt thêm máy tập Gym ngoài trời', N'Bổ sung 5 máy tập bụng và xà đơn tại khu vực công viên ven hồ.', 'https://thethaominhphu.com/wp-content/uploads/2017/12/cong-vien.jpg', 1),
-(N'Bảo trì camera an ninh hành lang tầng 15-20', N'Kỹ thuật sẽ kiểm tra góc quay và độ nét của camera trong chiều hôm nay.', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT52nGCq_ZEVDxWMF6Ixg0IxfvlxZkZgdGe0w&s', 1),
-(N'Cảm ơn cư dân đã tham gia khảo sát chất lượng', N'Kết quả khảo sát mức độ hài lòng sẽ được BQL công bố vào cuối tuần tới.', 'https://lh4.googleusercontent.com/proxy/NAUmYxcTIQD2UXuCm5lBQZX79hnM_zYkPrY7FywECqqSWCm-tr7GdecW09zGYw9yECtodDgUExwyoNTKq1hdligKPkDdExcN5u-ih8jdtw', 1);
+-- 21-30. Quick Updates
+(N'April Bulky Waste Collection Schedule', N'Residents wishing to dispose of old beds or cabinets, please register before April 5.', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT4nzT8tYwc95h0r7tu8peoY5F6b_exo2lEdg&s', 1),
+(N'Balcony Drainage Cleaning for Rainy Season', N'Management recommends checking balcony floor drains to prevent localized flooding.', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR_slxYfoxTTHdeAMQYgehv82AlpwBeJVEFzA&s', 1),
+(N'S2 Lobby Yoga Club Recruiting Members', N'Early morning classes to refresh your mind, starting at 5:30 AM.', 'https://static.hotdeal.vn/images/822/822188/500x500/190116-khoa-hoc-yoga-8-buoi-tai-clb-yoga-newlife.jpg', 1),
+(N'Yale Smart Lock Usage Guide', N'Video tutorial on how to change master codes and add fingerprints for domestic helpers.', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSyIuQ1fHt-1j4jOME6VD4h2Poz_YX0akMAXA&s', 1),
+(N'Fresh Food Partnership in the Lobby', N'Organic vegetable stalls from Da Lat will serve residents every early morning.', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTk10CsnRAVZAjxiSvRKc1SUZ72UPeSElqiPQ&s', 1),
+(N'Early Mid-Autumn Festival for Children', N'Exciting lantern parade and lion dance performance at the central plaza.', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ5vSien6-6fEwacR3Yb_Wbf4jA3eOzmRyi3g&s', 1),
+(N'Reminder: Service Fee Payment Deadline', N'Residents please complete service fee payments by the 10th of each month to avoid service interruption.', 'https://thdlog.com/wp-content/uploads/2025/08/3-2.jpg', 1),
+(N'New Outdoor Gym Equipment Installation', N'Added 5 sit-up benches and pull-up bars at the lakeside park area.', 'https://thethaominhphu.com/wp-content/uploads/2017/12/cong-vien.jpg', 1),
+(N'Security Camera Maintenance: Floors 15-20', N'Technicians will check camera angles and clarity this afternoon.', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT52nGCq_ZEVDxWMF6Ixg0IxfvlxZkZgdGe0w&s', 1),
+(N'Thank You for Participating in the Quality Survey', N'The satisfaction survey results will be announced by Management next weekend.', 'https://lh4.googleusercontent.com/proxy/NAUmYxcTIQD2UXuCm5lBQZX79hnM_zYkPrY7FywECqqSWCm-tr7GdecW09zGYw9yECtodDgUExwyoNTKq1hdligKPkDdExcN5u-ih8jdtw', 1);
 GO
 
 -- 9 services
@@ -1646,9 +1643,9 @@ GO
 
 INSERT INTO MandatoryServices (ServiceName, ServiceCode, BasePrice, UnitType, Description)
 VALUES 
-(N'Điện sinh hoạt', 'ELEC_01', 2500.00, 'kWh',  N'Tiền điện theo chỉ số.'),
-(N'Nước sinh hoạt', 'WAT_01', 15000.00, 'm3', N'Tiền nước theo chỉ số.'),
-(N'Phí quản lý tòa nhà', 'MNG_FEE', 500000.00, N'Tháng', N'Phí cố định hàng tháng.');
+(N'Residential Electricity', 'ELEC_01', 2500.00, 'kWh', N'Electricity charges based on meter readings.'),
+(N'Residential Water', 'WAT_01', 15000.00, 'm3', N'Water charges based on cubic meter usage.'),
+(N'Building Management Fee', 'MNG_FEE', 500000.00, N'Month', N'Fixed monthly management and maintenance fee.');
 GO
 
 -- 10 service resource
@@ -1669,90 +1666,94 @@ CREATE TABLE ServiceResources (
 -- ko cần book/ko book được: bể bơi và gym.
 -- 1. Resources cho BBQ Park (Giả sử ServiceId = 8)
 -- 1. Nhóm BBQ (ServiceId = 8)
+-- 1. BBQ Resources (ServiceId = 8)
 INSERT INTO ServiceResources (ResourceCode, Location, ServiceId, IsAvailable, ImageUrl)
 VALUES  
-('BBQ_ZONE_A_01', N'Vườn BBQ - Khu A (Cạnh hồ bơi)', 8, 1, 'https://tse2.mm.bing.net/th/id/OIP.h5ojHmBqqkvXC7rtk65zugHaE_?rs=1&pid=ImgDetMain&o=7&rm=3'),
-('BBQ_ZONE_A_02', N'Vườn BBQ - Khu A (Cạnh hồ bơi)', 8, 1, 'https://tse3.mm.bing.net/th/id/OIP.MM31qoW70iNVwsmLz-Hz7gHaE7?rs=1&pid=ImgDetMain&o=7&rm=3'),
-('BBQ_ZONE_B_01', N'Vườn BBQ - Khu B (Công viên trung tâm)', 8, 1, 'https://tse3.mm.bing.net/th/id/OIP.TZwV6kcD_-PTgZpUBqdNjgHaFj?rs=1&pid=ImgDetMain&o=7&rm=3');
+('BBQ_ZONE_A_01', N'BBQ Garden - Zone A (By the pool)', 8, 1, 'https://tse2.mm.bing.net/th/id/OIP.h5ojHmBqqkvXC7rtk65zugHaE_?rs=1&pid=ImgDetMain&o=7&rm=3'),
+('BBQ_ZONE_A_02', N'BBQ Garden - Zone A (By the pool)', 8, 1, 'https://tse3.mm.bing.net/th/id/OIP.MM31qoW70iNVwsmLz-Hz7gHaE7?rs=1&pid=ImgDetMain&o=7&rm=3'),
+('BBQ_ZONE_B_01', N'BBQ Garden - Zone B (Central Park)', 8, 1, 'https://tse3.mm.bing.net/th/id/OIP.TZwV6kcD_-PTgZpUBqdNjgHaFj?rs=1&pid=ImgDetMain&o=7&rm=3');
 GO
 
--- 2. Nhóm Tennis (ServiceId = 9)
+-- 2. Tennis Resources (ServiceId = 9)
 INSERT INTO ServiceResources (ResourceCode, Location, ServiceId, IsAvailable, ImageUrl)
 VALUES  
-('TENNIS_CT_01', N'Sân số 1', 9, 1, 'https://serena.com.vn/wp-content/uploads/2022/11/Tennis-3-scaled.jpg'),
-('TENNIS_CT_02', N'Sân số 2', 9, 1, 'https://tse4.mm.bing.net/th/id/OIP.aQ6v_dIX8jWYZ1HkgddqFQHaE8?w=660&h=440&rs=1&pid=ImgDetMain&o=7&rm=3'),
-('TENNIS_CT_03', N'Sân số 3 (Bảo trì)', 9, 0, 'https://tse1.mm.bing.net/th/id/OIP.H_xYMV4JvL_i3xV6ul8yvgHaEK?w=880&h=495&rs=1&pid=ImgDetMain&o=7&rm=3');
+('TENNIS_CT_01', N'Court No. 1', 9, 1, 'https://serena.com.vn/wp-content/uploads/2022/11/Tennis-3-scaled.jpg'),
+('TENNIS_CT_02', N'Court No. 2', 9, 1, 'https://tse4.mm.bing.net/th/id/OIP.aQ6v_dIX8jWYZ1HkgddqFQHaE8?w=660&h=440&rs=1&pid=ImgDetMain&o=7&rm=3'),
+('TENNIS_CT_03', N'Court No. 3 (Under Maintenance)', 9, 0, 'https://tse1.mm.bing.net/th/id/OIP.H_xYMV4JvL_i3xV6ul8yvgHaEK?w=880&h=495&rs=1&pid=ImgDetMain&o=7&rm=3');
 GO
 
--- 3. Nhóm Golf (ServiceId = 10)
+-- 3. Golf Resources (ServiceId = 10)
 INSERT INTO ServiceResources (ResourceCode, Location, ServiceId, IsAvailable, ImageUrl)
 VALUES  
-('GOLF_LANE_01', N'Sân tập Golf - Làn 1', 10, 1, 'https://bizweb.dktcdn.net/100/454/998/files/cau-truc-san-golf-1024x579.png?v=1721027003853'),
-('GOLF_LANE_02', N'Sân tập Golf - Làn 2', 10, 1, 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTcrmlQG5DEvy2M6vSPwGkG_I4rETEqw8rMTw&s');
+('GOLF_LANE_01', N'Golf Driving Range - Lane 1', 10, 1, 'https://bizweb.dktcdn.net/100/454/998/files/cau-truc-san-golf-1024x579.png?v=1721027003853'),
+('GOLF_LANE_02', N'Golf Driving Range - Lane 2', 10, 1, 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTcrmlQG5DEvy2M6vSPwGkG_I4rETEqw8rMTw&s');
 GO
 
--- 4. Nhóm Spa (ServiceId = 11)
+-- 4. Spa Resources (ServiceId = 11)
 INSERT INTO ServiceResources (ResourceCode, Location, ServiceId, IsAvailable, ImageUrl)
 VALUES  
-('SPA_ROOM_01', N'Phòng VIP 1', 11, 1, 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQJh0-BFAcK5wtH4FGe4aIO10v7ilfoYmzaGw&s'),
-('SPA_ROOM_02', N'Phòng VIP 2', 11, 1, 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSOjkrNdKBZb_A0uEOni0fzVsxLf1o4ysw0iw&s');
+('SPA_ROOM_01', N'VIP Room 1', 11, 1, 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQJh0-BFAcK5wtH4FGe4aIO10v7ilfoYmzaGw&s'),
+('SPA_ROOM_02', N'VIP Room 2', 11, 1, 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSOjkrNdKBZb_A0uEOni0fzVsxLf1o4ysw0iw&s');
 GO
--- 5. add cho bên hall
+
+-- 5. Community Hall Resources (ServiceId = 12)
 INSERT INTO ServiceResources (ResourceCode, Location, ServiceId, IsAvailable, ImageUrl)
 VALUES 
-( 'HALL_S1_01', N'Tầng 1, Tòa S1 - Hội trường lớn A', 12, 1, 'https://tse2.mm.bing.net/th/id/OIP.lbReQ7jzsltz0GqdDn-9zQHaEv?rs=1&pid=ImgDetMain&o=7&rm=3'),
-( 'HALL_S1_02', N'Tầng 1, Tòa S1 - Phòng sinh hoạt nhỏ B', 12, 1, 'https://tse4.mm.bing.net/th/id/OIP.RujXzLwGtbOHnCkxClwwkAHaEL?rs=1&pid=ImgDetMain&o=7&rm=3'),
-( 'HALL_S2_01', N'Tầng 1, Tòa S2 - Hội trường trung tâm', 12, 1, 'https://tse2.mm.bing.net/th/id/OIP.hwEPNJ3f-qftLAPYzeOm6AAAAA?w=440&h=293&rs=1&pid=ImgDetMain&o=7&rm=3'),
-( 'HALL_S2_02', N'Tầng 2, Tòa S2 - Phòng họp cư dân', 12, 1, 'https://tse4.mm.bing.net/th/id/OIP.MsblINLo0plg08VE4JpKUQHaE8?w=550&h=367&rs=1&pid=ImgDetMain&o=7&rm=3'),
-( 'HALL_COMMON', N'Khu vực quảng trường - Nhà sinh hoạt chung', 12, 1, 'https://tse2.mm.bing.net/th/id/OIP.lbReQ7jzsltz0GqdDn-9zQHaEv?rs=1&pid=ImgDetMain&o=7&rm=3' );
-GO
--- 1. Resources cho Green Park (ServiceId = 1)
-INSERT INTO ServiceResources (ResourceCode, Location, ServiceId, IsAvailable, ImageUrl)
-VALUES  
-('PARK_CENTRAL', N'Công viên trung tâm - Khu vực hồ điều hòa', 1, 1, 'https://www.annhome.vn/wp-content/uploads/2020/04/Cong-vien-van-hoa-nghe-thuat-Vinhomes-Grand-Park.jpg'),
-('PARK_NORTH', N'Công viên phía Bắc - Khu vườn Nhật', 1, 1, 'https://tse3.mm.bing.net/th/id/OIP.BKk52dVdASyotQKc71uphQHaE8?pid=ImgDet&w=474&h=316&rs=1&o=7&rm=3');
+( 'HALL_S1_01', N'Floor 1, S1 Building - Grand Hall A', 12, 1, 'https://tse2.mm.bing.net/th/id/OIP.lbReQ7jzsltz0GqdDn-9zQHaEv?rs=1&pid=ImgDetMain&o=7&rm=3'),
+( 'HALL_S1_02', N'Floor 1, S1 Building - Community Room B', 12, 1, 'https://tse4.mm.bing.net/th/id/OIP.RujXzLwGtbOHnCkxClwwkAHaEL?rs=1&pid=ImgDetMain&o=7&rm=3'),
+( 'HALL_S2_01', N'Floor 1, S2 Building - Central Hall', 12, 1, 'https://tse2.mm.bing.net/th/id/OIP.hwEPNJ3f-qftLAPYzeOm6AAAAA?w=440&h=293&rs=1&pid=ImgDetMain&o=7&rm=3'),
+( 'HALL_S2_02', N'Floor 2, S2 Building - Resident Meeting Room', 12, 1, 'https://tse4.mm.bing.net/th/id/OIP.MsblINLo0plg08VE4JpKUQHaE8?w=550&h=367&rs=1&pid=ImgDetMain&o=7&rm=3'),
+( 'HALL_COMMON', N'Plaza Area - Community House', 12, 1, 'https://tse2.mm.bing.net/th/id/OIP.lbReQ7jzsltz0GqdDn-9zQHaEv?rs=1&pid=ImgDetMain&o=7&rm=3' );
 GO
 
--- 2. Resources cho Swimming Pools (ServiceId = 2)
+-- ko book được ở dưới
+-- 6. Green Park Resources (ServiceId = 1)
 INSERT INTO ServiceResources (ResourceCode, Location, ServiceId, IsAvailable, ImageUrl)
 VALUES  
-('POOL_S1_INF', N'Tòa S1 - Tầng 4 (Bể bơi vô cực)', 2, 1, 'https://tse1.mm.bing.net/th/id/OIP.L-JwO9EXN-dbA54tKnmaJQHaE8?rs=1&pid=ImgDetMain&o=7&rm=3'),
-('POOL_S2_KIDS', N'Tòa S2 - Tầng trệt (Bể bơi trẻ em)', 2, 1, 'https://tse2.mm.bing.net/th/id/OIP.rxQdhbvDkL9D-xHrlVC89wHaEJ?w=740&h=415&rs=1&pid=ImgDetMain&o=7&rm=3');
+('PARK_CENTRAL', N'Central Park - Regulating Lake Area', 1, 1, 'https://www.annhome.vn/wp-content/uploads/2020/04/Cong-vien-van-hoa-nghe-thuat-Vinhomes-Grand-Park.jpg'),
+('PARK_NORTH', N'North Park - Japanese Garden', 1, 1, 'https://tse3.mm.bing.net/th/id/OIP.BKk52dVdASyotQKc71uphQHaE8?pid=ImgDet&w=474&h=316&rs=1&o=7&rm=3');
 GO
 
--- 3. Resources cho Shopping Center (ServiceId = 3)
+-- 7. Swimming Pool Resources (ServiceId = 2)
 INSERT INTO ServiceResources (ResourceCode, Location, ServiceId, IsAvailable, ImageUrl)
 VALUES  
-('MALL_MAIN_A', N'Khu thương mại Vincom - Sảnh A', 3, 1, 'https://tse1.mm.bing.net/th/id/OIP.nIgOdEIPzK6iH_fn5VhZuAHaE9?rs=1&pid=ImgDetMain&o=7&rm=3'),
-('SHOP_HOUSE_S1', N'Dãy Shophouse khối đế tòa S1', 3, 1, 'https://tse4.mm.bing.net/th/id/OIP.WjjQk3n_qC6-i6VNfJAFUgHaFj?w=800&h=600&rs=1&pid=ImgDetMain&o=7&rm=3');
+('POOL_S1_INF', N'S1 Building - 4th Floor (Infinity Pool)', 2, 1, 'https://tse1.mm.bing.net/th/id/OIP.L-JwO9EXN-dbA54tKnmaJQHaE8?rs=1&pid=ImgDetMain&o=7&rm=3'),
+('POOL_S2_KIDS', N'S2 Building - Ground Floor (Kids Pool)', 2, 1, 'https://tse2.mm.bing.net/th/id/OIP.rxQdhbvDkL9D-xHrlVC89wHaEJ?w=740&h=415&rs=1&pid=ImgDetMain&o=7&rm=3');
 GO
 
--- 4. Resources cho Children’s Playground (ServiceId = 4)
+-- 8. Shopping Center Resources (ServiceId = 3)
 INSERT INTO ServiceResources (ResourceCode, Location, ServiceId, IsAvailable, ImageUrl)
 VALUES  
-('KIDS_OUT_01', N'Sân chơi ngoài trời - Cạnh tòa S2', 4, 1, 'https://th.bing.com/th/id/OIP.v177-wHiXxZGJbcntYuQGQHaE8?o=7rm=3&rs=1&pid=ImgDetMain&o=7&rm=3'),
-('KIDS_IN_01', N'Phòng vui chơi trong nhà - Tòa S1', 4, 1, 'https://tse2.mm.bing.net/th/id/OIP.uESWc2hfOLwnToCMDsAGawHaE8?w=700&h=467&rs=1&pid=ImgDetMain&o=7&rm=3');
+('MALL_MAIN_A', N'Vincom Mall - Lobby A', 3, 1, 'https://tse1.mm.bing.net/th/id/OIP.nIgOdEIPzK6iH_fn5VhZuAHaE9?rs=1&pid=ImgDetMain&o=7&rm=3'),
+('SHOP_HOUSE_S1', N'S1 Building Podium - Shophouse Row', 3, 1, 'https://tse4.mm.bing.net/th/id/OIP.WjjQk3n_qC6-i6VNfJAFUgHaFj?w=800&h=600&rs=1&pid=ImgDetMain&o=7&rm=3');
 GO
 
--- 5. Resources cho Gym & Yoga Facilities (ServiceId = 5)
+-- 9. Children’s Playground Resources (ServiceId = 4)
 INSERT INTO ServiceResources (ResourceCode, Location, ServiceId, IsAvailable, ImageUrl)
 VALUES  
-('GYM_CENTER_01', N'Tầng 2 - Tòa S1 (Phòng Gym chính)', 5, 1, 'https://tse3.mm.bing.net/th/id/OIP.b3ggclKqEU-oa6NNiTeiJAHaE7?rs=1&pid=ImgDetMain&o=7&rm=3'),
-('YOGA_STUDIO_01', N'Tầng 2 - Tòa S1 (Phòng Yoga thiền)', 5, 1, 'https://th.bing.com/th/id/OIP.H1MFdEfZszyHyFS_yZ7YrAHaE8?o=7rm=3&rs=1&pid=ImgDetMain&o=7&rm=3');
+('KIDS_OUT_01', N'Outdoor Playground - Beside S2 Building', 4, 1, 'https://th.bing.com/th/id/OIP.v177-wHiXxZGJbcntYuQGQHaE8?o=7rm=3&rs=1&pid=ImgDetMain&o=7&rm=3'),
+('KIDS_IN_01', N'Indoor Playroom - S1 Building', 4, 1, 'https://tse2.mm.bing.net/th/id/OIP.uESWc2hfOLwnToCMDsAGawHaE8?w=700&h=467&rs=1&pid=ImgDetMain&o=7&rm=3');
 GO
 
--- 6. Resources cho Education System (ServiceId = 6)
+-- 10. Gym & Yoga Resources (ServiceId = 5)
 INSERT INTO ServiceResources (ResourceCode, Location, ServiceId, IsAvailable, ImageUrl)
 VALUES  
-('EDU_VINS_PRIMARY', N'Khu trường tiểu học Vinschool', 6, 1, 'https://tse1.mm.bing.net/th/id/OIP.Au3G2PnYSDyOnIr3uuEDPgHaEB?rs=1&pid=ImgDetMain&o=7&rm=3'),
-('EDU_VINS_KINDERGARTEN', N'Khu trường mầm non Vinschool', 6, 1, 'https://tse2.mm.bing.net/th/id/OIP.NGX75odDxZJrt6V3C0fB5wHaEa?rs=1&pid=ImgDetMain&o=7&rm=3');
+('GYM_CENTER_01', N'S1 Building - 2nd Floor (Main Gym)', 5, 1, 'https://tse3.mm.bing.net/th/id/OIP.b3ggclKqEU-oa6NNiTeiJAHaE7?rs=1&pid=ImgDetMain&o=7&rm=3'),
+('YOGA_STUDIO_01', N'S1 Building - 2nd Floor (Yoga & Meditation Studio)', 5, 1, 'https://th.bing.com/th/id/OIP.H1MFdEfZszyHyFS_yZ7YrAHaE8?o=7rm=3&rs=1&pid=ImgDetMain&o=7&rm=3');
 GO
 
--- 7. Resources cho Smart Parking (ServiceId = 7)
+-- 11. Education System Resources (ServiceId = 6)
 INSERT INTO ServiceResources (ResourceCode, Location, ServiceId, IsAvailable, ImageUrl)
 VALUES  
-('PARK_B1_S1', N'Hầm gửi xe B1 - Tòa S1', 7, 1, 'https://img.freepik.com/premium-photo/smart-parking-system-with-realtime-availability-reservation-features_1327465-68653.jpg?w=1800'),
-('PARK_B1_S2', N'Hầm gửi xe B1 - Tòa S2', 7, 1, 'https://tse4.mm.bing.net/th/id/OIP.Y-kEhNTZMaxfwEyFxAHYogHaHa?rs=1&pid=ImgDetMain&o=7&rm=3');
+('EDU_VINS_PRIMARY', N'Vinschool Primary School Campus', 6, 1, 'https://tse1.mm.bing.net/th/id/OIP.Au3G2PnYSDyOnIr3uuEDPgHaEB?rs=1&pid=ImgDetMain&o=7&rm=3'),
+('EDU_VINS_KINDERGARTEN', N'Vinschool Kindergarten Campus', 6, 1, 'https://tse2.mm.bing.net/th/id/OIP.NGX75odDxZJrt6V3C0fB5wHaEa?rs=1&pid=ImgDetMain&o=7&rm=3');
+GO
+
+-- 12. Smart Parking Resources (ServiceId = 7)
+INSERT INTO ServiceResources (ResourceCode, Location, ServiceId, IsAvailable, ImageUrl)
+VALUES  
+('PARK_B1_S1', N'Basement B1 - S1 Building (Parking)', 7, 1, 'https://img.freepik.com/premium-photo/smart-parking-system-with-realtime-availability-reservation-features_1327465-68653.jpg?w=1800'),
+('PARK_B1_S2', N'Basement B1 - S2 Building (Parking)', 7, 1, 'https://tse4.mm.bing.net/th/id/OIP.Y-kEhNTZMaxfwEyFxAHYogHaHa?rs=1&pid=ImgDetMain&o=7&rm=3');
 GO
 
 -- 11 service booking
