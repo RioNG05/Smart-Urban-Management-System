@@ -1,6 +1,8 @@
 import { useState } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
+import { motion, AnimatePresence } from "framer-motion";
+import { FaTimes } from "react-icons/fa";
 import { useAuth } from "../auth/AuthContext";
 
 export default function ComplaintModal({ open, setOpen, onSuccess }) {
@@ -37,29 +39,46 @@ export default function ComplaintModal({ open, setOpen, onSuccess }) {
     }
   };
 
-  if (!open) return null;
-
   return (
-    <div className="modal-overlay">
-      <div className="modal-box">
-        <h3>Report Issue</h3>
+    <AnimatePresence>
+      {open && (
+        <div className="premium-modal-overlay">
+          <motion.div 
+            className="premium-modal-box"
+            initial={{ opacity: 0, scale: 0.9, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.9, y: 20 }}
+          >
+            <div className="modal-header">
+              <h3>Report New Issue</h3>
+              <button className="close-modal-btn" onClick={() => setOpen(false)}>
+                <FaTimes />
+              </button>
+            </div>
 
-        <textarea
-          placeholder="Describe the issue..."
-          value={content}
-          onChange={(e) => setContent(e.target.value)}
-        />
+            <div className="modal-body">
+              <p style={{ marginBottom: '15px', fontSize: '14px', color: '#64748b' }}>
+                Please describe the issue you are experiencing. Our support team will review it as soon as possible.
+              </p>
+              <textarea
+                className="modal-textarea"
+                placeholder="Ex: The hallway light on the 4th floor is flickering..."
+                value={content}
+                onChange={(e) => setContent(e.target.value)}
+              />
+            </div>
 
-        <div className="modal-actions">
-          <button className="cancel-btn" onClick={() => setOpen(false)}>
-            Cancel
-          </button>
-
-          <button className="submit-btn" onClick={submitComplaint}>
-            Send
-          </button>
+            <div className="modal-footer">
+              <button className="cancel-button" onClick={() => setOpen(false)}>
+                Cancel
+              </button>
+              <button className="submit-button" onClick={submitComplaint}>
+                Submit Request
+              </button>
+            </div>
+          </motion.div>
         </div>
-      </div>
-    </div>
+      )}
+    </AnimatePresence>
   );
 }
