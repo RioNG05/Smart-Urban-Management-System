@@ -674,8 +674,7 @@ export default function BillingPage() {
     if (selection.type === "service") {
       return [
         { id: "overview", label: "Service Overview", icon: <FaFileInvoiceDollar /> },
-        { id: "billing", label: "Service Payments", icon: <FaCreditCard /> },
-        { id: "activity", label: "Service Requests", icon: <FaCalendarCheck /> },
+        { id: "bookings", label: "Service Bookings", icon: <FaCalendarCheck /> },
       ];
     }
 
@@ -687,6 +686,15 @@ export default function BillingPage() {
   }, [selection.type]);
 
   const [activeTab, setActiveTab] = useState("overview");
+
+  // Ensure activeTab resets correctly when context switches
+  useEffect(() => {
+    if (selection.type === "service" && (activeTab === "billing" || activeTab === "activity")) {
+      setActiveTab("bookings");
+    } else if (selection.type === "apartment" && activeTab === "bookings") {
+      setActiveTab("overview");
+    }
+  }, [selection.type, activeTab]);
   const [showBackToTop, setShowBackToTop] = useState(false);
 
   useEffect(() => {
@@ -805,156 +813,133 @@ export default function BillingPage() {
                     <ComplaintList />
                   </div>
                 </motion.div>
-              ) : activeTab === "billing" ? (
+              ) : (activeTab === "billing" || activeTab === "bookings") && selection.type === "service" ? (
                 <motion.div
-                  key="billing-tab"
+                  key="service-bookings-tab"
                   initial={{ opacity: 0, x: -10 }}
                   animate={{ opacity: 1, x: 0 }}
                   exit={{ opacity: 0, x: 10 }}
+                  className="billing-panel"
+                >
+                  <div className="billing-panel-header" style={{ 
+                    marginBottom: "30px", 
+                    paddingBottom: "20px", 
+                    borderBottom: "1px solid #f1f5f9",
+                    alignItems: "center"
+                  }}>
+                    <div style={{ flex: 1 }}>
+                      <h3 className="section-title" style={{ fontSize: "1.5rem", fontWeight: "800", color: "#1e293b", margin: 0 }}>
+                        Service Bookings
+                      </h3>
+                      <p className="billing-panel-subtitle" style={{ margin: "4px 0 0", color: "#64748b" }}>
+                        Manage your requests and track booking expenditures.
+                      </p>
+                    </div>
+                    
+                    {/* Consolidated Filters Row */}
+                    <div className="service-filter-actions" style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
+                      <div className="filter-group" style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                        <label style={{ fontSize: '10px', fontWeight: '800', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                          Service Category
+                        </label>
+                        <select
+                          className="premium-select"
+                          value={serviceFilterName}
+                          onChange={(e) => setServiceFilterName(e.target.value)}
+                          style={{
+                            padding: '8px 14px',
+                            borderRadius: '10px',
+                            border: '1px solid #e2e8f0',
+                            fontSize: '13px',
+                            fontWeight: '600',
+                            backgroundColor: '#f8fafc',
+                            color: '#334155',
+                            cursor: 'pointer',
+                            minWidth: '160px'
+                          }}
+                        >
+                          <option value="all">All Services</option>
+                          {serviceNameOptions.map(name => (
+                            <option key={name} value={name}>{name}</option>
+                          ))}
+                        </select>
+                      </div>
+
+                      <div className="filter-group" style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                        <label style={{ fontSize: '10px', fontWeight: '800', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                          Period
+                        </label>
+                        <select
+                          className="premium-select"
+                          value={serviceMonthKey}
+                          onChange={(e) => setServiceMonthKey(e.target.value)}
+                          style={{
+                            padding: '8px 14px',
+                            borderRadius: '10px',
+                            border: '1px solid #e2e8f0',
+                            fontSize: '13px',
+                            fontWeight: '600',
+                            backgroundColor: '#f8fafc',
+                            color: '#334155',
+                            cursor: 'pointer',
+                            minWidth: '140px'
+                          }}
+                        >
+                          <option value="all">All Months</option>
+                          {serviceMonthOptions.map(opt => (
+                            <option key={opt.value} value={opt.value}>{opt.label}</option>
+                          ))}
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Payment Action Bar */}
+                  {totalSelected > 0 && (
+                    <motion.div 
+                      className="modern-payment-summary full-row"
+                      initial={{ opacity: 0, scale: 0.98 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      style={{ margin: "0 0 24px 0", background: '#fdfbf7' }}
+                    >
+                      <div className="payment-summary-content">
+                        <span className="total-label">Selected Booking Total:</span>
+                        <span className="total-value">
+                          {formatCurrency(totalSelected)}
+                        </span>
+                      </div>
+                      <button 
+                        className="pay-selected-btn premium-btn"
+                        onClick={() => alert(`Proceeding to pay ${formatCurrency(totalSelected)} for selected bookings`)}
+                      >
+                        Pay Selected Items
+                      </button>
+                    </motion.div>
+                  )}
+                  
+                  <ServiceActivity 
+                    bookings={filteredBills} 
+                    selectedIds={selectedIds}
+                    onToggleBill={onToggleBill}
+                  />
+                </motion.div>
+              ) : activeTab === "billing" && selection.type === "apartment" ? (
+                <motion.div
+                  key="apartment-billing-tab"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
                   className="billing-content"
                 >
-
-                  {/* APARTMENT BILLING VIEW (PROPERTY CONTEXT) */}
-                  {selection.type === "apartment" && (
-                    <motion.div
-                      key="apartment-billing"
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      exit={{ opacity: 0 }}
-                    >
-
-                      <BillingPayableBreakdown
-                        totals={payableBreakdown}
-                        pricingRows={payablePricingRows}
-                        formatCurrency={formatCurrency}
-                        apartmentLabel={selectedApartmentLabel}
-                        monthKey={monthKey}
-                        setMonthKey={setMonthKey}
-                        months={monthOptions}
-                      />
-                    </motion.div>
-                  )}
- 
-                  {/* SERVICE BOOKING VIEW (PERSONAL SERVICE CONTEXT) */}
-                  {selection.type === "service" && (
-                    <motion.div
-                      key="service-billing"
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      exit={{ opacity: 0 }}
-                      className="billing-panel"
-                    >
-                      <div className="billing-panel-header" style={{ 
-                        marginBottom: "30px", 
-                        paddingBottom: "20px", 
-                        borderBottom: "1px solid #f1f5f9",
-                        alignItems: "center"
-                      }}>
-                        <div style={{ flex: 1 }}>
-                          <h3 className="section-title" style={{ fontSize: "1.5rem", fontWeight: "800", color: "#1e293b", margin: 0 }}>
-                            Service Management
-                          </h3>
-                          <p className="billing-panel-subtitle" style={{ margin: "4px 0 0", color: "#64748b" }}>
-                            Manage and track your personal booking expenditures.
-                          </p>
-                        </div>
-                        
-                        {/* Premium Service Filters Row */}
-                        <div className="service-filter-actions" style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
-                          <div className="filter-group" style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                            <label style={{ fontSize: '10px', fontWeight: '800', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                              Service Category
-                            </label>
-                            <select
-                              className="premium-select"
-                              value={serviceFilterName}
-                              onChange={(e) => setServiceFilterName(e.target.value)}
-                              style={{
-                                padding: '8px 14px',
-                                borderRadius: '10px',
-                                border: '1px solid #e2e8f0',
-                                fontSize: '13px',
-                                fontWeight: '600',
-                                backgroundColor: '#f8fafc',
-                                color: '#334155',
-                                cursor: 'pointer',
-                                minWidth: '160px'
-                              }}
-                            >
-                              <option value="all">All Services</option>
-                              {serviceNameOptions.map(name => (
-                                <option key={name} value={name}>{name}</option>
-                              ))}
-                            </select>
-                          </div>
-
-                          <div className="filter-group" style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                            <label style={{ fontSize: '10px', fontWeight: '800', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                              Period
-                            </label>
-                            <select
-                              className="premium-select"
-                              value={serviceMonthKey}
-                              onChange={(e) => setServiceMonthKey(e.target.value)}
-                              style={{
-                                padding: '8px 14px',
-                                borderRadius: '10px',
-                                border: '1px solid #e2e8f0',
-                                fontSize: '13px',
-                                fontWeight: '600',
-                                backgroundColor: '#f8fafc',
-                                color: '#334155',
-                                cursor: 'pointer',
-                                minWidth: '140px'
-                              }}
-                            >
-                              <option value="all">All Months</option>
-                              {serviceMonthOptions.map(opt => (
-                                <option key={opt.value} value={opt.value}>{opt.label}</option>
-                              ))}
-                            </select>
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Payment Action Bar (Appears when items are selected) */}
-                      {totalSelected > 0 && (
-                        <motion.div 
-                          className="modern-payment-summary full-row"
-                          initial={{ opacity: 0, y: -10 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          style={{ margin: "0 0 20px 0" }}
-                        >
-                          <div className="payment-summary-content">
-                            <span className="total-label">Selected Booking Total:</span>
-                            <span className="total-value">
-                              {formatCurrency(totalSelected)}
-                            </span>
-                          </div>
-                          <button 
-                            className="pay-selected-btn premium-btn"
-                            onClick={() => alert(`Proceeding to pay ${formatCurrency(totalSelected)} for selected bookings`)}
-                          >
-                            Pay Selected Items
-                          </button>
-                        </motion.div>
-                      )}
-                      
-                      <div className="scrollable-table-wrapper">
-                        <BillingTable
-                          bills={payableBills}
-                          formatCurrency={formatCurrency}
-                          formatDate={formatDate}
-                          loading={loading}
-                          selectedIds={selectedIds}
-                          onToggleBill={onToggleBill}
-                          onToggleSubItem={onToggleSubItem}
-                          isService={true}
-                        />
-                      </div>
-                    </motion.div>
-                  )}
-
+                  <BillingPayableBreakdown
+                    totals={payableBreakdown}
+                    pricingRows={payablePricingRows}
+                    formatCurrency={formatCurrency}
+                    apartmentLabel={selectedApartmentLabel}
+                    monthKey={monthKey}
+                    setMonthKey={setMonthKey}
+                    months={monthOptions}
+                  />
                 </motion.div>
               ) : activeTab === "history" && selection.type === "apartment" ? (
                 <motion.div
@@ -970,17 +955,6 @@ export default function BillingPage() {
                     formatCurrency={formatCurrency}
                     formatDate={formatDate}
                   />
-                </motion.div>
-              ) : activeTab === "activity" && selection.type === "service" ? (
-                <motion.div
-                  key="activity-tab"
-                  initial={{ opacity: 0, x: 20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: -20 }}
-                  className="billing-panel"
-                >
-                  <h3 className="refined-section-title">Service Activity & Status</h3>
-                  <ServiceActivity bookings={serviceBills} />
                 </motion.div>
               ) : activeTab === "pricing" && selection.type === "service" ? (
                 <motion.div
