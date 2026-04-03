@@ -7,8 +7,11 @@ import {
   FaHome,
   FaWallet,
   FaHistory,
+  FaCalendarCheck,
   FaCalendarAlt,
-  FaArrowUp
+  FaTags,
+  FaArrowUp,
+  FaCreditCard
 } from "react-icons/fa";
 
 import Navbar from "../components/layout/Navbar";
@@ -24,6 +27,7 @@ import PaymentHistory from "../components/sections/billing/PaymentHistory";
 
 import BookingChart from "../components/sections/booking/BookingChart";
 import BookingPricingTable from "../components/sections/booking/BookingPricingTable";
+import ServiceActivity from "../components/sections/booking/ServiceActivity";
 
 import ComplaintButton from "../components/sections/complaint/ComplaintButton";
 import ComplaintList from "../components/sections/complaint/ComplaintList";
@@ -388,9 +392,11 @@ export default function BillingPage() {
       });
     }
 
-    // Default Apartment Filtration
-    if (monthKey === "all") return enrichedBills;
-    return enrichedBills.filter((bill) => {
+    // Default Apartment Filtration: Show only Utilities (Electricity, Water, Management)
+    const apartmentOnlyBills = enrichedBills.filter(bill => bill.source === "utility");
+
+    if (monthKey === "all") return apartmentOnlyBills;
+    return apartmentOnlyBills.filter((bill) => {
       if (!bill.dueDate) return false;
       const label = MONTH_FORMATTER.format(new Date(bill.dueDate));
       return label === monthKey;
@@ -642,19 +648,43 @@ export default function BillingPage() {
     }
   }, [selection.type, bills, serviceBills]);
 
-  const payments = useMemo(
-    () => bills.filter((bill) => bill.statusKey === "paid"),
-    [bills]
-  );
+  const historicalBills = useMemo(() => {
+    const now = new Date();
+    // Start of current month (e.g., April 1st 2026 00:00:00)
+    const startOfCurrentMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+    
+    return enrichedBills.filter(bill => {
+      const billDate = bill.dueDate ? new Date(bill.dueDate) : null;
+      // Show only invoices strictly before the current month
+      const isHistorical = billDate && billDate < startOfCurrentMonth;
+      if (!isHistorical) return false;
 
-  const tabs = [
-    { id: "overview", label: "Financial Overview", icon: <FaFileInvoiceDollar /> },
-    { 
-      id: "billing", 
-      label: selection.type === 'service' ? "Service Payments" : "My Home Billing", 
-      icon: <FaWallet /> 
-    },
-  ];
+      // Filter by context: Apartments show 'utility', Service Bookings show 'service'
+      if (selection.type === "apartment") return bill.source === "utility";
+      if (selection.type === "service") return bill.source === "service";
+      return true;
+    }).sort((a, b) => {
+      const timeA = a.dueDate ? new Date(a.dueDate).getTime() : 0;
+      const timeB = b.dueDate ? new Date(b.dueDate).getTime() : 0;
+      return timeB - timeA;
+    });
+  }, [enrichedBills, selection.type]);
+
+  const tabs = useMemo(() => {
+    if (selection.type === "service") {
+      return [
+        { id: "overview", label: "Service Overview", icon: <FaFileInvoiceDollar /> },
+        { id: "billing", label: "Service Payments", icon: <FaCreditCard /> },
+        { id: "activity", label: "Service Requests", icon: <FaCalendarCheck /> },
+      ];
+    }
+
+    return [
+      { id: "overview", label: "Financial Overview", icon: <FaFileInvoiceDollar /> },
+      { id: "billing", label: "My Home Billing", icon: <FaHome /> },
+      { id: "history", label: "Payment History", icon: <FaHistory /> },
+    ];
+  }, [selection.type]);
 
   const [activeTab, setActiveTab] = useState("overview");
   const [showBackToTop, setShowBackToTop] = useState(false);
@@ -714,6 +744,16 @@ export default function BillingPage() {
                     <p className="banner-subtitle">
                       Professional billing management for your properties.
                     </p>
+                    {selection.type === 'support' && (
+                      <motion.div
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.3 }}
+                        style={{ marginTop: '20px' }}
+                      >
+                        <ComplaintButton onSuccess={() => { }} />
+                      </motion.div>
+                    )}
                   </div>
                   <div className="banner-badge">
                     {selection.type === 'service' ? (
@@ -756,21 +796,12 @@ export default function BillingPage() {
               {selection.type === "support" ? (
                 <motion.div
                   key="support-view"
-                  initial={{ opacity: 0, scale: 0.98 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.98 }}
-                  className="billing-content"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -20 }}
+                  className="support-container"
                 >
-                  <div className="billing-panel" style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                    <div>
-                      <h3 className="section-title">Support Center</h3>
-                      <p className="billing-panel-subtitle">Report issues and track your requests.</p>
-                    </div>
-                    <ComplaintButton onSuccess={() => { }} />
-                  </div>
-
-                  <div className="billing-panel">
-                    <h3 className="section-title" style={{ marginBottom: "20px" }}>Your Requests</h3>
+                  <div className="billing-panel" style={{ marginTop: '24px' }}>
                     <ComplaintList />
                   </div>
                 </motion.div>
@@ -925,6 +956,43 @@ export default function BillingPage() {
                   )}
 
                 </motion.div>
+              ) : activeTab === "history" && selection.type === "apartment" ? (
+                <motion.div
+                  key="history-tab"
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -20 }}
+                  className="billing-panel"
+                >
+                  <h3 className="refined-section-title">Payment History</h3>
+                  <PaymentHistory
+                    payments={historicalBills}
+                    formatCurrency={formatCurrency}
+                    formatDate={formatDate}
+                  />
+                </motion.div>
+              ) : activeTab === "activity" && selection.type === "service" ? (
+                <motion.div
+                  key="activity-tab"
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -20 }}
+                  className="billing-panel"
+                >
+                  <h3 className="refined-section-title">Service Activity & Status</h3>
+                  <ServiceActivity bookings={serviceBills} />
+                </motion.div>
+              ) : activeTab === "pricing" && selection.type === "service" ? (
+                <motion.div
+                  key="pricing-tab"
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -20 }}
+                  className="billing-panel"
+                >
+                  <h3 className="refined-section-title">Service Unit Rates</h3>
+                  <BookingPricingTable rates={allServices} />
+                </motion.div>
               ) : activeTab === "overview" ? (
                 <motion.div
                   key="overview-tab"
@@ -968,14 +1036,6 @@ export default function BillingPage() {
                     </div>
                   </div>
 
-                  <div className="billing-panel">
-                    <h3 className="refined-section-title">Payment History</h3>
-                    <PaymentHistory
-                      payments={payments}
-                      formatCurrency={formatCurrency}
-                      formatDate={formatDate}
-                    />
-                  </div>
                 </motion.div>
               ) : (
                 <div />
