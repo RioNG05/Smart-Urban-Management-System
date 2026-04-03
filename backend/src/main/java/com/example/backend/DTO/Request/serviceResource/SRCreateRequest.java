@@ -2,6 +2,7 @@ package com.example.backend.DTO.Request.serviceResource;
 
 import com.example.backend.Entity.Services;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -17,8 +18,8 @@ public class SRCreateRequest {
     String resourceCode;
     @NotBlank(message = "Không được để trống khu vực")
     String location;
-    @NotBlank(message = "Không được để trống id dịch vụ")
+    @NotNull(message = "Không được để trống id dịch vụ")
     Integer serviceId;
-    @NotBlank(message = "Không được để trống trạng thái")
+    @NotNull(message = "Không được để trống trạng thái")
     Boolean isAvailable;
 }
