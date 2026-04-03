@@ -3,6 +3,37 @@ import { serviceCatalog } from "../data/serviceCatalog";
 
 const getPayload = (data) => data?.result ?? data;
 const BOOKING_VISIBILITY_STORAGE_KEY = "serviceBookingVisibility";
+const RESOURCE_IMAGE_STORAGE_KEY = "serviceResourceImages";
+const toArray = (value) => (Array.isArray(value) ? value : []);
+
+const requestWithAuthFallback = async (
+  config,
+  { retryOnBadRequest = true } = {},
+) => {
+  try {
+    return await api({
+      ...config,
+      skipAuth: false,
+    });
+  } catch (error) {
+    const status = error?.response?.status;
+    const shouldRetry =
+      status === 401 || status === 403 || (retryOnBadRequest && status === 400);
+
+    if (!shouldRetry) {
+      throw error;
+    }
+
+    return api({
+      ...config,
+      skipAuth: true,
+      headers: {
+        ...(config.headers ?? {}),
+        Authorization: undefined,
+      },
+    });
+  }
+};
 
 const normalizeKey = (value) =>
   String(value ?? "")
@@ -144,6 +175,42 @@ export const setServiceBookingVisibility = (serviceId, isVisible) => {
   return visibilityMap;
 };
 
+const parseResourceImageMap = () => {
+  if (typeof window === "undefined") return {};
+
+  try {
+    const rawValue = window.localStorage.getItem(RESOURCE_IMAGE_STORAGE_KEY);
+    const parsed = rawValue ? JSON.parse(rawValue) : {};
+    return parsed && typeof parsed === "object" ? parsed : {};
+  } catch {
+    return {};
+  }
+};
+
+const writeResourceImageMap = (value) => {
+  if (typeof window === "undefined") return;
+  window.localStorage.setItem(
+    RESOURCE_IMAGE_STORAGE_KEY,
+    JSON.stringify(value),
+  );
+};
+
+export const getServiceResourceImageMap = () => parseResourceImageMap();
+
+export const setServiceResourceImage = (resourceId, imageUrl) => {
+  const imageMap = parseResourceImageMap();
+  imageMap[String(resourceId)] = String(imageUrl ?? "").trim();
+  writeResourceImageMap(imageMap);
+  return imageMap;
+};
+
+export const removeServiceResourceImage = (resourceId) => {
+  const imageMap = parseResourceImageMap();
+  delete imageMap[String(resourceId)];
+  writeResourceImageMap(imageMap);
+  return imageMap;
+};
+
 export const removeServiceBookingVisibility = (serviceId) => {
   const visibilityMap = parseBookingVisibilityMap();
   delete visibilityMap[String(serviceId)];
@@ -183,7 +250,26 @@ export const deleteService = async (id) => {
   return getPayload(res.data);
 };
 
+export const uploadServiceImage = async (file, name = "service-image") => {
+  const formData = new FormData();
+  formData.append("file", file);
+  formData.append("name", name);
+
+  const res = await api.post("/image/upload", formData, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+    skipAuth: true,
+  });
+
+  return getPayload(res.data)?.url || "";
+};
+
 export const normalizeServiceResource = (item) => ({
+  ...(function () {
+    const resourceImageMap = parseResourceImageMap();
+    const storedImage = resourceImageMap[String(item?.id)] || null;
+    return {
   id: item?.id ?? null,
   resourceCode: item?.resourceCode || "",
   location: item?.location || "",
@@ -191,6 +277,7 @@ export const normalizeServiceResource = (item) => ({
   serviceId: item?.service?.id ?? item?.serviceId ?? null,
   serviceName: item?.service?.serviceName || item?.serviceName || "",
   imageUrl: resolveImageUrl(
+    storedImage,
     item?.imageUrl,
     item?.image,
     item?.thumbnailUrl,
@@ -199,6 +286,7 @@ export const normalizeServiceResource = (item) => ({
     item?.service?.thumbnailUrl
   ),
   imageUrls: collectImageUrls(
+    storedImage,
     item?.imageUrls,
     item?.images,
     item?.gallery,
@@ -214,15 +302,70 @@ export const normalizeServiceResource = (item) => ({
     item?.service?.image,
     item?.service?.thumbnailUrl
   ),
+    };
+  })(),
 });
 
 export const getServiceResources = async () => {
-  const res = await api.get("/service-resource");
-  const payload = getPayload(res.data);
+  const res = await requestWithAuthFallback({
+    method: "get",
+    url: "/service-resource",
+  });
+  return toArray(getPayload(res.data)).map(normalizeServiceResource);
+};
 
-  if (!Array.isArray(payload)) return [];
+const buildServiceResourcePayload = (payload = {}) => ({
+  resourceCode: String(payload.resourceCode ?? "").trim(),
+  location: String(payload.location ?? "").trim(),
+  serviceId:
+    payload.serviceId === "" || payload.serviceId == null
+      ? null
+      : Number(payload.serviceId),
+  isAvailable: Boolean(payload.isAvailable),
+});
 
-  return payload.map(normalizeServiceResource);
+export const createServiceResource = async (payload) => {
+  const res = await requestWithAuthFallback({
+    method: "post",
+    url: "/service-resource",
+    data: buildServiceResourcePayload(payload),
+  }, { retryOnBadRequest: false });
+  return normalizeServiceResource(getPayload(res.data));
+};
+
+export const updateServiceResource = async (id, payload) => {
+  const res = await requestWithAuthFallback({
+    method: "put",
+    url: `/service-resource/${id}`,
+    data: buildServiceResourcePayload(payload),
+  }, { retryOnBadRequest: false });
+  return normalizeServiceResource(getPayload(res.data));
+};
+
+export const deleteServiceResource = async (id) => {
+  const res = await requestWithAuthFallback({
+    method: "delete",
+    url: `/service-resource/${id}`,
+  }, { retryOnBadRequest: false });
+  return getPayload(res.data);
+};
+
+export const uploadServiceResourceImage = async (
+  file,
+  name = "service-resource-image",
+) => {
+  const formData = new FormData();
+  formData.append("file", file);
+  formData.append("name", name);
+
+  const res = await api.post("/image/upload", formData, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+    skipAuth: true,
+  });
+
+  return getPayload(res.data)?.url || "";
 };
 
 export const createBooking = async (payload) => {

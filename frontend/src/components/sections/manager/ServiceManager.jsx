@@ -1,6 +1,7 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "react-toastify";
 import {
+  FaBoxOpen,
   FaConciergeBell,
   FaTimes,
   FaEdit,
@@ -12,12 +13,20 @@ import {
 } from "react-icons/fa";
 import {
   createService,
+  createServiceResource,
   deleteService,
+  deleteServiceResource,
   getBookingVisibilityMap,
+  getServiceResources,
   getServices,
   removeServiceBookingVisibility,
+  removeServiceResourceImage,
   setServiceBookingVisibility,
+  setServiceResourceImage,
+  updateServiceResource,
   updateService,
+  uploadServiceImage,
+  uploadServiceResourceImage,
 } from "../../../services/serviceService";
 import AdminPagination from "../../common/AdminPagination";
 
@@ -37,10 +46,208 @@ const initialForm = {
   isBookable: true,
 };
 
+const initialResourceForm = {
+  resourceCode: "",
+  location: "",
+  isAvailable: true,
+};
+
+const ServiceResourceModal = ({
+  open,
+  service,
+  resources,
+  formData,
+  imagePreviewUrl,
+  editingId,
+  isSubmitting,
+  onClose,
+  onChange,
+  onImageChange,
+  onEdit,
+  onDelete,
+  onSubmit,
+}) => {
+  if (!open || !service) return null;
+
+  return (
+    <div className="service-resource-modal-overlay" onClick={onClose}>
+      <div
+        className="service-resource-modal"
+        onClick={(event) => event.stopPropagation()}
+      >
+        <div className="service-resource-modal-header">
+          <div>
+            <p className="service-resource-modal-kicker">SERVICE RESOURCE</p>
+            <h3>{service.title}</h3>
+            <span>
+              Manage resources used on booking for this service.
+            </span>
+          </div>
+          <button
+            type="button"
+            className="action-btn-styled"
+            onClick={onClose}
+            title="Close Resource Manager"
+          >
+            <FaTimes />
+          </button>
+        </div>
+
+        <div className="service-resource-modal-body">
+          <section className="service-resource-form-panel">
+            <div className="service-resource-form-header">
+              <h4>{editingId ? "Edit resource" : "Create resource"}</h4>
+              <p>{editingId ? "Update this resource" : "Add a new resource"}</p>
+            </div>
+
+            <div className="service-manager-form-grid">
+              <div className="form-group">
+                <label>Resource code</label>
+                <input
+                  type="text"
+                  value={formData.resourceCode}
+                  onChange={(event) => onChange("resourceCode", event.target.value)}
+                  placeholder="POOL-A1"
+                />
+              </div>
+
+              <div className="form-group">
+                <label>Location</label>
+                <input
+                  type="text"
+                  value={formData.location}
+                  onChange={(event) => onChange("location", event.target.value)}
+                  placeholder="Block A - Level 2"
+                />
+              </div>
+
+              <div className="form-group">
+                <label>Resource image</label>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={onImageChange}
+                />
+                <span className="service-manager-upload-note">
+                  Upload an image from your computer for this booking resource.
+                </span>
+                {imagePreviewUrl ? (
+                  <div className="service-manager-image-preview service-resource-image-preview">
+                    <img src={imagePreviewUrl} alt="Resource preview" />
+                  </div>
+                ) : null}
+              </div>
+
+              <label className="service-manager-checkbox">
+                <input
+                  type="checkbox"
+                  checked={formData.isAvailable}
+                  onChange={(event) => onChange("isAvailable", event.target.checked)}
+                />
+                Available for booking
+              </label>
+            </div>
+
+            <div className="service-resource-form-actions">
+              <button
+                type="button"
+                className="admin-btn-add"
+                onClick={onSubmit}
+                disabled={isSubmitting}
+              >
+                {isSubmitting
+                  ? "Processing..."
+                  : editingId
+                    ? "Update Resource"
+                    : "Create Resource"}
+              </button>
+              <button
+                type="button"
+                className="service-resource-cancel-btn"
+                onClick={() => {
+                  onChange("resourceCode", "");
+                  onChange("location", "");
+                  onChange("isAvailable", true);
+                  onEdit(null);
+                }}
+              >
+                Reset
+              </button>
+            </div>
+          </section>
+
+          <section className="service-resource-list-panel">
+            <div className="service-resource-list-header">
+              <h4>Existing resources</h4>
+              <span>{resources.length} records</span>
+            </div>
+
+            <div className="service-resource-list">
+              {resources.length === 0 ? (
+                <div className="service-resource-empty">
+                  No resources have been created for this service yet.
+                </div>
+              ) : (
+                resources.map((resource) => (
+                  <div key={resource.id} className="service-resource-card">
+                    {resource.imageUrl ? (
+                      <img
+                        src={resource.imageUrl}
+                        alt={resource.resourceCode || `Resource #${resource.id}`}
+                        className="service-resource-card-thumb"
+                      />
+                    ) : null}
+                    <div className="service-resource-card-main">
+                      <div className="service-resource-card-title">
+                        {resource.resourceCode || `Resource #${resource.id}`}
+                      </div>
+                      <div className="service-resource-card-location">
+                        {resource.location || "No location"}
+                      </div>
+                    </div>
+                    <span
+                      className={`status-badge ${
+                        resource.isAvailable ? "approved" : "denied"
+                      }`}
+                    >
+                      {resource.isAvailable ? "Available" : "Unavailable"}
+                    </span>
+                    <div className="service-manager-action-group">
+                      <button
+                        type="button"
+                        className="action-btn-styled"
+                        title="Edit Resource"
+                        onClick={() => onEdit(resource)}
+                      >
+                        <FaEdit />
+                      </button>
+                      <button
+                        type="button"
+                        className="action-btn-styled"
+                        title="Delete Resource"
+                        style={{ color: "var(--admin-danger)" }}
+                        onClick={() => onDelete(resource.id)}
+                      >
+                        <FaTrash />
+                      </button>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+          </section>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 const ServiceManager = () => {
   const [services, setServices] = useState([]);
   const [bookingVisibility, setBookingVisibility] = useState({});
   const [formData, setFormData] = useState(initialForm);
+  const [selectedImageFile, setSelectedImageFile] = useState(null);
+  const [imagePreviewUrl, setImagePreviewUrl] = useState("");
   const [editingId, setEditingId] = useState(null);
   const [isFormVisible, setIsFormVisible] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -48,14 +255,27 @@ const ServiceManager = () => {
   const [error, setError] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
+  const [isResourceModalOpen, setIsResourceModalOpen] = useState(false);
+  const [activeResourceService, setActiveResourceService] = useState(null);
+  const [allResources, setAllResources] = useState([]);
+  const [resourceFormData, setResourceFormData] = useState(initialResourceForm);
+  const [resourceImageFile, setResourceImageFile] = useState(null);
+  const [resourceImagePreviewUrl, setResourceImagePreviewUrl] = useState("");
+  const [editingResourceId, setEditingResourceId] = useState(null);
+  const [isResourceSubmitting, setIsResourceSubmitting] = useState(false);
   const pageSize = 6;
+  const imageInputRef = useRef(null);
 
   const loadServices = async () => {
     try {
       setIsLoading(true);
       setError("");
-      const items = await getServices();
+      const [items, resources] = await Promise.all([
+        getServices(),
+        getServiceResources(),
+      ]);
       setServices(items);
+      setAllResources(resources);
       setBookingVisibility(getBookingVisibilityMap());
     } catch (loadError) {
       setError(
@@ -113,11 +333,27 @@ const ServiceManager = () => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
+  const handleResourceInputChange = (field, value) => {
+    setResourceFormData((prev) => ({ ...prev, [field]: value }));
+  };
+
   const handleReset = () => {
     setFormData(initialForm);
+    setSelectedImageFile(null);
+    setImagePreviewUrl("");
     setEditingId(null);
     setIsFormVisible(false);
     setError("");
+    if (imageInputRef.current) {
+      imageInputRef.current.value = "";
+    }
+  };
+
+  const handleResourceReset = () => {
+    setResourceFormData(initialResourceForm);
+    setResourceImageFile(null);
+    setResourceImagePreviewUrl("");
+    setEditingResourceId(null);
   };
 
   const validateForm = () => {
@@ -127,7 +363,7 @@ const ServiceManager = () => {
       formData.feePerUnit === "" ||
       !formData.unitType.trim() ||
       !formData.description.trim() ||
-      !formData.imageUrl.trim()
+      (!formData.imageUrl.trim() && !selectedImageFile)
     ) {
       return "Please complete all required service fields.";
     }
@@ -160,12 +396,26 @@ const ServiceManager = () => {
     try {
       setIsSubmitting(true);
       setError("");
+      let nextImageUrl = formData.imageUrl;
+
+      if (selectedImageFile) {
+        nextImageUrl = await uploadServiceImage(
+          selectedImageFile,
+          `${formData.serviceCode || formData.serviceName || "service"}-${Date.now()}`,
+        );
+      }
 
       if (editingId) {
-        await updateService(editingId, buildPayload());
+        await updateService(editingId, {
+          ...buildPayload(),
+          imageUrl: nextImageUrl,
+        });
         toast.success("Service updated successfully.");
       } else {
-        const createdService = await createService(buildPayload());
+        const createdService = await createService({
+          ...buildPayload(),
+          imageUrl: nextImageUrl,
+        });
         setServiceBookingVisibility(createdService.id, true);
         toast.success("Service created successfully.");
       }
@@ -187,9 +437,14 @@ const ServiceManager = () => {
 
   const handleCreateClick = () => {
     setFormData(initialForm);
+    setSelectedImageFile(null);
+    setImagePreviewUrl("");
     setEditingId(null);
     setError("");
     setIsFormVisible(true);
+    if (imageInputRef.current) {
+      imageInputRef.current.value = "";
+    }
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
@@ -204,9 +459,27 @@ const ServiceManager = () => {
       imageUrl: service.imageUrl ?? service.image ?? "",
       isBookable: service.isBookable === true,
     });
+    setSelectedImageFile(null);
+    setImagePreviewUrl(service.imageUrl ?? service.image ?? "");
     setError("");
     setIsFormVisible(true);
+    if (imageInputRef.current) {
+      imageInputRef.current.value = "";
+    }
     window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const handleImageFileChange = (event) => {
+    const file = event.target.files?.[0];
+
+    if (!file) {
+      setSelectedImageFile(null);
+      setImagePreviewUrl(formData.imageUrl || "");
+      return;
+    }
+
+    setSelectedImageFile(file);
+    setImagePreviewUrl(URL.createObjectURL(file));
   };
 
   const handleDelete = async (serviceId) => {
@@ -237,7 +510,142 @@ const ServiceManager = () => {
     const nextVisibility = bookingVisibility[String(serviceId)] === false;
     const nextMap = setServiceBookingVisibility(serviceId, nextVisibility);
     setBookingVisibility(nextMap);
+    toast.success(
+      nextVisibility
+        ? "Service is now visible on booking."
+        : "Service has been hidden from booking.",
+    );
   };
+
+  const openResourceModal = (service) => {
+    setActiveResourceService(service);
+    setIsResourceModalOpen(true);
+    handleResourceReset();
+  };
+
+  const closeResourceModal = () => {
+    setIsResourceModalOpen(false);
+    setActiveResourceService(null);
+    handleResourceReset();
+  };
+
+  const handleEditResource = (resource) => {
+    if (!resource) {
+      handleResourceReset();
+      return;
+    }
+
+    setEditingResourceId(resource.id);
+    setResourceFormData({
+      resourceCode: resource.resourceCode ?? "",
+      location: resource.location ?? "",
+      isAvailable: resource.isAvailable !== false,
+    });
+    setResourceImageFile(null);
+    setResourceImagePreviewUrl(resource.imageUrl || "");
+  };
+
+  const handleResourceImageChange = (event) => {
+    const file = event.target.files?.[0];
+
+    if (!file) {
+      setResourceImageFile(null);
+      return;
+    }
+
+    setResourceImageFile(file);
+    setResourceImagePreviewUrl(URL.createObjectURL(file));
+  };
+
+  const handleDeleteResource = async (resourceId) => {
+    if (!window.confirm("Are you sure you want to delete this resource?")) {
+      return;
+    }
+
+    try {
+      await deleteServiceResource(resourceId);
+      removeServiceResourceImage(resourceId);
+      toast.success("Service resource deleted successfully.");
+      handleResourceReset();
+      await loadServices();
+    } catch (deleteError) {
+      toast.error(
+        deleteError?.response?.data?.message ||
+          "Could not delete this service resource.",
+      );
+    }
+  };
+
+  const handleSubmitResource = async () => {
+    if (!activeResourceService?.id) return;
+
+    if (!resourceFormData.resourceCode.trim() || !resourceFormData.location.trim()) {
+      toast.error("Please complete resource code and location.");
+      return;
+    }
+
+    const normalizedResourceCode = resourceFormData.resourceCode.trim().toLowerCase();
+    const hasDuplicateResourceCode = activeServiceResources.some(
+      (resource) =>
+        resource.id !== editingResourceId &&
+        String(resource.resourceCode ?? "").trim().toLowerCase() === normalizedResourceCode,
+    );
+
+    if (hasDuplicateResourceCode) {
+      toast.error("Resource code already exists for this service.");
+      return;
+    }
+
+    try {
+      setIsResourceSubmitting(true);
+
+      const payload = {
+        ...resourceFormData,
+        serviceId: activeResourceService.id,
+      };
+
+      if (editingResourceId) {
+        await updateServiceResource(editingResourceId, payload);
+        if (resourceImageFile) {
+          const imageUrl = await uploadServiceResourceImage(
+            resourceImageFile,
+            `${payload.resourceCode || "resource"}-${Date.now()}`,
+          );
+          setServiceResourceImage(editingResourceId, imageUrl);
+        }
+        toast.success("Service resource updated successfully.");
+      } else {
+        const createdResource = await createServiceResource(payload);
+        if (resourceImageFile && createdResource?.id) {
+          const imageUrl = await uploadServiceResourceImage(
+            resourceImageFile,
+            `${payload.resourceCode || "resource"}-${Date.now()}`,
+          );
+          setServiceResourceImage(createdResource.id, imageUrl);
+        }
+        toast.success("Service resource created successfully.");
+      }
+
+      handleResourceReset();
+      await loadServices();
+    } catch (submitError) {
+      toast.error(
+        submitError?.response?.data?.message ||
+          (editingResourceId
+            ? "Could not update this service resource."
+            : "Could not create this service resource."),
+      );
+    } finally {
+      setIsResourceSubmitting(false);
+    }
+  };
+
+  const activeServiceResources = useMemo(() => {
+    if (!activeResourceService?.id) return [];
+    return allResources.filter(
+      (resource) => Number(resource.serviceId) === Number(activeResourceService.id),
+    );
+  }, [activeResourceService, allResources]);
 
   return (
     <div
@@ -393,17 +801,26 @@ const ServiceManager = () => {
                 />
               </div>
 
-              <div className="form-group">
-                <label>Image URL</label>
-                <input
-                  type="text"
-                  value={formData.imageUrl}
-                  onChange={(event) =>
-                    handleInputChange("imageUrl", event.target.value)
-                  }
-                  placeholder="https://..."
-                />
-              </div>
+            <div className="form-group">
+              <label>Service image</label>
+              <input
+                ref={imageInputRef}
+                type="file"
+                accept="image/*"
+                onChange={handleImageFileChange}
+              />
+              <span className="service-manager-upload-note">
+                Choose an image from your computer. The file will be uploaded automatically when you save.
+              </span>
+              {(imagePreviewUrl || formData.imageUrl) ? (
+                <div className="service-manager-image-preview">
+                  <img
+                    src={imagePreviewUrl || formData.imageUrl}
+                    alt={formData.serviceName || "Service preview"}
+                  />
+                </div>
+              ) : null}
+            </div>
 
               <div className="form-group">
                 <label>Description</label>
@@ -582,6 +999,14 @@ const ServiceManager = () => {
                             <button
                               type="button"
                               className="action-btn-styled"
+                              title="Manage Service Resources"
+                              onClick={() => openResourceModal(service)}
+                            >
+                              <FaBoxOpen />
+                            </button>
+                            <button
+                              type="button"
+                              className="action-btn-styled"
                               title="Edit Service"
                               onClick={() => handleEdit(service)}
                             >
@@ -632,6 +1057,22 @@ const ServiceManager = () => {
           </div>
         </section>
       </div>
+
+      <ServiceResourceModal
+        open={isResourceModalOpen}
+        service={activeResourceService}
+        resources={activeServiceResources}
+        formData={resourceFormData}
+        imagePreviewUrl={resourceImagePreviewUrl}
+        editingId={editingResourceId}
+        isSubmitting={isResourceSubmitting}
+        onClose={closeResourceModal}
+        onChange={handleResourceInputChange}
+        onImageChange={handleResourceImageChange}
+        onEdit={handleEditResource}
+        onDelete={handleDeleteResource}
+        onSubmit={handleSubmitResource}
+      />
     </div>
   );
 };
