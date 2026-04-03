@@ -27,7 +27,6 @@ public class BookingServiceService {
     public BookingServiceService(BookingServiceRepository bookingRepository,
                                  AccountRepository accountRepository,
                                  ServicesResourceRepository resourceRepository,
-                                 ServiceInvoiceService serviceInvoiceService) {
                                  ServiceInvoiceService serviceInvoiceService,
                                  NotificationService notificationService) {
         this.bookingRepository = bookingRepository;
@@ -138,7 +137,6 @@ public class BookingServiceService {
         return oldStatus == 0 && newStatus == 1;
     }
 
-    private void createInvoice(BookingService bookingService) {
 
     private boolean isDecisionStatusChange(Integer currentStatus, Integer updateStatus) {
         return currentStatus == 0 && (updateStatus == 1 || updateStatus == 2);
