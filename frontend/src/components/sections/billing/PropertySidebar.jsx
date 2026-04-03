@@ -1,8 +1,8 @@
-import { FaHome, FaBuilding, FaCalendarAlt } from "react-icons/fa";
+import { FaHome, FaBuilding, FaCalendarAlt, FaExclamationCircle } from "react-icons/fa";
 
 export default function PropertySidebar({
   apartments,
-  selectedSelection, // { type: 'apartment'|'service', id: string }
+  selectedSelection, // { type: 'apartment'|'service'|'support', id: string }
   onSelect,
 }) {
   return (
@@ -43,6 +43,21 @@ export default function PropertySidebar({
             <FaCalendarAlt />
           </div>
           <span>Service Bookings</span>
+        </button>
+      </div>
+
+      {/* SECTION 3: HELP & SUPPORT */}
+      <h3 className="property-title" style={{ marginTop: "32px" }}>Help & Support</h3>
+      
+      <div className="property-list">
+        <button
+          className={`property-item ${selectedSelection.type === "support" ? "active" : ""}`}
+          onClick={() => onSelect({ type: "support", id: "all" })}
+        >
+          <div className="property-icon">
+            <FaExclamationCircle />
+          </div>
+          <span>Resident Support</span>
         </button>
       </div>
     </aside>
