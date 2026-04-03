@@ -1658,6 +1658,7 @@ CREATE TABLE ServiceResources (
     Location NVARCHAR(255),              -- location_of_service
     ServiceId INT NOT NULL,              -- service_id (FK)
     IsAvailable BIT DEFAULT 1,           -- Thêm trạng thái để biết có đang bảo trì không
+	ImageUrl NVARCHAR(MAX),              -- ẢNH LƯU TRỰC TIẾP Ở ĐÂY (Refactored)
 
     -- Khóa ngoại nối sang bảng Services
     CONSTRAINT FK_Resources_Services FOREIGN KEY (ServiceId) REFERENCES Services(Id)
@@ -1667,86 +1668,92 @@ CREATE TABLE ServiceResources (
 -- vd: bookable: bbq, tenis
 -- ko cần book/ko book được: bể bơi và gym.
 -- 1. Resources cho BBQ Park (Giả sử ServiceId = 8)
-INSERT INTO ServiceResources (ResourceCode, Location, ServiceId, IsAvailable)
-VALUES 
-('BBQ_ZONE_A_01', N'Vườn BBQ - Khu A (Cạnh hồ bơi)', 8, 1),
-('BBQ_ZONE_A_02', N'Vườn BBQ - Khu A (Cạnh hồ bơi)', 8, 1),
-('BBQ_ZONE_B_01', N'Vườn BBQ - Khu B (Công viên trung tâm)', 8, 1);
+-- 1. Nhóm BBQ (ServiceId = 8)
+INSERT INTO ServiceResources (ResourceCode, Location, ServiceId, IsAvailable, ImageUrl)
+VALUES  
+('BBQ_ZONE_A_01', N'Vườn BBQ - Khu A (Cạnh hồ bơi)', 8, 1, 'https://tse2.mm.bing.net/th/id/OIP.h5ojHmBqqkvXC7rtk65zugHaE_?rs=1&pid=ImgDetMain&o=7&rm=3'),
+('BBQ_ZONE_A_02', N'Vườn BBQ - Khu A (Cạnh hồ bơi)', 8, 1, 'https://tse3.mm.bing.net/th/id/OIP.MM31qoW70iNVwsmLz-Hz7gHaE7?rs=1&pid=ImgDetMain&o=7&rm=3'),
+('BBQ_ZONE_B_01', N'Vườn BBQ - Khu B (Công viên trung tâm)', 8, 1, 'https://tse3.mm.bing.net/th/id/OIP.TZwV6kcD_-PTgZpUBqdNjgHaFj?rs=1&pid=ImgDetMain&o=7&rm=3');
+GO
 
--- 2. Resources cho Tennis Court (Giả sử ServiceId = 9)
-INSERT INTO ServiceResources (ResourceCode, Location, ServiceId, IsAvailable)
-VALUES 
-('TENNIS_CT_01', N'Khu thể thao ngoài trời - Sân số 1', 9, 1),
-('TENNIS_CT_02', N'Khu thể thao ngoài trời - Sân số 2', 9, 1),
-('TENNIS_CT_03', N'Khu thể thao ngoài trời - Sân số 3 (Đang bảo trì)', 9, 0); -- Sân bảo trì để test logic
+-- 2. Nhóm Tennis (ServiceId = 9)
+INSERT INTO ServiceResources (ResourceCode, Location, ServiceId, IsAvailable, ImageUrl)
+VALUES  
+('TENNIS_CT_01', N'Sân số 1', 9, 1, 'https://serena.com.vn/wp-content/uploads/2022/11/Tennis-3-scaled.jpg'),
+('TENNIS_CT_02', N'Sân số 2', 9, 1, 'https://tse4.mm.bing.net/th/id/OIP.aQ6v_dIX8jWYZ1HkgddqFQHaE8?w=660&h=440&rs=1&pid=ImgDetMain&o=7&rm=3'),
+('TENNIS_CT_03', N'Sân số 3 (Bảo trì)', 9, 0, 'https://tse1.mm.bing.net/th/id/OIP.H_xYMV4JvL_i3xV6ul8yvgHaEK?w=880&h=495&rs=1&pid=ImgDetMain&o=7&rm=3');
+GO
 
--- 3. Resources cho Golf Course (Giả sử ServiceId = 10)
-INSERT INTO ServiceResources (ResourceCode, Location, ServiceId, IsAvailable)
-VALUES 
-('GOLF_LANE_01', N'Sân tập Golf - Làn số 1', 10, 1),
-('GOLF_LANE_02', N'Sân tập Golf - Làn số 2', 10, 1);
+-- 3. Nhóm Golf (ServiceId = 10)
+INSERT INTO ServiceResources (ResourceCode, Location, ServiceId, IsAvailable, ImageUrl)
+VALUES  
+('GOLF_LANE_01', N'Sân tập Golf - Làn 1', 10, 1, 'https://bizweb.dktcdn.net/100/454/998/files/cau-truc-san-golf-1024x579.png?v=1721027003853'),
+('GOLF_LANE_02', N'Sân tập Golf - Làn 2', 10, 1, 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTcrmlQG5DEvy2M6vSPwGkG_I4rETEqw8rMTw&s');
+GO
 
--- 4. Resources cho Sauna & Spa (Giả sử ServiceId = 11)
-INSERT INTO ServiceResources (ResourceCode, Location, ServiceId, IsAvailable)
-VALUES 
-('SPA_ROOM_01', N'Tầng 3 - Tòa S1 - Phòng VIP 1', 11, 1),
-('SPA_ROOM_02', N'Tầng 3 - Tòa S1 - Phòng VIP 2', 11, 1);
+-- 4. Nhóm Spa (ServiceId = 11)
+INSERT INTO ServiceResources (ResourceCode, Location, ServiceId, IsAvailable, ImageUrl)
+VALUES  
+('SPA_ROOM_01', N'Phòng VIP 1', 11, 1, 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQJh0-BFAcK5wtH4FGe4aIO10v7ilfoYmzaGw&s'),
+('SPA_ROOM_02', N'Phòng VIP 2', 11, 1, 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSOjkrNdKBZb_A0uEOni0fzVsxLf1o4ysw0iw&s');
 GO
 -- 5. add cho bên hall
-INSERT INTO ServiceResources (ResourceCode, Location, ServiceId, IsAvailable)
+INSERT INTO ServiceResources (ResourceCode, Location, ServiceId, IsAvailable, ImageUrl)
 VALUES 
-( 'HALL_S1_01', N'Tầng 1, Tòa S1 - Hội trường lớn A', 12, 1),
-( 'HALL_S1_02', N'Tầng 1, Tòa S1 - Phòng sinh hoạt nhỏ B', 12, 1),
-( 'HALL_S2_01', N'Tầng 1, Tòa S2 - Hội trường trung tâm', 12, 1),
-( 'HALL_S2_02', N'Tầng 2, Tòa S2 - Phòng họp cư dân', 12, 1),
-( 'HALL_COMMON', N'Khu vực quảng trường - Nhà sinh hoạt chung', 12, 1);
+( 'HALL_S1_01', N'Tầng 1, Tòa S1 - Hội trường lớn A', 12, 1, 'https://tse2.mm.bing.net/th/id/OIP.lbReQ7jzsltz0GqdDn-9zQHaEv?rs=1&pid=ImgDetMain&o=7&rm=3'),
+( 'HALL_S1_02', N'Tầng 1, Tòa S1 - Phòng sinh hoạt nhỏ B', 12, 1, 'https://tse4.mm.bing.net/th/id/OIP.RujXzLwGtbOHnCkxClwwkAHaEL?rs=1&pid=ImgDetMain&o=7&rm=3'),
+( 'HALL_S2_01', N'Tầng 1, Tòa S2 - Hội trường trung tâm', 12, 1, 'https://tse2.mm.bing.net/th/id/OIP.hwEPNJ3f-qftLAPYzeOm6AAAAA?w=440&h=293&rs=1&pid=ImgDetMain&o=7&rm=3'),
+( 'HALL_S2_02', N'Tầng 2, Tòa S2 - Phòng họp cư dân', 12, 1, 'https://tse4.mm.bing.net/th/id/OIP.MsblINLo0plg08VE4JpKUQHaE8?w=550&h=367&rs=1&pid=ImgDetMain&o=7&rm=3'),
+( 'HALL_COMMON', N'Khu vực quảng trường - Nhà sinh hoạt chung', 12, 1, 'https://tse2.mm.bing.net/th/id/OIP.lbReQ7jzsltz0GqdDn-9zQHaEv?rs=1&pid=ImgDetMain&o=7&rm=3' );
 GO
-
--- giờ add resource cho mấy người anh em service ko book đc
 -- 1. Resources cho Green Park (ServiceId = 1)
-INSERT INTO ServiceResources (ResourceCode, Location, ServiceId, IsAvailable)
-VALUES 
-('PARK_CENTRAL', N'Công viên trung tâm - Khu vực hồ điều hòa', 1, 1),
-('PARK_NORTH', N'Công viên phía Bắc - Khu vườn Nhật', 1, 1);
+INSERT INTO ServiceResources (ResourceCode, Location, ServiceId, IsAvailable, ImageUrl)
+VALUES  
+('PARK_CENTRAL', N'Công viên trung tâm - Khu vực hồ điều hòa', 1, 1, 'https://www.annhome.vn/wp-content/uploads/2020/04/Cong-vien-van-hoa-nghe-thuat-Vinhomes-Grand-Park.jpg'),
+('PARK_NORTH', N'Công viên phía Bắc - Khu vườn Nhật', 1, 1, 'https://tse3.mm.bing.net/th/id/OIP.BKk52dVdASyotQKc71uphQHaE8?pid=ImgDet&w=474&h=316&rs=1&o=7&rm=3');
+GO
 
 -- 2. Resources cho Swimming Pools (ServiceId = 2)
-INSERT INTO ServiceResources (ResourceCode, Location, ServiceId, IsAvailable)
-VALUES 
-('POOL_S1_INF', N'Tòa S1 - Tầng 4 (Bể bơi vô cực)', 2, 1),
-('POOL_S2_KIDS', N'Tòa S2 - Tầng trệt (Bể bơi trẻ em)', 2, 1);
-
--- 3. Resources cho Shopping Center (ServiceId = 3)
-INSERT INTO ServiceResources (ResourceCode, Location, ServiceId, IsAvailable)
-VALUES 
-('MALL_MAIN_A', N'Khu thương mại Vincom - Sảnh A', 3, 1),
-('SHOP_HOUSE_S1', N'Dãy Shophouse khối đế tòa S1', 3, 1);
-
--- 4. Resources cho Children’s Playground (ServiceId = 4)
-INSERT INTO ServiceResources (ResourceCode, Location, ServiceId, IsAvailable)
-VALUES 
-('KIDS_OUT_01', N'Sân chơi ngoài trời - Cạnh tòa S2', 4, 1),
-('KIDS_IN_01', N'Phòng vui chơi trong nhà - Tòa S1', 4, 1);
-
--- 5. Resources cho Gym & Yoga Facilities (ServiceId = 5)
-INSERT INTO ServiceResources (ResourceCode, Location, ServiceId, IsAvailable)
-VALUES 
-('GYM_CENTER_01', N'Tầng 2 - Tòa S1 (Phòng Gym chính)', 5, 1),
-('YOGA_STUDIO_01', N'Tầng 2 - Tòa S1 (Phòng Yoga thiền)', 5, 1);
-
--- 6. Resources cho Education System (ServiceId = 6)
-INSERT INTO ServiceResources (ResourceCode, Location, ServiceId, IsAvailable)
-VALUES 
-('EDU_VINS_PRIMARY', N'Khu trường tiểu học Vinschool', 6, 1),
-('EDU_VINS_KINDERGARTEN', N'Khu trường mầm non Vinschool', 6, 1);
-
--- 7. Resources cho Smart Parking (ServiceId = 7)
-INSERT INTO ServiceResources (ResourceCode, Location, ServiceId, IsAvailable)
-VALUES 
-('PARK_B1_S1', N'Hầm gửi xe B1 - Tòa S1', 7, 1),
-('PARK_B1_S2', N'Hầm gửi xe B1 - Tòa S2', 7, 1);
-
+INSERT INTO ServiceResources (ResourceCode, Location, ServiceId, IsAvailable, ImageUrl)
+VALUES  
+('POOL_S1_INF', N'Tòa S1 - Tầng 4 (Bể bơi vô cực)', 2, 1, 'https://tse1.mm.bing.net/th/id/OIP.L-JwO9EXN-dbA54tKnmaJQHaE8?rs=1&pid=ImgDetMain&o=7&rm=3'),
+('POOL_S2_KIDS', N'Tòa S2 - Tầng trệt (Bể bơi trẻ em)', 2, 1, 'https://tse2.mm.bing.net/th/id/OIP.rxQdhbvDkL9D-xHrlVC89wHaEJ?w=740&h=415&rs=1&pid=ImgDetMain&o=7&rm=3');
 GO
 
+-- 3. Resources cho Shopping Center (ServiceId = 3)
+INSERT INTO ServiceResources (ResourceCode, Location, ServiceId, IsAvailable, ImageUrl)
+VALUES  
+('MALL_MAIN_A', N'Khu thương mại Vincom - Sảnh A', 3, 1, 'https://tse1.mm.bing.net/th/id/OIP.nIgOdEIPzK6iH_fn5VhZuAHaE9?rs=1&pid=ImgDetMain&o=7&rm=3'),
+('SHOP_HOUSE_S1', N'Dãy Shophouse khối đế tòa S1', 3, 1, 'https://tse4.mm.bing.net/th/id/OIP.WjjQk3n_qC6-i6VNfJAFUgHaFj?w=800&h=600&rs=1&pid=ImgDetMain&o=7&rm=3');
+GO
+
+-- 4. Resources cho Children’s Playground (ServiceId = 4)
+INSERT INTO ServiceResources (ResourceCode, Location, ServiceId, IsAvailable, ImageUrl)
+VALUES  
+('KIDS_OUT_01', N'Sân chơi ngoài trời - Cạnh tòa S2', 4, 1, 'https://th.bing.com/th/id/OIP.v177-wHiXxZGJbcntYuQGQHaE8?o=7rm=3&rs=1&pid=ImgDetMain&o=7&rm=3'),
+('KIDS_IN_01', N'Phòng vui chơi trong nhà - Tòa S1', 4, 1, 'https://tse2.mm.bing.net/th/id/OIP.uESWc2hfOLwnToCMDsAGawHaE8?w=700&h=467&rs=1&pid=ImgDetMain&o=7&rm=3');
+GO
+
+-- 5. Resources cho Gym & Yoga Facilities (ServiceId = 5)
+INSERT INTO ServiceResources (ResourceCode, Location, ServiceId, IsAvailable, ImageUrl)
+VALUES  
+('GYM_CENTER_01', N'Tầng 2 - Tòa S1 (Phòng Gym chính)', 5, 1, 'https://tse3.mm.bing.net/th/id/OIP.b3ggclKqEU-oa6NNiTeiJAHaE7?rs=1&pid=ImgDetMain&o=7&rm=3'),
+('YOGA_STUDIO_01', N'Tầng 2 - Tòa S1 (Phòng Yoga thiền)', 5, 1, 'https://th.bing.com/th/id/OIP.H1MFdEfZszyHyFS_yZ7YrAHaE8?o=7rm=3&rs=1&pid=ImgDetMain&o=7&rm=3');
+GO
+
+-- 6. Resources cho Education System (ServiceId = 6)
+INSERT INTO ServiceResources (ResourceCode, Location, ServiceId, IsAvailable, ImageUrl)
+VALUES  
+('EDU_VINS_PRIMARY', N'Khu trường tiểu học Vinschool', 6, 1, 'https://tse1.mm.bing.net/th/id/OIP.Au3G2PnYSDyOnIr3uuEDPgHaEB?rs=1&pid=ImgDetMain&o=7&rm=3'),
+('EDU_VINS_KINDERGARTEN', N'Khu trường mầm non Vinschool', 6, 1, 'https://tse2.mm.bing.net/th/id/OIP.NGX75odDxZJrt6V3C0fB5wHaEa?rs=1&pid=ImgDetMain&o=7&rm=3');
+GO
+
+-- 7. Resources cho Smart Parking (ServiceId = 7)
+INSERT INTO ServiceResources (ResourceCode, Location, ServiceId, IsAvailable, ImageUrl)
+VALUES  
+('PARK_B1_S1', N'Hầm gửi xe B1 - Tòa S1', 7, 1, 'https://img.freepik.com/premium-photo/smart-parking-system-with-realtime-availability-reservation-features_1327465-68653.jpg?w=1800'),
+('PARK_B1_S2', N'Hầm gửi xe B1 - Tòa S2', 7, 1, 'https://tse4.mm.bing.net/th/id/OIP.Y-kEhNTZMaxfwEyFxAHYogHaHa?rs=1&pid=ImgDetMain&o=7&rm=3');
+GO
 
 -- 11 service booking
 CREATE TABLE BookingServices (
@@ -2424,125 +2431,6 @@ INSERT INTO @ShophouseImages VALUES
 INSERT INTO ApartmentTypeImages (ApartmentTypeId, ImageUrl)
 SELECT 17, Url FROM @ShophouseImages;
 GO
-
--- Bảng lưu bộ sưu tập ảnh cho từng Resource cụ thể (Vị trí/Phòng/Sân)
-CREATE TABLE ServiceResourceImages (
-    Id INT IDENTITY(1,1) PRIMARY KEY,
-    ServiceResourceId INT NOT NULL,         -- FK nối sang ServiceResources
-    ImageUrl NVARCHAR(MAX) NOT NULL,        -- URL ảnh (Cloudinary)
-    Description NVARCHAR(255),              -- Chú thích ảnh (Vd: Góc nhìn từ khán đài)
-
-    CONSTRAINT FK_Images_ServiceResources FOREIGN KEY (ServiceResourceId) REFERENCES ServiceResources(Id) ON DELETE CASCADE
-);
-
-
--- Bước 2: Chèn bộ ảnh thực tế mới
-DECLARE @RealBBQImages TABLE (Url NVARCHAR(MAX));
-INSERT INTO @RealBBQImages VALUES 
-('https://tse2.mm.bing.net/th/id/OIP.h5ojHmBqqkvXC7rtk65zugHaE_?rs=1&pid=ImgDetMain&o=7&rm=3'),
-('https://tse3.mm.bing.net/th/id/OIP.MM31qoW70iNVwsmLz-Hz7gHaE7?rs=1&pid=ImgDetMain&o=7&rm=3'),
-('https://tse3.mm.bing.net/th/id/OIP.TZwV6kcD_-PTgZpUBqdNjgHaFj?rs=1&pid=ImgDetMain&o=7&rm=3'),
-('https://tse2.mm.bing.net/th/id/OIP.t10vIqog4BWtcEkpQW6DswHaE8?rs=1&pid=ImgDetMain&o=7&rm=3'),
-('https://tse2.mm.bing.net/th/id/OIP.8k9AR1TkMUsr6pHWWa_czwHaEc?rs=1&pid=ImgDetMain&o=7&rm=3');
-
--- Đổ cho BBQ_ZONE_A_01
-INSERT INTO ServiceResourceImages (ServiceResourceId, ImageUrl, Description)
-SELECT 1, Url, N'Phối cảnh vườn BBQ thực tế tại Vinhomes Smart City' FROM @RealBBQImages;
-
--- Đổ cho BBQ_ZONE_A_02
-INSERT INTO ServiceResourceImages (ServiceResourceId, ImageUrl, Description)
-SELECT 2, Url, N'Phối cảnh vườn BBQ thực tế tại Vinhomes Smart City' FROM @RealBBQImages;
-
--- Đổ cho BBQ_ZONE_B_01
-INSERT INTO ServiceResourceImages (ServiceResourceId, ImageUrl, Description)
-SELECT 3, Url, N'Phối cảnh vườn BBQ thực tế tại Vinhomes Smart City' FROM @RealBBQImages;
-GO
-
--- =============================================
--- BATCH 26.3: GALLERY ẢNH SÂN TENNIS THỰC TẾ
--- Đối tượng: TENNIS_CT_01, TENNIS_CT_02, TENNIS_CT_03
--- =============================================
-
--- Bước 1: Dọn dẹp ảnh cũ của 3 sân Tennis này (nếu có)
-DELETE FROM ServiceResourceImages WHERE ServiceResourceId IN (4, 5, 6);
-
--- Bước 2: Dùng bảng tạm chứa 6 URL ảnh Tennis cực xịn của Nghĩa
-DECLARE @TennisImages TABLE (Url NVARCHAR(MAX));
-INSERT INTO @TennisImages VALUES 
-('https://serena.com.vn/wp-content/uploads/2022/11/Tennis-3-scaled.jpg'),
-('https://tse4.mm.bing.net/th/id/OIP.aQ6v_dIX8jWYZ1HkgddqFQHaE8?w=660&h=440&rs=1&pid=ImgDetMain&o=7&rm=3'),
-('https://tse1.mm.bing.net/th/id/OIP.H_xYMV4JvL_i3xV6ul8yvgHaEK?w=880&h=495&rs=1&pid=ImgDetMain&o=7&rm=3'),
-('https://tse1.mm.bing.net/th/id/OIP.tFbt7_6Nbqsa9H9vv4RafAHaFj?rs=1&pid=ImgDetMain&o=7&rm=3'),
-('https://tse4.mm.bing.net/th/id/OIP.l0kORrvety_7GfWlQPLgTwHaF-?w=1024&h=827&rs=1&pid=ImgDetMain&o=7&rm=3'),
-('https://5.imimg.com/data5/SELLER/Default/2024/3/401500674/EG/AL/OM/73526767/tennis-500x500.jpg');
-
--- Chèn cho Sân số 1 (ID 4)
-INSERT INTO ServiceResourceImages (ServiceResourceId, ImageUrl, Description)
-SELECT 4, Url, N'Hình ảnh thực tế sân Tennis tiêu chuẩn quốc tế' FROM @TennisImages;
-
--- Chèn cho Sân số 2 (ID 5)
-INSERT INTO ServiceResourceImages (ServiceResourceId, ImageUrl, Description)
-SELECT 5, Url, N'Cận cảnh mặt sân và hệ thống lưới Tennis' FROM @TennisImages;
-
--- Chèn cho Sân số 3 (ID 6 - Đang bảo trì)
-INSERT INTO ServiceResourceImages (ServiceResourceId, ImageUrl, Description)
-SELECT 6, Url, N'Khu vực sân Tennis số 3 (Sắp đi vào hoạt động lại)' FROM @TennisImages;
-GO
-
--- =============================================
--- BATCH 26.4: GALLERY ẢNH SÂN TẬP GOLF ĐẲNG CẤP
--- Đối tượng: GOLF_LANE_01 (ID 7) & GOLF_LANE_02 (ID 8)
--- =============================================
-
--- Bước 1: Dọn dẹp đống ảnh cũ/mẫu (nếu có) để nhường chỗ cho hàng xịn
-DELETE FROM ServiceResourceImages WHERE ServiceResourceId IN (7, 8);
-
--- Bước 2: Dùng bảng tạm chứa 6 URL ảnh Golf "vibe đại gia" của Nghĩa
-DECLARE @GolfImages TABLE (Url NVARCHAR(MAX));
-INSERT INTO @GolfImages VALUES 
-('https://bizweb.dktcdn.net/100/454/998/files/cau-truc-san-golf-1024x579.png?v=1721027003853'),
-('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTcrmlQG5DEvy2M6vSPwGkG_I4rETEqw8rMTw&s'),
-('https://media-cdn-v2.laodong.vn/storage/newsportal/2025/9/29/1582697/San-Gon-Vinpearl-Gol.jpg'),
-('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQwAXOYNiXXUHeK-tgPe_Te9pC4hGILj-oYDQ&s'),
-('https://media-cdn-v2.laodong.vn/storage/newsportal/2024/9/19/1396645/San-Golf-Vung-Bau-Es.jpg'),
-('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQb9mb43DLf9sCJq399QffNsrqJf_UOsw_byg&s');
-
--- Chèn cho Làn tập số 1 (ID 7)
-INSERT INTO ServiceResourceImages (ServiceResourceId, ImageUrl, Description)
-SELECT 7, Url, N'Phối cảnh sân tập Golf chuyên nghiệp tại dự án' FROM @GolfImages;
-
--- Chèn cho Làn tập số 2 (ID 8)
-INSERT INTO ServiceResourceImages (ServiceResourceId, ImageUrl, Description)
-SELECT 8, Url, N'Khu vực thảm tập và view hướng sân Golf xanh mát' FROM @GolfImages;
-GO
-
--- =============================================
--- BATCH 26.5: GALLERY ẢNH SPA THƯ GIÃN 5 SAO
--- Đối tượng: SPA_ROOM_01 (ID 9) & SPA_ROOM_02 (ID 10)
--- =============================================
-
--- Bước 1: Dọn dẹp ảnh cũ (nếu có) để nhường chỗ cho hàng xịn
-DELETE FROM ServiceResourceImages WHERE ServiceResourceId IN (9, 10);
-
--- Bước 2: Dùng bảng tạm chứa 6 URL ảnh Spa cực chill của Nghĩa
-DECLARE @SpaImages TABLE (Url NVARCHAR(MAX));
-INSERT INTO @SpaImages VALUES 
-('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQJh0-BFAcK5wtH4FGe4aIO10v7ilfoYmzaGw&s'),
-('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSOjkrNdKBZb_A0uEOni0fzVsxLf1o4ysw0iw&s'),
-('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSx4xGCOFbK7Icmw-2FYhAEsfnLUVwsJ0Q6yA&s'),
-('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRooXYvuTyYpVla5DWv2y28lP5ePAH0PZZTrg&s'),
-('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTeQmXSW8YwGvgNCfS2d-HaqNOx4hAD_91IFA&s'),
-('https://cdn1.nhatrangtoday.vn/images/photos/dep-spa-nha-trang-top.jpg');
-
--- Chèn cho Phòng SPA VIP 1 (ID 9)
-INSERT INTO ServiceResourceImages (ServiceResourceId, ImageUrl, Description)
-SELECT 9, Url, N'Không gian phòng Spa thư giãn cao cấp tại tầng 3' FROM @SpaImages;
-
--- Chèn cho Phòng SPA VIP 2 (ID 10)
-INSERT INTO ServiceResourceImages (ServiceResourceId, ImageUrl, Description)
-SELECT 10, Url, N'Trải nghiệm dịch vụ Spa và chăm sóc sức khỏe chuyên nghiệp' FROM @SpaImages;
-GO
-
 
 
 -- Batch 1: 
