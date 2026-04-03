@@ -1965,6 +1965,7 @@
 }
 
 .complaint-status.pending { background: #fef3c7; color: #f59e0b; }
+.complaint-status.closed,
 .complaint-status.replied { background: #dcfce7; color: #22c55e; }
 
 .complaint-arrow {
