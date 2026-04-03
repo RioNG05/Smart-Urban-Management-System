@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { Link } from "react-router-dom";
 import { toast } from "react-toastify";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -11,7 +12,8 @@ import {
   FaCalendarAlt,
   FaTags,
   FaArrowUp,
-  FaCreditCard
+  FaCreditCard,
+  FaCalendarPlus
 } from "react-icons/fa";
 
 import Navbar from "../components/layout/Navbar";
@@ -71,6 +73,8 @@ export default function BillingPage() {
   // Service-specific filters
   const [serviceMonthKey, setServiceMonthKey] = useState("all");
   const [serviceFilterName, setServiceFilterName] = useState("all");
+  const [serviceStatusFilter, setServiceStatusFilter] = useState("all");
+  const [bookingStatusFilter, setBookingStatusFilter] = useState("all");
 
   const onToggleBill = (billId, categories) => {
     setSelectedIds((prev) => {
@@ -94,6 +98,28 @@ export default function BillingPage() {
       const key = `${billId}:${category}`;
       return prev.includes(key) ? prev.filter(id => id !== key) : [...prev, key];
     });
+  };
+
+  const onToggleAllBookings = () => {
+    const unpaidIds = payableBills
+      .filter(bill => bill.source === "service")
+      .map(bill => `${bill.id}:service`);
+    
+    if (unpaidIds.length === 0) return;
+
+    const allCurrentlySelected = unpaidIds.every(id => selectedIds.includes(id));
+    
+    if (allCurrentlySelected) {
+      setSelectedIds(prev => prev.filter(id => !unpaidIds.includes(id)));
+    } else {
+      setSelectedIds(prev => {
+        const next = [...prev];
+        unpaidIds.forEach(id => {
+          if (!next.includes(id)) next.push(id);
+        });
+        return next;
+      });
+    }
   };
 
   const selectedApartmentLabel = useMemo(() => {
@@ -348,7 +374,7 @@ export default function BillingPage() {
   const serviceMonthOptions = useMemo(() => {
     const optionMap = new Map();
     serviceBills.forEach((bill) => {
-      const dateSource = bill.dueDate || bill.usageDate || bill.bookFrom;
+      const dateSource = bill.usageDate || bill.dueDate || bill.bookFrom || bill.createdAt;
       if (!dateSource) return;
       
       const dateObj = new Date(dateSource);
@@ -381,14 +407,18 @@ export default function BillingPage() {
         
         let matchesMonth = true;
         if (serviceMonthKey !== "all") {
-          const dateSource = bill.dueDate || bill.usageDate || bill.bookFrom;
+          const dateSource = bill.usageDate || bill.dueDate || bill.bookFrom || bill.createdAt;
           if (!dateSource) matchesMonth = false;
           else {
             const label = MONTH_FORMATTER.format(new Date(dateSource));
             matchesMonth = (label === serviceMonthKey);
           }
         }
-        return matchesName && matchesMonth;
+
+        const matchesPaymentStatus = serviceStatusFilter === "all" || bill.paymentStatusKey === serviceStatusFilter;
+        const matchesBookingStatus = bookingStatusFilter === "all" || bill.bookingStatusKey === bookingStatusFilter;
+        
+        return matchesName && matchesMonth && matchesPaymentStatus && matchesBookingStatus;
       });
     }
 
@@ -401,10 +431,10 @@ export default function BillingPage() {
       const label = MONTH_FORMATTER.format(new Date(bill.dueDate));
       return label === monthKey;
     });
-  }, [enrichedBills, serviceBills, monthKey, serviceMonthKey, serviceFilterName, selection.type]);
+  }, [enrichedBills, serviceBills, monthKey, serviceMonthKey, serviceFilterName, serviceStatusFilter, bookingStatusFilter, selection.type]);
 
   const payableBills = useMemo(
-    () => filteredBills.filter((bill) => bill.statusKey !== "paid"),
+    () => filteredBills.filter((bill) => bill.statusKey === "unpaid" && bill.bookingStatusKey === "approved"),
     [filteredBills]
   );
 
@@ -763,15 +793,51 @@ export default function BillingPage() {
                       </motion.div>
                     )}
                   </div>
-                  <div className="banner-badge">
-                    {selection.type === 'service' ? (
-                      <FaCalendarAlt style={{ marginRight: "8px" }} />
-                    ) : selection.type === 'support' ? (
-                      <FaExclamationCircle style={{ marginRight: "8px" }} />
-                    ) : (
-                      <FaHome style={{ marginRight: "8px" }} />
+                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', justifyContent: 'center' }}>
+                    {selection.type === 'service' && (
+                      <Link 
+                        to="/booking" 
+                        className="premium-action-btn"
+                        style={{ 
+                          display: 'flex', 
+                          alignItems: 'center', 
+                          gap: '12px',
+                          padding: '12px 28px',
+                          borderRadius: '14px',
+                          background: 'linear-gradient(135deg, #F59E0B 0%, #D97706 100%)',
+                          boxShadow: '0 4px 15px rgba(217, 119, 6, 0.4), inset 0 0 0 1px rgba(255, 255, 255, 0.2)',
+                          color: '#fff',
+                          textDecoration: 'none',
+                          fontSize: '15px',
+                          fontWeight: '700',
+                          letterSpacing: '0.03em',
+                          transition: 'all 0.4s cubic-bezier(0.23, 1, 0.32, 1)',
+                          cursor: 'pointer'
+                        }}
+                        onMouseOver={(e) => {
+                          e.currentTarget.style.transform = 'translateY(-3px) scale(1.02)';
+                          e.currentTarget.style.boxShadow = '0 8px 25px rgba(217, 119, 6, 0.5), inset 0 0 0 1px rgba(255, 255, 255, 0.4)';
+                        }}
+                        onMouseOut={(e) => {
+                          e.currentTarget.style.transform = 'translateY(0) scale(1)';
+                          e.currentTarget.style.boxShadow = '0 4px 15px rgba(217, 119, 6, 0.4), inset 0 0 0 1px rgba(255, 255, 255, 0.2)';
+                        }}
+                      >
+                        <FaCalendarPlus style={{ fontSize: '18px' }} />
+                        <span>New Booking</span>
+                      </Link>
                     )}
-                    {selectedApartmentLabel}
+                    
+                    {selection.type !== 'service' && (
+                      <div className="banner-badge">
+                        {selection.type === 'support' ? (
+                          <FaExclamationCircle style={{ marginRight: "8px" }} />
+                        ) : (
+                          <FaHome style={{ marginRight: "8px" }} />
+                        )}
+                        {selectedApartmentLabel}
+                      </div>
+                    )}
                   </div>
                 </div>
 
@@ -855,7 +921,7 @@ export default function BillingPage() {
                             backgroundColor: '#f8fafc',
                             color: '#334155',
                             cursor: 'pointer',
-                            minWidth: '160px'
+                            minWidth: '150px'
                           }}
                         >
                           <option value="all">All Services</option>
@@ -882,13 +948,66 @@ export default function BillingPage() {
                             backgroundColor: '#f8fafc',
                             color: '#334155',
                             cursor: 'pointer',
-                            minWidth: '140px'
+                            minWidth: '130px'
                           }}
                         >
                           <option value="all">All Months</option>
                           {serviceMonthOptions.map(opt => (
                             <option key={opt.value} value={opt.value}>{opt.label}</option>
                           ))}
+                        </select>
+                      </div>
+
+                      <div className="filter-group" style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                        <label style={{ fontSize: '10px', fontWeight: '800', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                          Booking Status
+                        </label>
+                        <select
+                          className="premium-select"
+                          value={bookingStatusFilter}
+                          onChange={(e) => setBookingStatusFilter(e.target.value)}
+                          style={{
+                            padding: '8px 14px',
+                            borderRadius: '10px',
+                            border: '1px solid #e2e8f0',
+                            fontSize: '13px',
+                            fontWeight: '600',
+                            backgroundColor: '#f8fafc',
+                            color: '#334155',
+                            cursor: 'pointer',
+                            minWidth: '130px'
+                          }}
+                        >
+                          <option value="all">All Booking</option>
+                          <option value="approved">Approved</option>
+                          <option value="pending">Pending</option>
+                          <option value="denied">Rejected</option>
+                        </select>
+                      </div>
+
+                      <div className="filter-group" style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                        <label style={{ fontSize: '10px', fontWeight: '800', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                          Payment Status
+                        </label>
+                        <select
+                          className="premium-select"
+                          value={serviceStatusFilter}
+                          onChange={(e) => setServiceStatusFilter(e.target.value)}
+                          style={{
+                            padding: '8px 14px',
+                            borderRadius: '10px',
+                            border: '1px solid #e2e8f0',
+                            fontSize: '13px',
+                            fontWeight: '600',
+                            backgroundColor: '#f8fafc',
+                            color: '#334155',
+                            cursor: 'pointer',
+                            minWidth: '120px'
+                          }}
+                        >
+                          <option value="all">All Status</option>
+                          <option value="paid">Paid</option>
+                          <option value="unpaid">Unpaid</option>
                         </select>
                       </div>
                     </div>
@@ -921,6 +1040,7 @@ export default function BillingPage() {
                     bookings={filteredBills} 
                     selectedIds={selectedIds}
                     onToggleBill={onToggleBill}
+                    onToggleAll={onToggleAllBookings}
                   />
                 </motion.div>
               ) : activeTab === "billing" && selection.type === "apartment" ? (

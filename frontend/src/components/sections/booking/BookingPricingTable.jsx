@@ -1,14 +1,51 @@
-import { FaBolt, FaTint, FaBuilding, FaUmbrella, FaTools, FaParking } from "react-icons/fa";
+import { 
+  FaBolt, 
+  FaTint, 
+  FaBuilding, 
+  FaUmbrella, 
+  FaTools, 
+  FaParking, 
+  FaLeaf, 
+  FaShoppingCart, 
+  FaChild, 
+  FaDumbbell, 
+  FaGraduationCap, 
+  FaHamburger, 
+  FaTableTennis, 
+  FaGolfBall, 
+  FaSpa, 
+  FaUsers 
+} from "react-icons/fa";
 import { formatCurrency } from "../../../utils/billingUtils";
 
 export default function BookingPricingTable({ rates }) {
   const getIcon = (serviceName) => {
     const name = serviceName?.toLowerCase() || "";
+    
+    // Most Specific Services First
+    if (name.includes("parking")) return <FaParking className="rate-icon management" />;
+    if (name.includes("bbq")) return <FaHamburger className="rate-icon management" />;
     if (name.includes("electric")) return <FaBolt className="rate-icon electricity" />;
     if (name.includes("water")) return <FaTint className="rate-icon water" />;
-    if (name.includes("pool") || name.includes("beach")) return <FaUmbrella className="rate-icon management" />;
+    
+    // Facilities & Buildings
+    if (name.includes("shopping") || name.includes("mall")) return <FaShoppingCart className="rate-icon management" />;
+    if (name.includes("playground") || name.includes("children")) return <FaChild className="rate-icon management" />;
+    if (name.includes("gym") || name.includes("yoga") || name.includes("fitness")) return <FaDumbbell className="rate-icon management" />;
+    if (name.includes("education") || name.includes("school") || name.includes("system")) return <FaGraduationCap className="rate-icon management" />;
+    if (name.includes("hall") || name.includes("community")) return <FaUsers className="rate-icon management" />;
+    
+    // Sports & Leisure
+    if (name.includes("pool") || name.includes("swim")) return <FaUmbrella className="rate-icon management" />;
+    if (name.includes("tennis") || name.includes("sport")) return <FaTableTennis className="rate-icon management" />;
+    if (name.includes("golf")) return <FaGolfBall className="rate-icon management" />;
+    if (name.includes("sauna") || name.includes("spa")) return <FaSpa className="rate-icon management" />;
+    
+    // General Greenery/Parks (Lower priority)
+    if (name.includes("park") || name.includes("garden") || name.includes("green")) return <FaLeaf className="rate-icon management" />;
+    
     if (name.includes("repair") || name.includes("fix")) return <FaTools className="rate-icon management" />;
-    if (name.includes("parking")) return <FaParking className="rate-icon management" />;
+
     return <FaBuilding className="rate-icon management" />;
   };
 
