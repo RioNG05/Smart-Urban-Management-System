@@ -656,7 +656,7 @@ export default function BillingPage() {
     },
   ];
 
-  const [activeTab, setActiveTab] = useState("billing");
+  const [activeTab, setActiveTab] = useState("overview");
   const [showBackToTop, setShowBackToTop] = useState(false);
 
   useEffect(() => {
