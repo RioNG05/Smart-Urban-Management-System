@@ -63,10 +63,11 @@ export default function BillingPage() {
   });
   const [selectedIds, setSelectedIds] = useState([]);
   const [loading, setLoading] = useState(true);
-  
+
   // Service-specific filters
   const [serviceMonthKey, setServiceMonthKey] = useState("all");
   const [serviceFilterName, setServiceFilterName] = useState("all");
+  const [complaintRefreshKey, setComplaintRefreshKey] = useState(0);
 
   const onToggleBill = (billId, categories) => {
     setSelectedIds((prev) => {
@@ -346,10 +347,10 @@ export default function BillingPage() {
     serviceBills.forEach((bill) => {
       const dateSource = bill.dueDate || bill.usageDate || bill.bookFrom;
       if (!dateSource) return;
-      
+
       const dateObj = new Date(dateSource);
       if (isNaN(dateObj)) return;
-      
+
       const label = MONTH_FORMATTER.format(dateObj);
       if (!optionMap.has(label)) {
         optionMap.set(label, { value: label, label: label, sortAt: dateObj.getTime() });
@@ -372,9 +373,9 @@ export default function BillingPage() {
     if (selection.type === "service") {
       // Apply service-specific filtering (Category + Month)
       return serviceBills.filter((bill) => {
-        const matchesName = serviceFilterName === "all" || 
+        const matchesName = serviceFilterName === "all" ||
           (bill.name === serviceFilterName || bill.title === serviceFilterName);
-        
+
         let matchesMonth = true;
         if (serviceMonthKey !== "all") {
           const dateSource = bill.dueDate || bill.usageDate || bill.bookFrom;
@@ -437,34 +438,34 @@ export default function BillingPage() {
         (acc, bill) => {
           if (bill.statusKey === "paid" || bill.source !== "utility") return acc;
 
-            const elec = bill.utilityDetails?.electricity;
-            const wat = bill.utilityDetails?.water;
-            const synthesized = synthesizedHistory[bill.id] || { 
-              electricity: { prev: 0, curr: 0 }, 
-              water: { prev: 0, curr: 0 } 
-            };
+          const elec = bill.utilityDetails?.electricity;
+          const wat = bill.utilityDetails?.water;
+          const synthesized = synthesizedHistory[bill.id] || {
+            electricity: { prev: 0, curr: 0 },
+            water: { prev: 0, curr: 0 }
+          };
 
-            if (elec) {
-              acc.electricity.usage += Number(elec.quantity ?? 0);
-              acc.electricity.amount += Number(elec.amount ?? 0);
-              acc.electricity.rate = Number(elec.unitPrice ?? 0) || acc.electricity.rate;
-              acc.electricity.prev = (acc.electricity.prev === null)
-                ? synthesized.electricity.prev
-                : Math.min(acc.electricity.prev, synthesized.electricity.prev);
-              acc.electricity.curr = Math.max(acc.electricity.curr, synthesized.electricity.curr);
-              if (!acc.electricity.billIds.includes(bill.id)) acc.electricity.billIds.push(bill.id);
-            }
+          if (elec) {
+            acc.electricity.usage += Number(elec.quantity ?? 0);
+            acc.electricity.amount += Number(elec.amount ?? 0);
+            acc.electricity.rate = Number(elec.unitPrice ?? 0) || acc.electricity.rate;
+            acc.electricity.prev = (acc.electricity.prev === null)
+              ? synthesized.electricity.prev
+              : Math.min(acc.electricity.prev, synthesized.electricity.prev);
+            acc.electricity.curr = Math.max(acc.electricity.curr, synthesized.electricity.curr);
+            if (!acc.electricity.billIds.includes(bill.id)) acc.electricity.billIds.push(bill.id);
+          }
 
-            if (wat) {
-              acc.water.usage += Number(wat.quantity ?? 0);
-              acc.water.amount += Number(wat.amount ?? 0);
-              acc.water.rate = Number(wat.unitPrice ?? 0) || acc.water.rate;
-              acc.water.prev = (acc.water.prev === null)
-                ? synthesized.water.prev
-                : Math.min(acc.water.prev, synthesized.water.prev);
-              acc.water.curr = Math.max(acc.water.curr, synthesized.water.curr);
-              if (!acc.water.billIds.includes(bill.id)) acc.water.billIds.push(bill.id);
-            }
+          if (wat) {
+            acc.water.usage += Number(wat.quantity ?? 0);
+            acc.water.amount += Number(wat.amount ?? 0);
+            acc.water.rate = Number(wat.unitPrice ?? 0) || acc.water.rate;
+            acc.water.prev = (acc.water.prev === null)
+              ? synthesized.water.prev
+              : Math.min(acc.water.prev, synthesized.water.prev);
+            acc.water.curr = Math.max(acc.water.curr, synthesized.water.curr);
+            if (!acc.water.billIds.includes(bill.id)) acc.water.billIds.push(bill.id);
+          }
 
           if (Number(bill.managementFee ?? 0) > 0) {
             acc.management.amount += Number(bill.managementFee ?? 0);
@@ -649,10 +650,10 @@ export default function BillingPage() {
 
   const tabs = [
     { id: "overview", label: "Financial Overview", icon: <FaFileInvoiceDollar /> },
-    { 
-      id: "billing", 
-      label: selection.type === 'service' ? "Service Payments" : "My Home Billing", 
-      icon: <FaWallet /> 
+    {
+      id: "billing",
+      label: selection.type === 'service' ? "Service Payments" : "My Home Billing",
+      icon: <FaWallet />
     },
   ];
 
@@ -709,21 +710,32 @@ export default function BillingPage() {
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ duration: 0.5 }}
                     >
-                      Residential Dashboard
+                      {selection.type === 'support' ? "Residential Dashboard" : "Support Center"}
                     </motion.h1>
                     <p className="banner-subtitle">
-                      Professional billing management for your properties.
+                      {selection.type === 'support'
+                        ? "Professional billing management for your properties."
+                        : "Report issues and track your requests with our professional support team."
+                      }
                     </p>
-                  </div>
-                  <div className="banner-badge">
-                    {selection.type === 'service' ? (
-                      <FaCalendarAlt style={{ marginRight: "8px" }} />
-                    ) : selection.type === 'support' ? (
-                      <FaExclamationCircle style={{ marginRight: "8px" }} />
-                    ) : (
-                      <FaHome style={{ marginRight: "8px" }} />
+                    {selection.type === 'support' && (
+                      <div className="banner-report-wrapper">
+                        <ComplaintButton onSuccess={() => setComplaintRefreshKey(prev => prev + 1)} />
+                      </div>
                     )}
-                    {selectedApartmentLabel}
+                  </div>
+
+                  <div className="banner-actions">
+                    <div className="banner-badge">
+                      {selection.type === 'service' ? (
+                        <FaCalendarAlt style={{ marginRight: "8px" }} />
+                      ) : selection.type === 'support' ? (
+                        <FaExclamationCircle style={{ marginRight: "8px" }} />
+                      ) : (
+                        <FaHome style={{ marginRight: "8px" }} />
+                      )}
+                      {selectedApartmentLabel}
+                    </div>
                   </div>
                 </div>
 
@@ -761,17 +773,13 @@ export default function BillingPage() {
                   exit={{ opacity: 0, scale: 0.98 }}
                   className="billing-content"
                 >
-                  <div className="billing-panel" style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                    <div>
-                      <h3 className="section-title">Support Center</h3>
-                      <p className="billing-panel-subtitle">Report issues and track your requests.</p>
+                  <div className="resident-support-container">
+                    <div className="resident-complaint-section" style={{ marginTop: '10px' }}>
+                      <div className="resident-section-title">
+                        Your Recent Requests
+                      </div>
+                      <ComplaintList refreshKey={complaintRefreshKey} />
                     </div>
-                    <ComplaintButton onSuccess={() => { }} />
-                  </div>
-
-                  <div className="billing-panel">
-                    <h3 className="section-title" style={{ marginBottom: "20px" }}>Your Requests</h3>
-                    <ComplaintList />
                   </div>
                 </motion.div>
               ) : activeTab === "billing" ? (
@@ -803,7 +811,7 @@ export default function BillingPage() {
                       />
                     </motion.div>
                   )}
- 
+
                   {/* SERVICE BOOKING VIEW (PERSONAL SERVICE CONTEXT) */}
                   {selection.type === "service" && (
                     <motion.div
@@ -813,9 +821,9 @@ export default function BillingPage() {
                       exit={{ opacity: 0 }}
                       className="billing-panel"
                     >
-                      <div className="billing-panel-header" style={{ 
-                        marginBottom: "30px", 
-                        paddingBottom: "20px", 
+                      <div className="billing-panel-header" style={{
+                        marginBottom: "30px",
+                        paddingBottom: "20px",
                         borderBottom: "1px solid #f1f5f9",
                         alignItems: "center"
                       }}>
@@ -827,7 +835,7 @@ export default function BillingPage() {
                             Manage and track your personal booking expenditures.
                           </p>
                         </div>
-                        
+
                         {/* Premium Service Filters Row */}
                         <div className="service-filter-actions" style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
                           <div className="filter-group" style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
@@ -888,7 +896,7 @@ export default function BillingPage() {
 
                       {/* Payment Action Bar (Appears when items are selected) */}
                       {totalSelected > 0 && (
-                        <motion.div 
+                        <motion.div
                           className="modern-payment-summary full-row"
                           initial={{ opacity: 0, y: -10 }}
                           animate={{ opacity: 1, y: 0 }}
@@ -900,7 +908,7 @@ export default function BillingPage() {
                               {formatCurrency(totalSelected)}
                             </span>
                           </div>
-                          <button 
+                          <button
                             className="pay-selected-btn premium-btn"
                             onClick={() => alert(`Proceeding to pay ${formatCurrency(totalSelected)} for selected bookings`)}
                           >
@@ -908,7 +916,7 @@ export default function BillingPage() {
                           </button>
                         </motion.div>
                       )}
-                      
+
                       <div className="scrollable-table-wrapper">
                         <BillingTable
                           bills={payableBills}
