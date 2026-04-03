@@ -3192,3 +3192,8 @@ BEGIN
     SET @BookingId = @BookingId + 1;
 END
 GO
+
+
+UPDATE UtilitiesInvoices
+SET Status = 1
+WHERE Status = 0;
