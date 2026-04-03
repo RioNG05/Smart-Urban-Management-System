@@ -1,6 +1,8 @@
 import { 
-  BarChart, 
+  ComposedChart, 
   Bar, 
+  Line,
+  Area,
   XAxis, 
   YAxis,
   Tooltip, 
@@ -9,25 +11,71 @@ import {
   CartesianGrid
 } from "recharts";
 
+const renderCustomLegend = (props) => {
+  const { payload } = props;
+  
+  const bars = payload.filter(entry => entry.type !== 'line' && entry.type !== 'area');
+  const line = payload.find(entry => entry.type === 'line' || entry.type === 'area');
+  
+  const finalPayload = [...bars, line].filter(Boolean);
+
+  return (
+    <div style={{ 
+      display: 'flex', 
+      gap: '16px', 
+      justifyContent: 'flex-end', 
+      marginBottom: '15px',
+      fontSize: '10px',
+      fontWeight: '800',
+      textTransform: 'uppercase',
+      letterSpacing: '0.08em'
+    }}>
+      {finalPayload.map((entry, index) => (
+        <div key={`item-${index}`} style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+          {entry.type === 'line' || entry.type === 'area' ? (
+            <div style={{ width: '12px', height: '2px', backgroundColor: entry.color }} />
+          ) : (
+            <div style={{ width: '10px', height: '10px', borderRadius: '50%', backgroundColor: entry.color }} />
+          )}
+          <span style={{ color: entry.type === 'line' || entry.type === 'area' ? entry.color : '#94a3b8' }}>
+            {entry.value === 'total' ? 'TOTAL' : entry.value}
+          </span>
+        </div>
+      ))}
+    </div>
+  );
+};
+
 export default function BillingChart({ data, categories, formatCurrency }) {
-  // Diverse color palette for utility categories
   const CATEGORY_COLORS = {
-    "Electricity": "#FFCD4D",  // Soft Solar Yellow
-    "Water": "#58A5F0",        // Morning Blue
-    "Management Fee": "#B19777", // Warm Stone
+    "Electricity": "#FFCD4D",
+    "Water": "#58A5F0",
+    "Management Fee": "#B19777",
   };
 
   const DEFAULT_COLOR = "#94a3b8";
 
+  const processedData = data.map(item => {
+    const total = categories.reduce((sum, cat) => sum + (Number(item[cat]) || 0), 0);
+    return { ...item, total };
+  });
+
   return (
     <div className="expense-chart">
-      {data.length > 0 ? (
+      {processedData.length > 0 ? (
         <ResponsiveContainer width="100%" height={260}>
-          <BarChart data={data} margin={{ top: 20, right: 0, left: 0, bottom: 5 }}>
+          <ComposedChart data={processedData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+            <defs>
+              <linearGradient id="colorTotal" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="5%" stopColor="#be123c" stopOpacity={0.15}/>
+                <stop offset="95%" stopColor="#be123c" stopOpacity={0}/>
+              </linearGradient>
+            </defs>
+
             <CartesianGrid 
               vertical={false} 
-              strokeDasharray="3 3" 
-              stroke="rgba(226, 232, 240, 0.6)" 
+              strokeDasharray="4 4" 
+              stroke="rgba(226, 232, 240, 0.4)" 
             />
 
             <XAxis
@@ -35,7 +83,7 @@ export default function BillingChart({ data, categories, formatCurrency }) {
               axisLine={false}
               tickLine={false}
               tick={{ fill: "#94a3b8", fontSize: 11, fontWeight: 600 }}
-              dy={10}
+              dy={12}
             />
 
             <YAxis 
@@ -43,45 +91,39 @@ export default function BillingChart({ data, categories, formatCurrency }) {
               tickLine={false}
               tick={{ fill: "#94a3b8", fontSize: 10, fontWeight: 500 }}
               tickFormatter={(value) => value > 0 ? `${(value / 1000000).toFixed(1)}M` : value}
-              width={40}
+              width={45}
             />
 
             <Tooltip
-              cursor={{ fill: "rgba(0, 0, 0, 0.04)", radius: [6, 6, 0, 0] }}
+              cursor={{ fill: "rgba(0, 0, 0, 0.02)", radius: [8, 8, 0, 0] }}
               contentStyle={{
-                borderRadius: "14px",
-                border: "none",
-                boxShadow: "0 10px 25px -5px rgba(0, 0, 0, 0.1)",
-                padding: "12px 16px",
-                backgroundColor: "rgba(255, 255, 255, 0.95)",
-                backdropFilter: "blur(8px)"
+                borderRadius: "16px",
+                border: "1px solid rgba(226, 232, 240, 0.8)",
+                boxShadow: "0 20px 40px -10px rgba(0, 0, 0, 0.08)",
+                padding: "14px 18px",
+                backgroundColor: "rgba(255, 255, 255, 0.98)",
+                backdropFilter: "blur(12px)"
               }}
               labelStyle={{ 
-                fontWeight: "800", 
-                marginBottom: "6px", 
-                color: "#1e293b",
-                fontSize: "13px",
-                textTransform: "uppercase"
+                fontWeight: "900", 
+                marginBottom: "8px", 
+                color: "#0f172a",
+                fontSize: "12px",
+                textTransform: "uppercase",
+                letterSpacing: "0.05em"
               }}
               itemStyle={{ 
-                fontSize: "12px",
-                fontWeight: "600",
-                padding: "2px 0"
+                fontSize: "11px",
+                fontWeight: "700",
+                padding: "3px 0"
               }}
-              formatter={(value) => [formatCurrency(Number(value))]}
+              formatter={(value, name) => [formatCurrency(Number(value)), name === "total" ? "TOTAL" : name]}
             />
 
             <Legend 
               verticalAlign="top" 
               align="right" 
-              iconType="circle"
-              wrapperStyle={{ 
-                paddingBottom: "20px", 
-                fontSize: "11px", 
-                fontWeight: "700",
-                textTransform: "uppercase",
-                letterSpacing: "0.5px"
-              }}
+              content={renderCustomLegend}
             />
 
             {categories && categories.length > 0 ? (
@@ -91,19 +133,41 @@ export default function BillingChart({ data, categories, formatCurrency }) {
                   dataKey={category} 
                   stackId="a" 
                   fill={CATEGORY_COLORS[category] || DEFAULT_COLOR} 
-                  radius={index === categories.length - 1 ? [4, 4, 0, 0] : [0, 0, 0, 0]}
+                  radius={index === categories.length - 1 ? [5, 5, 0, 0] : [0, 0, 0, 0]}
                   barSize={32}
+                  animationDuration={1500}
                 />
               ))
             ) : (
                 <Bar 
                   dataKey="value" 
                   fill="#c98b3c"
-                  radius={[6, 6, 0, 0]} 
+                  radius={[8, 8, 0, 0]} 
                   barSize={32}
                 />
             )}
-          </BarChart>
+
+            <Area
+              type="linear"
+              dataKey="total"
+              stroke="none"
+              fillOpacity={1}
+              fill="url(#colorTotal)"
+              tooltipType="none"
+              legendType="none"
+            />
+
+            <Line 
+              type="linear" 
+              dataKey="total" 
+              stroke="#be123c" 
+              strokeWidth={3} 
+              dot={{ r: 4, fill: '#be123c', strokeWidth: 2, stroke: '#fff' }}
+              activeDot={{ r: 6, strokeWidth: 2, stroke: '#fff', fill: '#be123c' }}
+              name="total"
+              animationDuration={2000}
+            />
+          </ComposedChart>
         </ResponsiveContainer>
       ) : (
         <div className="billing-empty" style={{ padding: "80px 0" }}>
