@@ -9,14 +9,13 @@ export default function PropertySidebar({
     <aside className="property-sidebar">
       {/* SECTION 1: APARTMENT BILLS */}
       <h3 className="property-title">My Properties</h3>
-      
+
       <div className="property-list">
         {apartments.map((apt) => (
           <button
             key={apt.id}
-            className={`property-item ${
-              selectedSelection.type === "apartment" && String(selectedSelection.id) === String(apt.id) ? "active" : ""
-            }`}
+            className={`property-item ${selectedSelection.type === "apartment" && String(selectedSelection.id) === String(apt.id) ? "active" : ""
+              }`}
             onClick={() => onSelect({ type: "apartment", id: String(apt.id) })}
           >
             <div className="property-icon">
@@ -25,7 +24,7 @@ export default function PropertySidebar({
             <span>Apartment {apt.label}</span>
           </button>
         ))}
-        
+
         {apartments.length === 0 && (
           <div className="billing-empty">No apartments linked.</div>
         )}
@@ -33,7 +32,7 @@ export default function PropertySidebar({
 
       {/* SECTION 2: PERSONAL SERVICES */}
       <h3 className="property-title" style={{ marginTop: "32px" }}>Personal Services</h3>
-      
+
       <div className="property-list">
         <button
           className={`property-item ${selectedSelection.type === "service" ? "active" : ""}`}
@@ -48,7 +47,7 @@ export default function PropertySidebar({
 
       {/* SECTION 3: HELP & SUPPORT */}
       <h3 className="property-title" style={{ marginTop: "32px" }}>Help & Support</h3>
-      
+
       <div className="property-list">
         <button
           className={`property-item ${selectedSelection.type === "support" ? "active" : ""}`}
@@ -57,7 +56,7 @@ export default function PropertySidebar({
           <div className="property-icon">
             <FaExclamationCircle />
           </div>
-          <span>Resident Support</span>
+          <span>Complaints</span>
         </button>
       </div>
     </aside>
