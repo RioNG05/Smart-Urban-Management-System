@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "react-toastify";
 import {
   FaEdit,
@@ -15,6 +15,7 @@ import {
   deleteNews,
   getNewsList,
   updateNews,
+  uploadNewsImage,
 } from "../../../services/newsService";
 
 const initialForm = {
@@ -25,8 +26,11 @@ const initialForm = {
 
 const NewsManager = () => {
   const { user } = useAuth();
+  const fileInputRef = useRef(null);
   const [articles, setArticles] = useState([]);
   const [formData, setFormData] = useState(initialForm);
+  const [selectedImageFile, setSelectedImageFile] = useState(null);
+  const [imagePreviewUrl, setImagePreviewUrl] = useState("");
   const [editingId, setEditingId] = useState(null);
   const [isFormVisible, setIsFormVisible] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -76,6 +80,16 @@ const NewsManager = () => {
     setCurrentPage(1);
   }, [searchTerm, articles.length]);
 
+  useEffect(() => {
+    if (!imagePreviewUrl.startsWith("blob:")) {
+      return undefined;
+    }
+
+    return () => {
+      URL.revokeObjectURL(imagePreviewUrl);
+    };
+  }, [imagePreviewUrl]);
+
   const totalPages = Math.max(1, Math.ceil(filteredArticles.length / pageSize));
   const paginatedArticles = useMemo(
     () =>
@@ -92,9 +106,14 @@ const NewsManager = () => {
 
   const handleReset = () => {
     setFormData(initialForm);
+    setSelectedImageFile(null);
+    setImagePreviewUrl("");
     setEditingId(null);
     setIsFormVisible(false);
     setError("");
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
   };
 
   const validateForm = () => {
@@ -116,6 +135,42 @@ const NewsManager = () => {
     userId: user.id,
   });
 
+  const buildUploadName = () => {
+    const normalizedTitle = String(formData.title ?? "")
+      .trim()
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-+|-+$/g, "");
+
+    return `news-${normalizedTitle || "article"}-${Date.now()}`;
+  };
+
+  const handleImageChange = (event) => {
+    const file = event.target.files?.[0] ?? null;
+
+    if (!file) {
+      setSelectedImageFile(null);
+      setImagePreviewUrl(formData.imageUrl || "");
+      return;
+    }
+
+    if (!String(file.type ?? "").startsWith("image/")) {
+      const message = "Please choose a valid image file.";
+      setError(message);
+      setSelectedImageFile(null);
+      setImagePreviewUrl(formData.imageUrl || "");
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
+      toast.error(message);
+      return;
+    }
+
+    setError("");
+    setSelectedImageFile(file);
+    setImagePreviewUrl(URL.createObjectURL(file));
+  };
+
   const handleSubmit = async () => {
     const validationMessage = validateForm();
     if (validationMessage) {
@@ -127,12 +182,25 @@ const NewsManager = () => {
     try {
       setIsSubmitting(true);
       setError("");
+      let nextImageUrl = formData.imageUrl;
+
+      if (selectedImageFile) {
+        nextImageUrl = await uploadNewsImage(
+          selectedImageFile,
+          buildUploadName(),
+        );
+      }
+
+      const payload = {
+        ...buildPayload(),
+        imageUrl: nextImageUrl,
+      };
 
       if (editingId) {
-        await updateNews(editingId, buildPayload());
+        await updateNews(editingId, payload);
         toast.success("Article updated successfully.");
       } else {
-        await createNews(buildPayload());
+        await createNews(payload);
         toast.success("Article created successfully.");
       }
 
@@ -153,9 +221,14 @@ const NewsManager = () => {
 
   const handleCreateClick = () => {
     setFormData(initialForm);
+    setSelectedImageFile(null);
+    setImagePreviewUrl("");
     setEditingId(null);
     setError("");
     setIsFormVisible(true);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
@@ -166,8 +239,13 @@ const NewsManager = () => {
       imageUrl: article.image ?? "",
       content: article.content ?? "",
     });
+    setSelectedImageFile(null);
+    setImagePreviewUrl(article.image ?? "");
     setError("");
     setIsFormVisible(true);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
@@ -305,15 +383,40 @@ const NewsManager = () => {
               </div>
 
               <div className="form-group">
-                <label>Image URL</label>
+                <label>Article image</label>
                 <input
-                  type="text"
-                  value={formData.imageUrl}
-                  onChange={(event) =>
-                    handleInputChange("imageUrl", event.target.value)
-                  }
-                  placeholder="https://..."
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageChange}
                 />
+                <p
+                  style={{
+                    margin: "8px 0 0",
+                    fontSize: "12px",
+                    color: "#64748b",
+                  }}
+                >
+                  {selectedImageFile
+                    ? `Selected: ${selectedImageFile.name}`
+                    : "Choose an image from your computer. If you do not choose a new file while editing, the current image will be kept."}
+                </p>
+                {imagePreviewUrl ? (
+                  <div style={{ marginTop: "14px" }}>
+                    <img
+                      src={imagePreviewUrl}
+                      alt="Article preview"
+                      style={{
+                        width: "100%",
+                        maxWidth: "280px",
+                        height: "180px",
+                        objectFit: "cover",
+                        borderRadius: "14px",
+                        border: "1px solid #e2e8f0",
+                      }}
+                    />
+                  </div>
+                ) : null}
               </div>
 
               <div className="form-group">

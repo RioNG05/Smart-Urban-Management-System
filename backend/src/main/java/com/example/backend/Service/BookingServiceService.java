@@ -8,12 +8,10 @@ import com.example.backend.Entity.BookingService;
 import com.example.backend.Entity.ServiceResource;
 import com.example.backend.Repository.AccountRepository;
 import com.example.backend.Repository.BookingServiceRepository;
-import com.example.backend.Repository.ServiceInvoiceRepository;
 import com.example.backend.Repository.ServicesResourceRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class BookingServiceService {
@@ -22,14 +20,18 @@ public class BookingServiceService {
     private final AccountRepository accountRepository;
     private final ServicesResourceRepository resourceRepository;
     private final ServiceInvoiceService serviceInvoiceService;
+    private final NotificationService notificationService;
 
     public BookingServiceService(BookingServiceRepository bookingRepository,
                                  AccountRepository accountRepository,
-                                 ServicesResourceRepository resourceRepository, ServiceInvoiceService serviceInvoiceService) {
+                                 ServicesResourceRepository resourceRepository,
+                                 ServiceInvoiceService serviceInvoiceService,
+                                 NotificationService notificationService) {
         this.bookingRepository = bookingRepository;
         this.accountRepository = accountRepository;
         this.resourceRepository = resourceRepository;
         this.serviceInvoiceService = serviceInvoiceService;
+        this.notificationService = notificationService;
     }
 
     public List<BookingService> findAll() {
@@ -83,8 +85,13 @@ public class BookingServiceService {
         if(isApproved(oldStatus, booking.getStatus())){
             createInvoice(booking);
         }
+        BookingService savedBooking = bookingRepository.save(booking);
 
-        return bookingRepository.save(booking);
+        if (isDecisionStatusChange(oldStatus, savedBooking.getStatus())) {
+            createBookingStatusNotification(savedBooking);
+        }
+
+        return savedBooking;
     }
 
     public void delete(Integer id) {
@@ -99,6 +106,10 @@ public class BookingServiceService {
         return currentStatus == 0 && updateStatus == 1;
     }
 
+    private boolean isDecisionStatusChange(Integer currentStatus, Integer updateStatus) {
+        return currentStatus == 0 && (updateStatus == 1 || updateStatus == 2);
+    }
+
     private void createInvoice(BookingService bookingService){
         SICreateRequest request = SICreateRequest.builder()
                 .bookingServiceId(bookingService.getId())
@@ -107,5 +118,32 @@ public class BookingServiceService {
                 .build();
 
         serviceInvoiceService.create(request);
+    }
+
+    private void createBookingStatusNotification(BookingService bookingService) {
+        Integer receiverId = bookingService.getAccount() != null ? bookingService.getAccount().getId() : null;
+
+        if (receiverId == null) {
+            return;
+        }
+
+        boolean approved = Integer.valueOf(1).equals(bookingService.getStatus());
+        String serviceName =
+                bookingService.getServiceResource() != null &&
+                bookingService.getServiceResource().getService() != null &&
+                bookingService.getServiceResource().getService().getServiceName() != null
+                        ? bookingService.getServiceResource().getService().getServiceName()
+                        : "your booking";
+
+        notificationService.createNotification(
+                receiverId,
+                null,
+                approved ? "Booking approved" : "Booking denied",
+                approved
+                        ? "Your booking for " + serviceName + " has been approved."
+                        : "Your booking for " + serviceName + " has been denied.",
+                approved ? "BOOKING_APPROVED" : "BOOKING_DENIED",
+                "/billing"
+        );
     }
 }
