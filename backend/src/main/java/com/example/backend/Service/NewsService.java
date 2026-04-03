@@ -25,7 +25,7 @@ public class NewsService {
     }
 
     public List<NewsResponse> findAll() {
-        return newsRepository.findAll().stream()
+        return newsRepository.findAllByOrderByIdDesc().stream()
                 .map(this::toResponse)
                 .toList();
     }
