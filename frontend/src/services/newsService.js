@@ -54,3 +54,43 @@ export const getNewsById = async (id) => {
   const res = await api.get(`/news/${id}`);
   return normalizeNewsItem(getPayload(res.data));
 };
+
+const buildNewsPayload = (payload = {}) => ({
+  title: String(payload.title ?? "").trim(),
+  content: String(payload.content ?? "").trim(),
+  imageUrl: String(payload.imageUrl ?? "").trim(),
+  userId:
+    payload.userId === "" || payload.userId == null
+      ? null
+      : Number(payload.userId),
+});
+
+export const createNews = async (payload) => {
+  const res = await api.post("/news", buildNewsPayload(payload));
+  return normalizeNewsItem(getPayload(res.data));
+};
+
+export const updateNews = async (id, payload) => {
+  const res = await api.put(`/news/${id}`, buildNewsPayload(payload));
+  return normalizeNewsItem(getPayload(res.data));
+};
+
+export const deleteNews = async (id) => {
+  const res = await api.delete(`/news/${id}`);
+  return getPayload(res.data);
+};
+
+export const uploadNewsImage = async (file, name = "news-image") => {
+  const formData = new FormData();
+  formData.append("file", file);
+  formData.append("name", name);
+
+  const res = await api.post("/image/upload", formData, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+    skipAuth: true,
+  });
+
+  return getPayload(res.data)?.url || "";
+};

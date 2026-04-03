@@ -12,12 +12,10 @@ import java.lang.annotation.Target;
 @Target({ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
 @Constraint(validatedBy = {
-        AppointmentTimeValidator.class
+        AppointmentTimeValidator.class   // ✅ đúng validator
 })
 public @interface AfterStartTime {
-    String message() default "End time after before start time";
-
+    String message() default "End time must be after start time";
     Class<?>[] groups() default {};
-
     Class<? extends Payload>[] payload() default {};
 }

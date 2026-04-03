@@ -16,7 +16,7 @@ public class ComplaintService {
     private final AccountRepository accountRepository;
 
     public ComplaintService(ComplaintRepository complaintRepository,
-                            AccountRepository accountRepository) {
+            AccountRepository accountRepository) {
         this.complaintRepository = complaintRepository;
         this.accountRepository = accountRepository;
     }
@@ -38,7 +38,6 @@ public class ComplaintService {
         Complaint complaint = new Complaint();
         complaint.setContent(request.getContent());
         complaint.setMadeByUser(user);
-        complaint.setApartmentId(request.getApartmentId());
 
         return complaintRepository.save(complaint);
     }

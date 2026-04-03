@@ -88,6 +88,7 @@ public class AccountService {
         Account account = findById(id);
         Role role = roleService.findById(roleId);
         account.setRole(role);
+        repository.save(account);
     }
 
 }

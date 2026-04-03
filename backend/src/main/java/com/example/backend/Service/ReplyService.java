@@ -17,13 +17,16 @@ public class ReplyService {
     private final ReplyRepository replyRepository;
     private final ComplaintRepository complaintRepository;
     private final AccountRepository accountRepository;
+    private final NotificationService notificationService;
 
     public ReplyService(ReplyRepository replyRepository,
                         ComplaintRepository complaintRepository,
-                        AccountRepository accountRepository) {
+                        AccountRepository accountRepository,
+                        NotificationService notificationService) {
         this.replyRepository = replyRepository;
         this.complaintRepository = complaintRepository;
         this.accountRepository = accountRepository;
+        this.notificationService = notificationService;
     }
 
     public List<Reply> findAll() {
@@ -48,7 +51,11 @@ public class ReplyService {
         reply.setComplaint(complaint);
         reply.setRepliedByUser(user);
 
-        return replyRepository.save(reply);
+        Reply savedReply = replyRepository.save(reply);
+
+        createComplaintReplyNotification(complaint, user);
+
+        return savedReply;
     }
 
     public Reply update(Integer id, ReplyCreateRequest request) {
@@ -74,5 +81,28 @@ public class ReplyService {
 
     public List<Reply> findByComplaint(Integer complaintId) {
         return replyRepository.findByComplaintId(complaintId);
+    }
+
+    private void createComplaintReplyNotification(Complaint complaint, Account repliedByUser) {
+        Integer receiverId = complaint.getMadeByUser() != null ? complaint.getMadeByUser().getId() : null;
+        Integer actorId = repliedByUser != null ? repliedByUser.getId() : null;
+
+        if (receiverId == null || receiverId.equals(actorId)) {
+            return;
+        }
+
+        String actorName =
+                repliedByUser.getUsername() != null && !repliedByUser.getUsername().isBlank()
+                        ? repliedByUser.getUsername()
+                        : "Management team";
+
+        notificationService.createNotification(
+                receiverId,
+                null,
+                "Complaint updated",
+                actorName + " replied to your complaint. Open Resident Support to read the response.",
+                "COMPLAINT_REPLY",
+                "/billing"
+        );
     }
 }

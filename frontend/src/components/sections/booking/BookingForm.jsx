@@ -5,8 +5,8 @@ import { getCurrentUser } from "../../../services/authService";
 import {
   createBooking,
   getAllBookings,
+  getBookingVisibleServices,
   getServiceResources,
-  getServices,
 } from "../../../services/serviceService";
 import { useBookedSlots } from "../../../hooks/useBookedSlots";
 import BookingSidebar from "./BookingSidebar";
@@ -84,7 +84,7 @@ export default function BookingForm() {
     const fetchAll = async () => {
       setIsLoading(true);
       try {
-        const reqs = [getServices(), getServiceResources(), getAllBookings()];
+        const reqs = [getBookingVisibleServices(), getServiceResources(), getAllBookings()];
         if (localStorage.getItem("token")) reqs.push(getCurrentUser());
         const [svc, res, bk, acc] = await Promise.all(reqs);
         setServices(svc);

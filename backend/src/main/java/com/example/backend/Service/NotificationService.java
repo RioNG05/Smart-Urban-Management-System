@@ -18,21 +18,38 @@ public class NotificationService {
     private final AccountRepository accountRepository;
 
     public Notification create(NotificationCreateRequest request) {
+        return createNotification(
+                request.getReceiverId(),
+                request.getTargetRole(),
+                request.getTitle(),
+                request.getMessage(),
+                request.getType(),
+                request.getRelatedUrl()
+        );
+    }
 
+    public Notification createNotification(
+            Integer receiverId,
+            String targetRole,
+            String title,
+            String message,
+            String type,
+            String relatedUrl
+    ) {
         Account receiver = null;
 
-        if (request.getReceiverId() != null) {
-            receiver = accountRepository.findById(request.getReceiverId())
+        if (receiverId != null) {
+            receiver = accountRepository.findById(receiverId)
                     .orElseThrow(() -> new RuntimeException("Receiver not found"));
         }
 
         Notification noti = Notification.builder()
                 .receiver(receiver)
-                .targetRole(request.getTargetRole())
-                .title(request.getTitle())
-                .message(request.getMessage())
-                .type(request.getType())
-                .relatedUrl(request.getRelatedUrl())
+                .targetRole(targetRole)
+                .title(title)
+                .message(message)
+                .type(type)
+                .relatedUrl(relatedUrl)
                 .isRead(false)
                 .createdAt(LocalDateTime.now())
                 .build();
@@ -50,7 +67,7 @@ public class NotificationService {
     }
 
     public List<Notification> getByUser(Integer userId) {
-        return notificationRepository.findByReceiverId(userId);
+        return notificationRepository.findByReceiverIdOrderByCreatedAtDesc(userId);
     }
 
     public List<Notification> getByRole(String role) {
@@ -65,7 +82,7 @@ public class NotificationService {
         notificationRepository.deleteById(id);
     }
     public List<Notification> getUnread(Integer userId) {
-        return notificationRepository.findByReceiverIdAndIsReadFalse(userId);
+        return notificationRepository.findByReceiverIdAndIsReadFalseOrderByCreatedAtDesc(userId);
     }
     public long countUnread(Integer userId) {
         return notificationRepository.countByReceiverIdAndIsReadFalse(userId);
