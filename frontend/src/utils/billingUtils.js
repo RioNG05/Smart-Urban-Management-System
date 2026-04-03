@@ -37,6 +37,26 @@ export const formatDate = (value) => {
   return DATE_FORMATTER.format(parsedDate);
 };
 
+export const formatDateTime = (value) => {
+  if (!value) return "N/A";
+  const date = parseJavaDate(value);
+  if (Number.isNaN(date.getTime())) return "N/A";
+
+  const time = date.toLocaleTimeString("en-US", {
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  });
+
+  const dateStr = date.toLocaleDateString("en-US", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  });
+
+  return `${time}, ${dateStr}`;
+};
+
 export const getMonthKey = (year, month) =>
   year && month ? `${year}-${String(month).padStart(2, "0")}` : "unknown";
 
@@ -64,8 +84,6 @@ export const sortByBillingPeriod = (items) =>
 
 export const buildUtilityBills = (utilityInvoices, utilityRates) => {
   const sortedInvoices = sortByBillingPeriod(utilityInvoices);
-  let electricityReading = 0;
-  let waterReading = 0;
 
   return sortedInvoices.map((invoice) => {
     const status = getInvoiceStatus(invoice.status);
@@ -74,26 +92,28 @@ export const buildUtilityBills = (utilityInvoices, utilityRates) => {
       invoice.billingMonth
     );
     const createdAt = invoice.createdAt ? parseJavaDate(invoice.createdAt) : null;
-    const electricityUsage = Number(invoice.totalElectricUsed ?? 0);
-    const waterUsage = Number(invoice.totalWaterUsed ?? 0);
 
-    const electricityRate =
-      Number(invoice.electricPrice ?? utilityRates.electricity?.basePrice ?? utilityRates.electricity?.feePerUnit ?? 0) || 0;
-    const waterRate = Number(invoice.waterPrice ?? utilityRates.water?.basePrice ?? utilityRates.water?.feePerUnit ?? 0) || 0;
-    const managementRate = Number(invoice.managementPrice ?? utilityRates.management?.basePrice ?? 0) || 0;
+    // Mapping following Backend Entity (UtilitiesInvoice.java)
+    const electricityQuantity = Number(invoice.totalElectricUsed ?? 0);
+    const waterQuantity = Number(invoice.totalWaterUsed ?? 0);
 
-    const electricityAmount = electricityUsage * electricityRate;
-    const waterAmount = waterUsage * waterRate;
+    // Mapping following Backend Entity (MandatoryServices.java)
+    const electricityRate = Number(utilityRates.electricity?.basePrice ?? 0);
+    const waterRate = Number(utilityRates.water?.basePrice ?? 0);
 
-    const previousElectricityReading = electricityReading;
-    const currentElectricityReading =
-      previousElectricityReading + electricityUsage;
+    // Calculated amounts for items
+    const electricityAmount = electricityQuantity * electricityRate;
+    const waterAmount = waterQuantity * waterRate;
 
-    const previousWaterReading = waterReading;
-    const currentWaterReading = previousWaterReading + waterUsage;
+    // TOTAL AMOUNT: Fetched directly from database (the source of truth)
+    const totalAmountFromDB = Number(invoice.totalAmount ?? 0);
 
-    electricityReading = currentElectricityReading;
-    waterReading = currentWaterReading;
+    // MANAGEMENT FEE: Calculated as the balance to match the totalAmount exactly
+    // This ensures Electricity + Water + Management = Total Amount recorded in DB
+    const managementAmount = totalAmountFromDB - (electricityAmount + waterAmount);
+
+    // Calculate a representative usage date (start of the billing month)
+    const usageDate = new Date(invoice.billingYear, invoice.billingMonth - 1, 1);
 
     return {
       id: `utility-${invoice.id}`,
@@ -102,31 +122,38 @@ export const buildUtilityBills = (utilityInvoices, utilityRates) => {
       monthKey: invoiceMonthKey,
       createdAt: createdAt,
       dueDate: createdAt,
-      // Total amount fetched directly from database as requested
-      amount: Number(invoice.totalAmount ?? 0),
-      managementFee: managementRate,
+      usageDate: usageDate,
+      paymentDate: invoice.paymentDate ? parseJavaDate(invoice.paymentDate) : createdAt,
+      amount: totalAmountFromDB,
       statusKey: status.key,
       statusLabel: status.label,
       utilityDetails: {
         electricity: {
           label: "Electricity",
           unit: "kWh",
-          previousReading: previousElectricityReading,
-          currentReading: currentElectricityReading,
-          rate: electricityRate,
+          quantity: electricityQuantity,
+          unitPrice: electricityRate,
           amount: electricityAmount,
-          usage: electricityUsage,
+          usageDate: usageDate,
         },
         water: {
           label: "Water",
-          unit: "m3",
-          previousReading: previousWaterReading,
-          currentReading: currentWaterReading,
-          rate: waterRate,
+          unit: "m³",
+          quantity: waterQuantity,
+          unitPrice: waterRate,
           amount: waterAmount,
-          usage: waterUsage,
+          usageDate: usageDate,
+        },
+        management: {
+          label: "Management Fee",
+          unit: "Fixed",
+          quantity: 1,
+          unitPrice: managementAmount,
+          amount: managementAmount,
+          usageDate: usageDate,
         },
       },
+      managementFee: managementAmount,
     };
   });
 };
@@ -134,13 +161,32 @@ export const buildUtilityBills = (utilityInvoices, utilityRates) => {
 export const buildServiceBillFromBooking = (booking, invoice) => {
   const status = getInvoiceStatus(invoice?.status ?? booking?.status);
   const createdAt = invoice?.createdAt ? parseJavaDate(invoice.createdAt) : null;
-  const sourceDate = invoice?.paymentDate
-    ? parseJavaDate(invoice.paymentDate)
-    : booking?.bookFrom
-    ? parseJavaDate(booking.bookFrom)
-    : booking?.bookAt
-    ? parseJavaDate(booking.bookAt)
-    : createdAt;
+  const paymentDate = invoice?.paymentDate ? parseJavaDate(invoice.paymentDate) : null;
+
+  const start = booking?.bookFrom ? parseJavaDate(booking.bookFrom) : null;
+  const end = booking?.bookTo ? parseJavaDate(booking.bookTo) : null;
+
+  // Usage Date is the actual start of the service usage
+  const usageDate = start || createdAt;
+
+  // Primary display date in overview (usually usages date, or payment if usages is unknown)
+  const displayDate = usageDate || paymentDate || createdAt;
+
+  const totalAmount = Number(invoice?.amount ?? booking?.totalAmount ?? 0);
+  const feePerUnit = Number(
+    booking?.serviceResource?.service?.feePerUnit ??
+    booking?.service?.feePerUnit ??
+    totalAmount
+  );
+
+  // Calculate duration/quantity
+  let quantity = 1;
+  if (start && end) {
+    const diffMs = end.getTime() - start.getTime();
+    quantity = Math.max(1, Math.round(diffMs / (1000 * 60 * 60))); // rounds to nearest hour
+  }
+
+  const unitPrice = feePerUnit > 0 ? feePerUnit : totalAmount;
 
   return {
     id: invoice?.id
@@ -152,12 +198,16 @@ export const buildServiceBillFromBooking = (booking, invoice) => {
       (invoice?.id
         ? `Service Invoice #${invoice.id}`
         : `Service Booking #${booking?.id}`),
-    monthKey: sourceDate
-      ? getMonthKey(sourceDate.getFullYear(), sourceDate.getMonth() + 1)
+    monthKey: displayDate
+      ? getMonthKey(displayDate.getFullYear(), displayDate.getMonth() + 1)
       : "unknown",
     createdAt: createdAt,
-    dueDate: sourceDate,
-    amount: Number(invoice?.amount ?? booking?.totalAmount ?? 0),
+    dueDate: displayDate,
+    usageDate: usageDate,
+    paymentDate: paymentDate || (status.key === 'paid' ? createdAt : null), 
+    amount: totalAmount,
+    unitPrice: unitPrice,
+    quantity: quantity,
     statusKey: status.key,
     statusLabel: status.label,
   };

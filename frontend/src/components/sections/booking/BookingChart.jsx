@@ -9,20 +9,23 @@ import {
   CartesianGrid
 } from "recharts";
 
-export default function BillingChart({ data, categories, formatCurrency }) {
-  // Diverse color palette for utility categories
-  const CATEGORY_COLORS = {
-    "Electricity": "#FFCD4D",  // Soft Solar Yellow
-    "Water": "#58A5F0",        // Morning Blue
-    "Management Fee": "#B19777", // Warm Stone
-  };
-
-  const DEFAULT_COLOR = "#94a3b8";
+export default function BookingChart({ data, categories, formatCurrency }) {
+  // Diverse color palette for different service categories
+  const COLORS = [
+    "#c98b3c", // Brand Gold
+    "#3b82f6", // Blue
+    "#10b981", // Green
+    "#f59e0b", // Amber
+    "#6366f1", // Indigo
+    "#8b5cf6", // Violet
+    "#ec4899", // Pink
+    "#f43f5e", // Rose
+  ];
 
   return (
-    <div className="expense-chart">
+    <div className="expense-chart" style={{ marginTop: "20px" }}>
       {data.length > 0 ? (
-        <ResponsiveContainer width="100%" height={260}>
+        <ResponsiveContainer width="100%" height={320}>
           <BarChart data={data} margin={{ top: 20, right: 0, left: 0, bottom: 5 }}>
             <CartesianGrid 
               vertical={false} 
@@ -47,7 +50,7 @@ export default function BillingChart({ data, categories, formatCurrency }) {
             />
 
             <Tooltip
-              cursor={{ fill: "rgba(0, 0, 0, 0.04)", radius: [6, 6, 0, 0] }}
+              cursor={{ fill: "rgba(201, 139, 60, 0.04)", radius: [6, 6, 0, 0] }}
               contentStyle={{
                 borderRadius: "14px",
                 border: "none",
@@ -58,7 +61,7 @@ export default function BillingChart({ data, categories, formatCurrency }) {
               }}
               labelStyle={{ 
                 fontWeight: "800", 
-                marginBottom: "6px", 
+                marginBottom: "8px", 
                 color: "#1e293b",
                 fontSize: "13px",
                 textTransform: "uppercase"
@@ -84,33 +87,23 @@ export default function BillingChart({ data, categories, formatCurrency }) {
               }}
             />
 
-            {categories && categories.length > 0 ? (
-              categories.map((category, index) => (
-                <Bar 
-                  key={category}
-                  dataKey={category} 
-                  stackId="a" 
-                  fill={CATEGORY_COLORS[category] || DEFAULT_COLOR} 
-                  radius={index === categories.length - 1 ? [4, 4, 0, 0] : [0, 0, 0, 0]}
-                  barSize={32}
-                />
-              ))
-            ) : (
-                <Bar 
-                  dataKey="value" 
-                  fill="#c98b3c"
-                  radius={[6, 6, 0, 0]} 
-                  barSize={32}
-                />
-            )}
+            {categories.map((category, index) => (
+              <Bar 
+                key={category}
+                dataKey={category} 
+                stackId="a" 
+                fill={COLORS[index % COLORS.length]} 
+                radius={index === categories.length - 1 ? [4, 4, 0, 0] : [0, 0, 0, 0]}
+                barSize={32}
+              />
+            ))}
           </BarChart>
         </ResponsiveContainer>
       ) : (
-        <div className="billing-empty" style={{ padding: "80px 0" }}>
-          No data available for Analysis.
+        <div className="billing-empty-info" style={{ padding: "80px 0" }}>
+          No booking history detected for trend analysis.
         </div>
       )}
     </div>
   );
 }
-

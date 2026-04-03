@@ -55,7 +55,7 @@ const getMinBookable = () => {
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
-export default function BookingForm() {
+export default function BookingForm({ onBookingSuccess }) {
   const { role } = useAuth();
   const formTopRef = useRef(null);
   const step2Ref = useRef(null);
@@ -279,6 +279,7 @@ export default function BookingForm() {
       });
       toast.success("Your booking has been submitted successfully!", { position: "bottom-left" });
       handleReset();
+      if (onBookingSuccess) onBookingSuccess();
       getAllBookings().then(setAllBookings);
     } catch (err) {
       console.error(err);

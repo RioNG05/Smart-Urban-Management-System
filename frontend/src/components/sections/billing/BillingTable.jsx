@@ -9,6 +9,7 @@ export default function BillingTable({
   onToggleBill,
   onToggleSubItem,
   totalSelected,
+  isService = false,
 }) {
   const formatReading = (value, unit) => {
     if (value === null || value === undefined || Number.isNaN(Number(value))) {
@@ -52,8 +53,8 @@ export default function BillingTable({
           <tr>
             <th style={{ width: "50px", textAlign: "center" }}>Select</th>
             <th>Bill Information</th>
-            <th>Usage Details</th>
-            <th>Due Date</th>
+            {!isService && <th>Usage Details</th>}
+            {!isService && <th>Due Date</th>}
             <th>Total Amount</th>
             <th>Status</th>
           </tr>
@@ -93,89 +94,91 @@ export default function BillingTable({
                     {bill.name}
                   </td>
 
-                  <td>
-                    {bill.source === "utility" && bill.utilityDetails ? (
-                      <div className="utility-breakdown">
-                        {bill.utilityDetails.electricity && (
-                          <div className={`utility-item-row ${isSubItemSelected(bill.id, "electricity") ? "active" : ""}`}>
-                            <div 
-                              className="sub-item-check"
-                              onClick={() => bill.statusKey !== "paid" && onToggleSubItem(bill.id, "electricity")}
-                            >
-                              {isSubItemSelected(bill.id, "electricity") ? <FaCheckSquare /> : <FaRegSquare />}
-                            </div>
-                            <div className="utility-item-content">
-                              <div className="utility-header">
-                                <span>Electricity</span>
-                                <span className="item-amount">{formatCurrency(bill.utilityDetails.electricity.amount)}</span>
+                  {!isService && (
+                    <td>
+                      {bill.source === "utility" && bill.utilityDetails ? (
+                        <div className="utility-breakdown">
+                          {bill.utilityDetails.electricity && (
+                            <div className={`utility-item-row ${isSubItemSelected(bill.id, "electricity") ? "active" : ""}`}>
+                              <div 
+                                className="sub-item-check"
+                                onClick={() => bill.statusKey !== "paid" && onToggleSubItem(bill.id, "electricity")}
+                              >
+                                {isSubItemSelected(bill.id, "electricity") ? <FaCheckSquare /> : <FaRegSquare />}
                               </div>
-                              <div className="utility-meta">
-                                <span>Prev: {formatReading(bill.utilityDetails.electricity.previousReading, "kWh")}</span>
-                                <span>Curr: {formatReading(bill.utilityDetails.electricity.currentReading, "kWh")}</span>
-                              </div>
-                            </div>
-                          </div>
-                        )}
-                        
-                        {bill.utilityDetails.water && (
-                          <div className={`utility-item-row ${isSubItemSelected(bill.id, "water") ? "active" : ""}`}>
-                            <div 
-                              className="sub-item-check"
-                              onClick={() => bill.statusKey !== "paid" && onToggleSubItem(bill.id, "water")}
-                            >
-                              {isSubItemSelected(bill.id, "water") ? <FaCheckSquare /> : <FaRegSquare />}
-                            </div>
-                            <div className="utility-item-content">
-                              <div className="utility-header">
-                                <span>Water</span>
-                                <span className="item-amount">{formatCurrency(bill.utilityDetails.water.amount)}</span>
-                              </div>
-                              <div className="utility-meta">
-                                <span>Prev: {formatReading(bill.utilityDetails.water.previousReading, "m3")}</span>
-                                <span>Curr: {formatReading(bill.utilityDetails.water.currentReading, "m3")}</span>
+                              <div className="utility-item-content">
+                                <div className="utility-header">
+                                  <span>Electricity</span>
+                                  <span className="item-amount">{formatCurrency(bill.utilityDetails.electricity.amount)}</span>
+                                </div>
+                                <div className="utility-meta">
+                                  <span>Prev: {formatReading(bill.utilityDetails.electricity.previousReading, "kWh")}</span>
+                                  <span>Curr: {formatReading(bill.utilityDetails.electricity.currentReading, "kWh")}</span>
+                                </div>
                               </div>
                             </div>
-                          </div>
-                        )}
+                          )}
+                          
+                          {bill.utilityDetails.water && (
+                            <div className={`utility-item-row ${isSubItemSelected(bill.id, "water") ? "active" : ""}`}>
+                              <div 
+                                className="sub-item-check"
+                                onClick={() => bill.statusKey !== "paid" && onToggleSubItem(bill.id, "water")}
+                              >
+                                {isSubItemSelected(bill.id, "water") ? <FaCheckSquare /> : <FaRegSquare />}
+                              </div>
+                              <div className="utility-item-content">
+                                <div className="utility-header">
+                                  <span>Water</span>
+                                  <span className="item-amount">{formatCurrency(bill.utilityDetails.water.amount)}</span>
+                                </div>
+                                <div className="utility-meta">
+                                  <span>Prev: {formatReading(bill.utilityDetails.water.previousReading, "m3")}</span>
+                                  <span>Curr: {formatReading(bill.utilityDetails.water.currentReading, "m3")}</span>
+                                </div>
+                              </div>
+                            </div>
+                          )}
 
-                        {bill.managementFee > 0 && (
-                          <div className={`utility-item-row ${isSubItemSelected(bill.id, "management") ? "active" : ""}`}>
-                            <div 
-                              className="sub-item-check"
-                              onClick={() => bill.statusKey !== "paid" && onToggleSubItem(bill.id, "management")}
-                            >
-                              {isSubItemSelected(bill.id, "management") ? <FaCheckSquare /> : <FaRegSquare />}
-                            </div>
-                            <div className="utility-item-content">
-                              <div className="utility-header">
-                                <span>Management Fee</span>
-                                <span className="item-amount">{formatCurrency(bill.managementFee)}</span>
+                          {bill.managementFee > 0 && (
+                            <div className={`utility-item-row ${isSubItemSelected(bill.id, "management") ? "active" : ""}`}>
+                              <div 
+                                className="sub-item-check"
+                                onClick={() => bill.statusKey !== "paid" && onToggleSubItem(bill.id, "management")}
+                              >
+                                {isSubItemSelected(bill.id, "management") ? <FaCheckSquare /> : <FaRegSquare />}
+                              </div>
+                              <div className="utility-item-content">
+                                <div className="utility-header">
+                                  <span>Management Fee</span>
+                                  <span className="item-amount">{formatCurrency(bill.managementFee)}</span>
+                                </div>
                               </div>
                             </div>
-                          </div>
-                        )}
-                      </div>
-                    ) : bill.source === "service" ? (
-                       <div className={`utility-item-row ${isSubItemSelected(bill.id, "service") ? "active" : ""}`}>
-                        <div 
-                          className="sub-item-check"
-                          onClick={() => bill.statusKey !== "paid" && onToggleSubItem(bill.id, "service")}
-                        >
-                          {isSubItemSelected(bill.id, "service") ? <FaCheckSquare /> : <FaRegSquare />}
+                          )}
                         </div>
-                        <div className="utility-item-content">
-                          <div className="utility-header">
-                            <span>{bill.title || "Service Booking"}</span>
-                            <span className="item-amount">{formatCurrency(bill.amount)}</span>
+                      ) : bill.source === "service" ? (
+                         <div className={`utility-item-row ${isSubItemSelected(bill.id, "service") ? "active" : ""}`}>
+                          <div 
+                            className="sub-item-check"
+                            onClick={() => bill.statusKey !== "paid" && onToggleSubItem(bill.id, "service")}
+                          >
+                            {isSubItemSelected(bill.id, "service") ? <FaCheckSquare /> : <FaRegSquare />}
+                          </div>
+                          <div className="utility-item-content">
+                            <div className="utility-header">
+                              <span>{bill.title || "Service Booking"}</span>
+                              <span className="item-amount">{formatCurrency(bill.amount)}</span>
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    ) : (
-                      <span className="billing-muted">No details available</span>
-                    )}
-                  </td>
+                      ) : (
+                        <span className="billing-muted">No details available</span>
+                      )}
+                    </td>
+                  )}
 
-                  <td>{formatDate(bill.dueDate)}</td>
+                  {!isService && <td>{formatDate(bill.dueDate)}</td>}
 
                   <td style={{ fontWeight: "700", color: "var(--text-dark)" }}>
                     {formatCurrency(bill.amount + (bill.managementFee || 0))}
@@ -191,7 +194,7 @@ export default function BillingTable({
             })
           ) : (
             <tr>
-              <td colSpan="6" className="billing-empty">
+              <td colSpan={isService ? "4" : "6"} className="billing-empty">
                 <div style={{ padding: "40px", textAlign: "center", color: "var(--text-muted)" }}>
                   No records found for this period.
                 </div>

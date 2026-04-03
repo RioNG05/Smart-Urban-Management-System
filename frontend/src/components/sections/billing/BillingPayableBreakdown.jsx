@@ -73,7 +73,6 @@ export default function BillingPayableBreakdown({
               className={`custom-dropdown-header ${isOpen ? 'active' : ''}`}
               onClick={() => setIsOpen(!isOpen)}
             >
-              <FaFileInvoiceDollar className="filter-icon" />
               <span className="current-selection">{selectedMonthLabel}</span>
               <FaChevronDown className={`arrow-icon ${isOpen ? 'rotate' : ''}`} />
             </div>

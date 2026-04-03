@@ -3,7 +3,7 @@ import axios from "axios";
 import ComplaintDetail from "./ComplaintDetail";
 import { useAuth } from "../auth/AuthContext";
 
-export default function ComplaintList({ refreshKey = 0, apartmentId }) {
+export default function ComplaintList({ refreshKey = 0 }) {
   const [complaints, setComplaints] = useState([]);
   const [selected, setSelected] = useState(null);
   const { user } = useAuth();
@@ -27,10 +27,7 @@ export default function ComplaintList({ refreshKey = 0, apartmentId }) {
           complaint.accountId ??
           complaint.createdBy?.id;
 
-        const isOwner = String(complaintOwnerId) === String(user.id);
-        const matchesApartment = !apartmentId || String(complaint.apartmentId) === String(apartmentId);
-        
-        return isOwner && matchesApartment;
+        return String(complaintOwnerId) === String(user.id);
       });
 
       setComplaints(ownComplaints);
