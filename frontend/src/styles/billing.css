@@ -1,4 +1,4 @@
-:root {
+﻿:root {
   --primary-color: #c98b3c;
   --primary-hover: #b07a34;
   --primary-light: #fdf5ea;
@@ -247,9 +247,9 @@
 }
 
 .header-tabs .tab-indicator {
-  background: linear-gradient(135deg, var(--primary-color) 0%, #e4bf55 100%);
+  background: #c98b3c;
   border: none;
-  box-shadow: 0 10px 25px rgba(201, 139, 60, 0.25);
+  box-shadow: 0 10px 25px rgba(201, 139, 60, 0.35);
 }
 
 /* FILTER BAR */
@@ -1311,14 +1311,61 @@
 }
 
 .month-header-title {
-  font-size: 13px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex: 1;
+}
+
+.month-header-title span {
+  font-size: 15px;
   font-weight: 800;
   text-transform: uppercase;
   letter-spacing: 1.5px;
+  color: var(--text-dark);
+}
+
+.history-icon-main {
+  font-size: 18px;
   color: var(--primary-color);
+  opacity: 0.8;
+}
+
+.status-badge-mini {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 6px;
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  background: #f1f5f9;
+  color: #64748b;
+  border: 1px solid rgba(0,0,0,0.05);
+}
+
+.status-badge-mini.paid {
+  background: #ecfdf5;
+  color: #059669;
+  border-color: #d1fae5;
+}
+
+.status-badge-mini.unpaid, .status-badge-mini.pending {
+  background: #fff7ed;
+  color: #ea580c;
+  border-color: #ffedd5;
+}
+
+.status-badge-mini.overdue {
+  background: #fef2f2;
+  color: #dc2626;
+  border-color: #fee2e2;
+}
+
+.status-icon {
+  font-size: 10px;
 }
 
 .month-header-summary {
@@ -1338,6 +1385,12 @@
   background: #fff;
 }
 
+.history-table-wrapper {
+  padding: 0 0 20px 0;
+  background: #fff;
+  overflow: hidden;
+}
+
 .history-detail-table {
   width: 100%;
   border-collapse: collapse;
@@ -1345,29 +1398,25 @@
 
 .history-detail-table th {
   text-align: left;
-  padding: 12px 24px;
-  font-size: 10px;
+  padding: 16px 24px;
+  font-size: 11px;
   font-weight: 800;
-  color: var(--text-muted);
+  color: #94a3b8;
   text-transform: uppercase;
-  letter-spacing: 1px;
-  background: #fcfcfc;
+  letter-spacing: 0.1em;
+  background: #fafafa;
   border-bottom: 1px solid #f1f5f9;
 }
 
 .history-detail-row td {
-  padding: 16px 24px;
+  padding: 20px 24px;
   border-bottom: 1px solid #f8fafc;
   vertical-align: middle;
 }
 
-.history-detail-row:last-child td {
-  border-bottom: none;
-}
-
 .history-detail-table th:nth-child(1),
 .history-detail-row td:nth-child(1) {
-  width: 25%;
+  width: 45%;
 }
 
 .history-detail-table th:nth-child(2),
@@ -1382,18 +1431,8 @@
 
 .history-detail-table th:nth-child(4),
 .history-detail-row td:nth-child(4) {
-  width: 12%;
-}
-
-.history-detail-table th:nth-child(5),
-.history-detail-row td:nth-child(5) {
-  width: 13%;
-}
-
-.history-detail-table th:nth-child(6),
-.history-detail-row td:nth-child(6) {
-  width: 15%;
-  text-align: center;
+  width: 20%;
+  text-align: right;
 }
 
 .history-category-info {
@@ -1772,4 +1811,351 @@
   .rate-grid {
     grid-template-columns: 1fr;
   }
+}
+
+/* --- Service Activity Enhancements --- */
+.service-activity-container {
+  margin-top: 10px;
+  animation: fadeIn 0.4s ease-out;
+}
+
+.service-activity-container .history-detail-table th:nth-child(1),
+.service-activity-container .history-detail-row td:nth-child(1) { width: 22% !important; }
+
+.service-activity-container .history-detail-table th:nth-child(2),
+.service-activity-container .history-detail-row td:nth-child(2) { width: 12% !important; }
+
+.service-activity-container .history-detail-table th:nth-child(3),
+.service-activity-container .history-detail-row td:nth-child(3) { width: 8% !important; }
+
+.service-activity-container .history-detail-table th:nth-child(4),
+.service-activity-container .history-detail-row td:nth-child(4) { width: 18% !important; }
+
+.service-activity-container .history-detail-table th:nth-child(5),
+.service-activity-container .history-detail-row td:nth-child(5) { width: 12% !important; }
+
+.service-activity-container .history-detail-table th:nth-child(6),
+.service-activity-container .history-detail-row td:nth-child(6) { width: 14% !important; }
+
+.service-activity-container .history-detail-table th:nth-child(7),
+.service-activity-container .history-detail-row td:nth-child(7) { width: 14% !important; }
+
+.status-badge-mini {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: 12px;
+  font-size: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.status-badge-mini.paid {
+  background: rgba(16, 185, 129, 0.1);
+  color: #10b981;
+}
+
+.status-badge-mini.pending {
+  background: rgba(245, 158, 11, 0.1);
+  color: #f59e0b;
+}
+
+.status-badge-mini.overdue, .status-badge-mini.denied {
+  background: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+}
+
+.status-badge-mini svg {
+  font-size: 12px;
+}
+
+.history-category-icon-box.service {
+  background: #fdf4ff;
+  color: #c98b3c; /* Match requested theme color */
+}
+
+/* --- Support Center & Complaints --- */
+.support-container {
+  animation: fadeIn 0.5s ease-out;
+}
+
+.complaint-list-container {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.complaint-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.complaint-card {
+  background: white;
+  border: 1px solid #f1f5f9;
+  border-radius: 16px;
+  padding: 16px 20px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+  position: relative;
+}
+
+.complaint-card:hover {
+  transform: translateX(4px);
+  box-shadow: 0 10px 20px rgba(0,0,0,0.03);
+  border-color: #c98b3c;
+}
+
+.complaint-card.selected {
+  border-color: #c98b3c;
+  background: #fffcf8;
+}
+
+.complaint-icon-box {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  background: #fff7ed;
+  color: #c98b3c;
+  flex-shrink: 0;
+}
+
+.complaint-card-content {
+  flex: 1;
+}
+
+.complaint-text {
+  font-size: 14px;
+  color: #1e293b;
+  font-weight: 600;
+  line-height: 1.5;
+  margin-bottom: 4px;
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.complaint-meta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 11px;
+  color: #94a3b8;
+}
+
+.complaint-status {
+  padding: 2px 10px;
+  border-radius: 20px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-size: 9px;
+}
+
+.complaint-status.open { background: #fee2e2; color: #ef4444; }
+.complaint-status.pending { background: #fef3c7; color: #f59e0b; }
+.complaint-status.closed { background: #dcfce7; color: #22c55e; }
+
+.complaint-arrow {
+  color: #94a3b8;
+  transition: transform 0.3s ease;
+}
+
+.complaint-arrow.rotate {
+  transform: rotate(90deg);
+  color: #c98b3c;
+}
+
+/* Conversation View */
+.conversation-wrapper {
+  overflow: hidden;
+}
+
+.conversation-container {
+  margin-top: 10px;
+  padding: 24px;
+  background: #f8fafc;
+  border-radius: 16px;
+  border: 1px solid #e2e8f0;
+}
+
+.conversation-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: #1e293b;
+  margin-bottom: 15px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.message-bubble {
+  max-width: 85%;
+  padding: 12px 18px;
+  border-radius: 14px;
+  margin-bottom: 12px;
+  font-size: 14px;
+  line-height: 1.5;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+}
+
+.message-bubble.user {
+  background: white;
+  color: #334155;
+  align-self: flex-start;
+  border-bottom-left-radius: 2px;
+  border: 1px solid #e2e8f0;
+}
+
+.message-bubble.admin {
+  background: linear-gradient(135deg, #c98b3c 0%, #a67232 100%);
+  color: white;
+  align-self: flex-end;
+  margin-left: auto;
+  border-bottom-right-radius: 2px;
+}
+
+/* Premium Modal Support Center */
+.premium-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.4);
+  backdrop-filter: blur(8px);
+  z-index: 1050;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.premium-modal-box {
+  background: white;
+  width: 100%;
+  max-width: 500px;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 25px 50px -12px rgba(0,0,0,0.15);
+}
+
+.close-modal-btn {
+  background: none;
+  border: none;
+  color: #94a3b8;
+  cursor: pointer;
+  font-size: 18px;
+  padding: 5px;
+  display: flex;
+  transition: color 0.2s;
+}
+
+.close-modal-btn:hover { color: #ef4444; }
+
+.modal-textarea {
+  width: 100%;
+  min-height: 120px;
+  padding: 12px;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  font-family: inherit;
+  font-size: 14px;
+  resize: none;
+  transition: all 0.2s;
+}
+
+.modal-textarea:focus {
+  outline: none;
+  border-color: #c98b3c;
+  box-shadow: 0 0 0 3px rgba(201, 139, 60, 0.1);
+}
+
+/* --- Integrated Complaint Accordion --- */
+.complaint-accordion-item {
+  border-radius: 16px;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.complaint-card.selected {
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+  box-shadow: none;
+  background: #fffcf8;
+  border-color: #c98b3c;
+}
+
+.conversation-nested-wrapper {
+  border: 1px solid #c98b3c;
+  border-top: none;
+  border-bottom-left-radius: 16px;
+  border-bottom-right-radius: 16px;
+  background: white;
+}
+
+.conversation-nested-wrapper .conversation-container {
+  margin-top: 0;
+  padding: 15px 20px 25px 20px;
+  background: #fffcf8;
+  border: none;
+  border-radius: 0;
+}
+
+.complaint-time {
+  font-size: 10px;
+  color: #94a3b8;
+  font-weight: 500;
+}
+
+.message-bubble {
+  max-width: 90%;
+  padding: 12px 16px;
+  border-radius: 14px;
+  margin-bottom: 8px;
+  font-size: 13.5px;
+  line-height: 1.5;
+}
+
+.message-bubble.user {
+  background: white;
+  border: 1px solid #e2e8f0;
+  align-self: flex-start;
+  border-bottom-left-radius: 2px;
+}
+
+.message-bubble.admin {
+  background: linear-gradient(135deg, #c98b3c 0%, #a67232 100%);
+  color: white;
+  align-self: flex-end;
+  margin-left: auto;
+  border-bottom-right-radius: 2px;
+  box-shadow: 0 4px 10px rgba(201, 139, 60, 0.15);
+}
+
+/* --- Chat Layout Refresh (User Right, Admin Left) --- */
+.message-bubble.user {
+  align-self: flex-end !important;
+  margin-left: auto !important;
+  margin-right: 0 !important;
+  border-bottom-left-radius: 14px !important;
+  border-bottom-right-radius: 2px !important;
+}
+
+.message-bubble.admin {
+  align-self: flex-start !important;
+  margin-right: auto !important;
+  margin-left: 0 !important;
+  border-bottom-right-radius: 14px !important;
+  border-bottom-left-radius: 2px !important;
 }
