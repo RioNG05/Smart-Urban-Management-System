@@ -1820,68 +1820,67 @@ CREATE TABLE ApartmentTypes (
     REFERENCES FurnitureTypes(Id)
 );
 GO
-
 -- =============================================
--- BATCH 1: Biến thể cho Căn hộ Studio (30m2)
--- =============================================
-INSERT INTO ApartmentTypes (Name, DesignSqrt, NumberOfBedroom, NumberOfBathroom, Overview, CommonPriceForBuying, CommonPriceForRent, FurnitureTypeId)
-VALUES 
-(N'Căn hộ Studio - Trống (Basic)', 30.00, 1, 1, N'Gói bàn giao thô, tự do sáng tạo không gian.', 2000000000, 7000000, 0),
-(N'Căn hộ Studio - Nội thất Cơ bản', 30.00, 1, 1, N'Bao gồm thiết kế bếp và điều hòa âm trần.', 2200000000, 8500000, 1),
-(N'Căn hộ Studio - Đầy đủ nội thất', 30.00, 1, 1, N'Xách vali vào ở ngay, đầy đủ giường tủ sofa.', 2400000000, 10000000, 2);
-GO
-
--- =============================================
--- BATCH 2: Biến thể cho Căn hộ 1PN (45m2)
+-- BATCH 1: Studio Apartment Variations (30m2)
 -- =============================================
 INSERT INTO ApartmentTypes (Name, DesignSqrt, NumberOfBedroom, NumberOfBathroom, Overview, CommonPriceForBuying, CommonPriceForRent, FurnitureTypeId)
 VALUES 
-(N'Căn hộ 1PN - Nội thất Cơ bản', 45.00, 1, 1, N'Phòng ngủ tách biệt, nội thất tiêu chuẩn.', 3200000000, 12000000, 1),
-(N'Căn hộ 1PN - Đầy đủ nội thất', 45.00, 1, 1, N'Nội thất hiện đại, tối ưu diện tích.', 3400000000, 14000000, 2),
-(N'Căn hộ 1PN - Nội thất Cao cấp', 45.00, 1, 1, N'Vật liệu hạng sang, phong cách Zen Nhật.', 3700000000, 16000000, 3);
+(N'Studio Apartment - Unfurnished (Basic)', 30.00, 1, 1, N'Raw handover package, free to customize your living space.', 2000000000, 7000000, 0),
+(N'Studio Apartment - Basic Furniture', 30.00, 1, 1, N'Includes kitchen cabinets and concealed ceiling air conditioning.', 2200000000, 8500000, 1),
+(N'Studio Apartment - Fully Furnished', 30.00, 1, 1, N'Move-in ready with complete bed, wardrobe, and sofa set.', 2400000000, 10000000, 2);
 GO
 
 -- =============================================
--- BATCH 3: Biến thể cho Căn hộ 2PN (65m2)
+-- BATCH 2: 1-Bedroom Apartment Variations (45m2)
 -- =============================================
 INSERT INTO ApartmentTypes (Name, DesignSqrt, NumberOfBedroom, NumberOfBathroom, Overview, CommonPriceForBuying, CommonPriceForRent, FurnitureTypeId)
 VALUES 
-(N'Căn hộ 2PN - Nội thất Cơ bản', 65.00, 2, 2, N'Lựa chọn kinh tế cho gia đình trẻ.', 4800000000, 18000000, 1),
-(N'Căn hộ 2PN - Đầy đủ nội thất', 65.00, 2, 2, N'Không gian ấm cúng, đủ tiện nghi.', 5100000000, 21000000, 2),
-(N'Căn hộ 2PN - Nội thất Cao cấp', 65.00, 2, 2, N'Trang bị hệ thống Smart Home.', 5500000000, 25000000, 3);
+(N'1BR Apartment - Basic Furniture', 45.00, 1, 1, N'Separate bedroom with standard interior finishes.', 3200000000, 12000000, 1),
+(N'1BR Apartment - Fully Furnished', 45.00, 1, 1, N'Modern interior design, optimized for space efficiency.', 3400000000, 14000000, 2),
+(N'1BR Apartment - Premium Furniture', 45.00, 1, 1, N'High-end materials featuring Japanese Zen style.', 3700000000, 16000000, 3);
 GO
 
 -- =============================================
--- BATCH 4: Biến thể cho Căn hộ 2PN+1 (80m2)
+-- BATCH 3: 2-Bedroom Apartment Variations (65m2)
 -- =============================================
 INSERT INTO ApartmentTypes (Name, DesignSqrt, NumberOfBedroom, NumberOfBathroom, Overview, CommonPriceForBuying, CommonPriceForRent, FurnitureTypeId)
 VALUES 
-(N'Căn hộ 2PN+1 - Nội thất Cơ bản', 80.00, 2, 2, N'Không gian +1 để trống tự thiết kế.', 5800000000, 22000000, 1),
-(N'Căn hộ 2PN+1 - Đầy đủ nội thất', 80.00, 2, 2, N'Nội thất đồng bộ cho cả nhà.', 6200000000, 25000000, 2),
-(N'CATIVE 2PN+1 - Nội thất Cao cấp', 80.00, 2, 2, N'Gói nội thất chuyên gia cao cấp.', 6600000000, 28000000, 3);
+(N'2BR Apartment - Basic Furniture', 65.00, 2, 2, N'An economical choice for young families.', 4800000000, 18000000, 1),
+(N'2BR Apartment - Fully Furnished', 65.00, 2, 2, N'Cozy atmosphere with full modern amenities.', 5100000000, 21000000, 2),
+(N'2BR Apartment - Premium Furniture', 65.00, 2, 2, N'Equipped with an integrated Smart Home system.', 5500000000, 25000000, 3);
 GO
 
 -- =============================================
--- BATCH 5: Biến thể cho Căn hộ 3PN (100m2)
+-- BATCH 4: 2-Bedroom+1 Apartment Variations (80m2)
 -- =============================================
 INSERT INTO ApartmentTypes (Name, DesignSqrt, NumberOfBedroom, NumberOfBathroom, Overview, CommonPriceForBuying, CommonPriceForRent, FurnitureTypeId)
 VALUES 
-(N'Căn hộ 3PN - Nội thất Cao cấp', 100.00, 3, 2, N'Sang trọng, hiện đại, view thoáng.', 7500000000, 28000000, 3),
-(N'Căn hộ 3PN - Nội thất Siêu sang', 100.00, 3, 2, N'Đẳng cấp thượng lưu.', 8500000000, 35000000, 4);
+(N'2BR+1 Apartment - Basic Furniture', 80.00, 2, 2, N'+1 multi-purpose space left open for personal design.', 5800000000, 22000000, 1),
+(N'2BR+1 Apartment - Fully Furnished', 80.00, 2, 2, N'Harmonious interior synchronization for the whole family.', 6200000000, 25000000, 2),
+(N'2BR+1 Apartment - Premium Furniture', 80.00, 2, 2, N'High-end professional interior design package.', 6600000000, 28000000, 3);
 GO
 
 -- =============================================
--- BATCH 6: Biến thể cho Căn hộ 3PN+1 (120m2)
+-- BATCH 5: 3-Bedroom Apartment Variations (100m2)
 -- =============================================
 INSERT INTO ApartmentTypes (Name, DesignSqrt, NumberOfBedroom, NumberOfBathroom, Overview, CommonPriceForBuying, CommonPriceForRent, FurnitureTypeId)
 VALUES 
-(N'Căn hộ 3PN+1 - Nội thất Cao cấp', 120.00, 3, 3, N'Diện tích cực đại, tiện nghi tối đa.', 9500000000, 35000000, 3),
-(N'Căn hộ 3PN+1 - Nội thất Siêu sang', 120.00, 3, 3, N'Bản giới hạn dành cho chủ nhân tinh hoa.', 11000000000, 45000000, 4);
+(N'3BR Apartment - Premium Furniture', 100.00, 3, 2, N'Luxurious, modern, and featuring a panoramic view.', 7500000000, 28000000, 3),
+(N'3BR Apartment - Luxury Furniture', 100.00, 3, 2, N'Elite class living standards for prestigious residents.', 8500000000, 35000000, 4);
 GO
 
--- Thêm loại hình Shophouse cho tầng 1
+-- =============================================
+-- BATCH 6: 3-Bedroom+1 Apartment Variations (120m2)
+-- =============================================
 INSERT INTO ApartmentTypes (Name, DesignSqrt, NumberOfBedroom, NumberOfBathroom, Overview, CommonPriceForBuying, CommonPriceForRent, FurnitureTypeId)
-VALUES (N'Shophouse Thương Mại - Tầng Đế', 150.00, 0, 1, N'Mặt bằng kinh doanh rộng rãi, vị trí đắc địa tại tầng 1.', 15000000000, 60000000, 0);
+VALUES 
+(N'3BR+1 Apartment - Premium Furniture', 120.00, 3, 3, N'Maximum living area with top-tier convenience.', 9500000000, 35000000, 3),
+(N'3BR+1 Apartment - Luxury Furniture', 120.00, 3, 3, N'Limited edition unit for sophisticated owners.', 11000000000, 45000000, 4);
+GO
+
+-- Commercial Shophouse for Ground Floor
+INSERT INTO ApartmentTypes (Name, DesignSqrt, NumberOfBedroom, NumberOfBathroom, Overview, CommonPriceForBuying, CommonPriceForRent, FurnitureTypeId)
+VALUES (N'Commercial Shophouse - Ground Floor', 150.00, 0, 1, N'Spacious retail premises in a prime ground-floor location.', 15000000000, 60000000, 0);
 GO
 
 -- 14
@@ -1898,7 +1897,7 @@ CREATE TABLE Apartments (
     CONSTRAINT FK_Apartments_Types FOREIGN KEY (ApartmentTypeId) REFERENCES ApartmentTypes(Id)
 );
 
--- 14.1 từ tầng 2 - 30 mỗi tầng thì có 12 căn, có 6 loại căn, ramdom furniture
+-- 14.1 Generate apartments from Floor 2 to 30 (12 units per floor)
 DECLARE @Floor INT = 2;
 DECLARE @RoomIndex INT;
 
@@ -1909,27 +1908,27 @@ BEGIN
     BEGIN
         INSERT INTO Apartments (RoomNumber, FloorNumber, Direction, Status, ApartmentTypeId)
         VALUES (
-            (@Floor * 100) + @RoomIndex, -- Ví dụ: Tầng 2 có 201, 202... Tầng 30 có 3001, 3002...
+            (@Floor * 100) + @RoomIndex, 
             @Floor,
             CASE 
-                WHEN @RoomIndex % 4 = 1 THEN N'Đông Nam'
-                WHEN @RoomIndex % 4 = 2 THEN N'Tây Bắc'
-                WHEN @RoomIndex % 4 = 3 THEN N'Tây Nam'
-                ELSE N'Đông Bắc'
+                WHEN @RoomIndex % 4 = 1 THEN N'South East'
+                WHEN @RoomIndex % 4 = 2 THEN N'North West'
+                WHEN @RoomIndex % 4 = 3 THEN N'South West'
+                ELSE N'North East'
             END,
-            0, -- Status sạch tinh tươm cho Nghĩa dễ quản lý
+            0, -- Available status
             CASE 
-                -- Trục dọc: Căn số 1,2 luôn là Studio (ID 1-3)
+                -- Studio (ID 1-3)
                 WHEN @RoomIndex BETWEEN 1 AND 2 THEN (ABS(CHECKSUM(NEWID())) % 3) + 1 
-                -- Trục dọc: Căn số 3,4 luôn là 1PN (ID 4-6)
+                -- 1BR (ID 4-6)
                 WHEN @RoomIndex BETWEEN 3 AND 4 THEN (ABS(CHECKSUM(NEWID())) % 3) + 4
-                -- Trục dọc: Căn số 5,6 luôn là 2PN (ID 7-9)
+                -- 2BR (ID 7-9)
                 WHEN @RoomIndex BETWEEN 5 AND 6 THEN (ABS(CHECKSUM(NEWID())) % 3) + 7
-                -- Trục dọc: Căn số 7,8 luôn là 2PN+1 (ID 10-12)
+                -- 2BR+1 (ID 10-12)
                 WHEN @RoomIndex BETWEEN 7 AND 8 THEN (ABS(CHECKSUM(NEWID())) % 3) + 10
-                -- Trục dọc: Căn số 9,10 luôn là 3PN (ID 13-14)
+                -- 3BR (ID 13-14)
                 WHEN @RoomIndex BETWEEN 9 AND 10 THEN (ABS(CHECKSUM(NEWID())) % 2) + 13
-                -- Trục dọc: Căn số 11,12 luôn là 3PN+1 (ID 15-16)
+                -- 3BR+1 (ID 15-16)
                 ELSE (ABS(CHECKSUM(NEWID())) % 2) + 15
             END
         );
@@ -1939,16 +1938,15 @@ BEGIN
 END
 GO
 
--- Chèn 4 căn Shophouse tại các vị trí góc của tầng 1
--- Giả sử ApartmentTypeId = 17 là loại Shophouse ông vừa tạo
+-- Insert 4 Shophouse units at corner locations on the 1st Floor
+-- Assuming ApartmentTypeId = 17 is the Shophouse type previously created
 INSERT INTO Apartments (RoomNumber, FloorNumber, Direction, Status, ApartmentTypeId)
 VALUES 
-    (101, 1, N'Đông Nam', 0, 17), -- Góc 1
-    (104, 1, N'Tây Bắc', 0, 17), -- Góc 2
-    (107, 1, N'Tây Nam', 0, 17), -- Góc 3
-    (110, 1, N'Đông Bắc', 0, 17); -- Góc 4
+    (101, 1, N'South East', 0, 17), -- Corner 1
+    (104, 1, N'North West', 0, 17), -- Corner 2
+    (107, 1, N'South West', 0, 17), -- Corner 3
+    (110, 1, N'North East', 0, 17); -- Corner 4
 GO
-
 
 -- 15 apartment utilities invoice
 -- cái này lấy luôn cả tiền nhà nếu có nhé - lấy ở chỗ contract ý. 
@@ -2022,55 +2020,57 @@ CREATE TABLE StaffInfo (
     CONSTRAINT FK_Staff_Accounts FOREIGN KEY (AccountId) REFERENCES Accounts(Id)
 );
 
--- 18.1 ae nhà Staff apartment
--- 1. Đội 2k5 (6 Nam - 5 Nữ) - ID: 3, 29-38
+-- 18.1 Staff Apartment Team (2k5 Generation)
+-- 6 Males - 5 Females | Account IDs: 3, 29-38
 INSERT INTO StaffInfo (FullName, Gender, DateOfBirth, IdentityId, AccountId)
 VALUES 
-(N'Nguyễn Văn Nam', N'Nam', '2005-01-15', '001205000003', 3),
-(N'Trần Hoàng Long', N'Nam', '2005-03-20', '001205000029', 29),
-(N'Phạm Minh Đức', N'Nam', '2005-05-10', '001205000030', 30),
-(N'Lê Anh Tuấn', N'Nam', '2005-07-25', '001205000031', 31),
-(N'Vũ Quang Huy', N'Nam', '2005-09-12', '001205000032', 32),
-(N'Đỗ Tiến Đạt', N'Nam', '2005-11-05', '001205000033', 33),
-(N'Hoàng Thu Trang', N'Nữ', '2005-02-14', '001305000034', 34),
-(N'Phan Thanh Thảo', N'Nữ', '2005-04-30', '001305000035', 35),
-(N'Bùi Minh Anh', N'Nữ', '2005-06-18', '001305000036', 36),
-(N'Ngô Phương Linh', N'Nữ', '2005-08-22', '001305000037', 37),
-(N'Lê Thị Kim Ngân', N'Nữ', '2005-12-25', '001305000038', 38);
-
--- 18.2 anh em nhà Staff Services
--- 2. Đội 2k (5 Nam - 6 Nữ) - ID: 4, 39-48
-INSERT INTO StaffInfo (FullName, Gender, DateOfBirth, IdentityId, AccountId)
-VALUES 
-(N'Lý Gia Thành', N'Nam', '2000-02-12', '001000000004', 4),
-(N'Phan Đình Phùng', N'Nam', '2000-04-25', '001000000039', 39),
-(N'Cao Thái Sơn', N'Nam', '2000-06-10', '001000000040', 40),
-(N'Đinh Công Tráng', N'Nam', '2000-08-30', '001000000041', 41),
-(N'Trịnh Minh Thế', N'Nam', '2000-10-15', '001000000042', 42),
-(N'Nguyễn Thị Tuyết Nhung', N'Nữ', '2000-01-20', '001100000043', 43),
-(N'Trần Mỹ Tâm', N'Nữ', '2000-03-08', '001100000044', 44),
-(N'Lê Cẩm Ly', N'Nữ', '2000-05-15', '001100000045', 45),
-(N'Phạm Quỳnh Anh', N'Nữ', '2000-07-22', '001100000046', 46),
-(N'Vũ Cát Tường', N'Nữ', '2000-09-11', '001100000047', 47),
-(N'Hồ Ngọc Hà', N'Nữ', '2000-12-05', '001100000048', 48);
+(N'Nguyen Van Nam', N'Male', '2005-01-15', '001205000003', 3),
+(N'Tran Hoang Long', N'Male', '2005-03-20', '001205000029', 29),
+(N'Pham Minh Duc', N'Male', '2005-05-10', '001205000030', 30),
+(N'Le Anh Tuan', N'Male', '2005-07-25', '001205000031', 31),
+(N'Vu Quang Huy', N'Male', '2005-09-12', '001205000032', 32),
+(N'Do Tien Dat', N'Male', '2005-11-05', '001205000033', 33),
+(N'Hoang Thu Trang', N'Female', '2005-02-14', '001305000034', 34),
+(N'Phan Thanh Thao', N'Female', '2005-04-30', '001305000035', 35),
+(N'Bui Minh Anh', N'Female', '2005-06-18', '001305000036', 36),
+(N'Ngo Phuong Linh', N'Female', '2005-08-22', '001305000037', 37),
+(N'Le Thi Kim Ngan', N'Female', '2005-12-25', '001305000038', 38);
 GO
---18.3 staff sercurity
+
+-- 18.2 Staff Services Team (2k Generation)
+-- 5 Males - 6 Females | Account IDs: 4, 39-48
 INSERT INTO StaffInfo (FullName, Gender, DateOfBirth, IdentityId, AccountId)
 VALUES 
--- 9 NAM (Thế kỷ 20, Nam là số 0)
-(N'Nguyễn Quý Đức', N'Nam', '1970-05-12', '001070000005', 5),
-(N'Trần Trọng Nghĩa', N'Nam', '1972-08-20', '001072000049', 49),
-(N'Phạm Thế Duyệt', N'Nam', '1974-03-15', '001074000050', 50),
-(N'Lê Khả Phiêu', N'Nam', '1975-12-01', '001075000051', 51),
-(N'Vũ Khoan', N'Nam', '1976-06-18', '001076000052', 52),
-(N'Hoàng Trung Hải', N'Nam', '1977-09-25', '001077000053', 53),
-(N'Nguyễn Sinh Hùng', N'Nam', '1978-11-11', '001078000054', 54),
-(N'Phan Văn Khải', N'Nam', '1979-02-28', '001079000055', 55),
-(N'Trương Tấn Sang', N'Nam', '1980-04-05', '001080000056', 56),
+(N'Ly Gia Thanh', N'Male', '2000-02-12', '001000000004', 4),
+(N'Phan Dinh Phung', N'Male', '2000-04-25', '001000000039', 39),
+(N'Cao Thai Son', N'Male', '2000-06-10', '001000000040', 40),
+(N'Dinh Cong Trang', N'Male', '2000-08-30', '001000000041', 41),
+(N'Trinh Minh The', N'Male', '2000-10-15', '001000000042', 42),
+(N'Nguyen Thị Tuyet Nhung', N'Female', '2000-01-20', '001100000043', 43),
+(N'Tran My Tam', N'Female', '2000-03-08', '001100000044', 44),
+(N'Le Cam Ly', N'Female', '2000-05-15', '001100000045', 45),
+(N'Pham Quynh Anh', N'Female', '2000-07-22', '001100000046', 46),
+(N'Vu Cat Tuong', N'Female', '2000-09-11', '001100000047', 47),
+(N'Ho Ngoc Ha', N'Female', '2000-12-05', '001100000048', 48);
+GO
 
--- 2 NỮ (Thế kỷ 20, Nữ là số 1)
-(N'Nguyễn Thị Kim Ngân', N'Nữ', '1975-10-20', '001175000057', 57),
-(N'Tòng Thị Phóng', N'Nữ', '1978-01-01', '001178000058', 58);
+-- 18.3 Staff Security Team (20th Century)
+INSERT INTO StaffInfo (FullName, Gender, DateOfBirth, IdentityId, AccountId)
+VALUES 
+-- 9 Males
+(N'Nguyen Quy Duc', N'Male', '1970-05-12', '001070000005', 5),
+(N'Tran Trong Nghia', N'Male', '1972-08-20', '001072000049', 49),
+(N'Pham Thế Duyet', N'Male', '1974-03-15', '001074000050', 50),
+(N'Le Kha Phieu', N'Male', '1975-12-01', '001075000051', 51),
+(N'Vu Khoan', N'Male', '1976-06-18', '001076000052', 52),
+(N'Hoang Trung Hai', N'Male', '1977-09-25', '001077000053', 53),
+(N'Nguyen Sinh Hung', N'Male', '1978-11-11', '001078000054', 54),
+(N'Phan Van Khai', N'Male', '1979-02-28', '001079000055', 55),
+(N'Truong Tan Sang', N'Male', '1980-04-05', '001080000056', 56),
+
+-- 2 Females
+(N'Nguyen Thi Kim Ngan', N'Female', '1975-10-20', '001175000057', 57),
+(N'Tong Thi Phong', N'Female', '1978-01-01', '001178000058', 58);
 GO
 
 -- 19 Visitor logs
