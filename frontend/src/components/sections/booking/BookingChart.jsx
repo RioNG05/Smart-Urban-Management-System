@@ -25,7 +25,7 @@ const renderCustomLegend = (props) => {
       gap: '16px', 
       justifyContent: 'flex-end', 
       marginBottom: '15px',
-      fontSize: '10px',
+      fontSize: '10px', 
       fontWeight: '800',
       textTransform: 'uppercase',
       letterSpacing: '0.08em'
@@ -46,14 +46,17 @@ const renderCustomLegend = (props) => {
   );
 };
 
-export default function BillingChart({ data, categories, formatCurrency }) {
-  const CATEGORY_COLORS = {
-    "Electricity": "#FFCD4D",
-    "Water": "#58A5F0",
-    "Management Fee": "#B19777",
-  };
-
-  const DEFAULT_COLOR = "#94a3b8";
+export default function BookingChart({ data, categories, formatCurrency }) {
+  const COLORS = [
+    "#c98b3c",
+    "#3b82f6",
+    "#10b981",
+    "#f59e0b",
+    "#6366f1",
+    "#8b5cf6",
+    "#ec4899",
+    "#f43f5e",
+  ];
 
   const processedData = data.map(item => {
     const total = categories.reduce((sum, cat) => sum + (Number(item[cat]) || 0), 0);
@@ -61,12 +64,12 @@ export default function BillingChart({ data, categories, formatCurrency }) {
   });
 
   return (
-    <div className="expense-chart">
+    <div className="expense-chart" style={{ marginTop: "20px" }}>
       {processedData.length > 0 ? (
-        <ResponsiveContainer width="100%" height={260}>
+        <ResponsiveContainer width="100%" height={320}>
           <ComposedChart data={processedData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
             <defs>
-              <linearGradient id="colorTotal" x1="0" y1="0" x2="0" y2="1">
+              <linearGradient id="colorTotalBooking" x1="0" y1="0" x2="0" y2="1">
                 <stop offset="5%" stopColor="#be123c" stopOpacity={0.15}/>
                 <stop offset="95%" stopColor="#be123c" stopOpacity={0}/>
               </linearGradient>
@@ -107,7 +110,7 @@ export default function BillingChart({ data, categories, formatCurrency }) {
               labelStyle={{ 
                 fontWeight: "900", 
                 marginBottom: "8px", 
-                color: "#0f172a",
+                color: "#1e293b",
                 fontSize: "12px",
                 textTransform: "uppercase",
                 letterSpacing: "0.05em"
@@ -126,33 +129,24 @@ export default function BillingChart({ data, categories, formatCurrency }) {
               content={renderCustomLegend}
             />
 
-            {categories && categories.length > 0 ? (
-              categories.map((category, index) => (
-                <Bar 
-                  key={category}
-                  dataKey={category} 
-                  stackId="a" 
-                  fill={CATEGORY_COLORS[category] || DEFAULT_COLOR} 
-                  radius={index === categories.length - 1 ? [5, 5, 0, 0] : [0, 0, 0, 0]}
-                  barSize={32}
-                  animationDuration={1500}
-                />
-              ))
-            ) : (
-                <Bar 
-                  dataKey="value" 
-                  fill="#c98b3c"
-                  radius={[8, 8, 0, 0]} 
-                  barSize={32}
-                />
-            )}
+            {categories.map((category, index) => (
+              <Bar 
+                key={category}
+                dataKey={category} 
+                stackId="a" 
+                fill={COLORS[index % COLORS.length]} 
+                radius={index === categories.length - 1 ? [5, 5, 0, 0] : [0, 0, 0, 0]}
+                barSize={32}
+                animationDuration={1500}
+              />
+            ))}
 
             <Area
               type="linear"
               dataKey="total"
               stroke="none"
               fillOpacity={1}
-              fill="url(#colorTotal)"
+              fill="url(#colorTotalBooking)"
               tooltipType="none"
               legendType="none"
             />
@@ -170,11 +164,10 @@ export default function BillingChart({ data, categories, formatCurrency }) {
           </ComposedChart>
         </ResponsiveContainer>
       ) : (
-        <div className="billing-empty" style={{ padding: "80px 0" }}>
-          No data available for Analysis.
+        <div className="billing-empty-info" style={{ padding: "80px 0" }}>
+          No booking history detected for trend analysis.
         </div>
       )}
     </div>
   );
 }
-

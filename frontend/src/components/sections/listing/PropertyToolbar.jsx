@@ -5,6 +5,9 @@ function PropertyToolbar({
   availableCount,
   sortBy,
   setSortBy,
+  selectedApartmentType,
+  setSelectedApartmentType,
+  apartmentTypeOptions,
   pageMeta,
 }) {
   const { currentPage, totalPages, startIndex, endIndex } = pageMeta;
@@ -21,6 +24,21 @@ function PropertyToolbar({
       </div>
 
       <div className="toolbar-actions">
+        <label className="toolbar-select">
+          <span>Apartment type</span>
+          <select
+            value={selectedApartmentType}
+            onChange={(event) => setSelectedApartmentType(event.target.value)}
+          >
+            <option value="all">All apartment types</option>
+            {apartmentTypeOptions.map((apartmentType) => (
+              <option key={apartmentType.id} value={String(apartmentType.id)}>
+                {apartmentType.name}
+              </option>
+            ))}
+          </select>
+        </label>
+
         <label className="toolbar-select">
           <span>Sort by</span>
           <select

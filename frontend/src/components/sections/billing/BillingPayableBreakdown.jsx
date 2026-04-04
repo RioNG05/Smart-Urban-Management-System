@@ -13,8 +13,8 @@ export default function BillingPayableBreakdown({
 }) {
   const [isOpen, setIsOpen] = useState(false);
   const [expanded, setExpanded] = useState({
-    utilities: false,
-    services: false,
+    utilities: true,
+    services: true,
   });
 
   const utilitiesRef = useRef(null);
@@ -73,7 +73,6 @@ export default function BillingPayableBreakdown({
               className={`custom-dropdown-header ${isOpen ? 'active' : ''}`}
               onClick={() => setIsOpen(!isOpen)}
             >
-              <FaFileInvoiceDollar className="filter-icon" />
               <span className="current-selection">{selectedMonthLabel}</span>
               <FaChevronDown className={`arrow-icon ${isOpen ? 'rotate' : ''}`} />
             </div>

@@ -9,6 +9,8 @@ import PropertyHero from "../components/sections/listing/PropertyHero.jsx";
 function MarketPage() {
   const [view, setView] = useState("grid");
   const [sortBy, setSortBy] = useState("price-asc");
+  const [selectedApartmentType, setSelectedApartmentType] = useState("all");
+  const [apartmentTypeOptions, setApartmentTypeOptions] = useState([]);
   const [resultCount, setResultCount] = useState(0);
   const [availableCount, setAvailableCount] = useState(0);
   const [pageMeta, setPageMeta] = useState({
@@ -34,14 +36,19 @@ function MarketPage() {
               availableCount={availableCount}
               sortBy={sortBy}
               setSortBy={setSortBy}
+              selectedApartmentType={selectedApartmentType}
+              setSelectedApartmentType={setSelectedApartmentType}
+              apartmentTypeOptions={apartmentTypeOptions}
               pageMeta={pageMeta}
             />
             <PropertyGrid
               view={view}
               sortBy={sortBy}
+              selectedApartmentType={selectedApartmentType}
               onCountChange={setResultCount}
               onAvailableCountChange={setAvailableCount}
               onPageMetaChange={setPageMeta}
+              onApartmentTypeOptionsChange={setApartmentTypeOptions}
             />
           </div>
         </div>

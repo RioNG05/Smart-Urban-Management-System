@@ -20,6 +20,11 @@ export const getApartmentTypes = async () => {
   return res.data.result;
 };
 
+export const getApartmentTypeImages = async () => {
+  const res = await api.get("/images/apartment-type", { skipAuth: true });
+  return res.data?.result ?? res.data ?? [];
+};
+
 export const getApartmentTypeById = async (id) => {
   const res = await api.get(`/apartments/type/${id}`, { skipAuth: true });
   return res.data.result;

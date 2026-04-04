@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "react-toastify";
 import { useAuth } from "../auth/AuthContext";
 import { getCurrentUser } from "../../../services/authService";
+import { createNotification } from "../../../services/notificationService";
 import {
   createBooking,
   getAllBookings,
@@ -43,6 +44,14 @@ export const makeDateTime = (date, hour) => {
   return isNaN(d.getTime()) ? null : d;
 };
 
+const formatTimeLabel = (hour) => `${pad(hour % 24)}:00`;
+
+const extractErrorMessage = (error) =>
+  error?.response?.data?.message ||
+  error?.response?.data?.error ||
+  error?.message ||
+  "We could not submit your booking. Please try again.";
+
 /** Compute the minimum bookable date and earliest hour for that date (24h advance) */
 const getMinBookable = () => {
   const now = new Date();
@@ -55,7 +64,7 @@ const getMinBookable = () => {
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
-export default function BookingForm() {
+export default function BookingForm({ onBookingSuccess }) {
   const { role } = useAuth();
   const formTopRef = useRef(null);
   const step2Ref = useRef(null);
@@ -175,7 +184,7 @@ export default function BookingForm() {
   };
 
   // ── Min bookable date/hour (24h advance) ──────────────────────────────────
-  const { minDate, minDateObj, earliestHour } = useMemo(() => getMinBookable(), []);
+  const { minDate, earliestHour } = useMemo(() => getMinBookable(), []);
 
   const disabledStartHours = useMemo(() => {
     const s = new Set();
@@ -246,6 +255,46 @@ export default function BookingForm() {
     }, 80);
   }, []);
 
+  const saveBookingNotification = useCallback(
+    async ({ status, errorMessage }) => {
+      if (!account?.id || !selectedService || !selectedResource) return;
+
+      const dateLabel = preferredDate || "your selected date";
+      const timeLabel =
+        startHour != null && endHour != null
+          ? `${formatTimeLabel(startHour)} - ${formatTimeLabel(endHour)}`
+          : null;
+      const scheduleLabel = [dateLabel, timeLabel].filter(Boolean).join(" ");
+      const resourceLabel =
+        selectedResource.resourceCode || selectedResource.location || `resource #${selectedResource.id}`;
+      const relatedUrl = "/booking";
+
+      const payload =
+        status === "success"
+          ? {
+              receiverId: account.id,
+              title: "Booking request submitted",
+              message: `Your request for ${selectedService.title} at ${resourceLabel}${scheduleLabel ? ` on ${scheduleLabel}` : ""} has been sent successfully and is waiting for review.`,
+              type: "BOOKING_SUBMITTED",
+              relatedUrl,
+            }
+          : {
+              receiverId: account.id,
+              title: "Booking request failed",
+              message: `Your request for ${selectedService.title}${scheduleLabel ? ` on ${scheduleLabel}` : ""} could not be sent.${errorMessage ? ` Reason: ${errorMessage}` : ""}`,
+              type: "BOOKING_SUBMIT_FAILED",
+              relatedUrl,
+            };
+
+      try {
+        await createNotification(payload);
+      } catch (notificationError) {
+        console.error("Failed to save booking notification", notificationError);
+      }
+    },
+    [account?.id, endHour, preferredDate, selectedResource, selectedService, startHour]
+  );
+
   const handleSubmit = async (event) => {
     event?.preventDefault();
     if (!account?.id) {
@@ -277,13 +326,18 @@ export default function BookingForm() {
         status: 0,
         totalAmount: bookingAmount,
       });
-      toast.success("Your booking has been submitted successfully!", { position: "bottom-left" });
+      await saveBookingNotification({
+        status: "success",
+      });
       handleReset();
+      if (onBookingSuccess) onBookingSuccess();
       getAllBookings().then(setAllBookings);
     } catch (err) {
       console.error(err);
-      toast.error(err?.response?.data?.message || "We could not submit your booking. Please try again.", {
-        position: "bottom-left",
+      const errorMessage = extractErrorMessage(err);
+      await saveBookingNotification({
+        status: "failed",
+        errorMessage,
       });
     } finally {
       setIsSubmitting(false);

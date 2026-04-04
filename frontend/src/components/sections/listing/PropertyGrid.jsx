@@ -3,13 +3,21 @@ import PropertyCard from "./PropertyCard";
 import Pagination from "../../common/Pagination";
 import {
   getApartments,
+  getApartmentTypeImages,
   getApartmentTypes,
 } from "../../../services/apartmentService.js";
-import { mapApartmentToProperty } from "../../../services/propertyMapper.js";
+import {
+  createApartmentTypeImageMap,
+  mapApartmentToProperty,
+} from "../../../services/propertyMapper.js";
 
 const ITEMS_PER_PAGE = 20;
 
-const mapProperties = (apartments = [], apartmentTypes = []) => {
+const mapProperties = (
+  apartments = [],
+  apartmentTypes = [],
+  apartmentTypeImageMap,
+) => {
   const apartmentTypeMap = new Map(
     apartmentTypes.map((apartmentType) => [apartmentType.id, apartmentType]),
   );
@@ -22,16 +30,18 @@ const mapProperties = (apartments = [], apartmentTypes = []) => {
       ) ??
       {};
 
-    return mapApartmentToProperty(apartment, apartmentType);
+    return mapApartmentToProperty(apartment, apartmentType, apartmentTypeImageMap);
   });
 };
 
 function PropertyGrid({
   view,
   sortBy,
+  selectedApartmentType,
   onCountChange,
   onAvailableCountChange,
   onPageMetaChange,
+  onApartmentTypeOptionsChange,
 }) {
   const [properties, setProperties] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -44,12 +54,23 @@ function PropertyGrid({
         setIsLoading(true);
         setError(null);
 
-        const [apartments, apartmentTypes] = await Promise.all([
+        const [apartments, apartmentTypes, apartmentTypeImages] = await Promise.all([
           getApartments(),
           getApartmentTypes(),
+          getApartmentTypeImages(),
         ]);
+        const apartmentTypeImageMap = createApartmentTypeImageMap(
+          apartmentTypes,
+          apartmentTypeImages,
+        );
 
-        setProperties(mapProperties(apartments, apartmentTypes));
+        if (typeof onApartmentTypeOptionsChange === "function") {
+          onApartmentTypeOptionsChange(apartmentTypes);
+        }
+
+        setProperties(
+          mapProperties(apartments, apartmentTypes, apartmentTypeImageMap),
+        );
       } catch (err) {
         console.error("Error fetching properties:", err);
         setError("Could not load property list at this time.");
@@ -59,14 +80,24 @@ function PropertyGrid({
     };
 
     fetchProperties();
-  }, []);
+  }, [onApartmentTypeOptionsChange]);
 
   useEffect(() => {
     setCurrentPage(1);
-  }, [sortBy]);
+  }, [sortBy, selectedApartmentType]);
 
   const sortedProperties = useMemo(() => {
-    const filteredProperties = properties.filter((property) => property.isAvailable);
+    const filteredProperties = properties.filter((property) => {
+      if (!property.isAvailable) {
+        return false;
+      }
+
+      if (selectedApartmentType === "all") {
+        return true;
+      }
+
+      return String(property.apartmentTypeId) === selectedApartmentType;
+    });
 
     const nextProperties = [...filteredProperties];
 
@@ -79,7 +110,7 @@ function PropertyGrid({
     }
 
     return nextProperties.sort((a, b) => b.id - a.id);
-  }, [properties, sortBy]);
+  }, [properties, sortBy, selectedApartmentType]);
 
   const totalPages = Math.max(1, Math.ceil(sortedProperties.length / ITEMS_PER_PAGE));
   const safeCurrentPage = Math.min(currentPage, totalPages);
@@ -103,11 +134,9 @@ function PropertyGrid({
 
   useEffect(() => {
     if (typeof onAvailableCountChange === "function") {
-      onAvailableCountChange(
-        properties.filter((property) => property.isAvailable).length,
-      );
+      onAvailableCountChange(sortedProperties.length);
     }
-  }, [properties, onAvailableCountChange]);
+  }, [sortedProperties, onAvailableCountChange]);
 
   useEffect(() => {
     if (typeof onPageMetaChange === "function") {
