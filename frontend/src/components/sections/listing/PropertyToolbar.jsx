@@ -5,8 +5,6 @@ function PropertyToolbar({
   availableCount,
   sortBy,
   setSortBy,
-  statusFilter,
-  setStatusFilter,
   pageMeta,
 }) {
   const { currentPage, totalPages, startIndex, endIndex } = pageMeta;
@@ -23,18 +21,6 @@ function PropertyToolbar({
       </div>
 
       <div className="toolbar-actions">
-        <label className="toolbar-select">
-          <span>Status</span>
-          <select
-            value={statusFilter}
-            onChange={(event) => setStatusFilter(event.target.value)}
-          >
-            <option value="all">All listings</option>
-            <option value="available">Dang mo ban</option>
-            <option value="unavailable">Khong mo ban</option>
-          </select>
-        </label>
-
         <label className="toolbar-select">
           <span>Sort by</span>
           <select

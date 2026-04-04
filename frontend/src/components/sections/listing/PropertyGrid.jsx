@@ -29,7 +29,6 @@ const mapProperties = (apartments = [], apartmentTypes = []) => {
 function PropertyGrid({
   view,
   sortBy,
-  statusFilter,
   onCountChange,
   onAvailableCountChange,
   onPageMetaChange,
@@ -64,20 +63,10 @@ function PropertyGrid({
 
   useEffect(() => {
     setCurrentPage(1);
-  }, [sortBy, statusFilter]);
+  }, [sortBy]);
 
   const sortedProperties = useMemo(() => {
-    const filteredProperties = properties.filter((property) => {
-      if (statusFilter === "available") {
-        return property.isAvailable;
-      }
-
-      if (statusFilter === "unavailable") {
-        return !property.isAvailable;
-      }
-
-      return true;
-    });
+    const filteredProperties = properties.filter((property) => property.isAvailable);
 
     const nextProperties = [...filteredProperties];
 
@@ -90,7 +79,7 @@ function PropertyGrid({
     }
 
     return nextProperties.sort((a, b) => b.id - a.id);
-  }, [properties, sortBy, statusFilter]);
+  }, [properties, sortBy]);
 
   const totalPages = Math.max(1, Math.ceil(sortedProperties.length / ITEMS_PER_PAGE));
   const safeCurrentPage = Math.min(currentPage, totalPages);

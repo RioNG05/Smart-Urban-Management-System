@@ -11,7 +11,6 @@ function MarketPage() {
   const [sortBy, setSortBy] = useState("price-asc");
   const [resultCount, setResultCount] = useState(0);
   const [availableCount, setAvailableCount] = useState(0);
-  const [statusFilter, setStatusFilter] = useState("all");
   const [pageMeta, setPageMeta] = useState({
     currentPage: 1,
     totalPages: 1,
@@ -35,14 +34,11 @@ function MarketPage() {
               availableCount={availableCount}
               sortBy={sortBy}
               setSortBy={setSortBy}
-              statusFilter={statusFilter}
-              setStatusFilter={setStatusFilter}
               pageMeta={pageMeta}
             />
             <PropertyGrid
               view={view}
               sortBy={sortBy}
-              statusFilter={statusFilter}
               onCountChange={setResultCount}
               onAvailableCountChange={setAvailableCount}
               onPageMetaChange={setPageMeta}
