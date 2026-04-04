@@ -14,7 +14,7 @@ import {
 const renderCustomLegend = (props) => {
   const { payload } = props;
   
-  const bars = payload.filter(entry => entry.type !== 'line' && entry.type !== 'area');
+  const bars = payload.filter(entry => entry.type !== 'line' && entry.type !== 'area' && entry.value !== 'total');
   const line = payload.find(entry => entry.type === 'line' || entry.type === 'area');
   
   const finalPayload = [...bars, line].filter(Boolean);
