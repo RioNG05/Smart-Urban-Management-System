@@ -215,8 +215,11 @@ export const buildServiceBillFromBooking = (booking, invoice) => {
   const start = booking?.bookFrom ? parseJavaDate(booking.bookFrom) : null;
   const end = booking?.bookTo ? parseJavaDate(booking.bookTo) : null;
 
-  const usageDate = start || createdAt;
-  const displayDate = usageDate || paymentDate || createdAt;
+  const bookingCreatedAt = (booking?.bookAt || booking?.createdAt) ? parseJavaDate(booking.bookAt || booking.createdAt) : null;
+  const effectiveCreatedAt = createdAt || bookingCreatedAt;
+
+  const usageDate = start || effectiveCreatedAt;
+  const displayDate = usageDate || paymentDate || effectiveCreatedAt;
 
   const totalAmount = Number(invoice?.amount ?? booking?.totalAmount ?? 0);
   const feePerUnit = Number(
@@ -225,17 +228,21 @@ export const buildServiceBillFromBooking = (booking, invoice) => {
     totalAmount
   );
 
-  // Calculate duration/quantity
+  // Calculate duration/quantity (Number of Hours)
   let quantity = 1;
   if (start && end) {
     const diffMs = end.getTime() - start.getTime();
-    quantity = Math.max(1, Math.round(diffMs / (1000 * 60 * 60))); // rounds to nearest hour
+    quantity = Math.max(1, Math.round(diffMs / (1000 * 60 * 60))); 
   }
 
-  const unitPrice = feePerUnit > 0 ? feePerUnit : totalAmount;
+  const unitPrice = feePerUnit;
+  const amount = totalAmount; // Reverting to raw data as requested
 
   const bStatus = getBookingStatusLabel(booking?.status);
   const pStatus = getPaymentStatusLabel(invoice?.status ?? booking?.status); // fallback to booking status if no invoice
+
+  const unitType = booking?.serviceResource?.service?.unitType ?? 
+                   booking?.service?.unitType ?? "";
 
   return {
     id: invoice?.id
@@ -250,13 +257,16 @@ export const buildServiceBillFromBooking = (booking, invoice) => {
     monthKey: displayDate
       ? getMonthKey(displayDate.getFullYear(), displayDate.getMonth() + 1)
       : "unknown",
-    createdAt: createdAt,
+    createdAt: createdAt || bookingCreatedAt,
     dueDate: displayDate,
     usageDate: usageDate,
     paymentDate: paymentDate || (pStatus.key === 'paid' ? createdAt : null), 
-    amount: totalAmount,
+    amount: amount,
     unitPrice: unitPrice,
+    unitType: unitType,
     quantity: quantity,
+    bookFrom: start,
+    bookTo: end,
     statusKey: pStatus.key,
     statusLabel: pStatus.label,
     bookingStatusKey: bStatus.key,

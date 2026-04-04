@@ -156,7 +156,13 @@ export default function BillingPage() {
           floorNumber: item.floorNumber,
         }));
 
-        setAccountId(account.id);
+        const user = await getCurrentUser();
+        // Defensive check: Try multiple potential ID fields often returned by /auth/accounts/me
+        const actualAccountId = user?.id || user?.accountId || user?.results?.id;
+        
+        if (actualAccountId) {
+          setAccountId(actualAccountId);
+        }
         setApartments(normalizedApartments);
         setSelection((current) => {
           if (current.type === "apartment" && normalizedApartments.some((item) => item.id === current.id)) {
@@ -200,11 +206,24 @@ export default function BillingPage() {
         const builtServiceBills = [
           ...serviceInvoices.map(inv => buildServiceBillFromBooking(inv.bookingService, inv)),
           ...bookings
-            .filter(b => !serviceInvoices.some(inv => inv.bookingService?.id === b.id))
+            .filter(b => {
+              if (!b || !b.id) return false;
+              // Check if we already have an invoice for this booking ID
+              return !serviceInvoices.some(inv => {
+                const invBookingId = inv.bookingService?.id || inv.bookingServiceId || inv.bookingId;
+                return String(invBookingId) === String(b.id);
+              });
+            })
             .map(b => buildServiceBillFromBooking(b, null))
-        ];
+        ].sort((a, b) => {
+          const dateA = a.usageDate instanceof Date ? a.usageDate.getTime() : 0;
+          const dateB = b.usageDate instanceof Date ? b.usageDate.getTime() : 0;
+          return dateB - dateA;
+        });
 
-        setServiceBills(builtServiceBills);
+        if (active) {
+          setServiceBills(builtServiceBills);
+        }
       } catch (error) {
         console.error("Failed to load services:", error);
         if (active) setServiceBills([]);
@@ -893,14 +912,14 @@ export default function BillingPage() {
                     borderBottom: "1px solid #f1f5f9",
                     alignItems: "center"
                   }}>
-                    <div style={{ flex: 1 }}>
-                      <h3 className="section-title" style={{ fontSize: "1.5rem", fontWeight: "800", color: "#1e293b", margin: 0 }}>
-                        Service Bookings
-                      </h3>
-                      <p className="billing-panel-subtitle" style={{ margin: "4px 0 0", color: "#64748b" }}>
-                        Manage your requests and track booking expenditures.
-                      </p>
-                    </div>
+                      <div style={{ flex: 1 }}>
+                        <h3 className="section-title" style={{ fontSize: "1.5rem", fontWeight: "800", color: "#1e293b", margin: 0 }}>
+                          Service Bookings 
+                        </h3>
+                        <p className="billing-panel-subtitle" style={{ margin: "4px 0 0", color: "#64748b" }}>
+                          Manage your requests and track booking expenditures.
+                        </p>
+                      </div>
                     
                     {/* Consolidated Filters Row */}
                     <div className="service-filter-actions" style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>

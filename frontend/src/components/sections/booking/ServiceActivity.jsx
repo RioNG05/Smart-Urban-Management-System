@@ -57,9 +57,9 @@ export default function ServiceActivity({ bookings, selectedIds = [], onToggleBi
 
   return (
     <div className="service-activity-container">
-      <div className="history-table-wrapper" style={{ borderRadius: '16px', border: '1px solid #f1f5f9' }}>
-        <table className="history-detail-table">
-          <thead>
+      <div className="history-table-wrapper" style={{ borderRadius: '16px', border: '1px solid #f1f5f9', maxHeight: '420px', overflowY: 'auto' }}>
+        <table className="history-detail-table" style={{ borderCollapse: 'separate', borderSpacing: 0 }}>
+          <thead style={{ position: 'sticky', top: 0, zIndex: 20, background: '#f8fafc', boxShadow: '0 1px 0 #e2e8f0' }}>
             <tr>
               <th style={{ width: '30px', textAlign: 'center' }}>
                 <div 
@@ -82,13 +82,14 @@ export default function ServiceActivity({ bookings, selectedIds = [], onToggleBi
                   })()}
                 </div>
               </th>
-              <th style={{ width: '20%' }}>SERVICE</th>
+              <th style={{ width: '18%' }}>SERVICE</th>
               <th style={{ width: '12%' }}>UNIT PRICE</th>
-              <th style={{ width: '10%' }}>QUANTITY</th>
-              <th style={{ width: '20%' }}>USAGE DATE</th>
+              <th style={{ width: '15%' }}>BOOK AT</th>
+              <th style={{ width: '13%' }}>BOOK FROM</th>
+              <th style={{ width: '13%' }}>BOOK TO</th>
               <th style={{ width: '12%' }}>TOTAL AMOUNT</th>
-              <th style={{ width: '13%', textAlign: 'center' }}>BOOKING STATUS</th>
-              <th style={{ width: '13%', textAlign: 'center' }}>PAYMENT STATUS</th>
+              <th style={{ width: '9%', textAlign: 'center' }}>BOOKING</th>
+              <th style={{ width: '9%', textAlign: 'center' }}>PAYMENT</th>
             </tr>
           </thead>
           <tbody>
@@ -118,14 +119,25 @@ export default function ServiceActivity({ bookings, selectedIds = [], onToggleBi
                     <td>
                     <div className="history-category-info">
                       <div>
-                        <div className="history-category-name" style={{ fontWeight: '700', color: '#1e293b' }}>{item.name?.toUpperCase()}</div>
-                        <div className="history-category-sub">{item.description || "Service request"}</div>
+                        <div className="history-category-name" style={{ fontWeight: '700', color: '#1e293b' }}>
+                          {typeof item.name === 'string' ? item.name.toUpperCase() : "SERVICE"}
+                        </div>
                       </div>
                     </div>
                   </td>
-                  <td className="history-unit-price">{formatCurrency(item.unitPrice)}</td>
-                  <td className="history-quantity">{(item.quantity || 1).toLocaleString()}</td>
-                  <td className="history-usage-date" style={{ fontSize: '12px' }}>{formatDateTime(item.usageDate || item.dueDate)}</td>
+                  <td className="history-unit-price">
+                    <div style={{ display: 'flex', flexDirection: 'column' }}>
+                      <span>{formatCurrency(item.unitPrice)}</span>
+                      {typeof item.unitType === 'string' && item.unitType && (
+                        <span style={{ fontSize: '10px', color: '#94a3b8', marginTop: '2px' }}>
+                          / {item.unitType.toLowerCase()}
+                        </span>
+                      )}
+                    </div>
+                  </td>
+                  <td className="history-book-at" style={{ fontSize: '11px', color: '#64748b' }}>{formatDateTime(item.createdAt)}</td>
+                  <td className="history-usage-date" style={{ fontSize: '11px' }}>{formatDateTime(item.bookFrom || item.usageDate)}</td>
+                  <td className="history-usage-date" style={{ fontSize: '11px' }}>{formatDateTime(item.bookTo || item.dueDate)}</td>
                   <td className="history-amount-cell" style={{ textAlign: 'left' }}>{formatCurrency(item.amount)}</td>
                   <td style={{ textAlign: 'center' }}>
                     {getBookingStatusBadge(item.bookingStatusKey, item.bookingStatusLabel)}
