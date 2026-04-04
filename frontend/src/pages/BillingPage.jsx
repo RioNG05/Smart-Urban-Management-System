@@ -670,6 +670,9 @@ export default function BillingPage() {
       const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
       serviceBills.forEach(b => {
+        // Only include paid services in the Expenditure Distribution chart
+        if (b.paymentStatusKey !== "paid") return;
+
         const sourceDate = b.dueDate || b.usageDate || b.bookFrom || b.bookAt;
         const date = sourceDate ? new Date(sourceDate) : null;
         if (!date || isNaN(date.getTime())) return;
