@@ -17,11 +17,14 @@ public class NewsService {
 
     private final NewsRepository newsRepository;
     private final AccountRepository accountRepository;
+    private final NotificationService notificationService;
 
     public NewsService(NewsRepository newsRepository,
-                       AccountRepository accountRepository) {
+                       AccountRepository accountRepository,
+                       NotificationService notificationService) {
         this.newsRepository = newsRepository;
         this.accountRepository = accountRepository;
+        this.notificationService = notificationService;
     }
 
     public List<NewsResponse> findAll() {
@@ -46,7 +49,11 @@ public class NewsService {
         news.setImageUrl(request.getImageUrl());
         news.setCreatedByUser(user);
 
-        return toResponse(newsRepository.save(news));
+        News savedNews = newsRepository.save(news);
+
+        createNewsPublishedNotifications(savedNews, user);
+
+        return toResponse(savedNews);
     }
 
     public NewsResponse update(Integer id, NewsCreateRequest request) {
@@ -99,5 +106,23 @@ public class NewsService {
                         .email(user.getEmail())
                         .build())
                 .build();
+    }
+
+    private void createNewsPublishedNotifications(News news, Account author) {
+        String newsTitle = news.getTitle() != null && !news.getTitle().isBlank()
+                ? news.getTitle()
+                : "a new article";
+
+        accountRepository.findAll().stream()
+                .filter(account -> Boolean.TRUE.equals(account.getIsActive()))
+                .filter(account -> author == null || !account.getId().equals(author.getId()))
+                .forEach(account -> notificationService.createNotification(
+                        account.getId(),
+                        null,
+                        "New article published",
+                        "A new article has been posted: " + newsTitle,
+                        "NEWS_PUBLISHED",
+                        "/news"
+                ));
     }
 }

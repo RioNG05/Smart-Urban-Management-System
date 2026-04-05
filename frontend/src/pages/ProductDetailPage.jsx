@@ -18,9 +18,13 @@ import ContactSidebar from "../components/sections/product/ContactSidebar";
 import {
   getApartmentById,
   getApartments,
+  getApartmentTypeImages,
   getApartmentTypes,
 } from "../services/apartmentService";
-import { mapApartmentToProperty } from "../services/propertyMapper";
+import {
+  createApartmentTypeImageMap,
+  mapApartmentToProperty,
+} from "../services/propertyMapper";
 
 const ProductDetailPage = () => {
   const { id } = useParams();
@@ -38,10 +42,15 @@ const ProductDetailPage = () => {
         const apartment = await getApartmentById(id);
         const apartmentTypeId =
           apartment.apartmentTypeId ?? apartment.apartmentType?.id;
-        const [apartments, apartmentTypes] = await Promise.all([
+        const [apartments, apartmentTypes, apartmentTypeImages] = await Promise.all([
           getApartments(),
           getApartmentTypes(),
+          getApartmentTypeImages(),
         ]);
+        const apartmentTypeImageMap = createApartmentTypeImageMap(
+          apartmentTypes,
+          apartmentTypeImages,
+        );
 
         const apartmentTypeMap = new Map(
           apartmentTypes.map((item) => [item.id, item]),
@@ -50,7 +59,9 @@ const ProductDetailPage = () => {
         const apartmentType =
           apartment.apartmentType ?? apartmentTypeMap.get(apartmentTypeId) ?? {};
 
-        setProperty(mapApartmentToProperty(apartment, apartmentType));
+        setProperty(
+          mapApartmentToProperty(apartment, apartmentType, apartmentTypeImageMap),
+        );
 
         setRelatedProperties(
           apartments
@@ -62,6 +73,7 @@ const ProductDetailPage = () => {
                 item.apartmentType ??
                   apartmentTypeMap.get(item.apartmentTypeId ?? item.apartmentType?.id) ??
                   {},
+                apartmentTypeImageMap,
               ),
             ),
         );
