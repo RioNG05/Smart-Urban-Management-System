@@ -168,3 +168,34 @@ export const getStayHistoryByApartmentId = async (apartmentId) => {
 
   return toArray(getPayload(res.data));
 };
+
+export const getStayHistoryByResidentId = async (residentId) => {
+  if (!residentId) return [];
+
+  const res = await requestWithAuthFallback({
+    method: "get",
+    url: `/stay-at-history/resident/${residentId}`,
+  });
+
+  return toArray(getPayload(res.data));
+};
+
+export const createStayAtHistory = async (payload) => {
+  const res = await requestWithAuthFallback({
+    method: "post",
+    url: "/stay-at-history",
+    data: payload,
+  });
+
+  return getPayload(res.data);
+};
+
+export const updateStayAtHistoryById = async (stayHistoryId, payload) => {
+  const res = await requestWithAuthFallback({
+    method: "put",
+    url: `/stay-at-history/${stayHistoryId}`,
+    data: payload,
+  });
+
+  return getPayload(res.data);
+};
