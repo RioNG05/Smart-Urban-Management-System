@@ -2,6 +2,10 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { Outlet, NavLink, useOutletContext, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../components/sections/auth/AuthContext';
 import {
+    getNotificationsByRole,
+    markNotificationAsRead,
+} from '../services/notificationService';
+import {
     FaHome, FaUserShield, FaBuilding, FaNewspaper, FaBars,
     FaUserLock, FaChartPie, FaUsers,
     FaFileContract,
@@ -23,7 +27,8 @@ import {
     FaSignOutAlt,
     FaComments,
     FaFileInvoiceDollar,
-    FaHistory
+    FaHistory,
+    FaBell
 } from 'react-icons/fa';
 
 import "../styles/manager.css";
@@ -177,17 +182,113 @@ const AdminSidebar = ({ isOpen, setIsOpen, upcomingCount }) => {
 };
 
 export const AdminLayout = () => {
-    const { logout } = useAuth();
+    const { logout, role } = useAuth();
     const navigate = useNavigate();
     const [adminName, setAdminName] = useState('');
     const [isOpen, setIsOpen] = useState(true);
     const [showIdCard, setShowIdCard] = useState(false);
+    const [openNotifications, setOpenNotifications] = useState(false);
+    const [notifications, setNotifications] = useState([]);
+    const [loadingNotifications, setLoadingNotifications] = useState(false);
     // Quản lý số lượng bảo trì toàn cục
     const [upcomingCount, setUpcomingCount] = useState(0);
 
     useEffect(() => {
         setAdminName('Super Admin');
     }, []);
+
+    useEffect(() => {
+        if (role !== 'MANAGER') {
+            setNotifications([]);
+            return;
+        }
+
+        let active = true;
+
+        const loadNotifications = async ({ silent = false } = {}) => {
+            if (!silent) {
+                setLoadingNotifications(true);
+            }
+
+            try {
+                const items = await getNotificationsByRole('MANAGER');
+                if (active) {
+                    setNotifications(items);
+                }
+            } catch (error) {
+                if (!silent) {
+                    console.error('Failed to load admin notifications', error);
+                }
+            } finally {
+                if (active) {
+                    setLoadingNotifications(false);
+                }
+            }
+        };
+
+        loadNotifications();
+        const intervalId = window.setInterval(() => loadNotifications({ silent: true }), 15000);
+
+        return () => {
+            active = false;
+            window.clearInterval(intervalId);
+        };
+    }, [role]);
+
+    const unreadNotifications = useMemo(
+        () => notifications.filter((item) => !item.isRead),
+        [notifications]
+    );
+
+    const handleNotificationClick = async (notification) => {
+        if (!notification?.id) return;
+
+        try {
+            if (!notification.isRead) {
+                await markNotificationAsRead(notification.id);
+                setNotifications((current) =>
+                    current.map((item) =>
+                        item.id === notification.id ? { ...item, isRead: true } : item
+                    )
+                );
+            }
+        } catch (error) {
+            console.error('Failed to mark admin notification as read', error);
+        } finally {
+            setOpenNotifications(false);
+            if (notification.relatedUrl) {
+                navigate(notification.relatedUrl);
+            }
+        }
+    };
+
+    const handleMarkAllNotificationsAsRead = async () => {
+        const unreadIds = unreadNotifications.map((item) => item.id).filter(Boolean);
+        if (!unreadIds.length) return;
+
+        try {
+            await Promise.all(unreadIds.map((id) => markNotificationAsRead(id)));
+            setNotifications((current) =>
+                current.map((item) => ({ ...item, isRead: true }))
+            );
+        } catch (error) {
+            console.error('Failed to mark all admin notifications as read', error);
+        }
+    };
+
+    const formatNotificationTime = (value) => {
+        if (!(value instanceof Date) || Number.isNaN(value.getTime())) {
+            return '';
+        }
+
+        return value.toLocaleString('vi-VN', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit',
+        });
+    };
 
     return (
         <div className="staff-wrapper">
@@ -202,6 +303,144 @@ export const AdminLayout = () => {
                     </nav>
 
                     <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+                        <div style={{ position: 'relative' }}>
+                            <button
+                                type="button"
+                                onClick={() => setOpenNotifications((prev) => !prev)}
+                                style={{
+                                    position: 'relative',
+                                    border: '1px solid #dbe2ea',
+                                    background: '#fff',
+                                    borderRadius: '999px',
+                                    width: '42px',
+                                    height: '42px',
+                                    display: 'grid',
+                                    placeItems: 'center',
+                                    cursor: 'pointer',
+                                }}
+                            >
+                                <FaBell />
+                                {unreadNotifications.length > 0 && (
+                                    <span
+                                        style={{
+                                            position: 'absolute',
+                                            top: '-4px',
+                                            right: '-2px',
+                                            minWidth: '18px',
+                                            height: '18px',
+                                            borderRadius: '999px',
+                                            background: '#dc2626',
+                                            color: '#fff',
+                                            fontSize: '11px',
+                                            fontWeight: '700',
+                                            display: 'grid',
+                                            placeItems: 'center',
+                                            padding: '0 5px',
+                                        }}
+                                    >
+                                        {unreadNotifications.length > 9 ? '9+' : unreadNotifications.length}
+                                    </span>
+                                )}
+                            </button>
+
+                            {openNotifications && (
+                                <div
+                                    style={{
+                                        position: 'absolute',
+                                        top: '52px',
+                                        right: 0,
+                                        width: '360px',
+                                        maxHeight: '420px',
+                                        overflow: 'auto',
+                                        background: '#fff',
+                                        border: '1px solid #e2e8f0',
+                                        borderRadius: '18px',
+                                        boxShadow: '0 24px 60px rgba(15, 23, 42, 0.18)',
+                                        zIndex: 30,
+                                    }}
+                                >
+                                    <div
+                                        style={{
+                                            display: 'flex',
+                                            justifyContent: 'space-between',
+                                            alignItems: 'center',
+                                            padding: '14px 16px',
+                                            borderBottom: '1px solid #eef2f7',
+                                        }}
+                                    >
+                                        <div>
+                                            <strong>Notifications</strong>
+                                            <div style={{ fontSize: '12px', color: '#64748b' }}>
+                                                {unreadNotifications.length} unread
+                                            </div>
+                                        </div>
+                                        <button
+                                            type="button"
+                                            onClick={handleMarkAllNotificationsAsRead}
+                                            disabled={!unreadNotifications.length}
+                                            style={{
+                                                border: 'none',
+                                                background: 'transparent',
+                                                color: unreadNotifications.length ? '#0f172a' : '#94a3b8',
+                                                cursor: unreadNotifications.length ? 'pointer' : 'default',
+                                                fontWeight: '600',
+                                            }}
+                                        >
+                                            Mark all read
+                                        </button>
+                                    </div>
+
+                                    <div style={{ padding: '8px' }}>
+                                        {loadingNotifications ? (
+                                            <div style={{ padding: '16px', color: '#64748b' }}>Loading notifications...</div>
+                                        ) : notifications.length === 0 ? (
+                                            <div style={{ padding: '16px', color: '#64748b' }}>No notifications yet.</div>
+                                        ) : (
+                                            notifications.slice(0, 10).map((item) => (
+                                                <button
+                                                    key={item.id}
+                                                    type="button"
+                                                    onClick={() => handleNotificationClick(item)}
+                                                    style={{
+                                                        width: '100%',
+                                                        textAlign: 'left',
+                                                        border: 'none',
+                                                        background: item.isRead ? '#fff' : '#f8fafc',
+                                                        borderRadius: '14px',
+                                                        padding: '12px 14px',
+                                                        marginBottom: '8px',
+                                                        cursor: 'pointer',
+                                                    }}
+                                                >
+                                                    <div style={{ display: 'flex', justifyContent: 'space-between', gap: '12px' }}>
+                                                        <strong style={{ color: '#0f172a' }}>{item.title}</strong>
+                                                        {!item.isRead && (
+                                                            <span
+                                                                style={{
+                                                                    width: '8px',
+                                                                    height: '8px',
+                                                                    borderRadius: '999px',
+                                                                    background: '#2563eb',
+                                                                    marginTop: '6px',
+                                                                    flexShrink: 0,
+                                                                }}
+                                                            />
+                                                        )}
+                                                    </div>
+                                                    <p style={{ margin: '6px 0', color: '#475569', fontSize: '13px', lineHeight: 1.5 }}>
+                                                        {item.message}
+                                                    </p>
+                                                    <span style={{ fontSize: '12px', color: '#94a3b8' }}>
+                                                        {formatNotificationTime(item.createdDate)}
+                                                    </span>
+                                                </button>
+                                            ))
+                                        )}
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+
                         <button className="btn-header-home" onClick={() => navigate('/')}>
                             <FaHome /> Home
                         </button>

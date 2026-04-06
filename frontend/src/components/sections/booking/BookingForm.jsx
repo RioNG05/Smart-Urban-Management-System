@@ -295,6 +295,33 @@ export default function BookingForm({ onBookingSuccess }) {
     [account?.id, endHour, preferredDate, selectedResource, selectedService, startHour]
   );
 
+  const saveAdminBookingNotification = useCallback(async () => {
+    if (!account?.id || !selectedService || !selectedResource) return;
+
+    const dateLabel = preferredDate || "selected date";
+    const timeLabel =
+      startHour != null && endHour != null
+        ? `${formatTimeLabel(startHour)} - ${formatTimeLabel(endHour)}`
+        : null;
+    const scheduleLabel = [dateLabel, timeLabel].filter(Boolean).join(" ");
+    const resourceLabel =
+      selectedResource.resourceCode || selectedResource.location || `resource #${selectedResource.id}`;
+    const requesterLabel =
+      account?.fullName || account?.username || account?.email || `account #${account.id}`;
+
+    try {
+      await createNotification({
+        targetRole: "MANAGER",
+        title: "New booking request",
+        message: `${requesterLabel} submitted a booking for ${selectedService.title} at ${resourceLabel}${scheduleLabel ? ` on ${scheduleLabel}` : ""}.`,
+        type: "BOOKING_REVIEW_REQUIRED",
+        relatedUrl: "/admin/bookings",
+      });
+    } catch (notificationError) {
+      console.error("Failed to save admin booking notification", notificationError);
+    }
+  }, [account, endHour, preferredDate, selectedResource, selectedService, startHour]);
+
   const handleSubmit = async (event) => {
     event?.preventDefault();
     if (!account?.id) {
@@ -329,6 +356,7 @@ export default function BookingForm({ onBookingSuccess }) {
       await saveBookingNotification({
         status: "success",
       });
+      await saveAdminBookingNotification();
       handleReset();
       if (onBookingSuccess) onBookingSuccess();
       getAllBookings().then(setAllBookings);
