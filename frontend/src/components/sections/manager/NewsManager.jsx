@@ -410,7 +410,8 @@ const NewsManager = () => {
                         width: "100%",
                         maxWidth: "280px",
                         height: "180px",
-                        objectFit: "cover",
+                        objectFit: "contain",
+                        background: "#f8fafc",
                         borderRadius: "14px",
                         border: "1px solid #e2e8f0",
                       }}

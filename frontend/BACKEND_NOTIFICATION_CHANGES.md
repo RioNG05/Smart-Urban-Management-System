@@ -7,6 +7,7 @@ File nay ghi ro backend da duoc sua nhu the nao de he thong tu tao notification 
 - admin/staff reply complaint
 - booking service duoc approve
 - booking service bi deny
+- co bai viet moi duoc dang len
 
 Tai lieu nay khong chi liet ke file da sua, ma con mo ta cu the da them gi, sua gi, va ly do sua.
 
@@ -14,12 +15,13 @@ Tai lieu nay khong chi liet ke file da sua, ma con mo ta cu the da them gi, sua 
 
 ## Tong quan thay doi
 
-Backend da duoc chinh o 4 file:
+Backend da duoc chinh o 5 file:
 
 1. `backend/src/main/java/com/example/backend/Service/ReplyService.java`
 2. `backend/src/main/java/com/example/backend/Service/BookingServiceService.java`
 3. `backend/src/main/java/com/example/backend/Service/NotificationService.java`
 4. `backend/src/main/java/com/example/backend/Repository/NotificationRepository.java`
+5. `backend/src/main/java/com/example/backend/Service/NewsService.java`
 
 Huong lam la:
 
@@ -420,6 +422,98 @@ Muc dich:
 
 ---
 
+## 5. Sua `NewsService.java`
+
+### File
+
+`backend/src/main/java/com/example/backend/Service/NewsService.java`
+
+### Truoc khi sua
+
+Ham `create(NewsCreateRequest request)` chi:
+
+- tim user tao bai viet
+- tao object `News`
+- save vao database
+- tra `NewsResponse`
+
+Chua co notification nao duoc gui khi bai viet moi duoc dang.
+
+### Da sua gi
+
+#### 1. Them dependency `NotificationService`
+
+Da them field:
+
+```java
+private final NotificationService notificationService;
+```
+
+Va inject vao constructor cua `NewsService`.
+
+#### 2. Sua ham `create(...)`
+
+Truoc day:
+
+```java
+return toResponse(newsRepository.save(news));
+```
+
+Sau khi sua:
+
+```java
+News savedNews = newsRepository.save(news);
+
+createNewsPublishedNotifications(savedNews, user);
+
+return toResponse(savedNews);
+```
+
+Tuc la:
+
+- bai viet duoc save truoc
+- sau do backend tao notification cho nguoi dung
+- cuoi cung moi tra response ve frontend
+
+#### 3. Them method moi `createNewsPublishedNotifications(...)`
+
+Method moi:
+
+```java
+private void createNewsPublishedNotifications(News news, Account author)
+```
+
+Method nay lam cac viec:
+
+- lay `newsTitle` tu `news.getTitle()`
+- neu title rong thi fallback thanh `"a new article"`
+- lay tat ca account bang `accountRepository.findAll()`
+- loc chi nhung account co `isActive = true`
+- bo qua account cua nguoi vua dang bai
+- voi moi account con lai:
+  - goi `notificationService.createNotification(...)`
+
+#### 4. Notification duoc tao nhu the nao
+
+Notification cho bai viet moi co du lieu:
+
+- `receiverId`: id cua tung account dang active
+- `targetRole`: `null`
+- `title`: `New article published`
+- `message`: `A new article has been posted: {newsTitle}`
+- `type`: `NEWS_PUBLISHED`
+- `relatedUrl`: `/news`
+
+### Ket qua
+
+Moi khi manager/admin dang bai viet moi:
+
+- bai viet van duoc tao nhu cu
+- he thong se tao them notification cho tat ca account dang active, tru nguoi dang bai
+- frontend co the hien notification nay ngay tren bell da lam truoc do
+
+---
+
 ## Chi tiet luong xu ly sau khi sua
 
 ### A. Complaint reply flow
@@ -440,6 +534,16 @@ Muc dich:
 5. Neu `0 -> 1` thi tao invoice
 6. Neu `0 -> 1` hoac `0 -> 2` thi tao notification
 7. Frontend resident se thay notification moi
+
+### C. News publish flow
+
+1. Manager/admin goi API tao bai viet
+2. `NewsService.create(...)` duoc chay
+3. Bai viet duoc save vao bang `News`
+4. Backend lay danh sach account dang active
+5. Backend bo qua nguoi vua dang bai
+6. Backend tao notification cho tung account con lai
+7. Frontend se doc notification moi qua API notifications
 
 ---
 
@@ -462,7 +566,8 @@ Trong cac case vua sua:
 - `TargetRole` de `null`
 - `IsRead` luon la `false` luc moi tao
 - `CreatedAt` duoc set bang `LocalDateTime.now()`
-- `RelatedUrl` tam thoi deu tro ve `/billing`
+- `RelatedUrl` voi complaint/booking la `/billing`
+- `RelatedUrl` voi news moi la `/news`
 
 ---
 
@@ -488,6 +593,8 @@ Da sua backend theo dung huong event trong service nghiep vu:
   - sau khi save reply thi tao notification cho resident
 - `BookingServiceService`
   - sau khi save booking thi tao notification neu booking duoc approve/deny
+- `NewsService`
+  - sau khi save bai viet thi tao notification cho cac account dang active
 - `NotificationService`
   - them helper `createNotification(...)`
   - doi query lay danh sach moi nhat truoc

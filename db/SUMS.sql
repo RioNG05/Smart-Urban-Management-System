@@ -1436,16 +1436,16 @@ CREATE TABLE Complaints (
     CONSTRAINT FK_Complaints_Accounts FOREIGN KEY (MadeByUserId) REFERENCES Accounts(Id)
 );
 
--- Chèn 4 khiếu nại cho các Account ID: 2, 6, 7, 8
+-- Insert 4 complaints for Account IDs: 2, 6, 7, 8
 INSERT INTO Complaints (Content, MadeByUserId, CreatedAt)
 VALUES 
-(N'Căn hộ tầng trên thường xuyên gây tiếng ồn lớn sau 11 giờ đêm, ảnh hưởng đến việc nghỉ ngơi.', 2, GETDATE()),
+(N'The upstairs apartment frequently makes loud noises after 11 PM, affecting residents'' rest and sleep.', 2, GETDATE()),
 
-(N'Khu vực hành lang tầng 7 chưa được dọn dẹp vệ sinh sạch sẽ trong 2 ngày qua.', 6, GETDATE()),
+(N'The hallway on the 7th floor has not been cleaned properly for the past 2 days.', 6, GETDATE()),
 
-(N'Thang máy tòa B có hiện tượng rung lắc mạnh khi di chuyển giữa tầng 10 và 15, cần kiểm tra kỹ thuật.', 7, GETDATE()),
+(N'Elevator in Block B experiences strong vibrations when moving between the 10th and 15th floors; technical inspection is required.', 7, GETDATE()),
 
-(N'Hệ thống đèn chiếu sáng tại khu vực bãi đỗ xe máy dưới hầm bị hỏng, gây khó khăn khi di chuyển vào buổi tối.', 8, GETDATE());
+(N'The lighting system in the basement motorbike parking area is broken, making it difficult to commute at night.', 8, GETDATE());
 GO
 
 
@@ -1483,53 +1483,50 @@ CREATE TABLE News (
 
 INSERT INTO News (Title, Content, ImageUrl, CreatedByUserId)
 VALUES 
-(N'Thông báo bảo trì thang máy tòa S1', 
-N'Ban quản lý xin thông báo, ngày 15/03/2024 sẽ tiến hành bảo trì thang máy số 2 tòa S1 từ 00h00 đến 04h00 sáng. Xin lỗi quý cư dân vì sự bất tiện này.',
+(N'Elevator Maintenance Notice - Block S1', 
+N'Management Office informs that maintenance for elevator No. 2 in Block S1 will take place on March 15, 2024, from 00:00 to 04:00 AM. We apologize for this inconvenience.',
 'https://tse4.mm.bing.net/th/id/OIP.WIHz1g556WcPRXcu3nbpDwHaE7?rs=1&pid=ImgDetMain&o=7&rm=3', 1),
 
-(N'Lễ hội ẩm thực cuối tuần', 
-N'Kính mời toàn thể cư dân tham gia lễ hội ẩm thực tại khu vực nướng BBQ vào cuối tuần này.', 
+(N'Weekend Food Festival', 
+N'All residents are cordially invited to join the Food Festival at the BBQ area this weekend.', 
 'https://nld.mediacdn.vn/291774122806476800/2022/8/25/le-hoi-am-thuc-anh-hoang-trieu22-16614300460151286487996.jpg', 1),
 
-(N'Kế hoạch phun thuốc diệt côn trùng định kỳ',
-N'Vào sáng thứ Bảy tuần này (14/03/2026), ban quản lý sẽ tiến hành phun thuốc diệt côn trùng tại các khu vực hành lang, tầng hầm và khuôn viên chung. Cư dân vui lòng đóng kín cửa sổ và hạn chế ra ngoài trong thời gian trên.', 
+(N'Scheduled Pest Control Plan',
+N'On Saturday morning (March 14, 2026), the management will conduct pest control spraying in hallways, basements, and common areas. Residents are advised to close windows and stay indoors during this time.', 
  'https://th.bing.com/th/id/R.8ce64a608b9ddfba419f579b41972c42?rik=cqTsV6Eq4cFSYg&pid=ImgRaw&r=0', 1),
 
-(N'Nâng cấp hệ thống chiếu sáng tầng hầm B1', 
- N'Hệ thống đèn LED cảm biến mới sẽ được lắp đặt tại tầng hầm B1 từ ngày 16/03 đến 18/03. Việc thi công sẽ không làm ảnh hưởng đến khu vực đỗ xe, tuy nhiên quý cư dân lưu ý di chuyển cẩn thận qua các khu vực có biển báo.', 
+(N'B1 Basement Lighting System Upgrade', 
+ N'New LED sensor lights will be installed in the B1 basement from March 16 to March 18. Construction will not affect parking areas, but please proceed with caution near marked zones.', 
  'https://th.bing.com/th/id/R.fcbdd54c679a0511fa44735e3728ff91?rik=FuErExljl0HfuA&pid=ImgRaw&r=0', 1);
 GO
+
+-- 6-7. Clubs & Safety
 INSERT INTO News (Title, Content, ImageUrl, CreatedByUserId)
 VALUES 
--- 6. Khai trương CLB Bóng bàn
-(N'Khai trương Câu lạc bộ Bóng bàn cư dân The Sakura', 
-N'Nhằm tăng cường giao lưu và sức khỏe, CLB Bóng bàn chính thức hoạt động tại tầng 1 tòa S2. Kính mời các tay vợt cư dân đăng ký tham gia vào 18h hàng ngày.', 
+(N'Grand Opening: The Sakura Table Tennis Club', 
+N'To promote fitness and networking, the Table Tennis Club is now open on the 1st floor of Block S2. Residents are invited to register at 6:00 PM daily.', 
 'https://tse1.mm.bing.net/th/id/OIP.5m7n2yXOj-HM6B1HzuFVeQHaEK?rs=1&pid=ImgDetMain&o=7&rm=3', 1),
 
--- 7. Cảnh báo an ninh PCCC định kỳ
-(N'Diễn tập Phòng cháy chữa cháy (PCCC) toàn khu đô thị', 
-N'Vào sáng Chủ nhật (20/03/2026), BQL phối hợp cùng lực lượng chức năng tổ chức diễn tập PCCC. Sẽ có còi báo động giả định, cư dân lưu ý không hoảng loạn.', 
+(N'Routine Fire Safety Drill', 
+N'On Sunday morning (March 20, 2026), Management will coordinate with local authorities for a fire drill. Simulated sirens will be used; please remain calm.', 
 'https://tse3.mm.bing.net/th/id/OIP.EFtqYeJQYXxWfFTBTclBNwHaE7?rs=1&pid=ImgDetMain&o=7&rm=3', 1);
 
--- 8. Lịch cắt điện tạm thời để bảo trì trạm biến áp
+-- 8-10. Regulations & Events
 INSERT INTO News (Title, Content, ImageUrl, CreatedByUserId)
-VALUES (N'Thông báo tạm ngừng cấp điện để bảo dưỡng trạm biến áp', 
-N'Để đảm bảo hệ thống điện vận hành ổn định trong mùa hè, Điện lực sẽ tạm cắt điện khu vực sảnh và hầm từ 01h00 đến 03h00 sáng ngày 22/03/2026.', 
+VALUES (N'Scheduled Power Outage for Substation Maintenance', 
+N'To ensure stable operation during summer, the utility company will temporarily cut power in the lobby and basement areas from 01:00 to 03:00 AM on March 22, 2026.', 
 'https://visaho.vn/upload_images/images/2022/03/30/bao-tri-dien-toa-nha-1-min.jpg', 1);
 
--- 9. Quy định về nuôi thú cưng trong chung cư
 INSERT INTO News (Title, Content, ImageUrl, CreatedByUserId)
-VALUES (N'Nhắc nhở quy định về nuôi giữ thú cưng tại khu vực chung', 
-N'Yêu cầu cư dân khi đưa thú cưng ra khu vực công cộng phải có dây xích, rọ mõm và đảm bảo vệ sinh môi trường. Mọi hành vi vi phạm sẽ bị nhắc nhở theo nội quy.', 
+VALUES (N'Reminder: Pet Ownership Regulations in Common Areas', 
+N'Residents must use leashes and muzzles when bringing pets to public areas and ensure environmental hygiene. Violations will be handled according to building regulations.', 
 'https://i.ebayimg.com/images/g/-9gAAOSwhV9mwF4j/s-l960.jpg', 1);
 
--- 10. Chào mừng ngày Quốc tế Phụ nữ 8/3
 INSERT INTO News (Title, Content, ImageUrl, CreatedByUserId)
-VALUES (N'Chương trình tặng hoa tri ân nhân ngày Quốc tế Phụ nữ', 
-N'BQL xin gửi lời chúc mừng đến toàn thể chị em cư dân. Vào sáng 08/03, mỗi cư dân nữ đi qua sảnh sẽ nhận được một nhành hoa hồng thay lời tri ân.', 
+VALUES (N'International Women''s Day Celebration - March 8th', 
+N'Management sends best wishes to all female residents. On the morning of March 8th, every female resident passing through the lobby will receive a rose as a token of appreciation.', 
 'https://tse4.mm.bing.net/th/id/OIP.5fntcb0-8rMEbyeRGa1zWgHaEo?rs=1&pid=ImgDetMain&o=7&rm=3', 1);
 GO
-
 -- =============================================
 -- BATCH 16.1: BỔ SUNG 20 BÀI VIẾT NEWS (TỔNG 30)
 -- Nội dung: Thông báo, Sự kiện, Mẹo vặt cư dân
@@ -1537,67 +1534,67 @@ GO
 
 INSERT INTO News (Title, Content, ImageUrl, CreatedByUserId)
 VALUES 
--- 11. Thông báo phí gửi xe
-(N'Cập nhật biểu phí trông giữ phương tiện năm 2026', 
-N'Từ ngày 01/04/2026, phí gửi xe máy sẽ giữ nguyên, xe ô tô thứ hai trở đi sẽ có mức điều chỉnh nhẹ. Chi tiết vui lòng xem tại bảng tin sảnh tòa nhà.', 
+-- 11. Parking Fee Notice
+(N'2026 Parking Fee Schedule Update', 
+N'Effective April 1, 2026, motorbike parking fees remain unchanged, while fees for the second car onwards will undergo a slight adjustment. Please see the lobby bulletin board for details.', 
 'https://tse4.mm.bing.net/th/id/OIP.p61hM9_C3eNcRQUo7dBZLAHaEd?rs=1&pid=ImgDetMain&o=7&rm=3', 1),
 
--- 12. Mẹo tiết kiệm điện
-(N'5 mẹo tiết kiệm điện năng trong mùa nắng nóng', 
-N'Sử dụng rèm cửa sáng màu, bảo trì điều hòa định kỳ và tận dụng ánh sáng tự nhiên sẽ giúp hóa đơn tiền điện nhà bạn giảm đáng kể.', 
+-- 12. Energy Saving Tips
+(N'5 Tips to Save Electricity During Hot Season', 
+N'Using light-colored curtains, performing regular AC maintenance, and utilizing natural light will significantly reduce your electricity bill.', 
 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQISs5eaae3w4Wx3-EcCNNpbiGTgef1eXuJSw&s', 1),
 
--- 13. Giải bóng đá cư dân
-(N'Khai mạc giải bóng đá nam cư dân TEMS Championship', 
-N'Giải đấu quy tụ 12 đội bóng đến từ các block s1, s2. Trận khai mạc sẽ diễn ra vào lúc 15h00 chiều thứ Bảy tại sân bóng khu đô thị.', 
+-- 13. Football Championship
+(N'Opening Ceremony: TEMS Residents Football Championship', 
+N'The tournament features 12 teams from blocks S1 and S2. The opening match kicks off at 3:00 PM this Saturday at the urban area football field.', 
 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQWGK8uq1tHrb9BM-QnZbUicS3EXX7gPxCk4g&s', 1),
 
--- 14. Quy định tiếng ồn
-(N'Nhắc nhở quy định về tiếng ồn sau 22h00', 
-N'Để đảm bảo không gian yên tĩnh cho cư dân nghỉ ngơi, yêu cầu quý vị không khoan đục, ca hát karaoke quá âm lượng quy định sau 10 giờ tối.', 
+-- 14. Noise Regulation
+(N'Reminder: Noise Regulations After 10:00 PM', 
+N'To ensure a quiet environment for residents, please refrain from drilling, loud singing, or high-volume karaoke after 10:00 PM.', 
 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT_LLrL9hjmp1n69hd9eP97YfR8TeWSEmFWQw&s', 1),
 
--- 15. Lớp học bơi cho bé
-(N'Mở lớp dạy bơi miễn phí cho trẻ em cư dân', 
-N'Chương trình "Mùa hè an toàn" khai giảng lớp dạy bơi cơ bản tại bể bơi ngoài trời vào các buổi sáng thứ 3-5-7 hàng tuần.', 
+-- 15. Swimming Class
+(N'Free Swimming Classes for Resident Children', 
+N'The "Safe Summer" program offers basic swimming lessons at the outdoor pool every Tuesday, Thursday, and Saturday morning.', 
 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS58alheI0CHjups94Qglyn-FLe2WJ8KhVOEw&s', 1),
 
--- 16. Bảo trì lọc nước
-(N'Kiểm tra định kỳ hệ thống lọc nước tổng tòa nhà', 
-N'Đội kỹ thuật sẽ súc rửa bồn chứa nước sạch từ 23h00 đêm nay. Nước có thể hơi đục nhẹ trong 5-10 phút đầu khi cấp lại, cư dân lưu ý.', 
+-- 16. Water Filter Maintenance
+(N'Scheduled Building Water Filtration System Inspection', 
+N'The technical team will clean the freshwater tanks starting at 11:00 PM tonight. Water may appear slightly cloudy for the first 5-10 minutes after supply resumes.', 
 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ-zgJHN8c2WERoRIiEL4DsZd9ea00scEu07w&s', 1),
 
--- 17. Ngày hội đổi rác lấy quà
-(N'Ngày hội sống xanh: Đổi pin cũ lấy cây xanh', 
-N'Hãy cùng chung tay bảo vệ môi trường bằng cách mang pin đã qua sử dụng đến quầy lễ tân để đổi lấy những chậu sen đá xinh xắn.', 
+-- 17. Green Exchange Day
+(N'Green Living Festival: Exchange Old Batteries for Plants', 
+N'Let''s protect the environment together by bringing used batteries to the reception desk in exchange for lovely succulent pots.', 
 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQWtHe2KhjAQ0COD1uVf4i7GAjwZ_HN3Q5F6Q&s', 1),
 
--- 18. Cảnh báo lừa đảo
-(N'Cảnh báo các thủ đoạn lừa đảo giả danh nhân viên điện lực', 
-N'Hiện có đối tượng gọi điện yêu cầu đóng tiền điện qua tài khoản cá nhân. BQL nhắc nhở cư dân chỉ thanh toán qua App chính thức hoặc tại ngân hàng.', 
+-- 18. Fraud Warning
+(N'Scam Alert: Impersonation of Utility Company Employees', 
+N'Be aware of individuals calling to request electricity payments via personal accounts. Please only pay via the official App or at the bank.', 
 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTftPfa1-Zg1q9DowvB0UntIgglpk0diXfpbw&s', 1),
 
--- 19. Hội thảo đầu tư
-(N'Hội thảo quản lý tài chính cá nhân cho cư dân trẻ', 
-N'Diễn giả hàng đầu sẽ chia sẻ về cách tối ưu hóa dòng tiền và quản lý nợ trong buổi tối thứ Tư tuần tới tại sảnh sinh hoạt cộng đồng.', 
+-- 19. Investment Seminar
+(N'Personal Finance Workshop for Young Residents', 
+N'Leading speakers will share insights on optimizing cash flow and debt management next Wednesday evening at the community hall.', 
 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSbZnh_YbJ6fcTKi2hnlMSouXnqBq7TgpSuaA&s', 1),
 
--- 20. Khuyến mãi Spa
-(N'Ưu đãi 30% dịch vụ Massage thảo mộc tại Spa tòa nhà', 
-N'Chào đón cư dân mới, phòng Spa (ID 9, 10) giảm giá sâu cho các gói chăm sóc da và bấm huyệt trong suốt tháng 3.', 
+-- 20. Spa Promotion
+(N'30% Off Herbal Massage at the Resident Spa', 
+N'Welcoming new residents, the Spa (ID 9, 10) is offering deep discounts on skincare and acupressure packages throughout March.', 
 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRiVKcqyxJfwqZRbjBEvHSckx1Fmq93M1f3yw&s', 1),
 
--- 21-30. Các tin tức bổ sung nhanh (Loop nội dung)
-(N'Lịch thu gom rác thải cồng kềnh tháng 4', N'Cư dân có nhu cầu bỏ giường, tủ cũ vui lòng đăng ký trước ngày 05/04.', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT4nzT8tYwc95h0r7tu8peoY5F6b_exo2lEdg&s', 1),
-(N'Vệ sinh lưới chắn rác ban công mùa mưa', N'BQL khuyến nghị cư dân kiểm tra phễu thoát sàn ban công tránh ngập úng.', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR_slxYfoxTTHdeAMQYgehv82AlpwBeJVEFzA&s', 1),
-(N'Câu lạc bộ Yoga sảnh S2 tuyển thành viên', N'Lớp học buổi sáng sớm giúp tinh thần sảng khoái, bắt đầu từ 5h30 sáng.', 'https://static.hotdeal.vn/images/822/822188/500x500/190116-khoa-hoc-yoga-8-buoi-tai-clb-yoga-newlife.jpg', 1),
-(N'Hướng dẫn sử dụng khóa cửa thông minh Yale', N'Video hướng dẫn cách đổi mã master và thêm vân tay cho người giúp việc.', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSyIuQ1fHt-1j4jOME6VD4h2Poz_YX0akMAXA&s', 1),
-(N'Hợp tác cung cấp thực phẩm sạch tại sảnh', N'Gian hàng rau củ organic từ Đà Lạt sẽ phục vụ cư dân vào mỗi sáng sớm.', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTk10CsnRAVZAjxiSvRKc1SUZ72UPeSElqiPQ&s', 1),
-(N'Tổ chức Tết Trung Thu sớm cho các bé', N'Chương trình rước đèn và múa lân sôi động tại quảng trường trung tâm.', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ5vSien6-6fEwacR3Yb_Wbf4jA3eOzmRyi3g&s', 1),
-(N'Nhắc nhở nộp phí dịch vụ đúng hạn', N'Quý cư dân vui lòng hoàn tất phí dịch vụ trước ngày 10 hàng tháng để tránh gián đoạn.', 'https://thdlog.com/wp-content/uploads/2025/08/3-2.jpg', 1),
-(N'Lắp đặt thêm máy tập Gym ngoài trời', N'Bổ sung 5 máy tập bụng và xà đơn tại khu vực công viên ven hồ.', 'https://thethaominhphu.com/wp-content/uploads/2017/12/cong-vien.jpg', 1),
-(N'Bảo trì camera an ninh hành lang tầng 15-20', N'Kỹ thuật sẽ kiểm tra góc quay và độ nét của camera trong chiều hôm nay.', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT52nGCq_ZEVDxWMF6Ixg0IxfvlxZkZgdGe0w&s', 1),
-(N'Cảm ơn cư dân đã tham gia khảo sát chất lượng', N'Kết quả khảo sát mức độ hài lòng sẽ được BQL công bố vào cuối tuần tới.', 'https://lh4.googleusercontent.com/proxy/NAUmYxcTIQD2UXuCm5lBQZX79hnM_zYkPrY7FywECqqSWCm-tr7GdecW09zGYw9yECtodDgUExwyoNTKq1hdligKPkDdExcN5u-ih8jdtw', 1);
+-- 21-30. Quick Updates
+(N'April Bulky Waste Collection Schedule', N'Residents wishing to dispose of old beds or cabinets, please register before April 5.', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT4nzT8tYwc95h0r7tu8peoY5F6b_exo2lEdg&s', 1),
+(N'Balcony Drainage Cleaning for Rainy Season', N'Management recommends checking balcony floor drains to prevent localized flooding.', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR_slxYfoxTTHdeAMQYgehv82AlpwBeJVEFzA&s', 1),
+(N'S2 Lobby Yoga Club Recruiting Members', N'Early morning classes to refresh your mind, starting at 5:30 AM.', 'https://static.hotdeal.vn/images/822/822188/500x500/190116-khoa-hoc-yoga-8-buoi-tai-clb-yoga-newlife.jpg', 1),
+(N'Yale Smart Lock Usage Guide', N'Video tutorial on how to change master codes and add fingerprints for domestic helpers.', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSyIuQ1fHt-1j4jOME6VD4h2Poz_YX0akMAXA&s', 1),
+(N'Fresh Food Partnership in the Lobby', N'Organic vegetable stalls from Da Lat will serve residents every early morning.', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTk10CsnRAVZAjxiSvRKc1SUZ72UPeSElqiPQ&s', 1),
+(N'Early Mid-Autumn Festival for Children', N'Exciting lantern parade and lion dance performance at the central plaza.', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ5vSien6-6fEwacR3Yb_Wbf4jA3eOzmRyi3g&s', 1),
+(N'Reminder: Service Fee Payment Deadline', N'Residents please complete service fee payments by the 10th of each month to avoid service interruption.', 'https://thdlog.com/wp-content/uploads/2025/08/3-2.jpg', 1),
+(N'New Outdoor Gym Equipment Installation', N'Added 5 sit-up benches and pull-up bars at the lakeside park area.', 'https://thethaominhphu.com/wp-content/uploads/2017/12/cong-vien.jpg', 1),
+(N'Security Camera Maintenance: Floors 15-20', N'Technicians will check camera angles and clarity this afternoon.', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT52nGCq_ZEVDxWMF6Ixg0IxfvlxZkZgdGe0w&s', 1),
+(N'Thank You for Participating in the Quality Survey', N'The satisfaction survey results will be announced by Management next weekend.', 'https://lh4.googleusercontent.com/proxy/NAUmYxcTIQD2UXuCm5lBQZX79hnM_zYkPrY7FywECqqSWCm-tr7GdecW09zGYw9yECtodDgUExwyoNTKq1hdligKPkDdExcN5u-ih8jdtw', 1);
 GO
 
 -- 9 services
@@ -1646,9 +1643,9 @@ GO
 
 INSERT INTO MandatoryServices (ServiceName, ServiceCode, BasePrice, UnitType, Description)
 VALUES 
-(N'Điện sinh hoạt', 'ELEC_01', 2500.00, 'kWh',  N'Tiền điện theo chỉ số.'),
-(N'Nước sinh hoạt', 'WAT_01', 15000.00, 'm3', N'Tiền nước theo chỉ số.'),
-(N'Phí quản lý tòa nhà', 'MNG_FEE', 500000.00, N'Tháng', N'Phí cố định hàng tháng.');
+(N'Residential Electricity', 'ELEC_01', 2500.00, 'kWh', N'Electricity charges based on meter readings.'),
+(N'Residential Water', 'WAT_01', 15000.00, 'm3', N'Water charges based on cubic meter usage.'),
+(N'Building Management Fee', 'MNG_FEE', 500000.00, N'Month', N'Fixed monthly management and maintenance fee.');
 GO
 
 -- 10 service resource
@@ -1658,6 +1655,7 @@ CREATE TABLE ServiceResources (
     Location NVARCHAR(255),              -- location_of_service
     ServiceId INT NOT NULL,              -- service_id (FK)
     IsAvailable BIT DEFAULT 1,           -- Thêm trạng thái để biết có đang bảo trì không
+	ImageUrl NVARCHAR(MAX),              -- ẢNH LƯU TRỰC TIẾP Ở ĐÂY (Refactored)
 
     -- Khóa ngoại nối sang bảng Services
     CONSTRAINT FK_Resources_Services FOREIGN KEY (ServiceId) REFERENCES Services(Id)
@@ -1667,86 +1665,96 @@ CREATE TABLE ServiceResources (
 -- vd: bookable: bbq, tenis
 -- ko cần book/ko book được: bể bơi và gym.
 -- 1. Resources cho BBQ Park (Giả sử ServiceId = 8)
-INSERT INTO ServiceResources (ResourceCode, Location, ServiceId, IsAvailable)
-VALUES 
-('BBQ_ZONE_A_01', N'Vườn BBQ - Khu A (Cạnh hồ bơi)', 8, 1),
-('BBQ_ZONE_A_02', N'Vườn BBQ - Khu A (Cạnh hồ bơi)', 8, 1),
-('BBQ_ZONE_B_01', N'Vườn BBQ - Khu B (Công viên trung tâm)', 8, 1);
-
--- 2. Resources cho Tennis Court (Giả sử ServiceId = 9)
-INSERT INTO ServiceResources (ResourceCode, Location, ServiceId, IsAvailable)
-VALUES 
-('TENNIS_CT_01', N'Khu thể thao ngoài trời - Sân số 1', 9, 1),
-('TENNIS_CT_02', N'Khu thể thao ngoài trời - Sân số 2', 9, 1),
-('TENNIS_CT_03', N'Khu thể thao ngoài trời - Sân số 3 (Đang bảo trì)', 9, 0); -- Sân bảo trì để test logic
-
--- 3. Resources cho Golf Course (Giả sử ServiceId = 10)
-INSERT INTO ServiceResources (ResourceCode, Location, ServiceId, IsAvailable)
-VALUES 
-('GOLF_LANE_01', N'Sân tập Golf - Làn số 1', 10, 1),
-('GOLF_LANE_02', N'Sân tập Golf - Làn số 2', 10, 1);
-
--- 4. Resources cho Sauna & Spa (Giả sử ServiceId = 11)
-INSERT INTO ServiceResources (ResourceCode, Location, ServiceId, IsAvailable)
-VALUES 
-('SPA_ROOM_01', N'Tầng 3 - Tòa S1 - Phòng VIP 1', 11, 1),
-('SPA_ROOM_02', N'Tầng 3 - Tòa S1 - Phòng VIP 2', 11, 1);
-GO
--- 5. add cho bên hall
-INSERT INTO ServiceResources (ResourceCode, Location, ServiceId, IsAvailable)
-VALUES 
-( 'HALL_S1_01', N'Tầng 1, Tòa S1 - Hội trường lớn A', 12, 1),
-( 'HALL_S1_02', N'Tầng 1, Tòa S1 - Phòng sinh hoạt nhỏ B', 12, 1),
-( 'HALL_S2_01', N'Tầng 1, Tòa S2 - Hội trường trung tâm', 12, 1),
-( 'HALL_S2_02', N'Tầng 2, Tòa S2 - Phòng họp cư dân', 12, 1),
-( 'HALL_COMMON', N'Khu vực quảng trường - Nhà sinh hoạt chung', 12, 1);
+-- 1. Nhóm BBQ (ServiceId = 8)
+-- 1. BBQ Resources (ServiceId = 8)
+INSERT INTO ServiceResources (ResourceCode, Location, ServiceId, IsAvailable, ImageUrl)
+VALUES  
+('BBQ_ZONE_A_01', N'BBQ Garden - Zone A (By the pool)', 8, 1, 'https://tse2.mm.bing.net/th/id/OIP.h5ojHmBqqkvXC7rtk65zugHaE_?rs=1&pid=ImgDetMain&o=7&rm=3'),
+('BBQ_ZONE_A_02', N'BBQ Garden - Zone A (By the pool)', 8, 1, 'https://tse3.mm.bing.net/th/id/OIP.MM31qoW70iNVwsmLz-Hz7gHaE7?rs=1&pid=ImgDetMain&o=7&rm=3'),
+('BBQ_ZONE_B_01', N'BBQ Garden - Zone B (Central Park)', 8, 1, 'https://tse3.mm.bing.net/th/id/OIP.TZwV6kcD_-PTgZpUBqdNjgHaFj?rs=1&pid=ImgDetMain&o=7&rm=3');
 GO
 
--- giờ add resource cho mấy người anh em service ko book đc
--- 1. Resources cho Green Park (ServiceId = 1)
-INSERT INTO ServiceResources (ResourceCode, Location, ServiceId, IsAvailable)
-VALUES 
-('PARK_CENTRAL', N'Công viên trung tâm - Khu vực hồ điều hòa', 1, 1),
-('PARK_NORTH', N'Công viên phía Bắc - Khu vườn Nhật', 1, 1);
-
--- 2. Resources cho Swimming Pools (ServiceId = 2)
-INSERT INTO ServiceResources (ResourceCode, Location, ServiceId, IsAvailable)
-VALUES 
-('POOL_S1_INF', N'Tòa S1 - Tầng 4 (Bể bơi vô cực)', 2, 1),
-('POOL_S2_KIDS', N'Tòa S2 - Tầng trệt (Bể bơi trẻ em)', 2, 1);
-
--- 3. Resources cho Shopping Center (ServiceId = 3)
-INSERT INTO ServiceResources (ResourceCode, Location, ServiceId, IsAvailable)
-VALUES 
-('MALL_MAIN_A', N'Khu thương mại Vincom - Sảnh A', 3, 1),
-('SHOP_HOUSE_S1', N'Dãy Shophouse khối đế tòa S1', 3, 1);
-
--- 4. Resources cho Children’s Playground (ServiceId = 4)
-INSERT INTO ServiceResources (ResourceCode, Location, ServiceId, IsAvailable)
-VALUES 
-('KIDS_OUT_01', N'Sân chơi ngoài trời - Cạnh tòa S2', 4, 1),
-('KIDS_IN_01', N'Phòng vui chơi trong nhà - Tòa S1', 4, 1);
-
--- 5. Resources cho Gym & Yoga Facilities (ServiceId = 5)
-INSERT INTO ServiceResources (ResourceCode, Location, ServiceId, IsAvailable)
-VALUES 
-('GYM_CENTER_01', N'Tầng 2 - Tòa S1 (Phòng Gym chính)', 5, 1),
-('YOGA_STUDIO_01', N'Tầng 2 - Tòa S1 (Phòng Yoga thiền)', 5, 1);
-
--- 6. Resources cho Education System (ServiceId = 6)
-INSERT INTO ServiceResources (ResourceCode, Location, ServiceId, IsAvailable)
-VALUES 
-('EDU_VINS_PRIMARY', N'Khu trường tiểu học Vinschool', 6, 1),
-('EDU_VINS_KINDERGARTEN', N'Khu trường mầm non Vinschool', 6, 1);
-
--- 7. Resources cho Smart Parking (ServiceId = 7)
-INSERT INTO ServiceResources (ResourceCode, Location, ServiceId, IsAvailable)
-VALUES 
-('PARK_B1_S1', N'Hầm gửi xe B1 - Tòa S1', 7, 1),
-('PARK_B1_S2', N'Hầm gửi xe B1 - Tòa S2', 7, 1);
-
+-- 2. Tennis Resources (ServiceId = 9)
+INSERT INTO ServiceResources (ResourceCode, Location, ServiceId, IsAvailable, ImageUrl)
+VALUES  
+('TENNIS_CT_01', N'Court No. 1', 9, 1, 'https://serena.com.vn/wp-content/uploads/2022/11/Tennis-3-scaled.jpg'),
+('TENNIS_CT_02', N'Court No. 2', 9, 1, 'https://tse4.mm.bing.net/th/id/OIP.aQ6v_dIX8jWYZ1HkgddqFQHaE8?w=660&h=440&rs=1&pid=ImgDetMain&o=7&rm=3'),
+('TENNIS_CT_03', N'Court No. 3 (Under Maintenance)', 9, 0, 'https://tse1.mm.bing.net/th/id/OIP.H_xYMV4JvL_i3xV6ul8yvgHaEK?w=880&h=495&rs=1&pid=ImgDetMain&o=7&rm=3');
 GO
 
+-- 3. Golf Resources (ServiceId = 10)
+INSERT INTO ServiceResources (ResourceCode, Location, ServiceId, IsAvailable, ImageUrl)
+VALUES  
+('GOLF_LANE_01', N'Golf Driving Range - Lane 1', 10, 1, 'https://bizweb.dktcdn.net/100/454/998/files/cau-truc-san-golf-1024x579.png?v=1721027003853'),
+('GOLF_LANE_02', N'Golf Driving Range - Lane 2', 10, 1, 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTcrmlQG5DEvy2M6vSPwGkG_I4rETEqw8rMTw&s');
+GO
+
+-- 4. Spa Resources (ServiceId = 11)
+INSERT INTO ServiceResources (ResourceCode, Location, ServiceId, IsAvailable, ImageUrl)
+VALUES  
+('SPA_ROOM_01', N'VIP Room 1', 11, 1, 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQJh0-BFAcK5wtH4FGe4aIO10v7ilfoYmzaGw&s'),
+('SPA_ROOM_02', N'VIP Room 2', 11, 1, 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSOjkrNdKBZb_A0uEOni0fzVsxLf1o4ysw0iw&s');
+GO
+
+-- 5. Community Hall Resources (ServiceId = 12)
+INSERT INTO ServiceResources (ResourceCode, Location, ServiceId, IsAvailable, ImageUrl)
+VALUES 
+( 'HALL_S1_01', N'Floor 1, S1 Building - Grand Hall A', 12, 1, 'https://tse2.mm.bing.net/th/id/OIP.lbReQ7jzsltz0GqdDn-9zQHaEv?rs=1&pid=ImgDetMain&o=7&rm=3'),
+( 'HALL_S1_02', N'Floor 1, S1 Building - Community Room B', 12, 1, 'https://tse4.mm.bing.net/th/id/OIP.RujXzLwGtbOHnCkxClwwkAHaEL?rs=1&pid=ImgDetMain&o=7&rm=3'),
+( 'HALL_S2_01', N'Floor 1, S2 Building - Central Hall', 12, 1, 'https://tse2.mm.bing.net/th/id/OIP.hwEPNJ3f-qftLAPYzeOm6AAAAA?w=440&h=293&rs=1&pid=ImgDetMain&o=7&rm=3'),
+( 'HALL_S2_02', N'Floor 2, S2 Building - Resident Meeting Room', 12, 1, 'https://tse4.mm.bing.net/th/id/OIP.MsblINLo0plg08VE4JpKUQHaE8?w=550&h=367&rs=1&pid=ImgDetMain&o=7&rm=3'),
+( 'HALL_COMMON', N'Plaza Area - Community House', 12, 1, 'https://tse2.mm.bing.net/th/id/OIP.lbReQ7jzsltz0GqdDn-9zQHaEv?rs=1&pid=ImgDetMain&o=7&rm=3' );
+GO
+
+-- ko book được ở dưới
+-- 6. Green Park Resources (ServiceId = 1)
+INSERT INTO ServiceResources (ResourceCode, Location, ServiceId, IsAvailable, ImageUrl)
+VALUES  
+('PARK_CENTRAL', N'Central Park - Regulating Lake Area', 1, 1, 'https://www.annhome.vn/wp-content/uploads/2020/04/Cong-vien-van-hoa-nghe-thuat-Vinhomes-Grand-Park.jpg'),
+('PARK_NORTH', N'North Park - Japanese Garden', 1, 1, 'https://tse3.mm.bing.net/th/id/OIP.BKk52dVdASyotQKc71uphQHaE8?pid=ImgDet&w=474&h=316&rs=1&o=7&rm=3');
+GO
+
+-- 7. Swimming Pool Resources (ServiceId = 2)
+INSERT INTO ServiceResources (ResourceCode, Location, ServiceId, IsAvailable, ImageUrl)
+VALUES  
+('POOL_S1_INF', N'S1 Building - 4th Floor (Infinity Pool)', 2, 1, 'https://tse1.mm.bing.net/th/id/OIP.L-JwO9EXN-dbA54tKnmaJQHaE8?rs=1&pid=ImgDetMain&o=7&rm=3'),
+('POOL_S2_KIDS', N'S2 Building - Ground Floor (Kids Pool)', 2, 1, 'https://tse2.mm.bing.net/th/id/OIP.rxQdhbvDkL9D-xHrlVC89wHaEJ?w=740&h=415&rs=1&pid=ImgDetMain&o=7&rm=3');
+GO
+
+-- 8. Shopping Center Resources (ServiceId = 3)
+INSERT INTO ServiceResources (ResourceCode, Location, ServiceId, IsAvailable, ImageUrl)
+VALUES  
+('MALL_MAIN_A', N'Vincom Mall - Lobby A', 3, 1, 'https://tse1.mm.bing.net/th/id/OIP.nIgOdEIPzK6iH_fn5VhZuAHaE9?rs=1&pid=ImgDetMain&o=7&rm=3'),
+('SHOP_HOUSE_S1', N'S1 Building Podium - Shophouse Row', 3, 1, 'https://tse4.mm.bing.net/th/id/OIP.WjjQk3n_qC6-i6VNfJAFUgHaFj?w=800&h=600&rs=1&pid=ImgDetMain&o=7&rm=3');
+GO
+
+-- 9. Children’s Playground Resources (ServiceId = 4)
+INSERT INTO ServiceResources (ResourceCode, Location, ServiceId, IsAvailable, ImageUrl)
+VALUES  
+('KIDS_OUT_01', N'Outdoor Playground - Beside S2 Building', 4, 1, 'https://th.bing.com/th/id/OIP.v177-wHiXxZGJbcntYuQGQHaE8?o=7rm=3&rs=1&pid=ImgDetMain&o=7&rm=3'),
+('KIDS_IN_01', N'Indoor Playroom - S1 Building', 4, 1, 'https://tse2.mm.bing.net/th/id/OIP.uESWc2hfOLwnToCMDsAGawHaE8?w=700&h=467&rs=1&pid=ImgDetMain&o=7&rm=3');
+GO
+
+-- 10. Gym & Yoga Resources (ServiceId = 5)
+INSERT INTO ServiceResources (ResourceCode, Location, ServiceId, IsAvailable, ImageUrl)
+VALUES  
+('GYM_CENTER_01', N'S1 Building - 2nd Floor (Main Gym)', 5, 1, 'https://tse3.mm.bing.net/th/id/OIP.b3ggclKqEU-oa6NNiTeiJAHaE7?rs=1&pid=ImgDetMain&o=7&rm=3'),
+('YOGA_STUDIO_01', N'S1 Building - 2nd Floor (Yoga & Meditation Studio)', 5, 1, 'https://th.bing.com/th/id/OIP.H1MFdEfZszyHyFS_yZ7YrAHaE8?o=7rm=3&rs=1&pid=ImgDetMain&o=7&rm=3');
+GO
+
+-- 11. Education System Resources (ServiceId = 6)
+INSERT INTO ServiceResources (ResourceCode, Location, ServiceId, IsAvailable, ImageUrl)
+VALUES  
+('EDU_VINS_PRIMARY', N'Vinschool Primary School Campus', 6, 1, 'https://tse1.mm.bing.net/th/id/OIP.Au3G2PnYSDyOnIr3uuEDPgHaEB?rs=1&pid=ImgDetMain&o=7&rm=3'),
+('EDU_VINS_KINDERGARTEN', N'Vinschool Kindergarten Campus', 6, 1, 'https://tse2.mm.bing.net/th/id/OIP.NGX75odDxZJrt6V3C0fB5wHaEa?rs=1&pid=ImgDetMain&o=7&rm=3');
+GO
+
+-- 12. Smart Parking Resources (ServiceId = 7)
+INSERT INTO ServiceResources (ResourceCode, Location, ServiceId, IsAvailable, ImageUrl)
+VALUES  
+('PARK_B1_S1', N'Basement B1 - S1 Building (Parking)', 7, 1, 'https://img.freepik.com/premium-photo/smart-parking-system-with-realtime-availability-reservation-features_1327465-68653.jpg?w=1800'),
+('PARK_B1_S2', N'Basement B1 - S2 Building (Parking)', 7, 1, 'https://tse4.mm.bing.net/th/id/OIP.Y-kEhNTZMaxfwEyFxAHYogHaHa?rs=1&pid=ImgDetMain&o=7&rm=3');
+GO
 
 -- 11 service booking
 CREATE TABLE BookingServices (
@@ -1812,68 +1820,67 @@ CREATE TABLE ApartmentTypes (
     REFERENCES FurnitureTypes(Id)
 );
 GO
-
 -- =============================================
--- BATCH 1: Biến thể cho Căn hộ Studio (30m2)
--- =============================================
-INSERT INTO ApartmentTypes (Name, DesignSqrt, NumberOfBedroom, NumberOfBathroom, Overview, CommonPriceForBuying, CommonPriceForRent, FurnitureTypeId)
-VALUES 
-(N'Căn hộ Studio - Trống (Basic)', 30.00, 1, 1, N'Gói bàn giao thô, tự do sáng tạo không gian.', 2000000000, 7000000, 0),
-(N'Căn hộ Studio - Nội thất Cơ bản', 30.00, 1, 1, N'Bao gồm thiết kế bếp và điều hòa âm trần.', 2200000000, 8500000, 1),
-(N'Căn hộ Studio - Đầy đủ nội thất', 30.00, 1, 1, N'Xách vali vào ở ngay, đầy đủ giường tủ sofa.', 2400000000, 10000000, 2);
-GO
-
--- =============================================
--- BATCH 2: Biến thể cho Căn hộ 1PN (45m2)
+-- BATCH 1: Studio Apartment Variations (30m2)
 -- =============================================
 INSERT INTO ApartmentTypes (Name, DesignSqrt, NumberOfBedroom, NumberOfBathroom, Overview, CommonPriceForBuying, CommonPriceForRent, FurnitureTypeId)
 VALUES 
-(N'Căn hộ 1PN - Nội thất Cơ bản', 45.00, 1, 1, N'Phòng ngủ tách biệt, nội thất tiêu chuẩn.', 3200000000, 12000000, 1),
-(N'Căn hộ 1PN - Đầy đủ nội thất', 45.00, 1, 1, N'Nội thất hiện đại, tối ưu diện tích.', 3400000000, 14000000, 2),
-(N'Căn hộ 1PN - Nội thất Cao cấp', 45.00, 1, 1, N'Vật liệu hạng sang, phong cách Zen Nhật.', 3700000000, 16000000, 3);
+(N'Studio Apartment - Unfurnished (Basic)', 30.00, 1, 1, N'Raw handover package, free to customize your living space.', 2000000000, 7000000, 0),
+(N'Studio Apartment - Basic Furniture', 30.00, 1, 1, N'Includes kitchen cabinets and concealed ceiling air conditioning.', 2200000000, 8500000, 1),
+(N'Studio Apartment - Fully Furnished', 30.00, 1, 1, N'Move-in ready with complete bed, wardrobe, and sofa set.', 2400000000, 10000000, 2);
 GO
 
 -- =============================================
--- BATCH 3: Biến thể cho Căn hộ 2PN (65m2)
+-- BATCH 2: 1-Bedroom Apartment Variations (45m2)
 -- =============================================
 INSERT INTO ApartmentTypes (Name, DesignSqrt, NumberOfBedroom, NumberOfBathroom, Overview, CommonPriceForBuying, CommonPriceForRent, FurnitureTypeId)
 VALUES 
-(N'Căn hộ 2PN - Nội thất Cơ bản', 65.00, 2, 2, N'Lựa chọn kinh tế cho gia đình trẻ.', 4800000000, 18000000, 1),
-(N'Căn hộ 2PN - Đầy đủ nội thất', 65.00, 2, 2, N'Không gian ấm cúng, đủ tiện nghi.', 5100000000, 21000000, 2),
-(N'Căn hộ 2PN - Nội thất Cao cấp', 65.00, 2, 2, N'Trang bị hệ thống Smart Home.', 5500000000, 25000000, 3);
+(N'1BR Apartment - Basic Furniture', 45.00, 1, 1, N'Separate bedroom with standard interior finishes.', 3200000000, 12000000, 1),
+(N'1BR Apartment - Fully Furnished', 45.00, 1, 1, N'Modern interior design, optimized for space efficiency.', 3400000000, 14000000, 2),
+(N'1BR Apartment - Premium Furniture', 45.00, 1, 1, N'High-end materials featuring Japanese Zen style.', 3700000000, 16000000, 3);
 GO
 
 -- =============================================
--- BATCH 4: Biến thể cho Căn hộ 2PN+1 (80m2)
+-- BATCH 3: 2-Bedroom Apartment Variations (65m2)
 -- =============================================
 INSERT INTO ApartmentTypes (Name, DesignSqrt, NumberOfBedroom, NumberOfBathroom, Overview, CommonPriceForBuying, CommonPriceForRent, FurnitureTypeId)
 VALUES 
-(N'Căn hộ 2PN+1 - Nội thất Cơ bản', 80.00, 2, 2, N'Không gian +1 để trống tự thiết kế.', 5800000000, 22000000, 1),
-(N'Căn hộ 2PN+1 - Đầy đủ nội thất', 80.00, 2, 2, N'Nội thất đồng bộ cho cả nhà.', 6200000000, 25000000, 2),
-(N'CATIVE 2PN+1 - Nội thất Cao cấp', 80.00, 2, 2, N'Gói nội thất chuyên gia cao cấp.', 6600000000, 28000000, 3);
+(N'2BR Apartment - Basic Furniture', 65.00, 2, 2, N'An economical choice for young families.', 4800000000, 18000000, 1),
+(N'2BR Apartment - Fully Furnished', 65.00, 2, 2, N'Cozy atmosphere with full modern amenities.', 5100000000, 21000000, 2),
+(N'2BR Apartment - Premium Furniture', 65.00, 2, 2, N'Equipped with an integrated Smart Home system.', 5500000000, 25000000, 3);
 GO
 
 -- =============================================
--- BATCH 5: Biến thể cho Căn hộ 3PN (100m2)
+-- BATCH 4: 2-Bedroom+1 Apartment Variations (80m2)
 -- =============================================
 INSERT INTO ApartmentTypes (Name, DesignSqrt, NumberOfBedroom, NumberOfBathroom, Overview, CommonPriceForBuying, CommonPriceForRent, FurnitureTypeId)
 VALUES 
-(N'Căn hộ 3PN - Nội thất Cao cấp', 100.00, 3, 2, N'Sang trọng, hiện đại, view thoáng.', 7500000000, 28000000, 3),
-(N'Căn hộ 3PN - Nội thất Siêu sang', 100.00, 3, 2, N'Đẳng cấp thượng lưu.', 8500000000, 35000000, 4);
+(N'2BR+1 Apartment - Basic Furniture', 80.00, 2, 2, N'+1 multi-purpose space left open for personal design.', 5800000000, 22000000, 1),
+(N'2BR+1 Apartment - Fully Furnished', 80.00, 2, 2, N'Harmonious interior synchronization for the whole family.', 6200000000, 25000000, 2),
+(N'2BR+1 Apartment - Premium Furniture', 80.00, 2, 2, N'High-end professional interior design package.', 6600000000, 28000000, 3);
 GO
 
 -- =============================================
--- BATCH 6: Biến thể cho Căn hộ 3PN+1 (120m2)
+-- BATCH 5: 3-Bedroom Apartment Variations (100m2)
 -- =============================================
 INSERT INTO ApartmentTypes (Name, DesignSqrt, NumberOfBedroom, NumberOfBathroom, Overview, CommonPriceForBuying, CommonPriceForRent, FurnitureTypeId)
 VALUES 
-(N'Căn hộ 3PN+1 - Nội thất Cao cấp', 120.00, 3, 3, N'Diện tích cực đại, tiện nghi tối đa.', 9500000000, 35000000, 3),
-(N'Căn hộ 3PN+1 - Nội thất Siêu sang', 120.00, 3, 3, N'Bản giới hạn dành cho chủ nhân tinh hoa.', 11000000000, 45000000, 4);
+(N'3BR Apartment - Premium Furniture', 100.00, 3, 2, N'Luxurious, modern, and featuring a panoramic view.', 7500000000, 28000000, 3),
+(N'3BR Apartment - Luxury Furniture', 100.00, 3, 2, N'Elite class living standards for prestigious residents.', 8500000000, 35000000, 4);
 GO
 
--- Thêm loại hình Shophouse cho tầng 1
+-- =============================================
+-- BATCH 6: 3-Bedroom+1 Apartment Variations (120m2)
+-- =============================================
 INSERT INTO ApartmentTypes (Name, DesignSqrt, NumberOfBedroom, NumberOfBathroom, Overview, CommonPriceForBuying, CommonPriceForRent, FurnitureTypeId)
-VALUES (N'Shophouse Thương Mại - Tầng Đế', 150.00, 0, 1, N'Mặt bằng kinh doanh rộng rãi, vị trí đắc địa tại tầng 1.', 15000000000, 60000000, 0);
+VALUES 
+(N'3BR+1 Apartment - Premium Furniture', 120.00, 3, 3, N'Maximum living area with top-tier convenience.', 9500000000, 35000000, 3),
+(N'3BR+1 Apartment - Luxury Furniture', 120.00, 3, 3, N'Limited edition unit for sophisticated owners.', 11000000000, 45000000, 4);
+GO
+
+-- Commercial Shophouse for Ground Floor
+INSERT INTO ApartmentTypes (Name, DesignSqrt, NumberOfBedroom, NumberOfBathroom, Overview, CommonPriceForBuying, CommonPriceForRent, FurnitureTypeId)
+VALUES (N'Commercial Shophouse - Ground Floor', 150.00, 0, 1, N'Spacious retail premises in a prime ground-floor location.', 15000000000, 60000000, 0);
 GO
 
 -- 14
@@ -1890,7 +1897,7 @@ CREATE TABLE Apartments (
     CONSTRAINT FK_Apartments_Types FOREIGN KEY (ApartmentTypeId) REFERENCES ApartmentTypes(Id)
 );
 
--- 14.1 từ tầng 2 - 30 mỗi tầng thì có 12 căn, có 6 loại căn, ramdom furniture
+-- 14.1 Generate apartments from Floor 2 to 30 (12 units per floor)
 DECLARE @Floor INT = 2;
 DECLARE @RoomIndex INT;
 
@@ -1901,27 +1908,27 @@ BEGIN
     BEGIN
         INSERT INTO Apartments (RoomNumber, FloorNumber, Direction, Status, ApartmentTypeId)
         VALUES (
-            (@Floor * 100) + @RoomIndex, -- Ví dụ: Tầng 2 có 201, 202... Tầng 30 có 3001, 3002...
+            (@Floor * 100) + @RoomIndex, 
             @Floor,
             CASE 
-                WHEN @RoomIndex % 4 = 1 THEN N'Đông Nam'
-                WHEN @RoomIndex % 4 = 2 THEN N'Tây Bắc'
-                WHEN @RoomIndex % 4 = 3 THEN N'Tây Nam'
-                ELSE N'Đông Bắc'
+                WHEN @RoomIndex % 4 = 1 THEN N'South East'
+                WHEN @RoomIndex % 4 = 2 THEN N'North West'
+                WHEN @RoomIndex % 4 = 3 THEN N'South West'
+                ELSE N'North East'
             END,
-            0, -- Status sạch tinh tươm cho Nghĩa dễ quản lý
+            0, -- Available status
             CASE 
-                -- Trục dọc: Căn số 1,2 luôn là Studio (ID 1-3)
+                -- Studio (ID 1-3)
                 WHEN @RoomIndex BETWEEN 1 AND 2 THEN (ABS(CHECKSUM(NEWID())) % 3) + 1 
-                -- Trục dọc: Căn số 3,4 luôn là 1PN (ID 4-6)
+                -- 1BR (ID 4-6)
                 WHEN @RoomIndex BETWEEN 3 AND 4 THEN (ABS(CHECKSUM(NEWID())) % 3) + 4
-                -- Trục dọc: Căn số 5,6 luôn là 2PN (ID 7-9)
+                -- 2BR (ID 7-9)
                 WHEN @RoomIndex BETWEEN 5 AND 6 THEN (ABS(CHECKSUM(NEWID())) % 3) + 7
-                -- Trục dọc: Căn số 7,8 luôn là 2PN+1 (ID 10-12)
+                -- 2BR+1 (ID 10-12)
                 WHEN @RoomIndex BETWEEN 7 AND 8 THEN (ABS(CHECKSUM(NEWID())) % 3) + 10
-                -- Trục dọc: Căn số 9,10 luôn là 3PN (ID 13-14)
+                -- 3BR (ID 13-14)
                 WHEN @RoomIndex BETWEEN 9 AND 10 THEN (ABS(CHECKSUM(NEWID())) % 2) + 13
-                -- Trục dọc: Căn số 11,12 luôn là 3PN+1 (ID 15-16)
+                -- 3BR+1 (ID 15-16)
                 ELSE (ABS(CHECKSUM(NEWID())) % 2) + 15
             END
         );
@@ -1931,16 +1938,15 @@ BEGIN
 END
 GO
 
--- Chèn 4 căn Shophouse tại các vị trí góc của tầng 1
--- Giả sử ApartmentTypeId = 17 là loại Shophouse ông vừa tạo
+-- Insert 4 Shophouse units at corner locations on the 1st Floor
+-- Assuming ApartmentTypeId = 17 is the Shophouse type previously created
 INSERT INTO Apartments (RoomNumber, FloorNumber, Direction, Status, ApartmentTypeId)
 VALUES 
-    (101, 1, N'Đông Nam', 0, 17), -- Góc 1
-    (104, 1, N'Tây Bắc', 0, 17), -- Góc 2
-    (107, 1, N'Tây Nam', 0, 17), -- Góc 3
-    (110, 1, N'Đông Bắc', 0, 17); -- Góc 4
+    (101, 1, N'South East', 0, 17), -- Corner 1
+    (104, 1, N'North West', 0, 17), -- Corner 2
+    (107, 1, N'South West', 0, 17), -- Corner 3
+    (110, 1, N'North East', 0, 17); -- Corner 4
 GO
-
 
 -- 15 apartment utilities invoice
 -- cái này lấy luôn cả tiền nhà nếu có nhé - lấy ở chỗ contract ý. 
@@ -2014,55 +2020,57 @@ CREATE TABLE StaffInfo (
     CONSTRAINT FK_Staff_Accounts FOREIGN KEY (AccountId) REFERENCES Accounts(Id)
 );
 
--- 18.1 ae nhà Staff apartment
--- 1. Đội 2k5 (6 Nam - 5 Nữ) - ID: 3, 29-38
+-- 18.1 Staff Apartment Team (2k5 Generation)
+-- 6 Males - 5 Females | Account IDs: 3, 29-38
 INSERT INTO StaffInfo (FullName, Gender, DateOfBirth, IdentityId, AccountId)
 VALUES 
-(N'Nguyễn Văn Nam', N'Nam', '2005-01-15', '001205000003', 3),
-(N'Trần Hoàng Long', N'Nam', '2005-03-20', '001205000029', 29),
-(N'Phạm Minh Đức', N'Nam', '2005-05-10', '001205000030', 30),
-(N'Lê Anh Tuấn', N'Nam', '2005-07-25', '001205000031', 31),
-(N'Vũ Quang Huy', N'Nam', '2005-09-12', '001205000032', 32),
-(N'Đỗ Tiến Đạt', N'Nam', '2005-11-05', '001205000033', 33),
-(N'Hoàng Thu Trang', N'Nữ', '2005-02-14', '001305000034', 34),
-(N'Phan Thanh Thảo', N'Nữ', '2005-04-30', '001305000035', 35),
-(N'Bùi Minh Anh', N'Nữ', '2005-06-18', '001305000036', 36),
-(N'Ngô Phương Linh', N'Nữ', '2005-08-22', '001305000037', 37),
-(N'Lê Thị Kim Ngân', N'Nữ', '2005-12-25', '001305000038', 38);
-
--- 18.2 anh em nhà Staff Services
--- 2. Đội 2k (5 Nam - 6 Nữ) - ID: 4, 39-48
-INSERT INTO StaffInfo (FullName, Gender, DateOfBirth, IdentityId, AccountId)
-VALUES 
-(N'Lý Gia Thành', N'Nam', '2000-02-12', '001000000004', 4),
-(N'Phan Đình Phùng', N'Nam', '2000-04-25', '001000000039', 39),
-(N'Cao Thái Sơn', N'Nam', '2000-06-10', '001000000040', 40),
-(N'Đinh Công Tráng', N'Nam', '2000-08-30', '001000000041', 41),
-(N'Trịnh Minh Thế', N'Nam', '2000-10-15', '001000000042', 42),
-(N'Nguyễn Thị Tuyết Nhung', N'Nữ', '2000-01-20', '001100000043', 43),
-(N'Trần Mỹ Tâm', N'Nữ', '2000-03-08', '001100000044', 44),
-(N'Lê Cẩm Ly', N'Nữ', '2000-05-15', '001100000045', 45),
-(N'Phạm Quỳnh Anh', N'Nữ', '2000-07-22', '001100000046', 46),
-(N'Vũ Cát Tường', N'Nữ', '2000-09-11', '001100000047', 47),
-(N'Hồ Ngọc Hà', N'Nữ', '2000-12-05', '001100000048', 48);
+(N'Nguyen Van Nam', N'Male', '2005-01-15', '001205000003', 3),
+(N'Tran Hoang Long', N'Male', '2005-03-20', '001205000029', 29),
+(N'Pham Minh Duc', N'Male', '2005-05-10', '001205000030', 30),
+(N'Le Anh Tuan', N'Male', '2005-07-25', '001205000031', 31),
+(N'Vu Quang Huy', N'Male', '2005-09-12', '001205000032', 32),
+(N'Do Tien Dat', N'Male', '2005-11-05', '001205000033', 33),
+(N'Hoang Thu Trang', N'Female', '2005-02-14', '001305000034', 34),
+(N'Phan Thanh Thao', N'Female', '2005-04-30', '001305000035', 35),
+(N'Bui Minh Anh', N'Female', '2005-06-18', '001305000036', 36),
+(N'Ngo Phuong Linh', N'Female', '2005-08-22', '001305000037', 37),
+(N'Le Thi Kim Ngan', N'Female', '2005-12-25', '001305000038', 38);
 GO
---18.3 staff sercurity
+
+-- 18.2 Staff Services Team (2k Generation)
+-- 5 Males - 6 Females | Account IDs: 4, 39-48
 INSERT INTO StaffInfo (FullName, Gender, DateOfBirth, IdentityId, AccountId)
 VALUES 
--- 9 NAM (Thế kỷ 20, Nam là số 0)
-(N'Nguyễn Quý Đức', N'Nam', '1970-05-12', '001070000005', 5),
-(N'Trần Trọng Nghĩa', N'Nam', '1972-08-20', '001072000049', 49),
-(N'Phạm Thế Duyệt', N'Nam', '1974-03-15', '001074000050', 50),
-(N'Lê Khả Phiêu', N'Nam', '1975-12-01', '001075000051', 51),
-(N'Vũ Khoan', N'Nam', '1976-06-18', '001076000052', 52),
-(N'Hoàng Trung Hải', N'Nam', '1977-09-25', '001077000053', 53),
-(N'Nguyễn Sinh Hùng', N'Nam', '1978-11-11', '001078000054', 54),
-(N'Phan Văn Khải', N'Nam', '1979-02-28', '001079000055', 55),
-(N'Trương Tấn Sang', N'Nam', '1980-04-05', '001080000056', 56),
+(N'Ly Gia Thanh', N'Male', '2000-02-12', '001000000004', 4),
+(N'Phan Dinh Phung', N'Male', '2000-04-25', '001000000039', 39),
+(N'Cao Thai Son', N'Male', '2000-06-10', '001000000040', 40),
+(N'Dinh Cong Trang', N'Male', '2000-08-30', '001000000041', 41),
+(N'Trinh Minh The', N'Male', '2000-10-15', '001000000042', 42),
+(N'Nguyen Thị Tuyet Nhung', N'Female', '2000-01-20', '001100000043', 43),
+(N'Tran My Tam', N'Female', '2000-03-08', '001100000044', 44),
+(N'Le Cam Ly', N'Female', '2000-05-15', '001100000045', 45),
+(N'Pham Quynh Anh', N'Female', '2000-07-22', '001100000046', 46),
+(N'Vu Cat Tuong', N'Female', '2000-09-11', '001100000047', 47),
+(N'Ho Ngoc Ha', N'Female', '2000-12-05', '001100000048', 48);
+GO
 
--- 2 NỮ (Thế kỷ 20, Nữ là số 1)
-(N'Nguyễn Thị Kim Ngân', N'Nữ', '1975-10-20', '001175000057', 57),
-(N'Tòng Thị Phóng', N'Nữ', '1978-01-01', '001178000058', 58);
+-- 18.3 Staff Security Team (20th Century)
+INSERT INTO StaffInfo (FullName, Gender, DateOfBirth, IdentityId, AccountId)
+VALUES 
+-- 9 Males
+(N'Nguyen Quy Duc', N'Male', '1970-05-12', '001070000005', 5),
+(N'Tran Trong Nghia', N'Male', '1972-08-20', '001072000049', 49),
+(N'Pham Thế Duyet', N'Male', '1974-03-15', '001074000050', 50),
+(N'Le Kha Phieu', N'Male', '1975-12-01', '001075000051', 51),
+(N'Vu Khoan', N'Male', '1976-06-18', '001076000052', 52),
+(N'Hoang Trung Hai', N'Male', '1977-09-25', '001077000053', 53),
+(N'Nguyen Sinh Hung', N'Male', '1978-11-11', '001078000054', 54),
+(N'Phan Van Khai', N'Male', '1979-02-28', '001079000055', 55),
+(N'Truong Tan Sang', N'Male', '1980-04-05', '001080000056', 56),
+
+-- 2 Females
+(N'Nguyen Thi Kim Ngan', N'Female', '1975-10-20', '001175000057', 57),
+(N'Tong Thi Phong', N'Female', '1978-01-01', '001178000058', 58);
 GO
 
 -- 19 Visitor logs
@@ -2130,37 +2138,36 @@ CREATE TABLE Appointments (
 
 INSERT INTO Appointments (UserId, AssignedTo, CreatedBy, Location, Title, Note, MeetingDate, StartTime, EndTime, Status)
 VALUES 
--- 1. Lịch hẹn đã xong (Completed)
-(NULL, 3, 3, N'Sảnh tòa nhà A', N'Tư vấn mặt bằng Shophouse', N'test cho vui thôi hẹ hẹ', '2026-03-10', '09:00:00', '10:00:00', 'Completed'),
+-- 1. Completed Appointment
+(NULL, 3, 3, N'Building A Lobby', N'Shophouse Floor Plan Consultation', N'Internal system testing - Scenario A', '2026-03-10', '09:00:00', '10:00:00', 'Completed'),
 
--- 2. Lịch hẹn sắp tới (Pending)
-(NULL, 3, 3, N'Phòng họp tầng 2', N'Ký nháy biên bản bàn giao thiết bị', N'test cho vui thôi hẹ hẹ', '2026-04-05', '14:30:00', '15:30:00', 'Pending'),
+-- 2. Upcoming Appointment (Pending)
+(NULL, 3, 3, N'Meeting Room - 2nd Floor', N'Equipment Handover Minutes Signing', N'Internal system testing - Scenario B', '2026-04-05', '14:30:00', '15:30:00', 'Pending'),
 
--- 3. Một kèo bị hủy (Suspended)
-(NULL, 3, 3, N'Café Highland chân đế', N'Trao đổi về thủ tục làm thẻ cư dân', N'test cho vui thôi hẹ hẹ', '2026-03-20', '10:00:00', '11:00:00', 'Suspended'),
+-- 3. Cancelled/Suspended Appointment
+(NULL, 3, 3, N'Highlands Coffee - Ground Floor', N'Resident Card Procedure Discussion', N'Internal system testing - Scenario C', '2026-03-20', '10:00:00', '11:00:00', 'Suspended'),
 
--- 4. Tiếp khách tại căn mẫu (Pending)
-(NULL, 3, 3, N'Căn hộ mẫu Studio (Type 1)', N'Dẫn khách xem view ban công', N'test cho vui thôi hẹ hẹ', '2026-04-10', '08:00:00', '09:00:00', 'Pending'),
+-- 4. Showing Model Unit (Pending)
+(NULL, 3, 3, N'Studio Model Unit (Type 1)', N'Balcony View Inspection for Client', N'Internal system testing - Scenario D', '2026-04-10', '08:00:00', '09:00:00', 'Pending'),
 
--- 5. Hẹn khảo sát Shophouse (Completed)
-(NULL, 3, 3, N'Dãy Shophouse 17', N'Khảo sát vị trí đặt biển quảng cáo', N'test cho vui thôi hẹ hẹ', '2026-03-15', '16:00:00', '17:00:00', 'Completed'),
+-- 5. Shophouse Site Survey (Completed)
+(NULL, 3, 3, N'Shophouse Row 17', N'Signage Placement Survey', N'Internal system testing - Scenario E', '2026-03-15', '16:00:00', '17:00:00', 'Completed'),
 
--- 6. Hẹn bàn công việc gấp (Pending)
-(NULL, 3, 3, N'Văn phòng Ban quản lý', N'Tiếp đối tác cung cấp cây cảnh', N'test cho vui thôi hẹ hẹ', '2026-04-15', '13:00:00', '14:00:00', 'Pending');
+-- 6. Urgent Business Meeting (Pending)
+(NULL, 3, 3, N'Management Office', N'Landscape Supplier Meeting', N'Internal system testing - Scenario F', '2026-04-15', '13:00:00', '14:00:00', 'Pending');
 GO
 
 INSERT INTO Appointments (UserId, AssignedTo, CreatedBy, Location, Title, Note, MeetingDate, StartTime, EndTime, Status)
 VALUES 
--- 1. Hẹn xem nhà thực tế (Showrooming)
-(NULL, 3, 3, N'Căn A-12.05 (2PN+1)', N'Xem thực tế hướng ban công & Tiện ích tầng 12', N'Khách đang cân nhắc giữa căn 2PN và 3PN. Hẹ hẹ.', '2026-04-01', '09:00:00', '10:30:00', 'Pending'),
+-- 1. Property Viewing (Showrooming)
+(NULL, 3, 3, N'Unit A-12.05 (2BR+1)', N'Site Inspection: Balcony View & 12th Floor Amenities', N'Client is deciding between 2BR and 3BR units. System test scenario.', '2026-04-01', '09:00:00', '10:30:00', 'Completed'),
 
--- 2. Hẹn đàm phán hợp đồng thuê Shophouse (Negotiation)
-(NULL, 3, 3, N'Văn phòng Ban quản lý TEMS', N'Thương thảo điều khoản miễn phí 2 tháng tiền nhà Shophouse 17', N'Khách muốn mở quán Cafe, cần check kỹ hệ thống thoát nước. Hẹ hẹ.', '2026-04-02', '14:00:00', '15:30:00', 'Pending'),
+-- 2. Lease Negotiation (Shophouse)
+(NULL, 3, 3, N'TEMS Management Office', N'Shophouse 17: Negotiation on 2-month Rent-free Period', N'Client plans to open a Cafe; needs to verify the drainage system. System test scenario.', '2026-04-02', '14:00:00', '15:30:00', 'Completed'),
 
--- 3. Hẹn ký đặt cọc mua căn hộ (Deposit)
-(NULL, 3, 3, N'Sảnh Reception tòa S1', N'Nhận cọc thiện chí căn Studio ID 1', N'Khách đã ưng bộ ảnh Nghĩa add vào DB, muốn chốt ngay. Hẹ hẹ.', '2026-04-03', '16:00:00', '16:30:00', 'Pending');
+-- 3. Sales Deposit (Booking)
+(NULL, 3, 3, N'S1 Building Reception', N'Earnest Money Deposit for Studio Unit (ID 1)', N'Client approved the database photos and wants to finalize the booking. System test scenario.', '2026-04-03', '16:00:00', '16:30:00', 'Pending');
 GO
-
 
 -- 21 Noti
 -- cái này được tạo mỗi khi có trigger kiểu Khi người dùng đồng ý chẳng hạn, thì có thể được tạo thông qua xử lý 
@@ -2425,125 +2432,6 @@ INSERT INTO ApartmentTypeImages (ApartmentTypeId, ImageUrl)
 SELECT 17, Url FROM @ShophouseImages;
 GO
 
--- Bảng lưu bộ sưu tập ảnh cho từng Resource cụ thể (Vị trí/Phòng/Sân)
-CREATE TABLE ServiceResourceImages (
-    Id INT IDENTITY(1,1) PRIMARY KEY,
-    ServiceResourceId INT NOT NULL,         -- FK nối sang ServiceResources
-    ImageUrl NVARCHAR(MAX) NOT NULL,        -- URL ảnh (Cloudinary)
-    Description NVARCHAR(255),              -- Chú thích ảnh (Vd: Góc nhìn từ khán đài)
-
-    CONSTRAINT FK_Images_ServiceResources FOREIGN KEY (ServiceResourceId) REFERENCES ServiceResources(Id) ON DELETE CASCADE
-);
-
-
--- Bước 2: Chèn bộ ảnh thực tế mới
-DECLARE @RealBBQImages TABLE (Url NVARCHAR(MAX));
-INSERT INTO @RealBBQImages VALUES 
-('https://tse2.mm.bing.net/th/id/OIP.h5ojHmBqqkvXC7rtk65zugHaE_?rs=1&pid=ImgDetMain&o=7&rm=3'),
-('https://tse3.mm.bing.net/th/id/OIP.MM31qoW70iNVwsmLz-Hz7gHaE7?rs=1&pid=ImgDetMain&o=7&rm=3'),
-('https://tse3.mm.bing.net/th/id/OIP.TZwV6kcD_-PTgZpUBqdNjgHaFj?rs=1&pid=ImgDetMain&o=7&rm=3'),
-('https://tse2.mm.bing.net/th/id/OIP.t10vIqog4BWtcEkpQW6DswHaE8?rs=1&pid=ImgDetMain&o=7&rm=3'),
-('https://tse2.mm.bing.net/th/id/OIP.8k9AR1TkMUsr6pHWWa_czwHaEc?rs=1&pid=ImgDetMain&o=7&rm=3');
-
--- Đổ cho BBQ_ZONE_A_01
-INSERT INTO ServiceResourceImages (ServiceResourceId, ImageUrl, Description)
-SELECT 1, Url, N'Phối cảnh vườn BBQ thực tế tại Vinhomes Smart City' FROM @RealBBQImages;
-
--- Đổ cho BBQ_ZONE_A_02
-INSERT INTO ServiceResourceImages (ServiceResourceId, ImageUrl, Description)
-SELECT 2, Url, N'Phối cảnh vườn BBQ thực tế tại Vinhomes Smart City' FROM @RealBBQImages;
-
--- Đổ cho BBQ_ZONE_B_01
-INSERT INTO ServiceResourceImages (ServiceResourceId, ImageUrl, Description)
-SELECT 3, Url, N'Phối cảnh vườn BBQ thực tế tại Vinhomes Smart City' FROM @RealBBQImages;
-GO
-
--- =============================================
--- BATCH 26.3: GALLERY ẢNH SÂN TENNIS THỰC TẾ
--- Đối tượng: TENNIS_CT_01, TENNIS_CT_02, TENNIS_CT_03
--- =============================================
-
--- Bước 1: Dọn dẹp ảnh cũ của 3 sân Tennis này (nếu có)
-DELETE FROM ServiceResourceImages WHERE ServiceResourceId IN (4, 5, 6);
-
--- Bước 2: Dùng bảng tạm chứa 6 URL ảnh Tennis cực xịn của Nghĩa
-DECLARE @TennisImages TABLE (Url NVARCHAR(MAX));
-INSERT INTO @TennisImages VALUES 
-('https://serena.com.vn/wp-content/uploads/2022/11/Tennis-3-scaled.jpg'),
-('https://tse4.mm.bing.net/th/id/OIP.aQ6v_dIX8jWYZ1HkgddqFQHaE8?w=660&h=440&rs=1&pid=ImgDetMain&o=7&rm=3'),
-('https://tse1.mm.bing.net/th/id/OIP.H_xYMV4JvL_i3xV6ul8yvgHaEK?w=880&h=495&rs=1&pid=ImgDetMain&o=7&rm=3'),
-('https://tse1.mm.bing.net/th/id/OIP.tFbt7_6Nbqsa9H9vv4RafAHaFj?rs=1&pid=ImgDetMain&o=7&rm=3'),
-('https://tse4.mm.bing.net/th/id/OIP.l0kORrvety_7GfWlQPLgTwHaF-?w=1024&h=827&rs=1&pid=ImgDetMain&o=7&rm=3'),
-('https://5.imimg.com/data5/SELLER/Default/2024/3/401500674/EG/AL/OM/73526767/tennis-500x500.jpg');
-
--- Chèn cho Sân số 1 (ID 4)
-INSERT INTO ServiceResourceImages (ServiceResourceId, ImageUrl, Description)
-SELECT 4, Url, N'Hình ảnh thực tế sân Tennis tiêu chuẩn quốc tế' FROM @TennisImages;
-
--- Chèn cho Sân số 2 (ID 5)
-INSERT INTO ServiceResourceImages (ServiceResourceId, ImageUrl, Description)
-SELECT 5, Url, N'Cận cảnh mặt sân và hệ thống lưới Tennis' FROM @TennisImages;
-
--- Chèn cho Sân số 3 (ID 6 - Đang bảo trì)
-INSERT INTO ServiceResourceImages (ServiceResourceId, ImageUrl, Description)
-SELECT 6, Url, N'Khu vực sân Tennis số 3 (Sắp đi vào hoạt động lại)' FROM @TennisImages;
-GO
-
--- =============================================
--- BATCH 26.4: GALLERY ẢNH SÂN TẬP GOLF ĐẲNG CẤP
--- Đối tượng: GOLF_LANE_01 (ID 7) & GOLF_LANE_02 (ID 8)
--- =============================================
-
--- Bước 1: Dọn dẹp đống ảnh cũ/mẫu (nếu có) để nhường chỗ cho hàng xịn
-DELETE FROM ServiceResourceImages WHERE ServiceResourceId IN (7, 8);
-
--- Bước 2: Dùng bảng tạm chứa 6 URL ảnh Golf "vibe đại gia" của Nghĩa
-DECLARE @GolfImages TABLE (Url NVARCHAR(MAX));
-INSERT INTO @GolfImages VALUES 
-('https://bizweb.dktcdn.net/100/454/998/files/cau-truc-san-golf-1024x579.png?v=1721027003853'),
-('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTcrmlQG5DEvy2M6vSPwGkG_I4rETEqw8rMTw&s'),
-('https://media-cdn-v2.laodong.vn/storage/newsportal/2025/9/29/1582697/San-Gon-Vinpearl-Gol.jpg'),
-('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQwAXOYNiXXUHeK-tgPe_Te9pC4hGILj-oYDQ&s'),
-('https://media-cdn-v2.laodong.vn/storage/newsportal/2024/9/19/1396645/San-Golf-Vung-Bau-Es.jpg'),
-('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQb9mb43DLf9sCJq399QffNsrqJf_UOsw_byg&s');
-
--- Chèn cho Làn tập số 1 (ID 7)
-INSERT INTO ServiceResourceImages (ServiceResourceId, ImageUrl, Description)
-SELECT 7, Url, N'Phối cảnh sân tập Golf chuyên nghiệp tại dự án' FROM @GolfImages;
-
--- Chèn cho Làn tập số 2 (ID 8)
-INSERT INTO ServiceResourceImages (ServiceResourceId, ImageUrl, Description)
-SELECT 8, Url, N'Khu vực thảm tập và view hướng sân Golf xanh mát' FROM @GolfImages;
-GO
-
--- =============================================
--- BATCH 26.5: GALLERY ẢNH SPA THƯ GIÃN 5 SAO
--- Đối tượng: SPA_ROOM_01 (ID 9) & SPA_ROOM_02 (ID 10)
--- =============================================
-
--- Bước 1: Dọn dẹp ảnh cũ (nếu có) để nhường chỗ cho hàng xịn
-DELETE FROM ServiceResourceImages WHERE ServiceResourceId IN (9, 10);
-
--- Bước 2: Dùng bảng tạm chứa 6 URL ảnh Spa cực chill của Nghĩa
-DECLARE @SpaImages TABLE (Url NVARCHAR(MAX));
-INSERT INTO @SpaImages VALUES 
-('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQJh0-BFAcK5wtH4FGe4aIO10v7ilfoYmzaGw&s'),
-('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSOjkrNdKBZb_A0uEOni0fzVsxLf1o4ysw0iw&s'),
-('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSx4xGCOFbK7Icmw-2FYhAEsfnLUVwsJ0Q6yA&s'),
-('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRooXYvuTyYpVla5DWv2y28lP5ePAH0PZZTrg&s'),
-('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTeQmXSW8YwGvgNCfS2d-HaqNOx4hAD_91IFA&s'),
-('https://cdn1.nhatrangtoday.vn/images/photos/dep-spa-nha-trang-top.jpg');
-
--- Chèn cho Phòng SPA VIP 1 (ID 9)
-INSERT INTO ServiceResourceImages (ServiceResourceId, ImageUrl, Description)
-SELECT 9, Url, N'Không gian phòng Spa thư giãn cao cấp tại tầng 3' FROM @SpaImages;
-
--- Chèn cho Phòng SPA VIP 2 (ID 10)
-INSERT INTO ServiceResourceImages (ServiceResourceId, ImageUrl, Description)
-SELECT 10, Url, N'Trải nghiệm dịch vụ Spa và chăm sóc sức khỏe chuyên nghiệp' FROM @SpaImages;
-GO
-
-
 
 -- Batch 1: 
 -- 1.1 lưu contract
@@ -2567,54 +2455,54 @@ GO
 -- 1.1.1cái dưới này để update những apartment để lưu là nhà đấy đã có người nhé
 
 
-
--- FAKE COMPLAINTS (THÁNG 12/2025 -> THÁNG 02/2026)
+-- FAKE COMPLAINTS (DEC 2025 -> FEB 2026)
 INSERT INTO Complaints (Content, MadeByUserId, CreatedAt)
 VALUES 
--- THÁNG 12/2025 (Mới dọn vào nên hay kêu ca dịch vụ)
-(N'Thủ tục bàn giao căn hộ còn chậm, tôi phải chờ đợi khá lâu ở sảnh.', 2, '2025-12-05 10:30:00'),
-(N'Nước sinh hoạt có dấu hiệu bị đục trong ngày đầu tiên sử dụng.', 6, '2025-12-07 14:15:00'),
-(N'App quản lý chưa cập nhật đúng số điện thoại của tôi.', 7, '2025-12-12 09:00:00'),
-(N'Hành lang tầng 4 có mùi sơn khó chịu, cần xử lý thông gió.', 8, '2025-12-20 16:45:00'),
-(N'Wifi khu vực công cộng của tòa nhà sóng quá yếu.', 8, '2025-12-25 20:10:00'),
+-- DECEMBER 2025 (New residents, mostly about handover and initial services)
+(N'The apartment handover procedure is slow; I had to wait in the lobby for a long time.', 2, '2025-12-05 10:30:00'),
+(N'The tap water appeared cloudy on the first day of use.', 6, '2025-12-07 14:15:00'),
+(N'The management app has not updated my phone number correctly.', 7, '2025-12-12 09:00:00'),
+(N'The 4th-floor hallway has an unpleasant paint smell; ventilation needs to be addressed.', 8, '2025-12-20 16:45:00'),
+(N'The public Wi-Fi signal in the building is too weak.', 8, '2025-12-25 20:10:00'),
 
--- THÁNG 01/2026 (Bắt đầu phát sinh vấn đề vận hành)
-(N'Cửa thoát hiểm tầng 5 bị kẹt, không đóng lại được.', 2, '2026-01-05 08:30:00'),
-(N'Nhà hàng xóm hát Karaoke quá giờ quy định vào cuối tuần.', 2, '2026-01-15 22:45:00'),
-(N'Rác thải tại hầm gửi xe chưa được thu gom đúng giờ.', 6, '2026-01-10 07:20:00'),
-(N'Thang máy số 3 có tiếng kêu lạ khi di chuyển lên tầng cao.', 7, '2026-01-18 13:00:00'),
-(N'Bảo vệ bãi xe có thái độ không đúng mực khi hướng dẫn vị trí đỗ.', 8, '2026-01-22 17:55:00'),
+-- JANUARY 2026 (Operational issues arise)
+(N'The emergency exit door on the 5th floor is jammed and cannot be closed.', 2, '2026-01-05 08:30:00'),
+(N'The neighbor is singing karaoke past the regulated hours during the weekend.', 2, '2026-01-15 22:45:00'),
+(N'Waste at the parking basement was not collected on time.', 6, '2026-01-10 07:20:00'),
+(N'Elevator No. 3 makes a strange noise when moving to high floors.', 7, '2026-01-18 13:00:00'),
+(N'The parking security guard was rude when giving parking instructions.', 8, '2026-01-22 17:55:00'),
 
--- THÁNG 02/2026 (Vấn đề kỹ thuật và phí bôi trơn)
-(N'Vòi hoa sen trong phòng tắm bị rò rỉ nước.', 6, '2026-02-05 11:30:00'),
-(N'Hệ thống báo cháy giả kêu vang lúc 2 giờ sáng gây hoảng loạn.', 7, '2026-02-12 02:15:00'),
-(N'Tôi thấy có gián ở khu vực đổ rác chung của tầng.', 7, '2026-02-20 09:40:00'),
-(N'Đèn hành lang trước cửa nhà tôi bị cháy chưa thấy ai thay.', 8, '2026-02-14 19:20:00'),
-(N'Phí quản lý tháng này tính có vẻ không khớp với diện tích căn hộ.', 2, '2026-02-28 10:00:00');
+-- FEBRUARY 2026 (Technical issues and fee disputes)
+(N'The showerhead in the bathroom is leaking water.', 6, '2026-02-05 11:30:00'),
+(N'A false fire alarm went off at 2 AM, causing panic.', 7, '2026-02-12 02:15:00'),
+(N'I saw cockroaches in the common trash disposal area on this floor.', 7, '2026-02-20 09:40:00'),
+(N'The hallway light in front of my door is burnt out and has not been replaced.', 8, '2026-02-14 19:20:00'),
+(N'This month''s management fee does not seem to match the apartment area.', 2, '2026-02-28 10:00:00');
 GO
 
+-- REPLIES TO COMPLAINTS (DEC 2025 -> MAR 2026)
 INSERT INTO Replies (Content, ComplaintId, RepliedByUserId, CreatedAt)
 VALUES 
--- Phản hồi cho tháng 12/2025
-(N'Ban quản lý chân thành xin lỗi về sự chậm trễ này. Chúng tôi đang tăng cường nhân sự để hoàn tất bàn giao sớm nhất.', 1, 3, '2025-12-06 14:30:00'),
-(N'Bộ phận kỹ thuật đã kiểm tra và sục rửa đường ống. Quý cư dân vui lòng xả nước trong 5 phút để ổn định lại.', 2, 29, '2025-12-08 18:20:00'),
-(N'Thông tin của ông/bà đã được cập nhật lại trên hệ thống. Quý khách vui lòng đăng nhập lại app để kiểm tra.', 3, 3, '2025-12-14 10:15:00'),
-(N'Chúng tôi đã cho lắp thêm quạt thông gió tại hành lang tầng 4. Mùi sơn sẽ sớm biến mất.', 4, 29, '2025-12-22 09:30:00'),
-(N'Kỹ thuật đã kiểm tra các trạm phát Wifi công cộng và reset lại hệ thống để đảm bảo đường truyền.', 5, 29, '2025-12-27 15:45:00'),
+-- Responses for December 2025
+(N'The Management Board sincerely apologizes for this delay. We are increasing our staff to complete the handover as soon as possible.', 1, 3, '2025-12-06 14:30:00'),
+(N'The technical department has inspected and flushed the pipes. Please let the water run for 5 minutes for stability.', 2, 29, '2025-12-08 18:20:00'),
+(N'Your information has been updated in our system. Please log out and back into the app to check.', 3, 3, '2025-12-14 10:15:00'),
+(N'We have installed additional ventilation fans in the 4th-floor hallway. The paint smell will dissipate soon.', 4, 29, '2025-12-22 09:30:00'),
+(N'Technicians have inspected the public Wi-Fi stations and reset the system to ensure stable connectivity.', 5, 29, '2025-12-27 15:45:00'),
 
--- Phản hồi cho tháng 01/2026
-(N'Đã cử đội bảo trì thay lò xo và tra dầu cho cửa thoát hiểm tầng 5. Hiện tại cửa đã hoạt động bình thường.', 6, 29, '2026-01-07 11:20:00'),
-(N'Ban quản lý đã nhắc nhở và yêu cầu hộ dân liên quan cam kết không gây ồn quá giờ quy định.', 7, 3, '2026-01-16 16:00:00'),
-(N'Chúng tôi đã điều chỉnh lại lịch thu gom rác tại hầm. Xin lỗi quý cư dân vì sự bất tiện này.', 8, 3, '2026-01-12 09:45:00'),
-(N'Đội kỹ thuật thang máy sẽ tiến hành bảo trì tổng quát thang số 3 vào đêm nay.', 9, 29, '2026-01-20 10:30:00'),
-(N'Ban quản lý đã làm việc với đơn vị bảo vệ và đình chỉ công tác nhân viên có thái độ thiếu chuyên nghiệp.', 10, 3, '2026-01-24 14:10:00'),
+-- Responses for January 2026
+(N'A maintenance team has replaced the springs and lubricated the 5th-floor emergency exit door. It is now functioning normally.', 6, 29, '2026-01-07 11:20:00'),
+(N'The Management Board has issued a reminder and requested the relevant household to commit to noise regulations.', 7, 3, '2026-01-16 16:00:00'),
+(N'We have adjusted the waste collection schedule at the basement. Apologies for the inconvenience.', 8, 3, '2026-01-12 09:45:00'),
+(N'The elevator technical team will perform general maintenance on Elevator No. 3 tonight.', 9, 29, '2026-01-20 10:30:00'),
+(N'The Management Board has addressed this with the security unit and suspended the staff member involved.', 10, 3, '2026-01-24 14:10:00'),
 
--- Phản hồi cho tháng 02/2026
-(N'Kỹ thuật sẽ có mặt tại căn hộ của ông/bà vào 14h chiều nay để thay thế vòi hoa sen mới.', 11, 29, '2026-02-06 09:20:00'),
-(N'Sự cố do bụi bẩn bám vào đầu báo cháy. Chúng tôi đã tiến hành vệ sinh toàn bộ cảm biến của tầng.', 12, 29, '2026-02-13 14:50:00'),
-(N'Đã tiến hành phun thuốc khử trùng và diệt côn trùng định kỳ cho khu vực thu gom rác.', 13, 29, '2026-02-22 10:15:00'),
-(N'Nhân viên điện nước đã thay bóng đèn mới tại hành lang tầng của ông/bà.', 14, 29, '2026-02-16 08:30:00'),
-(N'Bộ phận kế toán đã kiểm tra lại diện tích. Chúng tôi sẽ gửi lại bảng tính chi tiết cho ông/bà vào sáng mai.', 15, 3, '2026-03-02 11:00:00');
+-- Responses for February 2026
+(N'A technician will be at your apartment at 2:00 PM today to replace the showerhead.', 11, 29, '2026-02-06 09:20:00'),
+(N'The issue was caused by dust on the smoke detector. We have cleaned all sensors on your floor.', 12, 29, '2026-02-13 14:50:00'),
+(N'Regular disinfection and pest control have been carried out for the common trash area.', 13, 29, '2026-02-22 10:15:00'),
+(N'Maintenance staff have replaced the burnt-out light bulb in your hallway.', 14, 29, '2026-02-16 08:30:00'),
+(N'The accounting department has re-checked the floor area. We will send you a detailed calculation tomorrow morning.', 15, 3, '2026-03-02 11:00:00');
 GO
 
 -- =============================================
@@ -2675,25 +2563,24 @@ GO
 
 INSERT INTO Expenses (Title, Description, ApartmentId, CreatedBy, Amount, ExpenseDate, CreatedAt, Status)
 VALUES 
--- THÁNG 12/2025 (Hỗ trợ lắp đặt, sửa chữa nhỏ khi mới dọn vào)
-(N'Thay bóng đèn sảnh', N'Thay bóng đèn LED 12W bị hỏng tại sảnh vào', 1, 3, 55000.00, '2025-12-10', '2025-12-10 09:00:00', 1),
-(N'Sửa vòi nước bồn rửa', N'Xử lý rò rỉ vòi nước phòng bếp', 2, 29, 120000.00, '2025-12-15', '2025-12-15 14:30:00', 1),
-(N'Thông tắc thoát sàn', N'Vệ sinh lưới lọc thoát sàn nhà vệ sinh', 3, 29, 80000.00, '2025-12-20', '2025-12-20 10:00:00', 1),
-(N'Kiểm tra ổ cắm', N'Xử lý ổ cắm bị lỏng tại phòng khách', 4, 3, 45000.00, '2025-12-22', '2025-12-22 16:00:00', 1),
+-- DECEMBER 2025 (Initial Move-in Repairs & Support)
+(N'Lobby Bulb Replacement', N'Replaced broken 12W LED bulb in the entrance lobby', 1, 3, 55000.00, '2025-12-10', '2025-12-10 09:00:00', 1),
+(N'Faucet Repair', N'Fixed water leakage in the kitchen sink faucet', 2, 29, 120000.00, '2025-12-15', '2025-12-15 14:30:00', 1),
+(N'Floor Drain Unclogging', N'Cleaned the floor drain filter in the bathroom', 3, 29, 80000.00, '2025-12-20', '2025-12-20 10:00:00', 1),
+(N'Outlet Inspection', N'Fixed a loose electrical outlet in the living room', 4, 3, 45000.00, '2025-12-22', '2025-12-22 16:00:00', 1),
 
--- THÁNG 01/2026 (Bảo trì định kỳ sau 1 tháng sử dụng)
-(N'Bảo trì điều hòa', N'Vệ sinh lưới lọc và kiểm tra gas', 1, 29, 250000.00, '2026-01-10', '2026-01-10 08:00:00', 1),
-(N'Thay pin khóa cửa', N'Thay pin cho khóa cửa thông minh (4 viên AA)', 2, 3, 100000.00, '2026-01-15', '2026-01-15 09:15:00', 1),
-(N'Sửa bản lề cửa', N'Cân chỉnh bản lề cửa phòng ngủ bị xệ', 5, 29, 150000.00, '2026-01-20', '2026-01-20 13:45:00', 1),
-(N'Vệ sinh ban công', N'Dịch vụ vệ sinh công nghiệp khu vực ban công', 6, 3, 200000.00, '2026-01-25', '2026-01-25 15:00:00', 1),
+-- JANUARY 2026 (Monthly Routine Maintenance)
+(N'AC Maintenance', N'Cleaned air filters and checked refrigerant gas levels', 1, 29, 250000.00, '2026-01-10', '2026-01-10 08:00:00', 1),
+(N'Smart Lock Battery Replacement', N'Replaced 4 AA batteries for the smart door lock', 2, 3, 100000.00, '2026-01-15', '2026-01-15 09:15:00', 1),
+(N'Door Hinge Repair', N'Adjusted a sagging bedroom door hinge', 5, 29, 150000.00, '2026-01-20', '2026-01-20 13:45:00', 1),
+(N'Balcony Deep Cleaning', N'Industrial cleaning service for the balcony area', 6, 3, 200000.00, '2026-01-25', '2026-01-25 15:00:00', 1),
 
--- THÁNG 02/2026 (Phát sinh đột xuất)
-(N'Diệt côn trùng', N'Phun thuốc diệt gián và kiến định kỳ', 3, 29, 300000.00, '2026-02-05', '2026-02-05 10:30:00', 1),
-(N'Sửa chuông cửa', N'Kiểm tra kết nối chuông cửa màn hình', 4, 3, 180000.00, '2026-02-12', '2026-02-12 11:00:00', 1),
-(N'Thay dây sen', N'Thay dây vòi hoa sen bị nứt', 1, 29, 95000.00, '2026-02-18', '2026-02-18 16:20:00', 1),
-(N'Sửa vòi xịt vệ sinh', N'Thay đầu vòi xịt mới', 5, 3, 70000.00, '2026-02-25', '2026-02-25 09:00:00', 1);
+-- FEBRUARY 2026 (Incidental Maintenance)
+(N'Pest Control', N'Periodic treatment for cockroaches and ants', 3, 29, 300000.00, '2026-02-05', '2026-02-05 10:30:00', 1),
+(N'Doorbell Repair', N'Checked the connection for the video doorbell system', 4, 3, 180000.00, '2026-02-12', '2026-02-12 11:00:00', 1),
+(N'Shower Hose Replacement', N'Replaced a cracked showerhead hose', 1, 29, 95000.00, '2026-02-18', '2026-02-18 16:20:00', 1),
+(N'Bidet Sprayer Repair', N'Replaced the bidet sprayer head', 5, 3, 70000.00, '2026-02-25', '2026-02-25 09:00:00', 1);
 GO
-
 
 -- =============================================
 -- BATCH 10: RE-GEN VISITOR LOGS (FIX STAFF ID)
@@ -2702,34 +2589,33 @@ GO
 
 INSERT INTO VisitorLogs (VisitorName, IdentityCard, PhoneNumber, ApartmentId, CreatedByStaffId, CheckInTime, Note)
 VALUES 
--- CĂN 1 (Acc 2)
-(N'Nguyễn Văn Nam', '001095001234', '0912345678', 1, 5, '2026-01-05 09:30:00', N'Bạn chủ nhà đến chơi, mang theo túi trái cây.'),
-(N'Lê Thị Huệ', '038198004321', '0988776655', 1, 58, '2026-02-14 19:00:00', N'Ship hoa ngày Valentine, khách bảo cF ở sảnh.'),
-(N'Nguyễn Tuấn Shipper', '001098005544', '0901223344', 1, 49, '2026-02-10 11:45:00', N'Giao cơm trưa ShopeeFood, khách xuống lấy tại sảnh.'),
+-- UNIT 1 (Acc 2)
+(N'Nguyen Van Nam', '001095001234', '0912345678', 1, 5, '2026-01-05 09:30:00', N'Owner''s friend visiting, brought a gift bag of fruits.'),
+(N'Le Thi Hue', '038198004321', '0988776655', 1, 58, '2026-02-14 19:00:00', N'Valentine flower delivery, waiting for the resident in the lobby.'),
+(N'Nguyen Tuan Shipper', '001098005544', '0901223344', 1, 49, '2026-02-10 11:45:00', N'ShopeeFood delivery, resident picking up at the lobby.'),
 
--- CĂN 2 (Acc 6)
-(N'Trần Minh Tâm', '079092005566', '0909123456', 2, 50, '2026-01-15 14:15:00', N'Nhân viên bảo trì máy lọc nước ngoài luồng.'),
-(N'Phạm Hoàng Long', '001090008899', '0934556677', 2, 51, '2026-02-20 10:00:00', N'Người quen gửi đồ ở quê lên, gửi tại bàn bảo vệ.'),
-(N'Trần Văn Thợ', '034085001122', '0988112233', 2, 5, '2026-01-12 08:00:00', N'Thợ điện lạnh vào bảo trì điều hòa phòng khách.'),
+-- UNIT 2 (Acc 6)
+(N'Tran Minh Tam', '079092005566', '0909123456', 2, 50, '2026-01-15 14:15:00', N'External water purifier maintenance staff.'),
+(N'Pham Hoang Long', '001090008899', '0934556677', 2, 51, '2026-02-20 10:00:00', N'Acquaintance dropped off a package, stored at the security desk.'),
+(N'Tran Van Tho', '034085001122', '0988112233', 2, 5, '2026-01-12 08:00:00', N'AC technician performing maintenance in the living room.'),
 
--- CĂN 3 (Acc 7)
-(N'Hoàng Thanh Trúc', '031195001122', '0977112233', 3, 52, '2026-01-20 18:30:00', N'Em gái chủ nhà đến ăn cơm tối.'),
-(N'Vũ Đình Phán', '001085006677', '0911223344', 3, 53, '2026-02-05 08:45:00', N'Thợ lắp mạng Viettel, vào kiểm tra đường dây.'),
-(N'Điện Máy Xanh - Team A', '079090001234', '0123456789', 3, 5, '2026-01-22 14:00:00', N'Giao tủ lạnh mới, 2 người vào lắp đặt tầng 3.'),
+-- UNIT 3 (Acc 7)
+(N'Hoang Thanh Truc', '031195001122', '0977112233', 3, 52, '2026-01-20 18:30:00', N'Owner''s sister visiting for dinner.'),
+(N'Vu Dinh Phan', '001085006677', '0911223344', 3, 53, '2026-02-05 08:45:00', N'Viettel technician checking internet lines.'),
+(N'Dien May Xanh - Team A', '079090001234', '0123456789', 3, 5, '2026-01-22 14:00:00', N'New refrigerator delivery, 2 people installing on the 3rd floor.'),
 
--- CĂN 4 (Acc 8)
-(N'Đặng Quốc Bảo', '001070002233', '0966554433', 4, 54, '2026-01-10 11:00:00', N'Họ hàng dưới quê lên thăm nhà mới.'),
-(N'Lê Decor', '001092003344', '0977665544', 4, 55, '2026-02-05 09:15:00', N'Đội thợ dán giấy dán tường cho căn hộ mới mua.'),
+-- UNIT 4 (Acc 8)
+(N'Dang Quoc Bao', '001070002233', '0966554433', 4, 54, '2026-01-10 11:00:00', N'Relatives from hometown visiting the new house.'),
+(N'Le Decor', '001092003344', '0977665544', 4, 55, '2026-02-05 09:15:00', N'Wallpaper installation team for the newly purchased unit.'),
 
--- CĂN 5 (Acc 8)
-(N'Lý Gia Thành', '001088009988', '0944332211', 5, 58, '2026-01-25 15:30:00', N'Đối tác làm việc, bàn chuyện kinh doanh.'),
-(N'DHL Express - Hùng', '038088009900', '0944009988', 5, 5, '2026-02-18 10:30:00', N'Giao bưu phẩm quốc tế, cần ký nhận tận tay.'),
+-- UNIT 5 (Acc 8)
+(N'Ly Gia Thanh', '001088009988', '0944332211', 5, 58, '2026-01-25 15:30:00', N'Business partner visiting for a meeting.'),
+(N'DHL Express - Hung', '038088009900', '0944009988', 5, 5, '2026-02-18 10:30:00', N'International package delivery, requires hand-signed receipt.'),
 
--- CĂN 6 (Acc 8)
-(N'Ngô Kiến Huy', '079099001122', '0922113344', 6, 56, '2026-02-12 16:45:00', N'Giao hàng nội thất decor, cần lên phòng lắp đặt.'),
-(N'FPT Telecom - Kỹ thuật', '001099004455', '0911554433', 6, 57, '2026-02-25 15:20:00', N'Nhân viên kỹ thuật FPT vào kiểm tra tín hiệu mạng.');
+-- UNIT 6 (Acc 8)
+(N'Ngo Kien Huy', '079099001122', '0922113344', 6, 56, '2026-02-12 16:45:00', N'Interior decor delivery, moving to the unit for assembly.'),
+(N'FPT Telecom - Tech', '001099004455', '0911554433', 6, 57, '2026-02-25 15:20:00', N'FPT technician checking network signal.');
 GO
-
 -- =============================================
 -- BATCH 15.1: BỔ SUNG LOGS THỢ KỸ THUẬT & SỬA CHỮA
 -- Mục tiêu: Đủ 43 records tổng cộng cho VisitorLogs
@@ -2737,46 +2623,46 @@ GO
 
 INSERT INTO VisitorLogs (VisitorName, IdentityCard, PhoneNumber, ApartmentId, CreatedByStaffId, CheckInTime, Note)
 VALUES 
--- CĂN 1 (Thêm thợ)
-(N'Thợ Khóa Minh', '001090001111', '0911001122', 1, 5, '2026-03-01 08:30:00', N'Thay ổ khóa thông minh cho chủ nhà.'),
-(N'Nhôm Kính Thành Tâm', '001091002222', '0912223344', 1, 58, '2026-03-05 14:00:00', N'Sửa bản lề cửa ra ban công bị xệ.'),
+-- UNIT 1 (Technicians)
+(N'Minh Locksmith', '001090001111', '0911001122', 1, 5, '2026-03-01 08:30:00', N'Replacing smart lock for the owner.'),
+(N'Thanh Tam Glass & Alu', '001091002222', '0912223344', 1, 58, '2026-03-05 14:00:00', N'Fixing sagging balcony door hinges.'),
 
--- CĂN 2 (Thêm thợ)
-(N'Rèm Cửa An Gia', '079092003333', '0903334455', 2, 5, '2026-03-10 09:15:00', N'Lắp đặt bộ rèm cầu vồng phòng ngủ.'),
-(N'Vệ Sinh Công Nghiệp', '079093004444', '0904445566', 2, 50, '2026-03-12 13:45:00', N'Vệ sinh sau xây dựng, 3 người vào.'),
+-- UNIT 2 (Technicians)
+(N'An Gia Curtains', '079092003333', '0903334455', 2, 5, '2026-03-10 09:15:00', N'Installing rainbow blinds in the bedroom.'),
+(N'Industrial Cleaning Services', '079093004444', '0904445566', 2, 50, '2026-03-12 13:45:00', N'Post-construction cleaning (Team of 3).'),
 
--- CĂN 3 (Thêm thợ)
-(N'Thợ Sơn Hà Nội', '001085005555', '0915556677', 3, 5, '2026-03-15 10:00:00', N'Sơn lại mảng tường bị ngấm nước ở bếp.'),
-(N'Kỹ thuật Hafele', '001086006666', '0916667788', 3, 52, '2026-03-18 15:30:00', N'Bảo hành bếp từ, kiểm tra bo mạch.'),
+-- UNIT 3 (Technicians)
+(N'Hanoi Painting Team', '001085005555', '0915556677', 3, 5, '2026-03-15 10:00:00', N'Repainting water-damaged wall section in the kitchen.'),
+(N'Hafele Technician', '001086006666', '0916667788', 3, 52, '2026-03-18 15:30:00', N'Induction hob warranty service and PCB inspection.'),
 
--- CĂN 4 (Thêm thợ)
-(N'Đồ Gỗ Mộc Lan', '001070007777', '0917778899', 4, 5, '2026-03-20 08:00:00', N'Lắp thêm kệ tivi và tủ trang trí.'),
-(N'Diệt Côn Trùng PestControl', '001071008888', '0918889900', 4, 54, '2026-03-21 16:00:00', N'Phun thuốc diệt gián và mối định kỳ.'),
+-- UNIT 4 (Technicians)
+(N'Moc Lan Woodworks', '001070007777', '0917778899', 4, 5, '2026-03-20 08:00:00', N'Installing additional TV shelf and decorative cabinet.'),
+(N'PestControl Services', '001071008888', '0918889900', 4, 54, '2026-03-21 16:00:00', N'Periodic spraying for cockroaches and termites.'),
 
--- CĂN 5 (Thêm thợ)
-(N'Điện Nước 24/7', '038088001111', '0941112222', 5, 5, '2026-03-22 21:00:00', N'Sửa sự cố chập điện ổ cắm phòng khách (Khẩn cấp).'),
-(N'Thợ Sàn Gỗ Toàn Thắng', '038089002222', '0942223333', 5, 58, '2026-03-23 09:30:00', N'Xử lý sàn gỗ bị phồng do ngấm nước mưa.'),
+-- UNIT 5 (Technicians)
+(N'24/7 Plumbing & Electric', '038088001111', '0941112222', 5, 5, '2026-03-22 21:00:00', N'Emergency repair: Short circuit in living room outlet.'),
+(N'Toan Thang Wood Flooring', '038089002222', '0942223333', 5, 58, '2026-03-23 09:30:00', N'Fixing floorboards warped due to rainwater soaking.'),
 
--- CĂN 6 (Thêm thợ)
-(N'Thông Tắc Cống - Anh Hùng', '079099003333', '0923334444', 6, 5, '2026-03-24 10:45:00', N'Thông tắc bồn cầu và đường ống thoát sàn.'),
-(N'Kỹ thuật Daikin', '079100004444', '0924445555', 6, 56, '2026-03-25 14:20:00', N'Bảo trì định kỳ hệ thống điều hòa Multi.'),
+-- UNIT 6 (Technicians)
+(N'Drain Unclogging - Mr. Hung', '079099003333', '0923334444', 6, 5, '2026-03-24 10:45:00', N'Unclogging toilet and floor drainage pipes.'),
+(N'Daikin Technician', '079100004444', '0924445555', 6, 56, '2026-03-25 14:20:00', N'Periodic maintenance for Multi-split AC system.'),
 
--- PHÂN TÁCH TIẾP CHO CÁC CĂN (Gen ngẫu nhiên cho đủ số lượng)
-(N'Thợ Trần Thạch Cao', '001095009999', '0966998877', 1, 49, '2026-03-26 08:30:00', N'Vá lỗ khoét trần thạch cao sau khi sửa ống.'),
-(N'Lắp Đặt Giàn Phơi', '001096008888', '0966887766', 2, 51, '2026-03-26 09:00:00', N'Lắp giàn phơi thông minh ngoài ban công.'),
-(N'Kính Cường Lực', '001097007777', '0966776655', 3, 53, '2026-03-26 09:30:00', N'Lắp vách kính phòng tắm đứng.'),
-(N'Đá Hoa Cương Thành Công', '001098006666', '0966665544', 4, 55, '2026-03-26 10:00:00', N'Ốp lại mặt đá bếp bị nứt.'),
-(N'Kỹ thuật Camera', '001099005555', '0966554433', 5, 57, '2026-03-26 10:30:00', N'Lắp đặt camera IP trong căn hộ.'),
-(N'Giúp Việc Theo Giờ - JupViec', '001100004444', '0966443322', 6, 58, '2026-03-26 11:00:00', N'Nhân viên dọn dẹp vệ sinh căn hộ định kỳ.'),
-(N'Thợ Sửa Khóa Vương', '001101003333', '0966332211', 1, 5, '2026-03-26 11:30:00', N'Chủ nhà quên mã số, hỗ trợ mở khóa cửa.'),
-(N'Kỹ thuật Ariston', '001102002222', '0966221100', 2, 50, '2026-03-26 13:00:00', N'Kiểm tra bình nóng lạnh không ra nước nóng.'),
-(N'Thợ May Bọc Ghế Sofa', '001103001111', '0966110099', 3, 5, '2026-03-26 13:30:00', N'Đến lấy mẫu vải để bọc lại bộ Sofa.'),
-(N'Vệ Sinh Máy Giặt', '001104000000', '0966009988', 4, 52, '2026-03-26 14:00:00', N'Vệ sinh lồng giặt cửa ngang.'),
-(N'Thợ Lưới An Toàn', '001105009876', '0966987654', 5, 5, '2026-03-26 14:30:00', N'Lắp lưới an toàn ban công cho trẻ nhỏ.'),
-(N'Kỹ thuật Khóa Yale', '001106008765', '0966876543', 6, 54, '2026-03-26 15:00:00', N'Cài đặt thêm vân tay cho người giúp việc.'),
-(N'Thợ Hàn Inox', '001107007654', '0966765432', 1, 56, '2026-03-26 15:30:00', N'Hàn lại chân giá kệ máy giặt.'),
-(N'Kỹ thuật SmartHome', '001108006543', '0966654321', 2, 5, '2026-03-26 16:00:00', N'Cấu hình lại hệ thống đèn thông minh.'),
-(N'Thợ Đắp Phào Chỉ', '001109005432', '0966543210', 3, 58, '2026-03-26 16:30:00', N'Trang trí phào chỉ tân cổ điển phòng khách.');
+-- ADDITIONAL RANDOM GENERATED LOGS
+(N'Gypsum Ceiling Worker', '001095009999', '0966998877', 1, 49, '2026-03-26 08:30:00', N'Patching ceiling holes after pipe repairs.'),
+(N'Drying Rack Installer', '001096008888', '0966887766', 2, 51, '2026-03-26 09:00:00', N'Installing smart laundry drying rack on balcony.'),
+(N'Tempered Glass Team', '001097007777', '0966776655', 3, 53, '2026-03-26 09:30:00', N'Installing bathroom glass partition.'),
+(N'Thanh Cong Granite', '001098006666', '0966665544', 4, 55, '2026-03-26 10:00:00', N'Repairing cracked granite kitchen countertop.'),
+(N'Camera Technician', '001099005555', '0966554433', 5, 57, '2026-03-26 10:30:00', N'Installing IP cameras inside the apartment.'),
+(N'JupViec Hourly Maid', '001100004444', '0966443322', 6, 58, '2026-03-26 11:00:00', N'Periodic apartment cleaning service.'),
+(N'Vuong Locksmith', '001101003333', '0966332211', 1, 5, '2026-03-26 11:30:00', N'Assisting owner with forgotten passcode access.'),
+(N'Ariston Technician', '001102002222', '0966221100', 2, 50, '2026-03-26 13:00:00', N'Checking water heater for no hot water issue.'),
+(N'Sofa Upholstery Worker', '001103001111', '0966110099', 3, 5, '2026-03-26 13:30:00', N'Collecting fabric samples for sofa reupholstery.'),
+(N'Washing Machine Cleaner', '001104000000', '0966009988', 4, 52, '2026-03-26 14:00:00', N'Deep cleaning front-load washing machine drum.'),
+(N'Safety Net Installer', '001105009876', '0966987654', 5, 5, '2026-03-26 14:30:00', N'Installing balcony safety net for child protection.'),
+(N'Yale Lock Technician', '001106008765', '0966876543', 6, 54, '2026-03-26 15:00:00', N'Registering additional fingerprints for the maid.'),
+(N'Inox Welder', '001107007654', '0966765432', 1, 56, '2026-03-26 15:30:00', N'Repairing washing machine rack stand.'),
+(N'SmartHome Technician', '001108006543', '0966654321', 2, 5, '2026-03-26 16:00:00', N'Reconfiguring smart lighting system.'),
+(N'Molding Decorator', '001109005432', '0966543210', 3, 58, '2026-03-26 16:30:00', N'Installing neoclassical wall moldings in living room.');
 GO
 
 
@@ -2785,30 +2671,30 @@ DECLARE @MaxId INT = 58;
 
 WHILE @CurrentId <= @MaxId
 BEGIN
-    -- 1. Thông báo Hệ thống (SYSTEM)
+    -- 1. System Maintenance Notification (SYSTEM)
     INSERT INTO Notifications (ReceiverId, TargetRole, Title, Message, Type, IsRead, CreatedAt, RelatedUrl)
     VALUES (
         @CurrentId, NULL, 
-        N'Bảo trì hệ thống định kỳ', 
-        N'Hệ thống TEMS sẽ tiến hành bảo trì máy chủ vào lúc 01:00 AM ngày 30/03. Vui lòng đăng xuất trước thời gian này.', 
+        N'Scheduled System Maintenance', 
+        N'The TEMS system will undergo server maintenance at 01:00 AM on March 30th. Please log out before this time.', 
         'SYSTEM', 0, '2026-03-24 08:00:00', NULL
     );
 
-    -- 2. Thông báo Thanh toán (PAYMENT)
+    -- 2. Payment Reminder Notification (PAYMENT)
     INSERT INTO Notifications (ReceiverId, TargetRole, Title, Message, Type, IsRead, CreatedAt, RelatedUrl)
     VALUES (
         @CurrentId, NULL, 
-        N'Nhắc nhở thanh toán hóa đơn', 
-        N'Hệ thống ghi nhận bạn có hóa đơn dịch vụ tháng 02 chưa được đối soát hoàn toàn. Vui lòng kiểm tra lại mục Hóa đơn.', 
+        N'Invoice Payment Reminder', 
+        N'Our system indicates that your February service invoice has not been fully reconciled. Please check the Invoices section.', 
         'PAYMENT', 0, '2026-03-25 10:30:00', NULL
     );
 
-    -- 3. Thông báo Hợp đồng/Quy định (CONTRACT)
+    -- 3. Contract & Regulation Update (CONTRACT)
     INSERT INTO Notifications (ReceiverId, TargetRole, Title, Message, Type, IsRead, CreatedAt, RelatedUrl)
     VALUES (
         @CurrentId, NULL, 
-        N'Cập nhật nội quy tòa nhà', 
-        N'Ban quản lý vừa cập nhật quy định về việc nuôi thú cưng và sử dụng khu vực sinh hoạt chung. Vui lòng xem chi tiết tại văn phòng.', 
+        N'Building Regulations Update', 
+        N'The Management Board has updated regulations regarding pets and the use of common areas. Please see details at the office.', 
         'CONTRACT', 0, '2026-03-26 09:15:00', NULL
     );
 
@@ -2827,10 +2713,9 @@ CREATE TABLE GetInTouch (
     CreatedAt DATETIME DEFAULT GETDATE()
 );
 GO
-
 -- =============================================
--- BATCH 14.4: 50 RECORDS - DATA TEST CHUẨN CÔNG TY
--- 20 Spam/Nghịch - 30 Khách hàng tiềm năng
+-- BATCH 14.4: 50 RECORDS - INDUSTRY STANDARD TEST DATA
+-- 20 Spam/System Noise - 30 Potential Leads
 -- =============================================
 
 DECLARE @i INT = 1;
@@ -2839,42 +2724,42 @@ WHILE @i <= 50
 BEGIN
     INSERT INTO GetInTouch (FullName, Email, PhoneNumber, [Message], CreatedAt)
     VALUES (
-        -- Tên khách hàng
+        -- Customer Name
         CASE 
             WHEN @i <= 20 THEN N'User_Test_' + CAST(@i AS NVARCHAR)
-            ELSE N'Nguyễn ' + 
-                 CASE WHEN @i % 3 = 0 THEN N'Văn ' WHEN @i % 3 = 1 THEN N'Thị ' ELSE N'Hoàng ' END + 
+            ELSE N'Nguyen ' + 
+                 CASE WHEN @i % 3 = 0 THEN N'Van ' WHEN @i % 3 = 1 THEN N'Thi ' ELSE N'Hoang ' END + 
                  CAST(@i AS NVARCHAR)
         END,
         
         -- Email
         CASE 
             WHEN @i <= 20 THEN 'test.spam.' + CAST(@i AS VARCHAR) + '@trashmail.com'
-            ELSE 'khachhang.' + CAST(@i AS VARCHAR) + '@gmail.com'
+            ELSE 'customer.' + CAST(@i AS VARCHAR) + '@gmail.com'
         END,
         
-        -- Số điện thoại
+        -- Phone Number
         CASE 
             WHEN @i <= 20 THEN '000000000' + CAST(@i % 10 AS VARCHAR)
             ELSE '09' + CAST(10000000 + @i AS VARCHAR)
         END,
         
-        -- Nội dung Message
+        -- Message Content
         CASE 
-            -- Nhóm 20 cái "Spam/Nghịch" (Giảm hài, tăng tính thực tế của rác hệ thống)
-            WHEN @i BETWEEN 1 AND 5 THEN N'asdfghjklqwertyuiop' -- Spam phím
-            WHEN @i BETWEEN 6 AND 10 THEN N'Check check 1 2 3...' -- Dev test
-            WHEN @i BETWEEN 11 AND 15 THEN N'Dịch vụ tăng like, tăng sub giá rẻ liên hệ 0123...' -- Quảng cáo rác
-            WHEN @i BETWEEN 16 AND 20 THEN N'................................' -- Khách ghost
+            -- Group: 20 Spam/Noise records (System clutter simulation)
+            WHEN @i BETWEEN 1 AND 5 THEN N'asdfghjklqwertyuiop' -- Keyboard smashing
+            WHEN @i BETWEEN 6 AND 10 THEN N'System check 1 2 3... Internal Dev Test' -- Dev test
+            WHEN @i BETWEEN 11 AND 15 THEN N'Cheap SEO services, increase likes/subs. Contact 0123...' -- Spam advertising
+            WHEN @i BETWEEN 16 AND 20 THEN N'................................' -- Ghost/Empty message
             
-            -- Nhóm 30 cái "Nghiêm túc" (Hẳn hoi)
-            WHEN @i BETWEEN 21 AND 30 THEN N'Tôi muốn nhận thông tin về phí quản lý hằng tháng của tòa S1.'
-            WHEN @i BETWEEN 31 AND 40 THEN N'Vui lòng gửi bảng báo giá các căn Studio hướng Đông cho tôi.'
-            WHEN @i BETWEEN 41 AND 45 THEN N'Sân Tennis số 3 khi nào bảo trì xong vậy admin?'
-            ELSE N'Tôi muốn đăng ký xem nhà thực tế căn Shophouse vào cuối tuần này.'
+            -- Group: 30 "Serious" Leads (Genuine inquiries)
+            WHEN @i BETWEEN 21 AND 30 THEN N'I would like to receive information regarding the monthly management fees for Building S1.'
+            WHEN @i BETWEEN 31 AND 40 THEN N'Please send me the price list for East-facing Studio units.'
+            WHEN @i BETWEEN 41 AND 45 THEN N'When will the maintenance for Tennis Court No. 3 be completed?'
+            ELSE N'I would like to book a site visit for a Shophouse unit this weekend.'
         END,
         
-        -- Thời gian
+        -- Timestamp (Distributed over the last 25 hours)
         DATEADD(MINUTE, -@i * 30, GETDATE())
     );
     
@@ -3067,36 +2952,36 @@ DECLARE @BuaReasons TABLE (
 -- 2. Chèn 10 lý do bất hủ (Đã fix lỗi cú pháp)
 INSERT INTO @BuaReasons (Title, DescDetail, MinPrice)
 VALUES 
-(N'Phí phạt hát Karaoke quá giờ', N'Hát bài "Cắt đôi nỗi sầu" lúc 2 giờ sáng làm cả tầng mất ngủ.', 500000),
-(N'Phí dắt lợn cảnh đi thang máy', N'Lợn làm bẩn sàn thang máy S2, cần thuê đội khử mùi chuyên sâu.', 200000),
-(N'Phí "Ship hộ" sầu riêng', N'BQL hỗ trợ khênh 10 thùng sầu riêng lên tầng 20 giúp cư dân.', 150000),
-(N'Tiền đền bù vỡ kính sảnh', N'Cư dân mải nhìn gái xinh đập đầu vào cửa kính làm nứt kính.', 1200000),
-(N'Phí cứu hộ mèo trên cây', N'Kỹ thuật dùng thang dây cứu mèo của cư dân bị kẹt 3 ngày.', 300000),
-(N'Phí xử lý mùi mắm tôm', N'Nấu mắm tôm không bật máy hút mùi làm cả tầng ngất ngây.', 100000),
-(N'Phí phạt sạc xe điện trong nhà', N'Vi phạm quy định PCCC nghiêm trọng.', 2000000),
-(N'Phí thuê loa kéo quẩy party', N'Mượn loa BQL tổ chức sinh nhật tại khu BBQ.', 400000),
-(N'Tiền thông tắc bồn cầu (Vỏ sầu)', N'Phát hiện vỏ sầu riêng trong đường ống thoát nước.', 600000),
-(N'Phí trông trẻ (Lễ tân hộ)', N'Trông hộ bé con để mẹ xuống sảnh nhận trà sữa.', 50000);
+(N'Late Night Karaoke Fine', N'Singing "Cut Sorrow in Half" at 2 AM, causing sleep deprivation for the entire floor.', 500000),
+(N'Pet Pig Elevator Fee', N'Pet pig soiled the S2 elevator floor; specialized deep cleaning and deodorizing required.', 200000),
+(N'Durian Delivery Support', N'Management assisted in carrying 10 crates of durian to the 20th floor for the resident.', 150000),
+(N'Lobby Glass Compensation', N'Resident was distracted by a pretty girl and walked into the glass door, causing a crack.', 1200000),
+(N'Cat Rescue Service', N'Technical team used rope ladders to rescue a resident''s cat trapped in a tree for 3 days.', 300000),
+(N'Shrimp Paste Odor Penalty', N'Cooking shrimp paste without using the exhaust fan, overwhelming the entire floor.', 100000),
+(N'Indoor EV Charging Fine', N'Serious violation of Fire Safety and Prevention regulations.', 2000000),
+(N'Party Speaker Rental', N'Borrowing the Management Board''s portable speaker for a birthday party at the BBQ area.', 400000),
+(N'Toilet Clog Repair (Durian)', N'Discovered durian husks inside the main drainage pipe.', 600000),
+(N'Temporary Childcare Fee', N'Receptionist babysitting while the mother went down to the lobby to pick up milk tea.', 50000);
 
--- 3. Vòng lặp chèn dữ liệu
+-- 3. Data Insertion Loop
 WHILE @i <= 59
 BEGIN
-    -- Lấy ngẫu nhiên lý do từ 1 đến 10
+    -- Randomly pick a reason from 1 to 10
     SET @ReasonId = (ABS(CHECKSUM(NEWID())) % 10) + 1;
     
-    -- Lấy ngẫu nhiên Staff ID từ danh sách Nghĩa đưa
+    -- Randomly pick a Staff ID from the list provided by Nghia
     SELECT TOP 1 @StaffId = SId 
     FROM (VALUES (3),(29),(30),(31),(32),(33),(34),(35),(36),(37),(38)) AS Staff(SId) 
     ORDER BY NEWID();
 
-    -- Thực hiện INSERT
+    -- Execute INSERT
     INSERT INTO Expenses (Title, Description, ApartmentId, CreatedBy, Amount, ExpenseDate, [Status])
     SELECT 
         Title, 
-        DescDetail + N' (Ghi chú: Cư dân hứa không tái phạm. Hẹ hẹ.)', 
+        DescDetail + N' (Note: Resident promised not to repeat the violation. Sys-Test.)', 
         @i, 
         @StaffId, 
-        MinPrice + (ABS(CHECKSUM(NEWID()) % 5) * 20000), -- Tăng ngẫu nhiên tí tiền
+        MinPrice + (ABS(CHECKSUM(NEWID()) % 5) * 20000), -- Randomly increase price slightly
         '2026-03-25', 
         0
     FROM @BuaReasons 
@@ -3108,59 +2993,58 @@ GO
 
 INSERT INTO Complaints (Content, MadeByUserId, CreatedAt)
 VALUES 
-(N'Căn hộ bên cạnh nuôi chó sủa ầm ĩ, tôi yêu cầu BQL cách âm lại tường cho nhà tôi miễn phí. (Gửi từ cư dân tài khoản 59)', 59, '2026-03-25 21:53:00'),
-(N'Tại sao tôi nấu mắm tôm lại bị phạt? Đây là tinh túy ẩm thực dân tộc! Tôi sẽ kiện lên phường! (Gửi từ cư dân tài khoản 60)', 60, '2026-03-26 01:28:00'),
-(N'Tại sao tôi lại bị phạt phí hát Karaoke? Tôi chỉ bật loa nghe kinh phật lúc 2h sáng thôi mà? BQL xem lại đi! (Gửi từ cư dân tài khoản 61)', 61, '2026-03-26 06:23:00'),
-(N'Tại sao tôi lại bị phạt phí hát Karaoke? Tôi chỉ bật loa nghe kinh phật lúc 2h sáng thôi mà? BQL xem lại đi! (Gửi từ cư dân tài khoản 62)', 62, '2026-03-26 04:05:00'),
-(N'Tại sao không cho tôi sạc xe điện trong nhà? Tôi hứa sẽ canh chừng mà, sạc ở hầm bất tiện lắm! (Gửi từ cư dân tài khoản 63)', 63, '2026-03-25 14:42:00'),
-(N'Tôi yêu cầu kiểm tra lại camera, tôi đập đầu vào kính là do kính quá trong suốt, lỗi tại BQL lau kính quá sạch! (Gửi từ cư dân tài khoản 64)', 64, '2026-03-25 11:35:00'),
-(N'Bảo vệ tòa nhà nhìn tôi hơi kỹ mỗi khi tôi đi nhậu về muộn, tôi cảm thấy bị xâm phạm quyền riêng tư! (Gửi từ cư dân tài khoản 65)', 65, '2026-03-25 09:58:00'),
-(N'Nhà tầng trên làm gì mà cứ 12h đêm là có tiếng kéo ghế với tiếng bi sắt rơi thế? Đề nghị xử lý gấp! (Gửi từ cư dân tài khoản 66)', 66, '2026-03-25 10:49:00'),
-(N'Nhà tầng trên làm gì mà cứ 12h đêm là có tiếng kéo ghế với tiếng bi sắt rơi thế? Đề nghị xử lý gấp! (Gửi từ cư dân tài khoản 67)', 67, '2026-03-25 10:15:00'),
-(N'Con lợn cảnh của tôi nó sạch hơn cả cái thang máy này, tại sao lại thu phí khử mùi? Vô lý hết sức! (Gửi từ cư dân tài khoản 68)', 68, '2026-03-26 00:54:00'),
-(N'Hóa đơn tiền nước tháng này cao bất thường, tôi nghi ngờ hàng xóm đấu trộm vòi sang nhà tôi. (Gửi từ cư dân tài khoản 69)', 69, '2026-03-25 21:03:00'),
-(N'Phí cứu hộ mèo 300k là quá đắt! Con mèo nó tự trèo xuống được, anh kỹ thuật chỉ đứng nhìn thôi mà? (Gửi từ cư dân tài khoản 70)', 70, '2026-03-26 03:21:00'),
-(N'Căn hộ bên cạnh nuôi chó sủa ầm ĩ, tôi yêu cầu BQL cách âm lại tường cho nhà tôi miễn phí. (Gửi từ cư dân tài khoản 71)', 71, '2026-03-26 07:08:00'),
-(N'Nhà tầng trên làm gì mà cứ 12h đêm là có tiếng kéo ghế với tiếng bi sắt rơi thế? Đề nghị xử lý gấp! (Gửi từ cư dân tài khoản 72)', 72, '2026-03-25 22:51:00'),
-(N'Lễ tân trông trẻ hộ có 1 tiếng mà thu 50k? Đắt hơn cả grab, tôi không chấp nhận hóa đơn này. (Gửi từ cư dân tài khoản 73)', 73, '2026-03-25 19:50:00'),
-(N'Nhà tầng trên làm gì mà cứ 12h đêm là có tiếng kéo ghế với tiếng bi sắt rơi thế? Đề nghị xử lý gấp! (Gửi từ cư dân tài khoản 74)', 74, '2026-03-25 23:53:00'),
-(N'Lễ tân trông trẻ hộ có 1 tiếng mà thu 50k? Đắt hơn cả grab, tôi không chấp nhận hóa đơn này. (Gửi từ cư dân tài khoản 75)', 75, '2026-03-25 09:34:00'),
-(N'Con lợn cảnh của tôi nó sạch hơn cả cái thang máy này, tại sao lại thu phí khử mùi? Vô lý hết sức! (Gửi từ cư dân tài khoản 76)', 76, '2026-03-25 19:47:00'),
-(N'Nhà tầng trên làm gì mà cứ 12h đêm là có tiếng kéo ghế với tiếng bi sắt rơi thế? Đề nghị xử lý gấp! (Gửi từ cư dân tài khoản 77)', 77, '2026-03-25 17:16:00'),
-(N'Bảo vệ tòa nhà nhìn tôi hơi kỹ mỗi khi tôi đi nhậu về muộn, tôi cảm thấy bị xâm phạm quyền riêng tư! (Gửi từ cư dân tài khoản 78)', 78, '2026-03-25 16:52:00'),
-(N'Lễ tân trông trẻ hộ có 1 tiếng mà thu 50k? Đắt hơn cả grab, tôi không chấp nhận hóa đơn này. (Gửi từ cư dân tài khoản 79)', 79, '2026-03-25 13:54:00'),
-(N'Hóa đơn tiền nước tháng này cao bất thường, tôi nghi ngờ hàng xóm đấu trộm vòi sang nhà tôi. (Gửi từ cư dân tài khoản 80)', 80, '2026-03-26 01:59:00'),
-(N'Tại sao không cho tôi sạc xe điện trong nhà? Tôi hứa sẽ canh chừng mà, sạc ở hầm bất tiện lắm! (Gửi từ cư dân tài khoản 81)', 81, '2026-03-25 08:39:00'),
-(N'Đề nghị lắp thêm gương trong thang máy để tôi còn check-in, thang máy gì mà tối như hũ nút. (Gửi từ cư dân tài khoản 82)', 82, '2026-03-25 10:32:00'),
-(N'Căn hộ bên cạnh nuôi chó sủa ầm ĩ, tôi yêu cầu BQL cách âm lại tường cho nhà tôi miễn phí. (Gửi từ cư dân tài khoản 83)', 83, '2026-03-25 15:32:00'),
-(N'Tại sao không cho tôi sạc xe điện trong nhà? Tôi hứa sẽ canh chừng mà, sạc ở hầm bất tiện lắm! (Gửi từ cư dân tài khoản 84)', 84, '2026-03-25 20:51:00'),
-(N'Phí cứu hộ mèo 300k là quá đắt! Con mèo nó tự trèo xuống được, anh kỹ thuật chỉ đứng nhìn thôi mà? (Gửi từ cư dân tài khoản 85)', 85, '2026-03-25 09:35:00'),
-(N'Lễ tân trông trẻ hộ có 1 tiếng mà thu 50k? Đắt hơn cả grab, tôi không chấp nhận hóa đơn này. (Gửi từ cư dân tài khoản 86)', 86, '2026-03-25 23:20:00'),
-(N'Phí cứu hộ mèo 300k là quá đắt! Con mèo nó tự trèo xuống được, anh kỹ thuật chỉ đứng nhìn thôi mà? (Gửi từ cư dân tài khoản 87)', 87, '2026-03-25 08:12:00'),
-(N'Căn hộ bên cạnh nuôi chó sủa ầm ĩ, tôi yêu cầu BQL cách âm lại tường cho nhà tôi miễn phí. (Gửi từ cư dân tài khoản 88)', 88, '2026-03-25 15:46:00'),
-(N'Tại sao không cho tôi sạc xe điện trong nhà? Tôi hứa sẽ canh chừng mà, sạc ở hầm bất tiện lắm! (Gửi từ cư dân tài khoản 89)', 89, '2026-03-25 10:13:00'),
-(N'Căn hộ bên cạnh nuôi chó sủa ầm ĩ, tôi yêu cầu BQL cách âm lại tường cho nhà tôi miễn phí. (Gửi từ cư dân tài khoản 90)', 90, '2026-03-26 01:21:00'),
-(N'Nhà tầng trên làm gì mà cứ 12h đêm là có tiếng kéo ghế với tiếng bi sắt rơi thế? Đề nghị xử lý gấp! (Gửi từ cư dân tài khoản 91)', 91, '2026-03-25 16:00:00'),
-(N'Nhà tầng trên làm gì mà cứ 12h đêm là có tiếng kéo ghế với tiếng bi sắt rơi thế? Đề nghị xử lý gấp! (Gửi từ cư dân tài khoản 92)', 92, '2026-03-25 12:15:00'),
-(N'Con lợn cảnh của tôi nó sạch hơn cả cái thang máy này, tại sao lại thu phí khử mùi? Vô lý hết sức! (Gửi từ cư dân tài khoản 93)', 93, '2026-03-25 23:47:00'),
-(N'Con lợn cảnh của tôi nó sạch hơn cả cái thang máy này, tại sao lại thu phí khử mùi? Vô lý hết sức! (Gửi từ cư dân tài khoản 94)', 94, '2026-03-25 10:59:00'),
-(N'Đề nghị lắp thêm gương trong thang máy để tôi còn check-in, thang máy gì mà tối như hũ nút. (Gửi từ cư dân tài khoản 95)', 95, '2026-03-26 02:07:00'),
-(N'Đề nghị lắp thêm gương trong thang máy để tôi còn check-in, thang máy gì mà tối như hũ nút. (Gửi từ cư dân tài khoản 96)', 96, '2026-03-25 22:52:00'),
-(N'Căn hộ bên cạnh nuôi chó sủa ầm ĩ, tôi yêu cầu BQL cách âm lại tường cho nhà tôi miễn phí. (Gửi từ cư dân tài khoản 97)', 97, '2026-03-25 12:27:00'),
-(N'Tôi yêu cầu kiểm tra lại camera, tôi đập đầu vào kính là do kính quá trong suốt, lỗi tại BQL lau kính quá sạch! (Gửi từ cư dân tài khoản 98)', 98, '2026-03-25 23:16:00'),
-(N'Tôi yêu cầu kiểm tra lại camera, tôi đập đầu vào kính là do kính quá trong suốt, lỗi tại BQL lau kính quá sạch! (Gửi từ cư dân tài khoản 99)', 99, '2026-03-26 06:07:00'),
-(N'Lễ tân trông trẻ hộ có 1 tiếng mà thu 50k? Đắt hơn cả grab, tôi không chấp nhận hóa đơn này. (Gửi từ cư dân tài khoản 100)', 100, '2026-03-26 06:39:00'),
-(N'Tôi yêu cầu kiểm tra lại camera, tôi đập đầu vào kính là do kính quá trong suốt, lỗi tại BQL lau kính quá sạch! (Gửi từ cư dân tài khoản 101)', 101, '2026-03-26 05:42:00'),
-(N'Con lợn cảnh của tôi nó sạch hơn cả cái thang máy này, tại sao lại thu phí khử mùi? Vô lý hết sức! (Gửi từ cư dân tài khoản 102)', 102, '2026-03-26 00:14:00'),
-(N'Căn hộ bên cạnh nuôi chó sủa ầm ĩ, tôi yêu cầu BQL cách âm lại tường cho nhà tôi miễn phí. (Gửi từ cư dân tài khoản 103)', 103, '2026-03-25 23:19:00'),
-(N'Căn hộ bên cạnh nuôi chó sủa ầm ĩ, tôi yêu cầu BQL cách âm lại tường cho nhà tôi miễn phí. (Gửi từ cư dân tài khoản 104)', 104, '2026-03-26 05:02:00'),
-(N'Căn hộ bên cạnh nuôi chó sủa ầm ĩ, tôi yêu cầu BQL cách âm lại tường cho nhà tôi miễn phí. (Gửi từ cư dân tài khoản 105)', 105, '2026-03-26 00:21:00'),
-(N'Con lợn cảnh của tôi nó sạch hơn cả cái thang máy này, tại sao lại thu phí khử mùi? Vô lý hết sức! (Gửi từ cư dân tài khoản 106)', 106, '2026-03-25 21:07:00'),
-(N'Lễ tân trông trẻ hộ có 1 tiếng mà thu 50k? Đắt hơn cả grab, tôi không chấp nhận hóa đơn này. (Gửi từ cư dân tài khoản 107)', 107, '2026-03-25 21:43:00'),
-(N'Bảo vệ tòa nhà nhìn tôi hơi kỹ mỗi khi tôi đi nhậu về muộn, tôi cảm thấy bị xâm phạm quyền riêng tư! (Gửi từ cư dân tài khoản 108)', 108, '2026-03-25 21:12:00');
+(N'The neighboring apartment has a dog barking incessantly; I demand the Management Board soundproof my walls for free. (Sent from resident account 59)', 59, '2026-03-25 21:53:00'),
+(N'Why was I fined for cooking shrimp paste? This is the essence of national cuisine! I will take this to the local authorities! (Sent from resident account 60)', 60, '2026-03-26 01:28:00'),
+(N'Why was I fined for Karaoke? I was just playing Buddhist chants at 2 AM! Management needs to re-evaluate this! (Sent from resident account 61)', 61, '2026-03-26 06:23:00'),
+(N'Why was I fined for Karaoke? I was just playing Buddhist chants at 2 AM! Management needs to re-evaluate this! (Sent from resident account 62)', 62, '2026-03-26 04:05:00'),
+(N'Why am I not allowed to charge my EV at home? I promise to keep an eye on it; charging in the basement is too inconvenient! (Sent from resident account 63)', 63, '2026-03-25 14:42:00'),
+(N'I demand a CCTV review. I hit my head because the glass was too transparent; it is the Management''s fault for cleaning it too well! (Sent from resident account 64)', 64, '2026-03-25 11:35:00'),
+(N'The building security stares at me too closely whenever I come home late from drinking; I feel my privacy is being violated! (Sent from resident account 65)', 65, '2026-03-25 09:58:00'),
+(N'What is the upstairs neighbor doing? Every night at 12 AM there are sounds of dragging chairs and falling marbles. Please handle immediately! (Sent from resident account 66)', 66, '2026-03-25 10:49:00'),
+(N'What is the upstairs neighbor doing? Every night at 12 AM there are sounds of dragging chairs and falling marbles. Please handle immediately! (Sent from resident account 67)', 67, '2026-03-25 10:15:00'),
+(N'My pet pig is cleaner than this elevator; why am I being charged a deodorizing fee? This is absolutely ridiculous! (Sent from resident account 68)', 68, '2026-03-26 00:54:00'),
+(N'The water bill this month is unusually high; I suspect the neighbor is illegally tapping into my line. (Sent from resident account 69)', 69, '2026-03-25 21:03:00'),
+(N'300k for cat rescue is too expensive! The cat could have climbed down itself; the technician just stood there and watched! (Sent from resident account 70)', 70, '2026-03-26 03:21:00'),
+(N'The neighboring apartment has a dog barking incessantly; I demand the Management Board soundproof my walls for free. (Sent from resident account 71)', 71, '2026-03-26 07:08:00'),
+(N'What is the upstairs neighbor doing? Every night at 12 AM there are sounds of dragging chairs and falling marbles. Please handle immediately! (Sent from resident account 72)', 72, '2026-03-25 22:51:00'),
+(N'The receptionist watched my child for just 1 hour and charged 50k? That''s more expensive than a Grab; I do not accept this invoice. (Sent from resident account 73)', 73, '2026-03-25 19:50:00'),
+(N'What is the upstairs neighbor doing? Every night at 12 AM there are sounds of dragging chairs and falling marbles. Please handle immediately! (Sent from resident account 74)', 74, '2026-03-25 23:53:00'),
+(N'The receptionist watched my child for just 1 hour and charged 50k? That''s more expensive than a Grab; I do not accept this invoice. (Sent from resident account 75)', 75, '2026-03-25 09:34:00'),
+(N'My pet pig is cleaner than this elevator; why am I being charged a deodorizing fee? This is absolutely ridiculous! (Sent from resident account 76)', 76, '2026-03-25 19:47:00'),
+(N'What is the upstairs neighbor doing? Every night at 12 AM there are sounds of dragging chairs and falling marbles. Please handle immediately! (Sent from resident account 77)', 77, '2026-03-25 17:16:00'),
+(N'The building security stares at me too closely whenever I come home late from drinking; I feel my privacy is being violated! (Sent from resident account 78)', 78, '2026-03-25 16:52:00'),
+(N'The receptionist watched my child for just 1 hour and charged 50k? That''s more expensive than a Grab; I do not accept this invoice. (Sent from resident account 79)', 79, '2026-03-25 13:54:00'),
+(N'The water bill this month is unusually high; I suspect the neighbor is illegally tapping into my line. (Sent from resident account 80)', 80, '2026-03-26 01:59:00'),
+(N'Why am I not allowed to charge my EV at home? I promise to keep an eye on it; charging in the basement is too inconvenient! (Sent from resident account 81)', 81, '2026-03-25 08:39:00'),
+(N'I suggest installing more mirrors in the elevator for check-ins; it is currently as dark as a coal cellar. (Sent from resident account 82)', 82, '2026-03-25 10:32:00'),
+(N'The neighboring apartment has a dog barking incessantly; I demand the Management Board soundproof my walls for free. (Sent from resident account 83)', 83, '2026-03-25 15:32:00'),
+(N'Why am I not allowed to charge my EV at home? I promise to keep an eye on it; charging in the basement is too inconvenient! (Sent from resident account 84)', 84, '2026-03-25 20:51:00'),
+(N'300k for cat rescue is too expensive! The cat could have climbed down itself; the technician just stood there and watched! (Sent from resident account 85)', 85, '2026-03-25 09:35:00'),
+(N'The receptionist watched my child for just 1 hour and charged 50k? That''s more expensive than a Grab; I do not accept this invoice. (Sent from resident account 86)', 86, '2026-03-25 23:20:00'),
+(N'300k for cat rescue is too expensive! The cat could have climbed down itself; the technician just stood there and watched! (Sent from resident account 87)', 87, '2026-03-25 08:12:00'),
+(N'The neighboring apartment has a dog barking incessantly; I demand the Management Board soundproof my walls for free. (Sent from resident account 88)', 88, '2026-03-25 15:46:00'),
+(N'Why am I not allowed to charge my EV at home? I promise to keep an eye on it; charging in the basement is too inconvenient! (Sent from resident account 89)', 89, '2026-03-25 10:13:00'),
+(N'The neighboring apartment has a dog barking incessantly; I demand the Management Board soundproof my walls for free. (Sent from resident account 90)', 90, '2026-03-26 01:21:00'),
+(N'What is the upstairs neighbor doing? Every night at 12 AM there are sounds of dragging chairs and falling marbles. Please handle immediately! (Sent from resident account 91)', 91, '2026-03-25 16:00:00'),
+(N'What is the upstairs neighbor doing? Every night at 12 AM there are sounds of dragging chairs and falling marbles. Please handle immediately! (Sent from resident account 92)', 92, '2026-03-25 12:15:00'),
+(N'My pet pig is cleaner than this elevator; why am I being charged a deodorizing fee? This is absolutely ridiculous! (Sent from resident account 93)', 93, '2026-03-25 23:47:00'),
+(N'My pet pig is cleaner than this elevator; why am I being charged a deodorizing fee? This is absolutely ridiculous! (Sent from resident account 94)', 94, '2026-03-25 10:59:00'),
+(N'I suggest installing more mirrors in the elevator for check-ins; it is currently as dark as a coal cellar. (Sent from resident account 95)', 95, '2026-03-26 02:07:00'),
+(N'I suggest installing more mirrors in the elevator for check-ins; it is currently as dark as a coal cellar. (Sent from resident account 96)', 96, '2026-03-25 22:52:00'),
+(N'The neighboring apartment has a dog barking incessantly; I demand the Management Board soundproof my walls for free. (Sent from resident account 97)', 97, '2026-03-25 12:27:00'),
+(N'I demand a CCTV review. I hit my head because the glass was too transparent; it is the Management''s fault for cleaning it too well! (Sent from resident account 98)', 98, '2026-03-25 23:16:00'),
+(N'I demand a CCTV review. I hit my head because the glass was too transparent; it is the Management''s fault for cleaning it too well! (Sent from resident account 99)', 99, '2026-03-26 06:07:00'),
+(N'The receptionist watched my child for just 1 hour and charged 50k? That''s more expensive than a Grab; I do not accept this invoice. (Sent from resident account 100)', 100, '2026-03-26 06:39:00'),
+(N'I demand a CCTV review. I hit my head because the glass was too transparent; it is the Management''s fault for cleaning it too well! (Sent from resident account 101)', 101, '2026-03-26 05:42:00'),
+(N'My pet pig is cleaner than this elevator; why am I being charged a deodorizing fee? This is absolutely ridiculous! (Sent from resident account 102)', 102, '2026-03-26 00:14:00'),
+(N'The neighboring apartment has a dog barking incessantly; I demand the Management Board soundproof my walls for free. (Sent from resident account 103)', 103, '2026-03-25 23:19:00'),
+(N'The neighboring apartment has a dog barking incessantly; I demand the Management Board soundproof my walls for free. (Sent from resident account 104)', 104, '2026-03-26 05:02:00'),
+(N'The neighboring apartment has a dog barking incessantly; I demand the Management Board soundproof my walls for free. (Sent from resident account 105)', 105, '2026-03-26 00:21:00'),
+(N'My pet pig is cleaner than this elevator; why am I being charged a deodorizing fee? This is absolutely ridiculous! (Sent from resident account 106)', 106, '2026-03-25 21:07:00'),
+(N'The receptionist watched my child for just 1 hour and charged 50k? That''s more expensive than a Grab; I do not accept this invoice. (Sent from resident account 107)', 107, '2026-03-25 21:43:00'),
+(N'The building security stares at me too closely whenever I come home late from drinking; I feel my privacy is being violated! (Sent from resident account 108)', 108, '2026-03-25 21:12:00');
 GO
-
-DECLARE @ComplaintId INT = 20;
+DECLARE @ComplaintId INT = 20; -- Bồ nhớ check lại xem ID bắt đầu từ đâu nhé
 DECLARE @StaffId INT;
 DECLARE @ReplyContent NVARCHAR(MAX);
 DECLARE @ComplaintText NVARCHAR(MAX);
@@ -3168,43 +3052,43 @@ DECLARE @CreatedAt DATETIME;
 
 WHILE @ComplaintId <= 66
 BEGIN
-    -- 1. Lấy ngẫu nhiên Staff ID phản hồi
+    -- 1. Randomly pick a Staff ID for the reply
     SELECT TOP 1 @StaffId = SId 
     FROM (VALUES (3),(29),(30),(31),(32),(33),(34),(35),(36),(37),(38)) AS Staff(SId) 
     ORDER BY NEWID();
 
-    -- 2. Lấy nội dung khiếu nại và ngày tạo để tính ngày Rep
+    -- 2. Get the complaint content and creation date to calculate response time
     SELECT @ComplaintText = Content, @CreatedAt = CreatedAt 
     FROM Complaints WHERE Id = @ComplaintId;
 
-    -- 3. Logic chọn nội dung Rep dựa trên từ khóa trong khiếu nại
+    -- 3. Logic to select Reply content based on keywords in the complaint
     SET @ReplyContent = CASE 
-        WHEN @ComplaintText LIKE N'%chó sủa%' THEN N'BQL đã ghi nhận và làm việc với chủ hộ nuôi thú cưng. Về việc cách âm, đây là kết cấu tòa nhà nên BQL không thể hỗ trợ miễn phí. Mong cư dân thông cảm.'
-        WHEN @ComplaintText LIKE N'%mắm tôm%' THEN N'Mắm tôm là tinh túy nhưng mùi hương hơi quá đà ảnh hưởng hàng xóm. BQL giữ nguyên mức phạt để đảm bảo không gian chung.'
-        WHEN @ComplaintText LIKE N'%Karaoke%' OR @ComplaintText LIKE N'%kinh phật%' THEN N'Âm thanh sau 22h đều tính là vi phạm tiếng ồn, bất kể nội dung là gì. Cư dân vui lòng dùng tai nghe hoặc giảm âm lượng nhé.'
-        WHEN @ComplaintText LIKE N'%xe điện%' THEN N'Quy định PCCC của thành phố nghiêm cấm sạc xe điện tại căn hộ. Cư dân vui lòng xuống hầm để đảm bảo an toàn cháy nổ cho cả tòa nhà.'
-        WHEN @ComplaintText LIKE N'%lau kính%' OR @ComplaintText LIKE N'%camera%' THEN N'Cảm ơn lời khen của cư dân về việc vệ sinh kính. Tuy nhiên, cư dân vui lòng quan sát kỹ khi di chuyển để tránh chấn thương.'
-        WHEN @ComplaintText LIKE N'%nhậu về muộn%' OR @ComplaintText LIKE N'%riêng tư%' THEN N'Bảo vệ chỉ đang thực hiện đúng quy trình quan sát an ninh. Nếu cư dân thấy phiền, BQL sẽ nhắc nhở bộ phận an ninh điều chỉnh thái độ.'
-        WHEN @ComplaintText LIKE N'%bi sắt%' OR @ComplaintText LIKE N'%kéo ghế%' THEN N'BQL sẽ gửi thông báo nhắc nhở hộ tầng trên kiểm tra lại việc di chuyển đồ đạc vào ban đêm.'
-        WHEN @ComplaintText LIKE N'%lợn cảnh%' THEN N'Thang máy là khu vực công cộng, việc thú cưng gây mùi cần được xử lý triệt để. Phí này dùng để thuê đơn vị khử khuẩn chuyên dụng.'
-        WHEN @ComplaintText LIKE N'%tiền nước%' THEN N'Kỹ thuật sẽ qua kiểm tra đồng hồ nước nhà bạn vào sáng mai. Cư dân vui lòng có mặt tại nhà nhé.'
-        WHEN @ComplaintText LIKE N'%mèo%' THEN N'Việc dùng thiết bị chuyên dụng và nhân sự kỹ thuật có chi phí vận hành riêng. Mức phí này đã được quy định trong danh mục cứu hộ.'
-        WHEN @ComplaintText LIKE N'%trông trẻ%' THEN N'Đây là dịch vụ hỗ trợ ngoài giờ của lễ tân, không thuộc quản lý trực tiếp của tòa nhà. Cư dân vui lòng tự thỏa thuận với nhân viên.'
-        WHEN @ComplaintText LIKE N'%gương%' THEN N'BQL đã tiếp nhận góp ý và sẽ xem xét lắp thêm gương vào đợt bảo trì quý tới. Chúc cư dân có những tấm ảnh check-in đẹp!'
-        ELSE N'BQL đã tiếp nhận thông tin của cư dân và đang trong quá trình xác minh xử lý. Chúng tôi sẽ phản hồi chi tiết sớm nhất.'
+        WHEN @ComplaintText LIKE N'%dog barking%' THEN N'The Management Board has recorded the issue and contacted the pet owner. Regarding soundproofing, this involves the building''s structure, so we cannot provide it for free. We appreciate your understanding.'
+        WHEN @ComplaintText LIKE N'%shrimp paste%' THEN N'While shrimp paste is a culinary specialty, its strong odor significantly affects neighbors. The fine remains to ensure the quality of common living spaces.'
+        WHEN @ComplaintText LIKE N'%Karaoke%' OR @ComplaintText LIKE N'%Buddhist chants%' THEN N'Any loud noise after 10:00 PM is considered a noise violation, regardless of the content. Please use headphones or reduce the volume.'
+        WHEN @ComplaintText LIKE N'%charge my EV%' OR @ComplaintText LIKE N'%EV%' THEN N'City Fire Safety regulations strictly prohibit charging EVs inside apartments. Please use the basement charging stations to ensure the safety of the entire building.'
+        WHEN @ComplaintText LIKE N'%cleaning%' OR @ComplaintText LIKE N'%glass%' OR @ComplaintText LIKE N'%transparent%' THEN N'Thank you for acknowledging our cleaning standards. However, please watch your step and observe carefully while moving to avoid injuries.'
+        WHEN @ComplaintText LIKE N'%drinking%' OR @ComplaintText LIKE N'%privacy%' THEN N'Security is simply following standard safety observation protocols. If you find it intrusive, we will remind the security team to adjust their approach.'
+        WHEN @ComplaintText LIKE N'%marbles%' OR @ComplaintText LIKE N'%dragging chairs%' THEN N'We will send a reminder to the upstairs residents to check their furniture movement at night.'
+        WHEN @ComplaintText LIKE N'%pet pig%' THEN N'Elevators are public areas; any odors caused by pets must be thoroughly addressed. This fee covers specialized professional disinfection services.'
+        WHEN @ComplaintText LIKE N'%water bill%' THEN N'A technician will check your water meter tomorrow morning. Please ensure someone is home at that time.'
+        WHEN @ComplaintText LIKE N'%cat rescue%' OR @ComplaintText LIKE N'%cat%' THEN N'The use of specialized equipment and technical staff incurs operational costs. This fee is regulated in our rescue service category.'
+        WHEN @ComplaintText LIKE N'%babysitting%' OR @ComplaintText LIKE N'%childcare%' THEN N'This is an after-hours support service provided by the receptionist and is not under direct building management. Please negotiate directly with the staff.'
+        WHEN @ComplaintText LIKE N'%mirrors%' OR @ComplaintText LIKE N'%check-in%' THEN N'We have received your feedback and will consider installing additional mirrors during the next quarterly maintenance. We wish you many great check-in photos!'
+        ELSE N'The Management Board has received your inquiry and is currently verifying the details. We will provide a formal response as soon as possible.'
     END;
 
-    -- 4. INSERT vào bảng Replies (Ngày Rep sau 1-2 ngày)
+    -- 4. INSERT into Replies table (Response time 24-48 hours later)
     INSERT INTO Replies (Content, ComplaintId, RepliedByUserId, CreatedAt)
     VALUES (
-        @ReplyContent + N' (Phản hồi từ Admin/Staff ID: ' + CAST(@StaffId AS NVARCHAR) + N')',
+        @ReplyContent + N' (Response from Admin/Staff ID: ' + CAST(@StaffId AS NVARCHAR) + N')',
         @ComplaintId,
         @StaffId,
-        DATEADD(HOUR, ABS(CHECKSUM(NEWID()) % 24) + 24, @CreatedAt) -- Cộng thêm 24-48 tiếng
+        DATEADD(HOUR, ABS(CHECKSUM(NEWID()) % 24) + 24, @CreatedAt) 
     );
 
     SET @ComplaintId = @ComplaintId + 1;
-END
+END;
 GO
 
 -- =============================================
@@ -3304,7 +3188,6 @@ BEGIN
     SET @BookingId = @BookingId + 1;
 END
 GO
-
 -- Payments table for VNPAY and other payment gateways
 CREATE TABLE Payments (
     Id INT IDENTITY(1,1) PRIMARY KEY,
@@ -3319,3 +3202,7 @@ CREATE TABLE Payments (
     CreatedAt DATETIME DEFAULT GETDATE()
 );
 GO
+
+UPDATE UtilitiesInvoices
+SET Status = 1
+WHERE Status = 0;

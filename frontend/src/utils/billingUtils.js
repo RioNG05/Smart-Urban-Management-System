@@ -15,6 +15,55 @@ export const CURRENCY_FORMATTER = new Intl.NumberFormat("vi-VN", {
   maximumFractionDigits: 0,
 });
 
+export const getServiceIcon = (serviceName) => {
+  const name = serviceName?.toLowerCase() || "";
+  
+  const icons = {
+    parking: "FaParking",
+    bbq: "FaHamburger",
+    electric: "FaBolt",
+    water: "FaTint",
+    shopping: "FaShoppingCart",
+    mall: "FaShoppingCart",
+    playground: "FaChild",
+    children: "FaChild",
+    gym: "FaDumbbell",
+    yoga: "FaDumbbell",
+    fitness: "FaDumbbell",
+    education: "FaGraduationCap",
+    school: "FaGraduationCap",
+    system: "FaGraduationCap",
+    hall: "FaUsers",
+    community: "FaUsers",
+    pool: "FaUmbrella",
+    swim: "FaUmbrella",
+    tennis: "FaTableTennis",
+    sport: "FaTableTennis",
+    golf: "FaGolfBall",
+    sauna: "FaSpa",
+    spa: "FaSpa",
+    repair: "FaTools",
+    fix: "FaTools"
+  };
+
+  const match = Object.keys(icons).find(key => name.includes(key));
+  return match ? icons[match] : "FaBuilding";
+};
+
+export const getBookingStatusLabel = (status) => {
+  const s = Number(status);
+  if (s === 1) return { key: "approved", label: "Approved" };
+  if (s === 2) return { key: "denied", label: "Denied" };
+  return { key: "pending", label: "Pending Approval" };
+};
+
+export const getPaymentStatusLabel = (status) => {
+  const s = Number(status || 0);
+  if (s === 1) return { key: "paid", label: "Paid" };
+  if (s === 2) return { key: "denied", label: "Rejected" };
+  return { key: "unpaid", label: "Unpaid" };
+};
+
 export const formatCurrency = (value) => CURRENCY_FORMATTER.format(Number(value || 0));
 
 const parseJavaDate = (val) => {
@@ -166,11 +215,11 @@ export const buildServiceBillFromBooking = (booking, invoice) => {
   const start = booking?.bookFrom ? parseJavaDate(booking.bookFrom) : null;
   const end = booking?.bookTo ? parseJavaDate(booking.bookTo) : null;
 
-  // Usage Date is the actual start of the service usage
-  const usageDate = start || createdAt;
+  const bookingCreatedAt = (booking?.bookAt || booking?.createdAt) ? parseJavaDate(booking.bookAt || booking.createdAt) : null;
+  const effectiveCreatedAt = createdAt || bookingCreatedAt;
 
-  // Primary display date in overview (usually usages date, or payment if usages is unknown)
-  const displayDate = usageDate || paymentDate || createdAt;
+  const usageDate = start || effectiveCreatedAt;
+  const displayDate = usageDate || paymentDate || effectiveCreatedAt;
 
   const totalAmount = Number(invoice?.amount ?? booking?.totalAmount ?? 0);
   const feePerUnit = Number(
@@ -179,14 +228,21 @@ export const buildServiceBillFromBooking = (booking, invoice) => {
     totalAmount
   );
 
-  // Calculate duration/quantity
+  // Calculate duration/quantity (Number of Hours)
   let quantity = 1;
   if (start && end) {
     const diffMs = end.getTime() - start.getTime();
-    quantity = Math.max(1, Math.round(diffMs / (1000 * 60 * 60))); // rounds to nearest hour
+    quantity = Math.max(1, Math.round(diffMs / (1000 * 60 * 60))); 
   }
 
-  const unitPrice = feePerUnit > 0 ? feePerUnit : totalAmount;
+  const unitPrice = feePerUnit;
+  const amount = totalAmount; // Reverting to raw data as requested
+
+  const bStatus = getBookingStatusLabel(booking?.status);
+  const pStatus = getPaymentStatusLabel(invoice?.status ?? booking?.status); // fallback to booking status if no invoice
+
+  const unitType = booking?.serviceResource?.service?.unitType ?? 
+                   booking?.service?.unitType ?? "";
 
   return {
     id: invoice?.id
@@ -201,15 +257,22 @@ export const buildServiceBillFromBooking = (booking, invoice) => {
     monthKey: displayDate
       ? getMonthKey(displayDate.getFullYear(), displayDate.getMonth() + 1)
       : "unknown",
-    createdAt: createdAt,
+    createdAt: createdAt || bookingCreatedAt,
     dueDate: displayDate,
     usageDate: usageDate,
-    paymentDate: paymentDate || (status.key === 'paid' ? createdAt : null), 
-    amount: totalAmount,
+    paymentDate: paymentDate || (pStatus.key === 'paid' ? createdAt : null), 
+    amount: amount,
     unitPrice: unitPrice,
+    unitType: unitType,
     quantity: quantity,
-    statusKey: status.key,
-    statusLabel: status.label,
+    bookFrom: start,
+    bookTo: end,
+    statusKey: pStatus.key,
+    statusLabel: pStatus.label,
+    bookingStatusKey: bStatus.key,
+    bookingStatusLabel: bStatus.label,
+    paymentStatusKey: pStatus.key,
+    paymentStatusLabel: pStatus.label,
   };
 };
 

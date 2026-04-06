@@ -141,12 +141,12 @@ function AuthForm() {
                 setLoginData({ ...loginData, password: e.target.value })
               }
             />
-            <span className="position-absolute top-50 end-0 translate-middle-y me-3" style={{ cursor: "pointer" }} onClick={handleShowPassword}>
-              {showPassword ? (
-                <LuEyeOff size={20} />
-              ) : (
-                <LuEye size={20} />
-              )}
+            <span
+              className="position-absolute top-50 end-0 translate-middle-y me-3"
+              style={{ cursor: "pointer" }}
+              onClick={handleShowPassword}
+            >
+              {showPassword ? <LuEyeOff size={20} /> : <LuEye size={20} />}
             </span>
           </div>
 
@@ -186,7 +186,7 @@ function AuthForm() {
 
           <input
             type="text"
-            placeholder="Full Name"
+            placeholder="Username"
             onChange={(e) =>
               setRegisterData({ ...registerData, name: e.target.value })
             }
@@ -207,12 +207,12 @@ function AuthForm() {
                 setRegisterData({ ...registerData, password: e.target.value })
               }
             />
-            <span className="position-absolute top-50 end-0 translate-middle-y me-3" style={{ cursor: "pointer" }} onClick={handleShowPassword}>
-              {showPassword ? (
-                <LuEyeOff size={20} />
-              ) : (
-                <LuEye size={20} />
-              )}
+            <span
+              className="position-absolute top-50 end-0 translate-middle-y me-3"
+              style={{ cursor: "pointer" }}
+              onClick={handleShowPassword}
+            >
+              {showPassword ? <LuEyeOff size={20} /> : <LuEye size={20} />}
             </span>
           </div>
           <div className="position-relative">
@@ -226,7 +226,11 @@ function AuthForm() {
                 })
               }
             />
-            <span className="position-absolute top-50 end-0 translate-middle-y me-3" style={{ cursor: "pointer" }} onClick={handleShowConfirmPassword}>
+            <span
+              className="position-absolute top-50 end-0 translate-middle-y me-3"
+              style={{ cursor: "pointer" }}
+              onClick={handleShowConfirmPassword}
+            >
               {showConfirmPassword ? (
                 <LuEyeOff size={20} />
               ) : (
