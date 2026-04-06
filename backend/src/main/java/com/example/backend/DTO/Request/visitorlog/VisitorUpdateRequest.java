@@ -1,16 +1,23 @@
 package com.example.backend.DTO.Request.visitorlog;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 @Data
 public class VisitorUpdateRequest {
 
-    @NotBlank(message = "Tên khách không được để trống")
+    @NotBlank(message = "Visitor name must not be blank")
     private String visitorName;
 
-    @NotBlank(message = "Số điện thoại không được để trống")
+    @NotBlank(message = "Identity card must not be blank")
+    private String identityCard;
+
+    @NotBlank(message = "Phone number must not be blank")
     private String phoneNumber;
+
+    @NotNull(message = "ApartmentId must not be null")
+    private Integer apartmentId;
 
     private String note;
 }

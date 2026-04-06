@@ -1,5 +1,6 @@
 package com.example.backend.Entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -36,5 +37,6 @@ public class StaffInfo {
     private Account account;
 
     @OneToMany(mappedBy = "createdByStaff")
+    @JsonIgnore
     private List<VisitorLog> visitorLogs;
 }

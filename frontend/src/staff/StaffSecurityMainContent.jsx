@@ -18,6 +18,7 @@ import {
 import { getUser } from "../services/authService";
 import api from "../services/api";
 import AdminPagination from "../components/common/AdminPagination";
+import { toast } from "react-toastify";
 
 const DATE_TIME_FORMATTER = new Intl.DateTimeFormat("en-GB", {
   day: "2-digit",
@@ -126,7 +127,7 @@ const extractVisitorsFromMalformedText = (text) => {
   if (typeof text !== "string") return [];
 
   const matches = text.matchAll(
-    /"id":(\d+),"visitorName":"((?:\\.|[^"\\])*)","phoneNumber":"((?:\\.|[^"\\])*)","apartment":\{"id":(\d+),"roomNumber":(\d+),"floorNumber":(\d+)/g,
+    /"id":(\d+),"visitorName":"((?:\\.|[^"\\])*)","identityCard":"((?:\\.|[^"\\])*)","phoneNumber":"((?:\\.|[^"\\])*)","apartment":\{"id":(\d+),"roomNumber":(\d+),"floorNumber":(\d+)/g,
   );
 
   const visitorMap = new Map();
@@ -136,6 +137,7 @@ const extractVisitorsFromMalformedText = (text) => {
       ,
       id,
       visitorName,
+      identityCard,
       phoneNumber,
       apartmentId,
       roomNumber,
@@ -146,6 +148,7 @@ const extractVisitorsFromMalformedText = (text) => {
       visitorMap.set(id, {
         id: Number(id),
         visitorName: decodeJsonStringValue(visitorName),
+        identityCard: decodeJsonStringValue(identityCard),
         phoneNumber: decodeJsonStringValue(phoneNumber),
         apartmentId: Number(apartmentId),
         apartment: {
@@ -211,10 +214,10 @@ const StaffSecurityMainContent = ({ activeTab }) => {
   const [visitors, setVisitors] = useState([]);
   const [apartments, setApartments] = useState([]);
   const [staffMembers, setStaffMembers] = useState([]);
-  const [debugInfo, setDebugInfo] = useState(null);
   const [editingVisitorId, setEditingVisitorId] = useState(null);
   const [visitorForm, setVisitorForm] = useState({
     visitorName: "",
+    identityCard: "",
     phoneNumber: "",
     apartmentId: "",
     staffId: "",
@@ -234,7 +237,6 @@ const StaffSecurityMainContent = ({ activeTab }) => {
     try {
       setIsLoading(true);
       setError("");
-      setDebugInfo(null);
 
       const visitorsRequest = api.get("/visitors", { skipAuth: true });
       const staffRequest = api.get("/staff", { skipAuth: true });
@@ -285,50 +287,6 @@ const StaffSecurityMainContent = ({ activeTab }) => {
       setVisitors(finalVisitorList);
       setApartments(apartmentList);
       setStaffMembers(staffList);
-      setDebugInfo({
-        visitorRequestStatus: visitorResult.status,
-        visitorRawType:
-          visitorResult.status === "fulfilled"
-            ? Array.isArray(visitorRawData)
-              ? "array"
-              : typeof visitorRawData
-            : "error",
-        visitorRawKeys:
-          visitorResult.status === "fulfilled" &&
-          visitorRawData &&
-          typeof visitorRawData === "object" &&
-          !Array.isArray(visitorRawData)
-            ? Object.keys(visitorRawData)
-            : [],
-        visitorRawPreview:
-          visitorResult.status === "fulfilled" && typeof visitorResult.value?.data === "string"
-            ? visitorResult.value.data.slice(0, 300)
-            : null,
-        visitorCount: finalVisitorList.length,
-        visitorRecoveredFromMalformed:
-          visitorList.length === 0 && fallbackVisitorList.length > 0,
-        apartmentRequestStatus: apartmentResult.status,
-        apartmentCount: apartmentList.length,
-        staffRequestStatus: staffResult.status,
-        staffCount: staffList.length,
-        staffRecoveredFromMalformed:
-          parsedStaffList.length === 0 && fallbackStaffList.length > 0,
-        firstVisitor:
-          finalVisitorList.length > 0
-            ? {
-                id: finalVisitorList[0]?.id ?? null,
-                visitorName: finalVisitorList[0]?.visitorName ?? null,
-                apartmentId:
-                  finalVisitorList[0]?.apartmentId ??
-                  finalVisitorList[0]?.apartment?.id ??
-                  null,
-                checkInTime:
-                  finalVisitorList[0]?.checkInTime ??
-                  finalVisitorList[0]?.createdAt ??
-                  null,
-              }
-            : null,
-      });
       setVisitorForm((current) => ({
         ...current,
         apartmentId: current.apartmentId || String(apartmentList[0]?.id ?? ""),
@@ -339,13 +297,6 @@ const StaffSecurityMainContent = ({ activeTab }) => {
         throw visitorResult.reason;
       }
     } catch (loadError) {
-      setDebugInfo({
-        visitorRequestStatus: "rejected",
-        loadErrorMessage:
-          loadError?.response?.data?.message ||
-          loadError?.message ||
-          "Unknown error",
-      });
       setError(
         loadError?.response?.data?.message ||
         "Unable to load visitor management data from backend.",
@@ -374,11 +325,12 @@ const StaffSecurityMainContent = ({ activeTab }) => {
   const handleCheckIn = async () => {
     if (
       !visitorForm.visitorName ||
+      !visitorForm.identityCard ||
       !visitorForm.phoneNumber ||
       !visitorForm.apartmentId ||
       !visitorForm.staffId
     ) {
-      setError("Please fill visitor name, phone number, apartment, and staff.");
+      setError("Please fill visitor name, identity card, phone number, apartment, and staff.");
       setSuccess("");
       return;
     }
@@ -390,6 +342,7 @@ const StaffSecurityMainContent = ({ activeTab }) => {
 
       const payload = {
         visitorName: visitorForm.visitorName,
+        identityCard: visitorForm.identityCard,
         phoneNumber: visitorForm.phoneNumber,
         apartmentId: Number(visitorForm.apartmentId),
         staffId: Number(visitorForm.staffId),
@@ -413,6 +366,7 @@ const StaffSecurityMainContent = ({ activeTab }) => {
           {
             id: `temp-${Date.now()}`,
             visitorName: payload.visitorName,
+            identityCard: payload.identityCard,
             phoneNumber: payload.phoneNumber,
             apartmentId: payload.apartmentId,
             apartment: apartmentMap.get(String(payload.apartmentId)) ?? null,
@@ -425,14 +379,20 @@ const StaffSecurityMainContent = ({ activeTab }) => {
       }
 
       setSuccess("Visitor check-in has been saved to backend.");
+      toast.success("Visitor check-in saved successfully.");
       setVisitorForm((current) => ({
         ...current,
         visitorName: "",
+        identityCard: "",
         phoneNumber: "",
         note: "",
       }));
       setShowCreateForm(false);
     } catch (submitError) {
+      toast.error(
+        submitError?.response?.data?.message ||
+        "Could not save visitor check-in to backend.",
+      );
       setError(
         submitError?.response?.data?.message ||
         "Could not save visitor check-in to backend.",
@@ -447,6 +407,7 @@ const StaffSecurityMainContent = ({ activeTab }) => {
     setEditingVisitorId(visitor.id);
     setVisitorForm({
       visitorName: visitor?.visitorName ?? "",
+      identityCard: visitor?.identityCard ?? "",
       phoneNumber: visitor?.phoneNumber ?? "",
       apartmentId: String(
         visitor?.apartmentId ?? visitor?.apartment?.id ?? apartments[0]?.id ?? "",
@@ -464,6 +425,7 @@ const StaffSecurityMainContent = ({ activeTab }) => {
     setVisitorForm((current) => ({
       ...current,
       visitorName: "",
+      identityCard: "",
       phoneNumber: "",
       note: "",
       apartmentId: String(apartments[0]?.id ?? current.apartmentId ?? ""),
@@ -481,7 +443,9 @@ const StaffSecurityMainContent = ({ activeTab }) => {
 
       const payload = {
         visitorName: visitorForm.visitorName,
+        identityCard: visitorForm.identityCard,
         phoneNumber: visitorForm.phoneNumber,
+        apartmentId: Number(visitorForm.apartmentId),
         note: visitorForm.note,
       };
 
@@ -499,7 +463,10 @@ const StaffSecurityMainContent = ({ activeTab }) => {
             ? {
                 ...visitor,
                 visitorName: payload.visitorName,
+                identityCard: payload.identityCard,
                 phoneNumber: payload.phoneNumber,
+                apartmentId: payload.apartmentId,
+                apartment: apartmentMap.get(String(payload.apartmentId)) ?? visitor.apartment ?? null,
                 note: payload.note,
               }
             : visitor,
@@ -507,9 +474,14 @@ const StaffSecurityMainContent = ({ activeTab }) => {
       );
 
       setSuccess("Visitor record updated.");
+      toast.success("Visitor updated successfully.");
       resetVisitorForm();
       setShowCreateForm(false);
     } catch (updateError) {
+      toast.error(
+        updateError?.response?.data?.message ||
+        "Could not update visitor record.",
+      );
       setError(
         updateError?.response?.data?.message ||
         "Could not update visitor record.",
@@ -529,11 +501,16 @@ const StaffSecurityMainContent = ({ activeTab }) => {
       }
       setVisitors((current) => current.filter((visitor) => visitor.id !== visitorId));
       setSuccess("Visitor record deleted.");
+      toast.success("Visitor deleted successfully.");
       if (editingVisitorId === visitorId) {
         resetVisitorForm();
         setShowCreateForm(false);
       }
     } catch (deleteError) {
+      toast.error(
+        deleteError?.response?.data?.message ||
+        "Could not delete visitor record.",
+      );
       setError(
         deleteError?.response?.data?.message ||
         "Could not delete visitor record.",
@@ -616,28 +593,6 @@ const StaffSecurityMainContent = ({ activeTab }) => {
             </div>
           ) : null}
 
-          {debugInfo ? (
-            <div
-              style={{
-                marginBottom: "20px",
-                padding: "16px 18px",
-                borderRadius: "12px",
-                background: "#0f172a",
-                color: "#e2e8f0",
-                fontSize: "12px",
-                lineHeight: 1.6,
-                overflowX: "auto",
-              }}
-            >
-              <strong style={{ display: "block", marginBottom: "8px", color: "#93c5fd" }}>
-                Visitor Debug
-              </strong>
-              <pre style={{ margin: 0, whiteSpace: "pre-wrap", fontFamily: "Consolas, monospace" }}>
-                {JSON.stringify(debugInfo, null, 2)}
-              </pre>
-            </div>
-          ) : null}
-
           {/* FORM SECTION - ISSUING ENTRY */}
           {showCreateForm && (
             <div
@@ -703,6 +658,21 @@ const StaffSecurityMainContent = ({ activeTab }) => {
                       setVisitorForm((current) => ({
                         ...current,
                         visitorName: event.target.value,
+                      }))
+                    }
+                  />
+                </div>
+                <div className="form-group">
+                  <label style={{ fontSize: '11px', color: 'var(--admin-text-muted)' }}>IDENTITY CARD / PASSPORT</label>
+                  <input
+                    className="professional-form-input"
+                    type="text"
+                    placeholder="Enter ID card or passport..."
+                    value={visitorForm.identityCard}
+                    onChange={(event) =>
+                      setVisitorForm((current) => ({
+                        ...current,
+                        identityCard: event.target.value,
                       }))
                     }
                   />
@@ -775,7 +745,6 @@ const StaffSecurityMainContent = ({ activeTab }) => {
                     borderRadius: '16px',
                     letterSpacing: '0.5px'
                   }}
-                  onClick={handleCheckIn}
                   disabled={
                     isSubmitting ||
                     isLoading ||
@@ -808,6 +777,7 @@ const StaffSecurityMainContent = ({ activeTab }) => {
                 <thead>
                   <tr>
                     <th>Visitor Name</th>
+                    <th>Identity Card</th>
                     <th>Phone Number</th>
                     <th>Apartment</th>
                     <th>Purpose / Note</th>
@@ -819,7 +789,7 @@ const StaffSecurityMainContent = ({ activeTab }) => {
                   {isLoading ? (
                     <tr>
                       <td
-                        colSpan="6"
+                        colSpan="7"
                         style={{ textAlign: "center", padding: "40px" }}
                       >
                         Loading visitor logs from backend...
@@ -828,7 +798,7 @@ const StaffSecurityMainContent = ({ activeTab }) => {
                   ) : visitors.length === 0 ? (
                     <tr>
                       <td
-                        colSpan="6"
+                        colSpan="7"
                         style={{ textAlign: "center", padding: "40px" }}
                       >
                         No visitor logs found in backend.
@@ -845,6 +815,7 @@ const StaffSecurityMainContent = ({ activeTab }) => {
                           <td>
                             <strong>{visitor.visitorName}</strong>
                           </td>
+                          <td>{visitor.identityCard || "N/A"}</td>
                           <td>{visitor.phoneNumber || "N/A"}</td>
                           <td>
                             {apartment

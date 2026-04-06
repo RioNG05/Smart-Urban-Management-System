@@ -10,6 +10,7 @@ import {
   markAllNotificationsAsRead,
   markNotificationAsRead,
 } from "../../services/notificationService";
+import { canAccessAdminSection, getDefaultAdminPath } from "../../admin/adminAccess";
 import logoImg from "../../assets/logo.jpg";
 
 export default function Navbar({ solid = false }) {
@@ -25,7 +26,7 @@ export default function Navbar({ solid = false }) {
   const location = useLocation();
   const handleNavigation = (path) => {
     navigate(path);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
   const menuRef = useRef(null);
   const hasLoadedNotificationsRef = useRef(false);
@@ -114,7 +115,9 @@ export default function Navbar({ solid = false }) {
 
         if (hasLoadedNotificationsRef.current) {
           notificationItems
-            .filter((item) => !item.isRead && !notifiedIdsRef.current.has(item.id))
+            .filter(
+              (item) => !item.isRead && !notifiedIdsRef.current.has(item.id),
+            )
             .slice(0, 3)
             .forEach((item) => {
               notifiedIdsRef.current.add(item.id);
@@ -208,7 +211,12 @@ export default function Navbar({ solid = false }) {
         {/* LOGO */}
         <div className="nav-logo" onClick={() => handleNavigation("/")}>
           <img src={logoImg} alt="VINAHOUSES Logo" className="nav-logoImg" />
-          <span className="nav-logoText" style={isBillingPage ? { color: "#111" } : {}}>VINAHOUSE</span>
+          <span
+            className="nav-logoText"
+            style={isBillingPage ? { color: "#111" } : {}}
+          >
+            VINAHOUSE
+          </span>
         </div>
 
         <ul className="nav-links">
@@ -271,9 +279,13 @@ export default function Navbar({ solid = false }) {
 
                     <div className="notification-dropdown__list">
                       {loadingNotifications ? (
-                        <div className="notification-empty">Loading notifications...</div>
+                        <div className="notification-empty">
+                          Loading notifications...
+                        </div>
                       ) : notifications.length === 0 ? (
-                        <div className="notification-empty">No notifications yet.</div>
+                        <div className="notification-empty">
+                          No notifications yet.
+                        </div>
                       ) : (
                         notifications.slice(0, 8).map((item) => (
                           <button
@@ -284,10 +296,14 @@ export default function Navbar({ solid = false }) {
                           >
                             <div className="notification-item__top">
                               <strong>{item.title}</strong>
-                              {!item.isRead && <span className="notification-dot" />}
+                              {!item.isRead && (
+                                <span className="notification-dot" />
+                              )}
                             </div>
                             <p>{item.message}</p>
-                            <span>{formatNotificationTime(item.createdDate)}</span>
+                            <span>
+                              {formatNotificationTime(item.createdDate)}
+                            </span>
                           </button>
                         ))
                       )}
@@ -334,10 +350,10 @@ export default function Navbar({ solid = false }) {
                       )}
                     </div>
 
-                    {role === "MANAGER" && (
+                    {canAccessAdminSection(role, "dashboard") && (
                       <div
                         className="dropdown-item"
-                        onClick={() => navigate("/admin")}
+                        onClick={() => navigate(getDefaultAdminPath(role))}
                       >
                         Dashboard
                       </div>
@@ -373,7 +389,10 @@ export default function Navbar({ solid = false }) {
             )}
           </div>
 
-          <button className="nav-btn" onClick={() => handleNavigation("/projects")}>
+          <button
+            className="nav-btn"
+            onClick={() => handleNavigation("/projects")}
+          >
             Explore
           </button>
         </div>
