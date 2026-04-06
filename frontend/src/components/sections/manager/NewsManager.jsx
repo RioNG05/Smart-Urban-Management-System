@@ -17,6 +17,7 @@ import {
   updateNews,
   uploadNewsImage,
 } from "../../../services/newsService";
+import { canManageNews, isStaffPortalRole } from "../../../admin/adminAccess";
 
 const initialForm = {
   title: "",
@@ -25,7 +26,8 @@ const initialForm = {
 };
 
 const NewsManager = () => {
-  const { user } = useAuth();
+  const { user, role } = useAuth();
+  const readOnly = isStaffPortalRole(role) && !canManageNews(role);
   const fileInputRef = useRef(null);
   const [articles, setArticles] = useState([]);
   const [formData, setFormData] = useState(initialForm);
@@ -220,6 +222,8 @@ const NewsManager = () => {
   };
 
   const handleCreateClick = () => {
+    if (readOnly) return;
+
     setFormData(initialForm);
     setSelectedImageFile(null);
     setImagePreviewUrl("");
@@ -233,6 +237,8 @@ const NewsManager = () => {
   };
 
   const handleEdit = (article) => {
+    if (readOnly) return;
+
     setEditingId(article.id);
     setFormData({
       title: article.title ?? "",
@@ -250,6 +256,8 @@ const NewsManager = () => {
   };
 
   const handleDelete = async (articleId) => {
+    if (readOnly) return;
+
     if (!window.confirm("Are you sure you want to delete this article?")) {
       return;
     }
@@ -305,15 +313,17 @@ const NewsManager = () => {
           >
             {articles.length} ARTICLES
           </div>
-          <button
-            type="button"
-            className="admin-btn-add"
-            onClick={handleCreateClick}
-            style={{ display: "inline-flex", alignItems: "center", gap: "10px" }}
-          >
-            <FaPlus />
-            Create
-          </button>
+          {!readOnly ? (
+            <button
+              type="button"
+              className="admin-btn-add"
+              onClick={handleCreateClick}
+              style={{ display: "inline-flex", alignItems: "center", gap: "10px" }}
+            >
+              <FaPlus />
+              Create
+            </button>
+          ) : null}
           <button
             className="action-btn-styled"
             onClick={loadArticles}
@@ -332,8 +342,14 @@ const NewsManager = () => {
         </div>
       </div>
 
+      {readOnly ? (
+        <div className="admin-feedback" style={{ marginBottom: "24px", borderRadius: "14px" }}>
+          You do not have permission to edit news. This screen is available in view-only mode.
+        </div>
+      ) : null}
+
       <div className="service-manager-layout">
-        {isFormVisible ? (
+        {!readOnly && isFormVisible ? (
           <section className="staff-form-container service-manager-form-card">
             <div
               style={{
@@ -507,7 +523,9 @@ const NewsManager = () => {
                   <th style={{ width: "46%" }}>ARTICLE</th>
                   <th style={{ width: "20%" }}>AUTHOR</th>
                   <th style={{ width: "14%" }}>UPDATED</th>
-                  <th style={{ width: "20%" }}>ACTION</th>
+                  <th style={{ width: readOnly ? "10%" : "20%" }}>
+                    {readOnly ? "MODE" : "ACTION"}
+                  </th>
                 </tr>
               </thead>
               <tbody>
@@ -554,25 +572,29 @@ const NewsManager = () => {
                       <td>{article.author || "Vinhomes Team"}</td>
                       <td>{article.date || "Updating..."}</td>
                       <td>
-                        <div className="service-manager-action-group">
-                          <button
-                            type="button"
-                            className="action-btn-styled"
-                            title="Edit Article"
-                            onClick={() => handleEdit(article)}
-                          >
-                            <FaEdit />
-                          </button>
-                          <button
-                            type="button"
-                            className="action-btn-styled"
-                            title="Delete Article"
-                            style={{ color: "var(--admin-danger)" }}
-                            onClick={() => handleDelete(article.id)}
-                          >
-                            <FaTrash />
-                          </button>
-                        </div>
+                        {readOnly ? (
+                          <span className="status-badge badge-view">View only</span>
+                        ) : (
+                          <div className="service-manager-action-group">
+                            <button
+                              type="button"
+                              className="action-btn-styled"
+                              title="Edit Article"
+                              onClick={() => handleEdit(article)}
+                            >
+                              <FaEdit />
+                            </button>
+                            <button
+                              type="button"
+                              className="action-btn-styled"
+                              title="Delete Article"
+                              style={{ color: "var(--admin-danger)" }}
+                              onClick={() => handleDelete(article.id)}
+                            >
+                              <FaTrash />
+                            </button>
+                          </div>
+                        )}
                       </td>
                     </tr>
                   ))
