@@ -2,6 +2,7 @@ import AuthLayout from "../components/sections/auth/AuthLayout";
 import AuthForm from "../components/sections/auth/AuthForm";
 import { useAuth } from "../components/sections/auth/AuthContext";
 import { Navigate } from "react-router-dom";
+import { getDefaultAdminPath } from "../admin/adminAccess";
 import "../styles/auth.css";
 
 function AuthPage() {
@@ -9,12 +10,12 @@ function AuthPage() {
 
   const roleDashboard = {
     ADMIN: "/admin",
-    MANAGER: "/admin",
+    MANAGER: getDefaultAdminPath("MANAGER"),
     RESIDENT: "/",
-    STAFF_APARTMENT: "/staff/apartment",
-    STAFF_SERVICE: "/staff/service",
-    STAFF_SECURITY: "/staff/security",
-    STAFF: "/staff/apartment",
+    STAFF_APARTMENT: getDefaultAdminPath("STAFF_APARTMENT"),
+    STAFF_SERVICE: getDefaultAdminPath("STAFF_SERVICE"),
+    STAFF_SECURITY: getDefaultAdminPath("STAFF_SECURITY"),
+    STAFF: getDefaultAdminPath("STAFF"),
   };
 
   if (user) {

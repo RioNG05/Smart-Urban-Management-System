@@ -4,6 +4,7 @@ import { toast } from "react-toastify";
 import { motion, AnimatePresence } from "framer-motion";
 import { FaTimes } from "react-icons/fa";
 import { useAuth } from "../auth/AuthContext";
+import { createNotification } from "../../../services/notificationService";
 
 export default function ComplaintModal({ open, setOpen, onSuccess }) {
   const [content, setContent] = useState("");
@@ -28,6 +29,21 @@ export default function ComplaintModal({ open, setOpen, onSuccess }) {
         content: trimmedContent,
         userId,
       });
+
+      try {
+        const requesterLabel =
+          user?.fullName || user?.username || user?.email || `account #${userId}`;
+
+        await createNotification({
+          targetRole: "MANAGER",
+          title: "New complaint submitted",
+          message: `${requesterLabel} submitted a new complaint. Open Complaints to review and respond.`,
+          type: "COMPLAINT_REVIEW_REQUIRED",
+          relatedUrl: "/admin/complaints",
+        });
+      } catch (notificationError) {
+        console.error("Failed to create admin complaint notification", notificationError);
+      }
 
       setContent("");
       setOpen(false);

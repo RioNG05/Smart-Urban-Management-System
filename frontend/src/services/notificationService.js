@@ -32,6 +32,13 @@ export const getNotificationsByUser = async (userId) => {
   return toArray(getPayload(res.data)).map(normalizeNotification);
 };
 
+export const getNotificationsByRole = async (role) => {
+  if (!role) return [];
+
+  const res = await api.get(`/notifications/role/${role}`);
+  return toArray(getPayload(res.data)).map(normalizeNotification);
+};
+
 export const createNotification = async (payload = {}) => {
   const res = await api.post("/notifications", {
     receiverId: payload.receiverId ?? null,

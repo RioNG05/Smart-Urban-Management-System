@@ -18,6 +18,8 @@ import BookingPage from "../pages/BookingPage";
 
 // --- ADMIN SYSTEM ---
 import { AdminLayout, Dashboard } from "../admin/AdminCore";
+import AdminRouteGuard from "../admin/AdminRouteGuard";
+import { ADMIN_PORTAL_ROLES } from "../admin/adminAccess";
 import {
   PermissionManager,
   ResidentAccount,
@@ -112,28 +114,28 @@ function AppRoutes() {
         <Route
           path="/admin"
           element={
-            <PrivateRoute roles={["manager"]}>
+            <PrivateRoute roles={ADMIN_PORTAL_ROLES}>
               <AdminLayout />
             </PrivateRoute>
           }
         >
-          <Route index element={<Dashboard />} />
-          <Route path="roles" element={<PermissionManager />} />
-          <Route path="resident-account" element={<ResidentAccount />} />
-    <Route path="stay-history" element={<StayHistoryManager />} />
-    <Route path="accounts" element={<AccountManager />} />
-    <Route path="contracts" element={<ContractManagement />} />
-    <Route path="apartment-layout" element={<ApartmentLayout />} />
-          <Route path="apartment-types" element={<ApartmentTypeManager />} />
-          <Route path="utilities-invoices" element={<UtilitiesInvoiceManager />} />
+          <Route index element={<AdminRouteGuard section="dashboard"><Dashboard /></AdminRouteGuard>} />
+          <Route path="roles" element={<AdminRouteGuard section="roles"><PermissionManager /></AdminRouteGuard>} />
+          <Route path="resident-account" element={<AdminRouteGuard section="residentAccount"><ResidentAccount /></AdminRouteGuard>} />
+          <Route path="stay-history" element={<AdminRouteGuard section="stayHistory"><StayHistoryManager /></AdminRouteGuard>} />
+          <Route path="accounts" element={<AdminRouteGuard section="accounts"><AccountManager /></AdminRouteGuard>} />
+          <Route path="contracts" element={<AdminRouteGuard section="contracts"><ContractManagement /></AdminRouteGuard>} />
+          <Route path="apartment-layout" element={<AdminRouteGuard section="apartmentLayout"><ApartmentLayout /></AdminRouteGuard>} />
+          <Route path="apartment-types" element={<AdminRouteGuard section="apartmentTypes"><ApartmentTypeManager /></AdminRouteGuard>} />
+          <Route path="utilities-invoices" element={<AdminRouteGuard section="utilitiesInvoices"><UtilitiesInvoiceManager /></AdminRouteGuard>} />
 
           {/* Service & Security routes */}
-          <Route path="services" element={<ServiceManager />} />
-          <Route path="news" element={<NewsManager />} />
-          <Route path="bookings" element={<BookingManager />} />
-          <Route path="service-fees" element={<ServiceFeeStats />} />
-          <Route path="complaints" element={<ComplaintManager />} />
-          <Route path="visitors" element={<VisitorManager />} />
+          <Route path="services" element={<AdminRouteGuard section="services"><ServiceManager /></AdminRouteGuard>} />
+          <Route path="news" element={<AdminRouteGuard section="news"><NewsManager /></AdminRouteGuard>} />
+          <Route path="bookings" element={<AdminRouteGuard section="bookings"><BookingManager /></AdminRouteGuard>} />
+          <Route path="service-fees" element={<AdminRouteGuard section="serviceFees"><ServiceFeeStats /></AdminRouteGuard>} />
+          <Route path="complaints" element={<AdminRouteGuard section="complaints"><ComplaintManager /></AdminRouteGuard>} />
+          <Route path="visitors" element={<AdminRouteGuard section="visitors"><VisitorManager /></AdminRouteGuard>} />
         </Route>
 
         {/* --- STAFF SYSTEM --- */}

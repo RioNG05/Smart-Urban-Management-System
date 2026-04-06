@@ -12,9 +12,11 @@ import {
 import { getApartments } from "../services/apartmentService";
 import {
   createVisitor,
-  getAllStaff,
-  getAllVisitors,
+  deleteVisitorById,
+  updateVisitorById,
 } from "../services/adminService";
+import { getUser } from "../services/authService";
+import api from "../services/api";
 import AdminPagination from "../components/common/AdminPagination";
 
 const DATE_TIME_FORMATTER = new Intl.DateTimeFormat("en-GB", {
@@ -32,10 +34,185 @@ const formatDateTime = (value) => {
   return DATE_TIME_FORMATTER.format(parsed);
 };
 
+const toSafeArray = (value) => (Array.isArray(value) ? value : []);
+
+const extractFirstJsonBlock = (text) => {
+  if (typeof text !== "string") return text;
+
+  const source = text.trim().replace(/^\uFEFF/, "");
+  const startChar = source[0];
+
+  if (startChar !== "[" && startChar !== "{") {
+    return text;
+  }
+
+  const closingChar = startChar === "[" ? "]" : "}";
+  let depth = 0;
+  let inString = false;
+  let escaped = false;
+
+  for (let index = 0; index < source.length; index += 1) {
+    const char = source[index];
+
+    if (inString) {
+      if (escaped) {
+        escaped = false;
+      } else if (char === "\\") {
+        escaped = true;
+      } else if (char === "\"") {
+        inString = false;
+      }
+      continue;
+    }
+
+    if (char === "\"") {
+      inString = true;
+      continue;
+    }
+
+    if (char === startChar) {
+      depth += 1;
+      continue;
+    }
+
+    if (char === closingChar) {
+      depth -= 1;
+
+      if (depth === 0) {
+        return source.slice(0, index + 1);
+      }
+    }
+  }
+
+  return source;
+};
+
+const parseJsonString = (value) => {
+  if (typeof value !== "string") return value;
+
+  try {
+    return JSON.parse(value.trim().replace(/^\uFEFF/, ""));
+  } catch {
+    try {
+      return JSON.parse(extractFirstJsonBlock(value));
+    } catch {
+      return value;
+    }
+  }
+};
+
+const extractCollection = (payload) => {
+  const normalizedPayload = parseJsonString(payload);
+
+  if (Array.isArray(normalizedPayload)) return normalizedPayload;
+  if (Array.isArray(normalizedPayload?.result)) return normalizedPayload.result;
+  if (Array.isArray(normalizedPayload?.content)) return normalizedPayload.content;
+  if (Array.isArray(normalizedPayload?.data)) return normalizedPayload.data;
+  if (Array.isArray(normalizedPayload?.items)) return normalizedPayload.items;
+  return [];
+};
+
+const decodeJsonStringValue = (value) => {
+  if (typeof value !== "string") return value;
+
+  try {
+    return JSON.parse(`"${value.replace(/\\/g, "\\\\").replace(/"/g, '\\"')}"`);
+  } catch {
+    return value;
+  }
+};
+
+const extractVisitorsFromMalformedText = (text) => {
+  if (typeof text !== "string") return [];
+
+  const matches = text.matchAll(
+    /"id":(\d+),"visitorName":"((?:\\.|[^"\\])*)","phoneNumber":"((?:\\.|[^"\\])*)","apartment":\{"id":(\d+),"roomNumber":(\d+),"floorNumber":(\d+)/g,
+  );
+
+  const visitorMap = new Map();
+
+  for (const match of matches) {
+    const [
+      ,
+      id,
+      visitorName,
+      phoneNumber,
+      apartmentId,
+      roomNumber,
+      floorNumber,
+    ] = match;
+
+    if (!visitorMap.has(id)) {
+      visitorMap.set(id, {
+        id: Number(id),
+        visitorName: decodeJsonStringValue(visitorName),
+        phoneNumber: decodeJsonStringValue(phoneNumber),
+        apartmentId: Number(apartmentId),
+        apartment: {
+          id: Number(apartmentId),
+          roomNumber: Number(roomNumber),
+          floorNumber: Number(floorNumber),
+        },
+        note: "",
+      });
+    }
+  }
+
+  return Array.from(visitorMap.values());
+};
+
+const extractStaffFromMalformedText = (text) => {
+  if (typeof text !== "string") return [];
+
+  const matches = text.matchAll(
+    /"id":(\d+),"fullName":"((?:\\.|[^"\\])*)","gender":"((?:\\.|[^"\\])*)","dateOfBirth":"([^"]*)","identityId":"([^"]*)","account":\{"id":(\d+)/g,
+  );
+
+  const staffMap = new Map();
+
+  for (const match of matches) {
+    const [, id, fullName, gender, dateOfBirth, identityId, accountId] = match;
+
+    if (!staffMap.has(id)) {
+      staffMap.set(id, {
+        id: Number(id),
+        fullName: decodeJsonStringValue(fullName),
+        gender: decodeJsonStringValue(gender),
+        dateOfBirth,
+        identityId,
+        account: {
+          id: Number(accountId),
+        },
+      });
+    }
+  }
+
+  return Array.from(staffMap.values());
+};
+
+const getCurrentStaffId = (staffList) => {
+  const currentUser = getUser();
+  const currentAccountId = currentUser?.id;
+
+  if (!currentAccountId) {
+    return staffList[0]?.id ? String(staffList[0].id) : "";
+  }
+
+  const matchedStaff = staffList.find(
+    (staff) => String(staff?.account?.id ?? "") === String(currentAccountId),
+  );
+
+  return matchedStaff?.id
+    ? String(matchedStaff.id)
+    : (staffList[0]?.id ? String(staffList[0].id) : "");
+};
+
 const StaffSecurityMainContent = ({ activeTab }) => {
   const [visitors, setVisitors] = useState([]);
   const [apartments, setApartments] = useState([]);
   const [staffMembers, setStaffMembers] = useState([]);
+  const [debugInfo, setDebugInfo] = useState(null);
+  const [editingVisitorId, setEditingVisitorId] = useState(null);
   const [visitorForm, setVisitorForm] = useState({
     visitorName: "",
     phoneNumber: "",
@@ -50,26 +227,125 @@ const StaffSecurityMainContent = ({ activeTab }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [showCreateForm, setShowCreateForm] = useState(false);
 
+  const isMalformedResponseSuccess = (error) =>
+    String(error?.response?.data?.message ?? "").includes("Could not write JSON");
+
   const loadVisitors = async () => {
     try {
       setIsLoading(true);
       setError("");
+      setDebugInfo(null);
 
-      const [visitorList, apartmentList, staffList] = await Promise.all([
-        getAllVisitors(),
+      const visitorsRequest = api.get("/visitors", { skipAuth: true });
+      const staffRequest = api.get("/staff", { skipAuth: true });
+      const [visitorResult, apartmentResult, staffResult] = await Promise.allSettled([
+        visitorsRequest,
         getApartments(),
-        getAllStaff(),
+        staffRequest,
       ]);
 
-      setVisitors(visitorList);
+      const visitorRawText =
+        visitorResult.status === "fulfilled" &&
+        typeof visitorResult.value?.data === "string"
+          ? visitorResult.value.data
+          : null;
+      const staffRawText =
+        staffResult.status === "fulfilled" &&
+        typeof staffResult.value?.data === "string"
+          ? staffResult.value.data
+          : null;
+      const visitorRawData =
+        visitorResult.status === "fulfilled"
+          ? parseJsonString(visitorResult.value?.data)
+          : null;
+      const apartmentRawData =
+        apartmentResult.status === "fulfilled"
+          ? parseJsonString(apartmentResult.value)
+          : null;
+      const staffRawData =
+        staffResult.status === "fulfilled"
+          ? parseJsonString(staffResult.value)
+          : null;
+
+      const visitorList = toSafeArray(extractCollection(visitorRawData));
+      const apartmentList = toSafeArray(
+        apartmentResult.status === "fulfilled" ? apartmentRawData : [],
+      );
+      const parsedStaffList = toSafeArray(
+        staffResult.status === "fulfilled" ? extractCollection(staffRawData) : [],
+      );
+      const fallbackVisitorList =
+        visitorList.length === 0 ? extractVisitorsFromMalformedText(visitorRawText) : [];
+      const fallbackStaffList =
+        parsedStaffList.length === 0 ? extractStaffFromMalformedText(staffRawText) : [];
+      const finalVisitorList = visitorList.length > 0 ? visitorList : fallbackVisitorList;
+      const staffList = parsedStaffList.length > 0 ? parsedStaffList : fallbackStaffList;
+      const currentStaffId = getCurrentStaffId(staffList);
+
+      setVisitors(finalVisitorList);
       setApartments(apartmentList);
       setStaffMembers(staffList);
+      setDebugInfo({
+        visitorRequestStatus: visitorResult.status,
+        visitorRawType:
+          visitorResult.status === "fulfilled"
+            ? Array.isArray(visitorRawData)
+              ? "array"
+              : typeof visitorRawData
+            : "error",
+        visitorRawKeys:
+          visitorResult.status === "fulfilled" &&
+          visitorRawData &&
+          typeof visitorRawData === "object" &&
+          !Array.isArray(visitorRawData)
+            ? Object.keys(visitorRawData)
+            : [],
+        visitorRawPreview:
+          visitorResult.status === "fulfilled" && typeof visitorResult.value?.data === "string"
+            ? visitorResult.value.data.slice(0, 300)
+            : null,
+        visitorCount: finalVisitorList.length,
+        visitorRecoveredFromMalformed:
+          visitorList.length === 0 && fallbackVisitorList.length > 0,
+        apartmentRequestStatus: apartmentResult.status,
+        apartmentCount: apartmentList.length,
+        staffRequestStatus: staffResult.status,
+        staffCount: staffList.length,
+        staffRecoveredFromMalformed:
+          parsedStaffList.length === 0 && fallbackStaffList.length > 0,
+        firstVisitor:
+          finalVisitorList.length > 0
+            ? {
+                id: finalVisitorList[0]?.id ?? null,
+                visitorName: finalVisitorList[0]?.visitorName ?? null,
+                apartmentId:
+                  finalVisitorList[0]?.apartmentId ??
+                  finalVisitorList[0]?.apartment?.id ??
+                  null,
+                checkInTime:
+                  finalVisitorList[0]?.checkInTime ??
+                  finalVisitorList[0]?.createdAt ??
+                  null,
+              }
+            : null,
+      });
       setVisitorForm((current) => ({
         ...current,
         apartmentId: current.apartmentId || String(apartmentList[0]?.id ?? ""),
-        staffId: current.staffId || String(staffList[0]?.id ?? ""),
+        staffId: current.staffId || currentStaffId,
       }));
+
+      if (visitorResult.status === "rejected") {
+        throw visitorResult.reason;
+      }
     } catch (loadError) {
+      setDebugInfo({
+        visitorRequestStatus: "rejected",
+        loadErrorMessage:
+          loadError?.response?.data?.message ||
+          loadError?.message ||
+          "Unknown error",
+      });
       setError(
         loadError?.response?.data?.message ||
         "Unable to load visitor management data from backend.",
@@ -95,11 +371,6 @@ const StaffSecurityMainContent = ({ activeTab }) => {
     [apartments],
   );
 
-  const staffMap = useMemo(
-    () => new Map(staffMembers.map((staff) => [String(staff.id), staff])),
-    [staffMembers],
-  );
-
   const handleCheckIn = async () => {
     if (
       !visitorForm.visitorName ||
@@ -117,13 +388,41 @@ const StaffSecurityMainContent = ({ activeTab }) => {
       setError("");
       setSuccess("");
 
-      await createVisitor({
+      const payload = {
         visitorName: visitorForm.visitorName,
         phoneNumber: visitorForm.phoneNumber,
         apartmentId: Number(visitorForm.apartmentId),
         staffId: Number(visitorForm.staffId),
         note: visitorForm.note,
-      });
+      };
+
+      let createdVisitor = null;
+
+      try {
+        createdVisitor = await createVisitor(payload);
+      } catch (requestError) {
+        if (!isMalformedResponseSuccess(requestError)) {
+          throw requestError;
+        }
+      }
+
+      if (createdVisitor?.id) {
+        setVisitors((current) => [createdVisitor, ...current]);
+      } else {
+        setVisitors((current) => [
+          {
+            id: `temp-${Date.now()}`,
+            visitorName: payload.visitorName,
+            phoneNumber: payload.phoneNumber,
+            apartmentId: payload.apartmentId,
+            apartment: apartmentMap.get(String(payload.apartmentId)) ?? null,
+            note: payload.note,
+            checkInTime: new Date().toISOString(),
+            isTemporary: true,
+          },
+          ...current,
+        ]);
+      }
 
       setSuccess("Visitor check-in has been saved to backend.");
       setVisitorForm((current) => ({
@@ -132,7 +431,7 @@ const StaffSecurityMainContent = ({ activeTab }) => {
         phoneNumber: "",
         note: "",
       }));
-      await loadVisitors();
+      setShowCreateForm(false);
     } catch (submitError) {
       setError(
         submitError?.response?.data?.message ||
@@ -141,6 +440,105 @@ const StaffSecurityMainContent = ({ activeTab }) => {
       setSuccess("");
     } finally {
       setIsSubmitting(false);
+    }
+  };
+
+  const startEditingVisitor = (visitor) => {
+    setEditingVisitorId(visitor.id);
+    setVisitorForm({
+      visitorName: visitor?.visitorName ?? "",
+      phoneNumber: visitor?.phoneNumber ?? "",
+      apartmentId: String(
+        visitor?.apartmentId ?? visitor?.apartment?.id ?? apartments[0]?.id ?? "",
+      ),
+      staffId: String(visitorForm.staffId || getCurrentStaffId(staffMembers)),
+      note: visitor?.note ?? "",
+    });
+    setShowCreateForm(true);
+    setError("");
+    setSuccess("");
+  };
+
+  const resetVisitorForm = () => {
+    setEditingVisitorId(null);
+    setVisitorForm((current) => ({
+      ...current,
+      visitorName: "",
+      phoneNumber: "",
+      note: "",
+      apartmentId: String(apartments[0]?.id ?? current.apartmentId ?? ""),
+      staffId: String(current.staffId || getCurrentStaffId(staffMembers)),
+    }));
+  };
+
+  const handleUpdateVisitor = async () => {
+    if (!editingVisitorId) return;
+
+    try {
+      setIsSubmitting(true);
+      setError("");
+      setSuccess("");
+
+      const payload = {
+        visitorName: visitorForm.visitorName,
+        phoneNumber: visitorForm.phoneNumber,
+        note: visitorForm.note,
+      };
+
+      try {
+        await updateVisitorById(editingVisitorId, payload);
+      } catch (requestError) {
+        if (!isMalformedResponseSuccess(requestError)) {
+          throw requestError;
+        }
+      }
+
+      setVisitors((current) =>
+        current.map((visitor) =>
+          visitor.id === editingVisitorId
+            ? {
+                ...visitor,
+                visitorName: payload.visitorName,
+                phoneNumber: payload.phoneNumber,
+                note: payload.note,
+              }
+            : visitor,
+        ),
+      );
+
+      setSuccess("Visitor record updated.");
+      resetVisitorForm();
+      setShowCreateForm(false);
+    } catch (updateError) {
+      setError(
+        updateError?.response?.data?.message ||
+        "Could not update visitor record.",
+      );
+      setSuccess("");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleDeleteVisitor = async (visitorId) => {
+    try {
+      setError("");
+      setSuccess("");
+      if (!String(visitorId).startsWith("temp-")) {
+        await deleteVisitorById(visitorId);
+      }
+      setVisitors((current) => current.filter((visitor) => visitor.id !== visitorId));
+      setSuccess("Visitor record deleted.");
+      if (editingVisitorId === visitorId) {
+        resetVisitorForm();
+        setShowCreateForm(false);
+      }
+    } catch (deleteError) {
+      setError(
+        deleteError?.response?.data?.message ||
+        "Could not delete visitor record.",
+      );
+      setSuccess("");
     }
   };
 
@@ -177,7 +575,12 @@ const StaffSecurityMainContent = ({ activeTab }) => {
 
             <button
               className={`admin-btn-add ${showCreateForm ? 'active' : ''}`}
-              onClick={() => setShowCreateForm(!showCreateForm)}
+              onClick={() => {
+                if (showCreateForm) {
+                  resetVisitorForm();
+                }
+                setShowCreateForm(!showCreateForm);
+              }}
               style={{
                 width: 'auto',
                 padding: '0 20px',
@@ -194,6 +597,46 @@ const StaffSecurityMainContent = ({ activeTab }) => {
               {showCreateForm ? 'CLOSE FORM' : '+ REGISTER VISITOR'}
             </button>
           </div>
+
+          {error ? (
+            <div
+              className="admin-feedback error"
+              style={{ marginBottom: "20px" }}
+            >
+              {error}
+            </div>
+          ) : null}
+
+          {success && !showCreateForm ? (
+            <div
+              className="admin-feedback success"
+              style={{ marginBottom: "20px" }}
+            >
+              {success}
+            </div>
+          ) : null}
+
+          {debugInfo ? (
+            <div
+              style={{
+                marginBottom: "20px",
+                padding: "16px 18px",
+                borderRadius: "12px",
+                background: "#0f172a",
+                color: "#e2e8f0",
+                fontSize: "12px",
+                lineHeight: 1.6,
+                overflowX: "auto",
+              }}
+            >
+              <strong style={{ display: "block", marginBottom: "8px", color: "#93c5fd" }}>
+                Visitor Debug
+              </strong>
+              <pre style={{ margin: 0, whiteSpace: "pre-wrap", fontFamily: "Consolas, monospace" }}>
+                {JSON.stringify(debugInfo, null, 2)}
+              </pre>
+            </div>
+          ) : null}
 
           {/* FORM SECTION - ISSUING ENTRY */}
           {showCreateForm && (
@@ -227,19 +670,18 @@ const StaffSecurityMainContent = ({ activeTab }) => {
                     Secure Visitor Entry Registration
                   </h4>
                   <p style={{ margin: '4px 0 0', fontSize: '13px', color: 'var(--admin-text-muted)', fontWeight: 500 }}>
-                    Issuing temporary building access for authorized guest visitation.
+                    {editingVisitorId
+                      ? "Update an existing visitor record."
+                      : "Issuing temporary building access for authorized guest visitation."}
                   </p>
+                  {staffMembers.length > 0 ? (
+                    <p style={{ margin: '6px 0 0', fontSize: '12px', color: 'var(--admin-primary)', fontWeight: 700 }}>
+                      Check-in staff: {staffMembers.find((staff) => String(staff.id) === String(visitorForm.staffId))?.fullName || "Assigned automatically"}
+                    </p>
+                  ) : null}
                 </div>
               </div>
 
-              {error ? (
-                <div
-                  className="admin-feedback error"
-                  style={{ marginTop: "16px" }}
-                >
-                  {error}
-                </div>
-              ) : null}
               {success ? (
                 <div
                   className="admin-feedback success"
@@ -285,6 +727,7 @@ const StaffSecurityMainContent = ({ activeTab }) => {
                   <select
                     className="professional-form-input"
                     value={visitorForm.apartmentId}
+                    disabled={apartments.length === 0}
                     onChange={(event) =>
                       setVisitorForm((current) => ({
                         ...current,
@@ -292,6 +735,9 @@ const StaffSecurityMainContent = ({ activeTab }) => {
                       }))
                     }
                   >
+                    {apartments.length === 0 ? (
+                      <option value="">No apartment data available</option>
+                    ) : null}
                     {apartments.map((apartment) => (
                       <option key={apartment.id} value={apartment.id}>
                         Unit {apartment.roomNumber} - Floor {apartment.floorNumber}
@@ -330,9 +776,19 @@ const StaffSecurityMainContent = ({ activeTab }) => {
                     letterSpacing: '0.5px'
                   }}
                   onClick={handleCheckIn}
-                  disabled={isSubmitting || isLoading}
+                  disabled={
+                    isSubmitting ||
+                    isLoading ||
+                    apartments.length === 0 ||
+                    staffMembers.length === 0
+                  }
+                  onClick={editingVisitorId ? handleUpdateVisitor : handleCheckIn}
                 >
-                  {isSubmitting ? "PROCESSING..." : "CHECK-IN VISITOR"}
+                  {isSubmitting
+                    ? "PROCESSING..."
+                    : editingVisitorId
+                      ? "UPDATE VISITOR"
+                      : "CHECK-IN VISITOR"}
                 </button>
               </div>
             </div>
@@ -356,13 +812,14 @@ const StaffSecurityMainContent = ({ activeTab }) => {
                     <th>Apartment</th>
                     <th>Purpose / Note</th>
                     <th>Created At</th>
+                    <th>Actions</th>
                   </tr>
                 </thead>
                 <tbody>
                   {isLoading ? (
                     <tr>
                       <td
-                        colSpan="5"
+                        colSpan="6"
                         style={{ textAlign: "center", padding: "40px" }}
                       >
                         Loading visitor logs from backend...
@@ -371,7 +828,7 @@ const StaffSecurityMainContent = ({ activeTab }) => {
                   ) : visitors.length === 0 ? (
                     <tr>
                       <td
-                        colSpan="5"
+                        colSpan="6"
                         style={{ textAlign: "center", padding: "40px" }}
                       >
                         No visitor logs found in backend.
@@ -399,8 +856,41 @@ const StaffSecurityMainContent = ({ activeTab }) => {
                           <td>{visitor.note || "N/A"}</td>
                           <td>
                             {formatDateTime(
-                              visitor.createdAt || visitor.updatedAt,
+                              visitor.checkInTime ||
+                              visitor.createdAt ||
+                              visitor.updatedAt,
                             )}
+                          </td>
+                          <td>
+                            <div style={{ display: "flex", gap: "8px" }}>
+                              <button
+                                type="button"
+                                onClick={() => startEditingVisitor(visitor)}
+                                style={{
+                                  border: "1px solid #cbd5e1",
+                                  background: "#fff",
+                                  borderRadius: "8px",
+                                  padding: "6px 10px",
+                                  cursor: "pointer",
+                                }}
+                              >
+                                Edit
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => handleDeleteVisitor(visitor.id)}
+                                style={{
+                                  border: "1px solid #fecaca",
+                                  background: "#fff1f2",
+                                  color: "#b91c1c",
+                                  borderRadius: "8px",
+                                  padding: "6px 10px",
+                                  cursor: "pointer",
+                                }}
+                              >
+                                Delete
+                              </button>
+                            </div>
                           </td>
                         </tr>
                       );
