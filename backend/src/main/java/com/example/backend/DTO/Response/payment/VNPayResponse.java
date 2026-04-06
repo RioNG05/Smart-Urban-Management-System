@@ -10,7 +10,5 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class VNPayResponse {
-    private String code;
-    private String message;
     private String paymentUrl;
 }

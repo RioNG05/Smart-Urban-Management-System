@@ -1,8 +1,13 @@
 package com.example.backend.Service;
 
 import com.example.backend.DTO.Request.payment.PaymentRequest;
+import com.example.backend.DTO.Response.ApiResponse;
 import com.example.backend.DTO.Response.payment.VNPayResponse;
 import com.example.backend.Entity.Payment;
+import com.example.backend.Enum.InvoiceType;
+import com.example.backend.Enum.PaymentStatus;
+import com.example.backend.Enum.TransactionCode;
+import com.example.backend.Enum.UtilitiesInvoiceStatus;
 import com.example.backend.Repository.PaymentRepository;
 import com.example.backend.Repository.UtilitiesInvoiceRepository;
 import com.example.backend.Entity.UtilitiesInvoice;
@@ -99,23 +104,28 @@ public class VNPayService {
         String paymentUrl = vnPayConfig.getVnp_PayUrl() + "?" + queryUrl;
 
         // Create Payment log in DB
+
         Payment payment = Payment.builder()
-                .invoiceId(paymentRequest.getInvoiceId())
                 .invoiceType(paymentRequest.getInvoiceType())
+                .invoiceMonth(paymentRequest.getInvoiceMonth())
+                .invoiceYear(paymentRequest.getInvoiceYear())
                 .amount(paymentRequest.getAmount())
                 .transactionId(vnp_TxnRef)
                 .orderInfo(paymentRequest.getOrderInfo())
                 .paymentGateway("VNPAY")
-                .paymentStatus("PENDING")
+                .paymentStatus(0)
                 .build();
+
+        if(paymentRequest.getInvoiceType().equals(InvoiceType.UTILITIES_INVOICE)){
+            Integer invoiceId = paymentRequest.getInvoiceId()[0];
+            payment.setInvoiceId(invoiceId);
+        }
         paymentRepository.save(payment);
 
-        VNPayResponse response = new VNPayResponse();
-        response.setCode("00");
-        response.setMessage("Success");
-        response.setPaymentUrl(paymentUrl);
+        VNPayResponse vnPayResponse = new VNPayResponse();
+        vnPayResponse.setPaymentUrl(paymentUrl);
 
-        return response;
+        return vnPayResponse;
     }
 
     public int orderReturn(HttpServletRequest request) {
@@ -140,25 +150,25 @@ public class VNPayService {
         
         if (signValue.equals(vnp_SecureHash)) {
             String transactionRef = request.getParameter("vnp_TxnRef");
-            
-            // Find in DB
-            Optional<Payment> optionalPayment = paymentRepository.findByTransactionId(transactionRef);
-            if(optionalPayment.isPresent()){
-                Payment payment = optionalPayment.get();
-                if ("00".equals(request.getParameter("vnp_TransactionStatus"))) {
-                    payment.setPaymentStatus("SUCCESS");
-                    payment.setPaymentDate(LocalDateTime.now());
-                    paymentRepository.save(payment);
-                    updateInvoiceStatus(payment);
-                    return 1;
-                } else {
-                    payment.setPaymentStatus("FAILED");
-                    paymentRepository.save(payment);
-                    return 0;
+
+            Payment payment = paymentRepository.findByTransactionId(transactionRef).orElse(null);
+
+            if(Objects.isNull(payment)){
+                return TransactionCode.NOT_FOUND.getCode();
+            }
+
+            if(!Objects.equals(payment.getPaymentStatus(), PaymentStatus.SUCCESS.getCode())){
+                String responseCode = request.getParameter("vnp_ResponseCode");
+                if(responseCode.equals("00")){
+                    updateInvoiceStatus(payment, );
+                    return TransactionCode.SUCCESS.getCode();
+                } else{
+                    return TransactionCode.FAILED.getCode();
                 }
             }
+            return TransactionCode.SUCCEED_ALREADY.getCode();
         }
-        return -1; // Error or tampered
+        return TransactionCode.WRONG_CHECKSUM.getCode(); // Invalid checksum
     }
     
     // IPN handler if needed by server to server call
@@ -186,13 +196,13 @@ public class VNPayService {
              Optional<Payment> optionalPayment = paymentRepository.findByTransactionId(transactionRef);
              if(optionalPayment.isPresent()){
                  Payment payment = optionalPayment.get();
-                 if(!"SUCCESS".equals(payment.getPaymentStatus())) {
+                 if(payment.getPaymentStatus() == 1) {
                      if ("00".equals(request.getParameter("vnp_TransactionStatus"))) {
-                         payment.setPaymentStatus("SUCCESS");
+                         payment.setPaymentStatus(1);
                          payment.setPaymentDate(LocalDateTime.now());
                          updateInvoiceStatus(payment);
                      } else {
-                         payment.setPaymentStatus("FAILED");
+                         payment.setPaymentStatus(2);
                      }
                      paymentRepository.save(payment);
                  }
@@ -225,14 +235,27 @@ public class VNPayService {
         return VNPayUtil.hmacSHA512(vnPayConfig.getVnp_HashSecret(), sb.toString());
     }
 
-    private void updateInvoiceStatus(Payment payment) {
-        if ("UTILITIES".equalsIgnoreCase(payment.getInvoiceType())) {
-            Optional<UtilitiesInvoice> invoiceOpt = utilitiesInvoiceRepository.findById(payment.getInvoiceId());
-            if (invoiceOpt.isPresent()) {
-                UtilitiesInvoice invoice = invoiceOpt.get();
-                invoice.setStatus(1);
-                utilitiesInvoiceRepository.save(invoice);
-            }
+    private void updateInvoiceStatus(Payment payment){
+        if(payment.getInvoiceType().equals(InvoiceType.UTILITIES_INVOICE)){
+            updateUtilitiesInvoiceStatus(payment);
         }
+    }
+
+    private void updateUtilitiesInvoiceStatus(Payment payment){
+        UtilitiesInvoice utilitiesInvoice = utilitiesInvoiceRepository.findById(payment.getInvoiceId()).orElse(null);
+
+        if(Objects.isNull(utilitiesInvoice)){
+            throw new RuntimeException("Can't found utilities invoice");
+        }
+
+        if(utilitiesInvoice.getStatus().equals(UtilitiesInvoiceStatus.PAID.getCode())){
+            throw new RuntimeException(UtilitiesInvoiceStatus.PAID.getStatus());
+        }
+
+        utilitiesInvoice.setStatus(UtilitiesInvoiceStatus.PAID.getCode());
+    }
+
+    private void updateServiceInvoiceStatus(Payment payment){
+
     }
 }

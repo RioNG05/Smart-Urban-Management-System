@@ -1,6 +1,7 @@
 package com.example.backend.Controllers;
 
 import com.example.backend.DTO.Request.payment.PaymentRequest;
+import com.example.backend.DTO.Response.ApiResponse;
 import com.example.backend.DTO.Response.payment.VNPayResponse;
 import com.example.backend.Service.VNPayService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -26,9 +27,15 @@ public class PaymentController {
      * @return VNPayResponse containing the paymentUrl to redirect the user to.
      */
     @PostMapping("/create")
-    public ResponseEntity<VNPayResponse> createPayment(HttpServletRequest request, @RequestBody PaymentRequest paymentRequest) {
-        VNPayResponse response = vnPayService.createPaymentUrl(request, paymentRequest);
-        return ResponseEntity.ok(response);
+    public ApiResponse<VNPayResponse> createPayment(HttpServletRequest request, @RequestBody PaymentRequest paymentRequest) {
+        VNPayResponse vnPayResponse = vnPayService.createPaymentUrl(request, paymentRequest);
+        ApiResponse<VNPayResponse> response = new ApiResponse<>();
+
+        response.setCode(200);
+        response.setMessage("Success");
+        response.setResult(vnPayResponse);
+
+        return response;
     }
 
     /**

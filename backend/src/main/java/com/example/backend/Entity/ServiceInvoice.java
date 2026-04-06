@@ -2,6 +2,8 @@ package com.example.backend.Entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.CollectionId;
+
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
@@ -30,4 +32,7 @@ public class ServiceInvoice {
 
     @Column(name = "CreatedAt", insertable = false, updatable = false)
     private LocalDateTime createdAt;
+
+    @Column(name = "PaymentId")
+    private Integer paymentId;
 }

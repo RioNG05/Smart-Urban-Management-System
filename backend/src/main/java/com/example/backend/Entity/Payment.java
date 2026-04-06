@@ -1,5 +1,6 @@
 package com.example.backend.Entity;
 
+import com.example.backend.Enum.InvoiceType;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -21,11 +22,18 @@ public class Payment {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Column(name = "InvoiceId", nullable = false)
+    @Column(name = "InvoiceId")
     private Integer invoiceId;
 
     @Column(name = "InvoiceType", nullable = false, length = 50)
-    private String invoiceType;
+    @Enumerated(EnumType.STRING)
+    private InvoiceType invoiceType;
+
+    @Column(name = "InvoiceMonth")
+    private Integer invoiceMonth;
+
+    @Column(name = "InvoiceYear")
+    private Integer invoiceYear;
 
     @Column(name = "Amount", nullable = false)
     private BigDecimal amount;
@@ -39,10 +47,10 @@ public class Payment {
     @Column(name = "PaymentGateway", length = 50)
     private String paymentGateway;
 
-    @Column(name = "PaymentStatus", length = 50)
-    private String paymentStatus;
+    @Column(name = "PaymentStatus")
+    private Integer paymentStatus;
 
-    @Column(name = "PaymentDate")
+    @Column(name = "PaymentDate", updatable = false, insertable = false)
     private LocalDateTime paymentDate;
 
     @Column(name = "CreatedAt", updatable = false)
@@ -57,7 +65,7 @@ public class Payment {
             paymentGateway = "VNPAY";
         }
         if (paymentStatus == null) {
-            paymentStatus = "PENDING";
+            paymentStatus = 0;
         }
     }
 }
