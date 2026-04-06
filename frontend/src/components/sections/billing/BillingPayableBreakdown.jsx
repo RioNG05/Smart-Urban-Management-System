@@ -1,6 +1,9 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { FaChevronDown, FaChevronUp, FaCheckSquare, FaRegSquare, FaBolt, FaTint, FaBuilding, FaFileInvoiceDollar } from "react-icons/fa";
 import { motion, AnimatePresence } from "framer-motion";
+import { useLocation, useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
+import api from "../../../services/api";
 
 export default function BillingPayableBreakdown({
   totals = { electricity: 0, water: 0, management: 0, service: 0, total: 0 },
@@ -19,6 +22,51 @@ export default function BillingPayableBreakdown({
 
   const utilitiesRef = useRef(null);
   const servicesRef = useRef(null);
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    // Check for payment success toast in session storage after a reload
+    const paymentToast = sessionStorage.getItem("paymentSuccessToast");
+    if (paymentToast === "true") {
+      toast.success("Thanh toán thành công!", {
+        position: "top-right",
+        style: { 
+          marginTop: "80px", 
+          backgroundColor: "#e8f5e9", // Elegant green background
+          color: "#2e7d32",          // Deep green text
+          fontWeight: "600",
+          border: "1px solid #c8e6c9"
+        }
+      });
+      sessionStorage.removeItem("paymentSuccessToast");
+    }
+
+    // Process VNPay return parameters
+    const params = new URLSearchParams(location.search);
+    const vnp_ResponseCode = params.get("vnp_ResponseCode");
+
+    if (vnp_ResponseCode) {
+      const verifyPayment = async () => {
+        try {
+          const res = await api.get(`/payment/vnpay_return${window.location.search}`);
+          if (res.data.status === 1) {
+            // Set flag and reload to fetch updated bills
+            sessionStorage.setItem("paymentSuccessToast", "true");
+            window.location.href = window.location.pathname; 
+          } else {
+            toast.error("Thanh toán thất bại hoặc có lỗi xảy ra.");
+            navigate(location.pathname, { replace: true });
+          }
+        } catch (err) {
+          console.error("Lỗi xác minh thanh toán", err);
+          toast.error("Có lỗi xảy ra khi xác thực giao dịch.");
+          navigate(location.pathname, { replace: true });
+        }
+      };
+      verifyPayment();
+    }
+  }, [location, navigate]);
 
   const toggleSection = (section) => {
     const isExpanding = !expanded[section];
@@ -59,6 +107,43 @@ export default function BillingPayableBreakdown({
         </td>
       </tr>
     );
+  };
+
+  const handlePayment = async (totals) => {
+    try {
+      const hasUtilities = pricingRows?.utilities && pricingRows.utilities.length > 0;
+      const hasServices = pricingRows?.services && pricingRows.services.length > 0;
+      
+      let invoiceIdRaw = "";
+      let invoiceType = "OTHER";
+
+      if (hasUtilities) {
+         invoiceIdRaw = pricingRows.utilities[0].billIds?.[0] || "";
+         invoiceType = "UTILITIES";
+      } else if (hasServices) {
+         invoiceIdRaw = pricingRows.services[0].billIds?.[0] || "";
+         invoiceType = "SERVICES";
+      }
+
+      const invoiceIdMatch = String(invoiceIdRaw).match(/\d+/);
+      const invoiceId = invoiceIdMatch ? parseInt(invoiceIdMatch[0], 10) : 0;
+
+      if (!invoiceId) {
+         toast.warn("Không tìm thấy mã hóa đơn hợp lệ.");
+         return;
+      }
+
+      const res = await api.post("/payment/create", {
+        invoiceId: invoiceId,
+        invoiceType: invoiceType,
+        amount: totals.total,
+        orderInfo: `Thanh toan phi ${invoiceType} - ${apartmentLabel}`,
+      });
+      window.location.href = res.data.paymentUrl;
+    } catch (error) {
+      console.error(error);
+      toast.error("Lỗi khi kết nối tới cổng thanh toán.");
+    }
   };
   return (
     <section className="billing-panel">
@@ -116,12 +201,27 @@ export default function BillingPayableBreakdown({
             {formatCurrency(totals.total)}
           </span>
         </div>
-        <button 
-          className="pay-selected-btn premium-btn"
-          onClick={() => alert(`Proceeding to pay ${formatCurrency(totals.total)}`)}
-        >
-          Pay Total Bill
-        </button>
+        {totals.total === 0 ? (
+          <div className="paid-tag" style={{
+            padding: "10px 24px",
+            backgroundColor: "#2e7d32",
+            color: "white",
+            borderRadius: "6px",
+            fontWeight: "600",
+            letterSpacing: "1px",
+            textTransform: "uppercase",
+            boxShadow: "0 4px 10px rgba(46, 125, 50, 0.2)"
+          }}>
+            Paid
+          </div>
+        ) : (
+          <button 
+            className="pay-selected-btn premium-btn"
+            onClick={() => handlePayment(totals)}
+          >
+            Pay Total Bill
+          </button>
+        )}
       </div>
 
       <div className="payable-breakdown-grid">

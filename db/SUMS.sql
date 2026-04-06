@@ -1,4 +1,4 @@
-﻿USE master;
+USE master;
 GO
 
 -- 1. Kiểm tra và xóa Database nếu đã tồn tại
@@ -3303,4 +3303,19 @@ BEGIN
 
     SET @BookingId = @BookingId + 1;
 END
+GO
+
+-- Payments table for VNPAY and other payment gateways
+CREATE TABLE Payments (
+    Id INT IDENTITY(1,1) PRIMARY KEY,
+    InvoiceId INT NOT NULL,            -- Liên kết đến hóa đơn (có thể là ID của UtilitiesInvoices, ServiceInvoices, v.v)
+    InvoiceType VARCHAR(50) NOT NULL,  -- Loại hóa đơn (vd: 'UTILITIES', 'SERVICES', 'BOOKING')
+    Amount DECIMAL(18, 2) NOT NULL,
+    TransactionId VARCHAR(100),        -- Mã giao dịch trả về từ VNPAY hoặc gateway
+    OrderInfo NVARCHAR(MAX),           -- Nội dung thanh toán
+    PaymentGateway VARCHAR(50) DEFAULT 'VNPAY', -- Cổng thanh toán (VNPAY, MOMO, v.v)
+    PaymentStatus VARCHAR(50) DEFAULT 'PENDING', -- PENDING, SUCCESS, FAILED
+    PaymentDate DATETIME,
+    CreatedAt DATETIME DEFAULT GETDATE()
+);
 GO
