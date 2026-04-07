@@ -11,6 +11,7 @@ import lombok.experimental.FieldDefaults;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Objects;
 
@@ -36,7 +37,14 @@ public class PaymentInvoiceService {
     }
 
     public List<Objects> findAllByInvoiceTypeAndPaymentId(Integer paymentId, InvoiceType invoiceType){
-        return repository.findAllByInvoiceTypeAndPaymentId(paymentId, invoiceType);
+        return repository.findAllByInvoiceTypeAndPaymentId(invoiceType, paymentId);
+    }
+
+    public List<PaymentInvoice> findAllByPaymentId(Integer paymentId){
+        return repository.findAllByPaymentId(paymentId);
+    }
+    public List<Objects> findAllByInvoiceType(InvoiceType invoiceType){
+        return repository.findAllByInvoiceType(invoiceType);
     }
 
     public PaymentInvoice create(PaymentInvoiceCreateRequest request) {
@@ -46,8 +54,7 @@ public class PaymentInvoiceService {
                 .invoiceType(request.getInvoiceType())
                 .invoiceMonth(request.getInvoiceMonth())
                 .invoiceYear(request.getInvoiceYear())
-                .amount(request.getAmount())
-                .status(0)
+                .amount(findAmountByInvoiceId(request.getInvoiceId(), request.getInvoiceType()))
                 .build();
 
         if(findInvoiceByType(request.getInvoiceType(), request.getInvoiceId())){
@@ -120,6 +127,27 @@ public class PaymentInvoiceService {
             return !Objects.isNull(invoice);
         }
         return false;
+    }
+
+    /**
+     * Tim gia tien dua theo invoice id va invoice type
+     * @param invoiceId
+     * @param invoiceType
+     * @return
+     */
+    public BigDecimal findAmountByInvoiceId(Integer invoiceId, InvoiceType invoiceType){
+        BigDecimal amount = BigDecimal.ZERO;
+
+        if(invoiceType.equals(InvoiceType.UTILITIES_INVOICE)){
+            UtilitiesInvoice invoice = utilitiesInvoiceRepository.findById(invoiceId).orElseThrow(()-> new RuntimeException("Cant found utilities invoice"));
+            amount = invoice.getTotalAmount();
+        }
+        if(invoiceType.equals(InvoiceType.SERVICES_INVOICE)){
+            ServiceInvoice invoice = serviceInvoiceRepository.findById(invoiceId).orElseThrow(()-> new RuntimeException("Cant found utilities invoice"));
+            amount = invoice.getAmount();
+        }
+
+        return amount;
     }
 
 }

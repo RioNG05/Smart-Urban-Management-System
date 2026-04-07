@@ -3,6 +3,8 @@ package com.example.backend.Controllers;
 import com.example.backend.DTO.Request.payment.PaymentRequest;
 import com.example.backend.DTO.Response.ApiResponse;
 import com.example.backend.DTO.Response.payment.VNPayResponse;
+import com.example.backend.Enum.PaymentStatus;
+import com.example.backend.Enum.TransactionCode;
 import com.example.backend.Service.VNPayService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -58,12 +60,13 @@ public class PaymentController {
      * @return Status 1 (Success), 0 (Failed), -1 (Tampered)
      */
     @GetMapping("/vnpay_return")
-    public ResponseEntity<Map<String, Object>> vnpayReturn(HttpServletRequest request) {
-        int paymentStatus = vnPayService.orderReturn(request);
-        Map<String, Object> result = Map.of(
-            "status", paymentStatus,
-            "message", paymentStatus == 1 ? "Payment Success" : (paymentStatus == 0 ? "Payment Failed" : "Invalid Checksum")
-        );
-        return ResponseEntity.ok(result);
+    public ApiResponse<?> vnpayReturn(HttpServletRequest request){
+        Integer code = vnPayService.orderReturn(request);
+        ApiResponse<?> response = new ApiResponse<>();
+
+        response.setCode(code);
+        response.setMessage(TransactionCode.getStatusByCode(code));
+
+        return response;
     }
 }

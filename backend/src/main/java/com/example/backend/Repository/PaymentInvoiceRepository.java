@@ -10,5 +10,7 @@ import java.util.Objects;
 
 @Repository
 public interface PaymentInvoiceRepository extends JpaRepository<PaymentInvoice, Integer> {
-    List<Objects> findAllByInvoiceTypeAndPaymentId(Integer paymentId, InvoiceType invoiceType);
+    List<Objects> findAllByInvoiceTypeAndPaymentId(InvoiceType invoiceType, Integer paymentId);
+    List<PaymentInvoice> findAllByPaymentId(Integer paymentId);
+    List<Objects> findAllByInvoiceType(InvoiceType invoiceType);
 }

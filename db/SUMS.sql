@@ -3209,7 +3209,6 @@ CREATE TABLE PaymentInvoice (
     InvoiceMonth INT NOT NULL,
     InvoiceYear INT NOT NULL,
     Amount DECIMAL(18,2) NOT NULL, -- tiền của từng invoice
-    Status INT DEFAULT 0,
 
     FOREIGN KEY (PaymentId) REFERENCES Payments(Id)
 );

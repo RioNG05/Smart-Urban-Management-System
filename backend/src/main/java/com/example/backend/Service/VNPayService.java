@@ -1,17 +1,27 @@
 package com.example.backend.Service;
 
 import com.example.backend.DTO.Request.payment.PaymentRequest;
+import com.example.backend.DTO.Request.payment_invoice.PaymentInvoiceCreateRequest;
 import com.example.backend.DTO.Response.payment.VNPayResponse;
 import com.example.backend.Entity.Payment;
+import com.example.backend.Entity.PaymentInvoice;
+import com.example.backend.Entity.ServiceInvoice;
+import com.example.backend.Entity.UtilitiesInvoice;
+import com.example.backend.Enum.InvoiceStatus;
+import com.example.backend.Enum.InvoiceType;
 import com.example.backend.Enum.PaymentStatus;
 import com.example.backend.Enum.TransactionCode;
+import com.example.backend.Repository.PaymentInvoiceRepository;
 import com.example.backend.Repository.PaymentRepository;
+import com.example.backend.Repository.ServiceInvoiceRepository;
 import com.example.backend.Repository.UtilitiesInvoiceRepository;
 import com.example.backend.config.VNPayConfig;
 import com.example.backend.util.VNPayUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.net.URLEncoder;
@@ -29,7 +39,14 @@ public class VNPayService {
     private PaymentRepository paymentRepository;
 
     @Autowired
+    private PaymentInvoiceRepository paymentInvoiceRepository;
+
+    @Autowired
     private UtilitiesInvoiceRepository utilitiesInvoiceRepository;
+    @Autowired
+    private ServiceInvoiceRepository serviceInvoiceRepository;
+    @Autowired
+    private PaymentInvoiceService paymentInvoiceService;
 
     public VNPayResponse createPaymentUrl(HttpServletRequest request, PaymentRequest paymentRequest) {
         String vnp_Version = "2.1.0";
@@ -44,7 +61,7 @@ public class VNPayService {
         vnp_Params.put("vnp_TmnCode", vnp_TmnCode);
         
         // Amount is in VND, multiplied by 100
-        BigDecimal amount = paymentRequest.getAmount().multiply(new BigDecimal(100));
+        BigDecimal amount = findAmount(paymentRequest.getInvoices()).multiply(new BigDecimal(100));
         vnp_Params.put("vnp_Amount", String.valueOf(amount.longValue()));
         
         vnp_Params.put("vnp_CurrCode", "VND");
@@ -101,14 +118,15 @@ public class VNPayService {
         // Create Payment log in DB
 
         Payment payment = Payment.builder()
-                .amount(paymentRequest.getAmount())
+                .amount(amount)
                 .transactionId(vnp_TxnRef)
                 .orderInfo(paymentRequest.getOrderInfo())
                 .paymentGateway("VNPAY")
                 .paymentStatus(0)
                 .build();
-
         paymentRepository.save(payment);
+
+        saveInvoicesByList(paymentRequest.getInvoices(), payment);
 
         VNPayResponse vnPayResponse = new VNPayResponse();
         vnPayResponse.setPaymentUrl(paymentUrl);
@@ -116,7 +134,8 @@ public class VNPayService {
         return vnPayResponse;
     }
 
-    public int orderReturn(HttpServletRequest request) {
+    @Transactional
+    public Integer orderReturn(HttpServletRequest request) {
         Map<String, String> fields = new HashMap<>();
         for (Enumeration<String> params = request.getParameterNames(); params.hasMoreElements();) {
             String fieldName = params.nextElement();
@@ -153,7 +172,7 @@ public class VNPayService {
 
                 /* kiem tra xem cai response code co thanh cong khong de xu ly cai payment*/
                 if(responseCode.equals("00")){
-//                    updateInvoiceStatus(payment);
+                    updateInvoiceStatus(payment);
                     return TransactionCode.SUCCESS.getCode();
                 } else{
                     return TransactionCode.FAILED.getCode();
@@ -163,50 +182,6 @@ public class VNPayService {
         }
         return TransactionCode.WRONG_CHECKSUM.getCode(); // Invalid checksum
     }
-    
-
-//    public String handleIPN(HttpServletRequest request) {
-//        Map<String, String> fields = new HashMap<>();
-//        for (Enumeration<String> params = request.getParameterNames(); params.hasMoreElements();) {
-//            String fieldName = params.nextElement();
-//            String fieldValue = request.getParameter(fieldName);
-//            if ((fieldValue != null) && (fieldValue.length() > 0)) {
-//                fields.put(fieldName, fieldValue);
-//            }
-//        }
-//
-//        String vnp_SecureHash = request.getParameter("vnp_SecureHash");
-//        if (fields.containsKey("vnp_SecureHashType")) {
-//            fields.remove("vnp_SecureHashType");
-//        }
-//        if (fields.containsKey("vnp_SecureHash")) {
-//            fields.remove("vnp_SecureHash");
-//        }
-//
-//        String signValue = hashAllFields(fields);
-//        if (signValue.equals(vnp_SecureHash)) {
-//             String transactionRef = request.getParameter("vnp_TxnRef");
-//             Optional<Payment> optionalPayment = paymentRepository.findByTransactionId(transactionRef);
-//             if(optionalPayment.isPresent()){
-//                 Payment payment = optionalPayment.get();
-//                 if(payment.getPaymentStatus() == 1) {
-//                     if ("00".equals(request.getParameter("vnp_TransactionStatus"))) {
-//                         payment.setPaymentStatus(1);
-//                         payment.setPaymentDate(LocalDateTime.now());
-//                         updateInvoiceStatus(payment);
-//                     } else {
-//                         payment.setPaymentStatus(2);
-//                     }
-//                     paymentRepository.save(payment);
-//                 }
-//                 return "{\"RspCode\":\"00\",\"Message\":\"Confirm Success\"}";
-//             } else {
-//                 return "{\"RspCode\":\"01\",\"Message\":\"Order not found\"}";
-//             }
-//        } else {
-//            return "{\"RspCode\":\"97\",\"Message\":\"Invalid Checksum\"}";
-//        }
-//    }
 
     private String hashAllFields(Map<String, String> fields) {
         List<String> fieldNames = new ArrayList<>(fields.keySet());
@@ -228,27 +203,61 @@ public class VNPayService {
         return VNPayUtil.hmacSHA512(vnPayConfig.getVnp_HashSecret(), sb.toString());
     }
 
-//    private void updateInvoiceStatus(Payment payment){
-//        if(payment.getInvoiceType().equals(InvoiceType.UTILITIES_INVOICE)){
-//            updateUtilitiesInvoiceStatus(payment);
-//        }
-//    }
-//
-//    private void updateUtilitiesInvoiceStatus(Payment payment){
-//        UtilitiesInvoice utilitiesInvoice = utilitiesInvoiceRepository.findById(payment.getInvoiceId()).orElse(null);
-//
-//        if(Objects.isNull(utilitiesInvoice)){
-//            throw new RuntimeException("Can't found utilities invoice");
-//        }
-//
-//        if(utilitiesInvoice.getStatus().equals(UtilitiesInvoiceStatus.PAID.getCode())){
-//            throw new RuntimeException(UtilitiesInvoiceStatus.PAID.getStatus());
-//        }
-//
-//        utilitiesInvoice.setStatus(UtilitiesInvoiceStatus.PAID.getCode());
-//    }
-//
-//    private void updateServiceInvoiceStatus(Payment payment){
-//
-//    }
+    private BigDecimal findAmount(List<PaymentInvoiceCreateRequest> invoices){
+        BigDecimal totalAmount = BigDecimal.ZERO;
+
+        for(PaymentInvoiceCreateRequest item: invoices){
+            if(item.getInvoiceType().equals(InvoiceType.UTILITIES_INVOICE)){
+                UtilitiesInvoice invoice = utilitiesInvoiceRepository.findById(item.getInvoiceId()).orElseThrow(()-> new RuntimeException("Cant found utilities invoice"));
+                totalAmount = totalAmount.add(invoice.getTotalAmount());
+            }
+            if(item.getInvoiceType().equals(InvoiceType.SERVICES_INVOICE)){
+                ServiceInvoice invoice = serviceInvoiceRepository.findById(item.getInvoiceId()).orElseThrow(()-> new RuntimeException("Cant found utilities invoice"));
+                totalAmount = totalAmount.add(invoice.getAmount());
+            }
+        }
+
+        return totalAmount;
+    }
+
+    private void saveInvoicesByList(List<PaymentInvoiceCreateRequest> invoices,Payment payment){
+        for(PaymentInvoiceCreateRequest item : invoices){
+            PaymentInvoice pi = PaymentInvoice.builder()
+                    .payment(payment)
+                    .invoiceType(item.getInvoiceType())
+                    .invoiceId(item.getInvoiceId())
+                    .invoiceMonth(item.getInvoiceMonth())
+                    .invoiceYear(item.getInvoiceYear())
+                    .amount(paymentInvoiceService.findAmountByInvoiceId(item.getInvoiceId(), item.getInvoiceType()))
+                    .build();
+            paymentInvoiceRepository.save(pi);
+        }
+    }
+
+    @Transactional
+    private void updateInvoiceStatus(Payment payment){
+        List<PaymentInvoice> list = paymentInvoiceRepository.findAllByPaymentId(payment.getId());
+        for(PaymentInvoice item: list){
+            if(item.getInvoiceType().equals(InvoiceType.UTILITIES_INVOICE)){
+                UtilitiesInvoice invoice = utilitiesInvoiceRepository.findById(item.getInvoiceId()).orElseThrow(()-> new RuntimeException("Cant found utilities invoice"));
+                if(invoice.getStatus().equals(InvoiceStatus.PAID.getCode())){
+                    throw new RuntimeException("Invoice id: " + item.getInvoiceId() + " is paid");
+                }
+                invoice.setStatus(InvoiceStatus.PAID.getCode());
+                utilitiesInvoiceRepository.save(invoice);
+            }
+
+            if(item.getInvoiceType().equals(InvoiceType.SERVICES_INVOICE)){
+                ServiceInvoice invoice = serviceInvoiceRepository.findById(item.getInvoiceId()).orElseThrow(()-> new RuntimeException("Cant found utilities invoice"));
+                if(invoice.getStatus().equals(InvoiceStatus.PAID.getCode())){
+                    throw new RuntimeException("Invoice id: " + item.getInvoiceId() + " is paid");
+                }
+                invoice.setStatus(InvoiceStatus.PAID.getCode());
+                serviceInvoiceRepository.save(invoice);
+            }
+        }
+
+        payment.setPaymentStatus(PaymentStatus.SUCCESS.getCode());
+        paymentRepository.save(payment);
+    }
 }

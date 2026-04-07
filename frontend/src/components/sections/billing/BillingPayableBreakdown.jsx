@@ -111,35 +111,49 @@ export default function BillingPayableBreakdown({
 
   const handlePayment = async (totals) => {
     try {
-      const hasUtilities = pricingRows?.utilities && pricingRows.utilities.length > 0;
-      const hasServices = pricingRows?.services && pricingRows.services.length > 0;
-      
-      let invoiceIdRaw = "";
-      let invoiceType = "OTHER";
+      const invoicesPayload = [];
+      const { month: invoiceMonth, year: invoiceYear } = (() => {
+        if (!monthKey || monthKey === "all") {
+          const d = new Date();
+          return { month: d.getMonth() + 1, year: d.getFullYear() };
+        }
+        const d = new Date(monthKey);
+        return { month: d.getMonth() + 1, year: d.getFullYear() };
+      })();
 
-      if (hasUtilities) {
-         invoiceIdRaw = pricingRows.utilities[0].billIds?.[0] || "";
-         invoiceType = "UTILITIES";
-      } else if (hasServices) {
-         invoiceIdRaw = pricingRows.services[0].billIds?.[0] || "";
-         invoiceType = "SERVICES";
-      }
+      const extractInvoices = (rows, type) => {
+        if (!rows) return;
+        rows.forEach(row => {
+          row.billIds?.forEach(idStr => {
+            const match = String(idStr).match(/\d+/);
+            if (match) {
+              const invId = parseInt(match[0], 10);
+              if (!invoicesPayload.some(i => i.invoiceId === invId && i.invoiceType === type)) {
+                invoicesPayload.push({
+                  invoiceId: invId,
+                  invoiceType: type,
+                  invoiceMonth,
+                  invoiceYear
+                });
+              }
+            }
+          });
+        });
+      };
 
-      const invoiceIdMatch = String(invoiceIdRaw).match(/\d+/);
-      const invoiceId = invoiceIdMatch ? parseInt(invoiceIdMatch[0], 10) : 0;
+      extractInvoices(pricingRows?.utilities, "UTILITIES_INVOICE");
+      extractInvoices(pricingRows?.services, "SERVICES_INVOICE");
 
-      if (!invoiceId) {
+      if (invoicesPayload.length === 0) {
          toast.warn("Không tìm thấy mã hóa đơn hợp lệ.");
          return;
       }
 
       const res = await api.post("/payment/create", {
-        invoiceId: invoiceId,
-        invoiceType: invoiceType,
-        amount: totals.total,
-        orderInfo: `Thanh toan phi ${invoiceType} - ${apartmentLabel}`,
+        orderInfo: `Thanh toan phi - ${apartmentLabel}`,
+        invoices: invoicesPayload
       });
-      window.location.href = res.data.paymentUrl;
+      window.location.href = res.data.result.paymentUrl;
     } catch (error) {
       console.error(error);
       toast.error("Lỗi khi kết nối tới cổng thanh toán.");
@@ -201,7 +215,7 @@ export default function BillingPayableBreakdown({
             {formatCurrency(totals.total)}
           </span>
         </div>
-        {totals.total === 0 ? (
+        {!totals.hasInvoices ? null : totals.allPaid ? (
           <div className="paid-tag" style={{
             padding: "10px 24px",
             backgroundColor: "#2e7d32",

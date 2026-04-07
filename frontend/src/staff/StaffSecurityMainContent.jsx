@@ -782,7 +782,7 @@ const StaffSecurityMainContent = ({ activeTab }) => {
                     apartments.length === 0 ||
                     staffMembers.length === 0
                   }
-                  onClick={editingVisitorId ? handleUpdateVisitor : handleCheckIn}
+                  // onClick={editingVisitorId ? handleUpdateVisitor : handleCheckIn}
                 >
                   {isSubmitting
                     ? "PROCESSING..."

@@ -23,5 +23,4 @@ public class PaymentInvoiceUpdateRequest {
     Integer invoiceMonth;
     Integer invoiceYear;
     BigDecimal amount;
-    Integer status;
 }

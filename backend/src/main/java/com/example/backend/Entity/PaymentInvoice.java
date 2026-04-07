@@ -44,7 +44,4 @@ public class PaymentInvoice {
 
     @Column(name = "Amount", nullable = false, precision = 18, scale = 2)
     private BigDecimal amount;
-
-    @Column(name = "Status")
-    private Integer status;
 }
