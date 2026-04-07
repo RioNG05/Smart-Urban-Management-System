@@ -32,6 +32,7 @@ public class VisitorLogService {
 
         VisitorLog visitorLog = new VisitorLog();
         visitorLog.setVisitorName(request.getVisitorName());
+        visitorLog.setIdentityCard(request.getIdentityCard()); // 🔥 thêm
         visitorLog.setPhoneNumber(request.getPhoneNumber());
         visitorLog.setApartment(apartment);
         visitorLog.setCreatedByStaff(staff);
@@ -40,7 +41,6 @@ public class VisitorLogService {
 
         return visitorLogRepository.save(visitorLog);
     }
-
     public List<VisitorLog> getAllVisitors() {
         return visitorLogRepository.findAll();
     }

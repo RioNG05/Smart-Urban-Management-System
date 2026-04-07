@@ -15,6 +15,9 @@ public class VisitorCreateRequest {
     @NotBlank(message = "Tên khách không được để trống")
     private String visitorName;
 
+    @NotBlank(message = "CCCD không được để trống")
+    private String identityCard; // 🔥 thêm
+
     @NotBlank(message = "Số điện thoại không được để trống")
     private String phoneNumber;
 

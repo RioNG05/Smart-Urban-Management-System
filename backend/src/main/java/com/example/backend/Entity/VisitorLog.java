@@ -4,7 +4,6 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Entity
 @Table(name = "VisitorLogs")
@@ -12,15 +11,18 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class VisitorLog {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "Id")
     private Integer id;
 
     @Column(name = "VisitorName", nullable = false, length = 255)
     private String visitorName;
+
+    @Column(name = "IdentityCard", nullable = false, length = 20)
+    private String identityCard; // 🔥 thêm mới
 
     @Column(name = "PhoneNumber", nullable = false, length = 20)
     private String phoneNumber;
