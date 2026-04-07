@@ -5,8 +5,9 @@ function PropertyToolbar({
   availableCount,
   sortBy,
   setSortBy,
-  statusFilter,
-  setStatusFilter,
+  selectedApartmentType,
+  setSelectedApartmentType,
+  apartmentTypeOptions,
   pageMeta,
 }) {
   const { currentPage, totalPages, startIndex, endIndex } = pageMeta;
@@ -24,14 +25,17 @@ function PropertyToolbar({
 
       <div className="toolbar-actions">
         <label className="toolbar-select">
-          <span>Status</span>
+          <span>Apartment type</span>
           <select
-            value={statusFilter}
-            onChange={(event) => setStatusFilter(event.target.value)}
+            value={selectedApartmentType}
+            onChange={(event) => setSelectedApartmentType(event.target.value)}
           >
-            <option value="all">All listings</option>
-            <option value="available">Dang mo ban</option>
-            <option value="unavailable">Khong mo ban</option>
+            <option value="all">All apartment types</option>
+            {apartmentTypeOptions.map((apartmentType) => (
+              <option key={apartmentType.id} value={String(apartmentType.id)}>
+                {apartmentType.name}
+              </option>
+            ))}
           </select>
         </label>
 

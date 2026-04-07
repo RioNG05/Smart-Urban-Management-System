@@ -33,9 +33,11 @@ import {
   getComplaintTimestamp,
   getAdminTimestampValue,
 } from "./utils";
+import { canReplyComplaints, isStaffPortalRole } from "../../../admin/adminAccess";
 
 const ComplaintManager = () => {
-    const { user } = useAuth();
+    const { user, role } = useAuth();
+    const readOnly = isStaffPortalRole(role) && !canReplyComplaints(role);
     const [complaints, setComplaints] = useState([]);
     const [statusFilter, setStatusFilter] = useState("all");
     const [searchTerm, setSearchTerm] = useState("");
@@ -285,6 +287,14 @@ const ComplaintManager = () => {
       complaints.length > 0 ? formatAdminDate(complaints[0].lastActivityAt) : "N/A";
   
     const handleSubmitReply = async () => {
+      if (readOnly) {
+        setFeedback({
+          type: "error",
+          message: "You do not have permission to reply to complaints.",
+        });
+        return;
+      }
+
       if (!selectedComplaint || !replyDraft.trim()) {
         setFeedback({
           type: "error",
@@ -377,6 +387,12 @@ const ComplaintManager = () => {
         {feedback.message && (
           <div className={`admin-feedback ${feedback.type === "error" ? "error" : "success"}`} style={{ borderRadius: '15px' }}>
             {feedback.message}
+          </div>
+        )}
+
+        {readOnly && (
+          <div className="admin-feedback" style={{ borderRadius: '15px' }}>
+            You do not have permission to reply to complaints. This screen is available in view-only mode.
           </div>
         )}
 
@@ -524,7 +540,7 @@ const ComplaintManager = () => {
             {!selectedComplaint ? (
               <div style={{ display: 'grid', placeItems: 'center', height: '100%', textAlign: 'center', color: 'var(--admin-text-muted)', padding: '40px' }}>
                 <FaRegCommentDots style={{ fontSize: '3rem', marginBottom: '15px', opacity: 0.3 }} />
-                <p>Select a complaint from the queue to view details and send responses.</p>
+                <p>{readOnly ? "Select a complaint from the queue to view details." : "Select a complaint from the queue to view details and send responses."}</p>
               </div>
             ) : (
               <>
@@ -587,7 +603,7 @@ const ComplaintManager = () => {
                   <div style={{ maxHeight: '200px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '10px', paddingRight: '5px' }}>
                     {selectedComplaint.replies.length === 0 ? (
                       <div style={{ padding: '15px', border: '2px dashed var(--admin-border-soft)', borderRadius: '15px', textAlign: 'center', color: 'var(--admin-text-muted)', fontSize: '13px' }}>
-                        No conversation history yet. Send a response below.
+                        {readOnly ? "No conversation history yet." : "No conversation history yet. Send a response below."}
                       </div>
                     ) : (
                       selectedComplaint.replies.map(reply => (
@@ -603,33 +619,35 @@ const ComplaintManager = () => {
                   </div>
                 </div>
 
-                <div className="form-group" style={{ margin: 0 }}>
-                  <label>Compose Response</label>
-                  <textarea 
-                    style={{ 
-                      minHeight: '100px', 
-                      borderRadius: '15px', 
-                      resize: 'none', 
-                      padding: '15px',
-                      background: '#fff',
-                      border: '1px solid var(--admin-border-soft)',
-                      fontSize: '14px'
-                    }}
-                    placeholder="Type your reply to the resident here..."
-                    value={replyDraft}
-                    onChange={(e) => setReplyDraft(e.target.value)}
-                  />
-                  <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '15px' }}>
-                    <button 
-                      className="btn-submit" 
-                      style={{ width: '180px', borderRadius: '12px' }}
-                      onClick={handleSubmitReply}
-                      disabled={isSubmittingReply || !replyDraft.trim()}
-                    >
-                      <FaPaperPlane style={{ marginRight: '8px' }} /> {isSubmittingReply ? "Sending..." : "Send Reply"}
-                    </button>
+                {!readOnly ? (
+                  <div className="form-group" style={{ margin: 0 }}>
+                    <label>Compose Response</label>
+                    <textarea 
+                      style={{ 
+                        minHeight: '100px', 
+                        borderRadius: '15px', 
+                        resize: 'none', 
+                        padding: '15px',
+                        background: '#fff',
+                        border: '1px solid var(--admin-border-soft)',
+                        fontSize: '14px'
+                      }}
+                      placeholder="Type your reply to the resident here..."
+                      value={replyDraft}
+                      onChange={(e) => setReplyDraft(e.target.value)}
+                    />
+                    <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '15px' }}>
+                      <button 
+                        className="btn-submit" 
+                        style={{ width: '180px', borderRadius: '12px' }}
+                        onClick={handleSubmitReply}
+                        disabled={isSubmittingReply || !replyDraft.trim()}
+                      >
+                        <FaPaperPlane style={{ marginRight: '8px' }} /> {isSubmittingReply ? "Sending..." : "Send Reply"}
+                      </button>
+                    </div>
                   </div>
-                </div>
+                ) : null}
               </>
             )}
           </section>

@@ -7,17 +7,24 @@ import {
   deleteAccountById,
   deleteResidentById,
   getAccounts,
-  getContractsByAccountId,
   getResidents,
   updateAccountById,
   updateResidentById,
 } from "../../../services/adminResidentService";
+import { getApartments } from "../../../services/apartmentService";
+import {
+  createStayAtHistory,
+  getStayHistoryByResidentId,
+  updateStayAtHistoryById,
+} from "../../../services/adminService";
 import { paginateItems } from "./utils";
 
 const ResidentAccount = () => {
+  const DEFAULT_MOVE_OUT_DATE = "2099-12-31";
   const emptyForm = {
     residentId: null,
     accountId: null,
+    stayHistoryId: null,
     fullName: "",
     gender: "",
     dateOfBirth: "",
@@ -28,9 +35,12 @@ const ResidentAccount = () => {
     password: "",
     isActive: true,
     apartment: "",
+    apartmentId: "",
+    currentApartmentId: "",
   };
 
   const [residents, setResidents] = useState([]);
+  const [apartmentOptions, setApartmentOptions] = useState([]);
   const [formData, setFormData] = useState(emptyForm);
   const [isEditMode, setIsEditMode] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -47,10 +57,36 @@ const ResidentAccount = () => {
     setShowCreateForm(false);
   };
 
-  const normalizeResidentRecord = (resident, accountMap, contractsMap) => {
+  const getApartmentLabel = (apartment) => {
+    if (!apartment) {
+      return "Unassigned apartment";
+    }
+
+    const roomNumber = apartment?.roomNumber ?? apartment?.id ?? "N/A";
+    const floorNumber = apartment?.floorNumber;
+
+    return floorNumber !== null && floorNumber !== undefined
+      ? `Room ${roomNumber} - Floor ${floorNumber}`
+      : `Room ${roomNumber}`;
+  };
+
+  const getPrimaryApartmentAssignment = (apartments = []) =>
+    apartments.find((item) => {
+      if (!item?.moveOut) {
+        return true;
+      }
+
+      return new Date(item.moveOut).getTime() >= Date.now();
+    }) ??
+    [...apartments].sort(
+      (a, b) => new Date(b?.moveIn || 0).getTime() - new Date(a?.moveIn || 0).getTime(),
+    )[0] ??
+    null;
+
+  const normalizeResidentRecord = (resident, accountMap, stayHistoryMap) => {
     const accountId = resident?.account?.id ?? resident?.accountId ?? null;
     const account = accountMap.get(accountId) ?? resident?.account ?? null;
-    const contracts = contractsMap.get(accountId) ?? [];
+    const stayHistory = stayHistoryMap.get(resident?.id ?? null) ?? [];
 
     return {
       residentId: resident?.id ?? null,
@@ -64,13 +100,14 @@ const ResidentAccount = () => {
       username: account?.username ?? "",
       roleName: account?.role?.roleName ?? "RESIDENT",
       isActive: account?.isActive ?? false,
-      apartments: contracts.map((contract) => ({
-        contractId: contract?.id,
+      apartments: stayHistory.map((entry) => ({
+        stayHistoryId: entry?.id ?? null,
+        apartmentId: entry?.apartment?.id ?? entry?.apartmentId ?? null,
         roomNumber:
-          contract?.apartment?.roomNumber ?? contract?.apartmentId ?? "N/A",
-        floorNumber: contract?.apartment?.floorNumber ?? null,
-        contractType: contract?.contractType ?? "Unknown",
-        status: contract?.status,
+          entry?.apartment?.roomNumber ?? entry?.apartmentId ?? "N/A",
+        floorNumber: entry?.apartment?.floorNumber ?? null,
+        moveIn: entry?.moveIn ?? null,
+        moveOut: entry?.moveOut ?? null,
       })),
     };
   };
@@ -79,39 +116,48 @@ const ResidentAccount = () => {
     setIsLoading(true);
 
     try {
-      const [residentList, accountList] = await Promise.all([
+      const [residentList, accountList, apartmentList] = await Promise.all([
         getResidents(),
         getAccounts(),
+        getApartments(),
       ]);
       const accountMap = new Map(
         accountList.map((account) => [account.id, account]),
       );
 
-      const contractResponses = await Promise.all(
+      const stayHistoryResponses = await Promise.all(
         residentList.map(async (resident) => {
-          const accountId = resident?.account?.id ?? resident?.accountId;
+          const residentId = resident?.id;
 
-          if (!accountId) {
+          if (!residentId) {
             return [null, []];
           }
 
           try {
-            const contracts = await getContractsByAccountId(accountId);
-            return [accountId, contracts];
+            const stayHistory = await getStayHistoryByResidentId(residentId);
+            return [residentId, stayHistory];
           } catch (error) {
-            return [accountId, []];
+            return [residentId, []];
           }
         }),
       );
 
-      const contractsMap = new Map(
-        contractResponses.filter(([accountId]) => accountId !== null),
+      const stayHistoryMap = new Map(
+        stayHistoryResponses.filter(([residentId]) => residentId !== null),
       );
 
+      setApartmentOptions(
+        apartmentList.map((apartment) => ({
+          id: apartment.id,
+          label: getApartmentLabel(apartment),
+        })),
+      );
       setResidents(
-        residentList.map((resident) =>
-          normalizeResidentRecord(resident, accountMap, contractsMap),
-        ),
+        residentList
+          .map((resident) =>
+            normalizeResidentRecord(resident, accountMap, stayHistoryMap),
+          )
+          .sort((a, b) => Number(b.residentId ?? 0) - Number(a.residentId ?? 0)),
       );
       setFeedback({ type: "", message: "" });
     } catch (error) {
@@ -135,9 +181,12 @@ const ResidentAccount = () => {
   };
 
   const handleEditClick = (resident) => {
+    const primaryApartment = getPrimaryApartmentAssignment(resident.apartments);
+
     setFormData({
       residentId: resident.residentId,
       accountId: resident.accountId,
+      stayHistoryId: primaryApartment?.stayHistoryId ?? null,
       fullName: resident.fullName,
       gender: resident.gender,
       dateOfBirth: resident.dateOfBirth,
@@ -147,8 +196,19 @@ const ResidentAccount = () => {
       username: resident.username,
       password: "",
       isActive: resident.isActive,
-      apartment:
-        resident.apartments.length > 0 ? resident.apartments[0].roomNumber : "",
+      apartment: primaryApartment?.roomNumber
+        ? String(primaryApartment.roomNumber)
+        : "",
+      apartmentId:
+        primaryApartment?.apartmentId !== null &&
+        primaryApartment?.apartmentId !== undefined
+          ? String(primaryApartment.apartmentId)
+          : "",
+      currentApartmentId:
+        primaryApartment?.apartmentId !== null &&
+        primaryApartment?.apartmentId !== undefined
+          ? String(primaryApartment.apartmentId)
+          : "",
     });
     setIsEditMode(true);
     setShowCreateForm(true);
@@ -215,9 +275,14 @@ const ResidentAccount = () => {
     setFeedback({ type: "", message: "" });
 
     let createdAccountId = null;
+    let createdResidentId = null;
 
     try {
       if (isEditMode) {
+        const apartmentChanged =
+          String(formData.apartmentId || "") !==
+          String(formData.currentApartmentId || "");
+
         const accountPayload = {
           email: formData.email,
           username: formData.username,
@@ -237,9 +302,30 @@ const ResidentAccount = () => {
           phoneNumber: formData.phoneNumber,
         });
 
+        if (apartmentChanged) {
+          if (!formData.apartmentId) {
+            throw new Error("Please select an apartment assignment.");
+          }
+
+          if (formData.stayHistoryId) {
+            await updateStayAtHistoryById(formData.stayHistoryId, {
+              apartmentId: Number(formData.apartmentId),
+            });
+          } else {
+            await createStayAtHistory({
+              residentId: formData.residentId,
+              apartmentId: Number(formData.apartmentId),
+              moveIn: new Date().toISOString().slice(0, 10),
+              moveOut: DEFAULT_MOVE_OUT_DATE,
+            });
+          }
+        }
+
         setFeedback({
           type: "success",
-          message: "Resident and account information updated successfully.",
+          message: apartmentChanged
+            ? "Resident, account, and apartment assignment updated successfully."
+            : "Resident and account information updated successfully.",
         });
       } else {
         const account = await createAccount({
@@ -250,7 +336,7 @@ const ResidentAccount = () => {
         });
         createdAccountId = account.id;
 
-        await createResident({
+        const resident = await createResident({
           fullName: formData.fullName,
           gender: formData.gender || null,
           dateOfBirth: formData.dateOfBirth,
@@ -258,16 +344,36 @@ const ResidentAccount = () => {
           phoneNumber: formData.phoneNumber,
           accountId: account.id,
         });
+        createdResidentId = resident.id;
+
+        if (formData.apartmentId) {
+          await createStayAtHistory({
+            residentId: resident.id,
+            apartmentId: Number(formData.apartmentId),
+            moveIn: new Date().toISOString().slice(0, 10),
+            moveOut: DEFAULT_MOVE_OUT_DATE,
+          });
+        }
 
         setFeedback({
           type: "success",
-          message: "New resident created and account linked successfully.",
+          message: formData.apartmentId
+            ? "New resident created and apartment assigned successfully."
+            : "New resident created and account linked successfully.",
         });
       }
 
       resetForm();
       await loadResidentData();
     } catch (error) {
+      if (!isEditMode && createdResidentId) {
+        try {
+          await deleteResidentById(createdResidentId);
+        } catch (rollbackError) {
+          console.error("Rollback resident creation failed:", rollbackError);
+        }
+      }
+
       if (!isEditMode && createdAccountId) {
         try {
           await deleteAccountById(createdAccountId);
@@ -280,6 +386,7 @@ const ResidentAccount = () => {
         type: "error",
         message:
           error?.response?.data?.message ||
+          error?.message ||
           "An error occurred while saving resident data.",
       });
     } finally {
@@ -585,13 +692,30 @@ const ResidentAccount = () => {
           </div>
           <div className="form-group">
             <label style={{ fontSize: '11px', color: 'var(--admin-text-muted)' }}>APARTMENT ASSIGNMENT</label>
-            <input
+            <select
               className="professional-form-input"
-              type="text"
-              value={formData.apartment}
-              placeholder="Unit number..."
-              onChange={(e) => handleInputChange("apartment", e.target.value)}
-            />
+              value={formData.apartmentId}
+              onChange={(e) => {
+                const selectedOption = apartmentOptions.find(
+                  (option) => String(option.id) === e.target.value,
+                );
+
+                setFormData((prev) => ({
+                  ...prev,
+                  apartmentId: e.target.value,
+                  apartment: selectedOption?.label ?? "",
+                }));
+              }}
+            >
+              <option value="">
+                Select apartment
+              </option>
+              {apartmentOptions.map((option) => (
+                <option key={option.id} value={String(option.id)}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
           </div>
         </div>
 

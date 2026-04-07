@@ -3,6 +3,7 @@ import { getCurrentUser } from "./authService";
 import { getContractsByAccountId } from "./adminResidentService";
 
 const toArray = (value) => (Array.isArray(value) ? value : []);
+const getPayload = (data) => data?.result ?? data;
 
 export const getBillingApartmentsForCurrentUser = async () => {
   const account = await getCurrentUser();
@@ -27,14 +28,14 @@ export const getUtilitiesInvoicesByApartmentId = async (apartmentId) => {
   if (!apartmentId) return [];
 
   const res = await api.get(`/utilities-invoice/apartment/${apartmentId}`);
-  return toArray(res.data?.result);
+  return toArray(getPayload(res.data));
 };
 
 export const getServiceInvoices = async () => {
   try {
     const res = await api.get("/service-invoice");
     return {
-      items: toArray(res.data?.result),
+      items: toArray(getPayload(res.data)),
       restricted: false,
     };
   } catch (error) {
@@ -55,13 +56,13 @@ export const getBookingsByAccountId = async (accountId) => {
   if (!accountId) return [];
 
   const res = await api.get(`/bookings/account/${accountId}`);
-  return toArray(res.data?.result);
+  return toArray(getPayload(res.data));
 };
 
 export const getMandatoryServices = async () => {
   try {
     const res = await api.get("/mandatory-services");
-    return toArray(res.data?.result);
+    return toArray(getPayload(res.data));
   } catch (error) {
     console.error("Failed to fetch mandatory services", error);
     return [];

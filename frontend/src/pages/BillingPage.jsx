@@ -67,7 +67,7 @@ export default function BillingPage() {
 
   const handleToggleSubItem = (billId, category) => {
     const key = `${billId}:${category}`;
-    setSelectedIds(prev => 
+    setSelectedIds(prev =>
       prev.includes(key) ? prev.filter(id => id !== key) : [...prev, key]
     );
   };
@@ -265,17 +265,17 @@ export default function BillingPage() {
 
         // Filter by selection context
         if (selection.type === "apartment" && bill.source === "utility") {
-           const eAmt = Number(bill.utilityDetails?.electricity?.amount ?? 0);
-           const wAmt = Number(bill.utilityDetails?.water?.amount ?? 0);
-           const mAmt = Number(bill.managementFee ?? 0);
-           
-           acc.electricity += eAmt;
-           acc.water += wAmt;
-           acc.management += mAmt;
-           acc.total += (eAmt + wAmt + mAmt);
+          const eAmt = Number(bill.utilityDetails?.electricity?.amount ?? 0);
+          const wAmt = Number(bill.utilityDetails?.water?.amount ?? 0);
+          const mAmt = Number(bill.managementFee ?? 0);
+
+          acc.electricity += eAmt;
+          acc.water += wAmt;
+          acc.management += mAmt;
+          acc.total += (eAmt + wAmt + mAmt);
         } else if (selection.type === "service" && bill.source === "service") {
-           acc.service += Number(bill.amount ?? 0);
-           acc.total += Number(bill.amount ?? 0);
+          acc.service += Number(bill.amount ?? 0);
+          acc.total += Number(bill.amount ?? 0);
         }
 
         return acc;
@@ -300,8 +300,8 @@ export default function BillingPage() {
             acc.electricity.usage += Number(elec.usage ?? 0);
             acc.electricity.amount += Number(elec.amount ?? 0);
             acc.electricity.rate = Number(elec.rate ?? 0) || acc.electricity.rate;
-            acc.electricity.prev = (acc.electricity.prev === null) 
-              ? Number(elec.previousReading ?? 0) 
+            acc.electricity.prev = (acc.electricity.prev === null)
+              ? Number(elec.previousReading ?? 0)
               : Math.min(acc.electricity.prev, Number(elec.previousReading ?? 0));
             acc.electricity.curr = Math.max(acc.electricity.curr, Number(elec.currentReading ?? 0));
             if (!acc.electricity.billIds.includes(bill.id)) acc.electricity.billIds.push(bill.id);
@@ -311,8 +311,8 @@ export default function BillingPage() {
             acc.water.usage += Number(wat.usage ?? 0);
             acc.water.amount += Number(wat.amount ?? 0);
             acc.water.rate = Number(wat.rate ?? 0) || acc.water.rate;
-            acc.water.prev = (acc.water.prev === null) 
-              ? Number(wat.previousReading ?? 0) 
+            acc.water.prev = (acc.water.prev === null)
+              ? Number(wat.previousReading ?? 0)
               : Math.min(acc.water.prev, Number(wat.previousReading ?? 0));
             acc.water.curr = Math.max(acc.water.curr, Number(wat.currentReading ?? 0));
             if (!acc.water.billIds.includes(bill.id)) acc.water.billIds.push(bill.id);
@@ -372,16 +372,16 @@ export default function BillingPage() {
     if (selection.type === "service") {
       filteredBills.forEach(bill => {
         if (bill.statusKey !== "paid" && bill.source === "service") {
-           serviceRows.push({
-             key: `payable-service-${bill.id}`,
-             label: bill.title || "Booking Service",
-             category: "service",
-             description: bill.description || "Service request",
-             unitPriceLabel: "N/A",
-             quantityLabel: "Request",
-             amount: bill.amount,
-             billIds: [bill.id]
-           });
+          serviceRows.push({
+            key: `payable-service-${bill.id}`,
+            label: bill.title || "Booking Service",
+            category: "service",
+            description: bill.description || "Service request",
+            unitPriceLabel: "N/A",
+            quantityLabel: "Request",
+            amount: bill.amount,
+            billIds: [bill.id]
+          });
         }
       });
     }
@@ -455,11 +455,11 @@ export default function BillingPage() {
 
       <div className="billing-page">
         <div className="billing-container">
-            <PropertySidebar
-              apartments={apartments}
-              selectedSelection={selection}
-              onSelect={setSelection}
-            />
+          <PropertySidebar
+            apartments={apartments}
+            selectedSelection={selection}
+            onSelect={setSelection}
+          />
 
           <main className="billing-content">
             <header className="billing-banner">
