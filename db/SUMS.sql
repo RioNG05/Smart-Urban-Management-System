@@ -3191,10 +3191,6 @@ GO
 -- Payments table for VNPAY and other payment gateways
 CREATE TABLE Payments (
     Id INT IDENTITY(1,1) PRIMARY KEY,
-    InvoiceId INT,            -- Liên kết đến hóa đơn (có thể là ID của UtilitiesInvoices, ServiceInvoices, v.v
-    InvoiceType VARCHAR(50) NOT NULL,  -- Loại hóa đơn (vd: 'UTILITIES', 'SERVICES', 'BOOKING')
-    InvoiceMonth INT NOT NULL,
-    InvoiceYear INT NOT NULL,
     Amount DECIMAL(18, 2) NOT NULL,
     TransactionId VARCHAR(100),        -- Mã giao dịch trả về từ VNPAY hoặc gateway
     OrderInfo NVARCHAR(MAX),           -- Nội dung thanh toán
@@ -3202,6 +3198,19 @@ CREATE TABLE Payments (
     PaymentStatus INT DEFAULT 0, -- 0-PENDING, 1-SUCCESS, 2-FAILED
     PaymentDate DATETIME DEFAULT GETDATE(),
     CreatedAt DATETIME DEFAULT GETDATE()
+);
+GO
+
+CREATE TABLE PaymentInvoice (
+    Id INT IDENTITY(1,1) PRIMARY KEY,
+    PaymentId INT NOT NULL,
+    InvoiceId INT NOT NULL,
+    InvoiceType VARCHAR(50) NOT NULL,
+    InvoiceMonth INT NOT NULL,
+    InvoiceYear INT NOT NULL,
+    Amount DECIMAL(18,2) NOT NULL, -- tiền của từng invoice
+
+    FOREIGN KEY (PaymentId) REFERENCES Payments(Id)
 );
 GO
 

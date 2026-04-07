@@ -1,10 +1,10 @@
 package com.example.backend.Enum;
 
-public enum UtilitiesInvoiceStatus {
+public enum InvoiceStatus {
     UNPAID(0, "INVOICE HAVEN'T PAID YET"),
     PAID(1, "INVOICE WAS PAID")
     ;
-    UtilitiesInvoiceStatus(Integer code, String status){
+    InvoiceStatus(Integer code, String status){
         this.code = code;
         this.status = status;
     }
