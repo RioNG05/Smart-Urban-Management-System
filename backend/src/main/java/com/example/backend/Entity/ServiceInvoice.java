@@ -32,7 +32,4 @@ public class ServiceInvoice {
 
     @Column(name = "CreatedAt", insertable = false, updatable = false)
     private LocalDateTime createdAt;
-
-    @Column(name = "PaymentId")
-    private Integer paymentId;
 }

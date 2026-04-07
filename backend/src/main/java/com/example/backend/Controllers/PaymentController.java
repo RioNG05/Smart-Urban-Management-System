@@ -44,11 +44,11 @@ public class PaymentController {
      * @param request The HttpServletRequest containing all query params from VNPAY.
      * @return JSON String with RspCode that VNPAY expects.
      */
-    @GetMapping("/vnpay_ipn")
-    public ResponseEntity<String> vnpayIpn(HttpServletRequest request) {
-        String ipnResponse = vnPayService.handleIPN(request);
-        return ResponseEntity.ok(ipnResponse);
-    }
+//    @GetMapping("/vnpay_ipn")
+//    public ResponseEntity<String> vnpayIpn(HttpServletRequest request) {
+//        String ipnResponse = vnPayService.handleIPN(request);
+//        return ResponseEntity.ok(ipnResponse);
+//    }
 
     /**
      * Optional endpoint for Frontend check using GET.

@@ -1,16 +1,12 @@
 package com.example.backend.Service;
 
 import com.example.backend.DTO.Request.payment.PaymentRequest;
-import com.example.backend.DTO.Response.ApiResponse;
 import com.example.backend.DTO.Response.payment.VNPayResponse;
 import com.example.backend.Entity.Payment;
-import com.example.backend.Enum.InvoiceType;
 import com.example.backend.Enum.PaymentStatus;
 import com.example.backend.Enum.TransactionCode;
-import com.example.backend.Enum.UtilitiesInvoiceStatus;
 import com.example.backend.Repository.PaymentRepository;
 import com.example.backend.Repository.UtilitiesInvoiceRepository;
-import com.example.backend.Entity.UtilitiesInvoice;
 import com.example.backend.config.VNPayConfig;
 import com.example.backend.util.VNPayUtil;
 import jakarta.servlet.http.HttpServletRequest;
@@ -21,7 +17,6 @@ import java.math.BigDecimal;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
-import java.time.LocalDateTime;
 import java.util.*;
 
 @Service
@@ -106,9 +101,6 @@ public class VNPayService {
         // Create Payment log in DB
 
         Payment payment = Payment.builder()
-                .invoiceType(paymentRequest.getInvoiceType())
-                .invoiceMonth(paymentRequest.getInvoiceMonth())
-                .invoiceYear(paymentRequest.getInvoiceYear())
                 .amount(paymentRequest.getAmount())
                 .transactionId(vnp_TxnRef)
                 .orderInfo(paymentRequest.getOrderInfo())
@@ -116,10 +108,6 @@ public class VNPayService {
                 .paymentStatus(0)
                 .build();
 
-        if(paymentRequest.getInvoiceType().equals(InvoiceType.UTILITIES_INVOICE)){
-            Integer invoiceId = paymentRequest.getInvoiceId()[0];
-            payment.setInvoiceId(invoiceId);
-        }
         paymentRepository.save(payment);
 
         VNPayResponse vnPayResponse = new VNPayResponse();
@@ -147,20 +135,25 @@ public class VNPayService {
         }
         
         String signValue = hashAllFields(fields);
-        
+
+        /*check cai checksum t cung eo hieu lam ;-; nhung ma dai khai la neu khong phai url do minh cung cap thi khong xu ly*/
         if (signValue.equals(vnp_SecureHash)) {
             String transactionRef = request.getParameter("vnp_TxnRef");
 
             Payment payment = paymentRepository.findByTransactionId(transactionRef).orElse(null);
 
+            /* Kiem tra xem co payment trong he thong khong */
             if(Objects.isNull(payment)){
                 return TransactionCode.NOT_FOUND.getCode();
             }
 
+            /*Kiem tra xem cai payment da tim thay day da duoc thanh toan chua */
             if(!Objects.equals(payment.getPaymentStatus(), PaymentStatus.SUCCESS.getCode())){
                 String responseCode = request.getParameter("vnp_ResponseCode");
+
+                /* kiem tra xem cai response code co thanh cong khong de xu ly cai payment*/
                 if(responseCode.equals("00")){
-                    updateInvoiceStatus(payment, );
+//                    updateInvoiceStatus(payment);
                     return TransactionCode.SUCCESS.getCode();
                 } else{
                     return TransactionCode.FAILED.getCode();
@@ -171,49 +164,49 @@ public class VNPayService {
         return TransactionCode.WRONG_CHECKSUM.getCode(); // Invalid checksum
     }
     
-    // IPN handler if needed by server to server call
-    public String handleIPN(HttpServletRequest request) {
-        Map<String, String> fields = new HashMap<>();
-        for (Enumeration<String> params = request.getParameterNames(); params.hasMoreElements();) {
-            String fieldName = params.nextElement();
-            String fieldValue = request.getParameter(fieldName);
-            if ((fieldValue != null) && (fieldValue.length() > 0)) {
-                fields.put(fieldName, fieldValue);
-            }
-        }
 
-        String vnp_SecureHash = request.getParameter("vnp_SecureHash");
-        if (fields.containsKey("vnp_SecureHashType")) {
-            fields.remove("vnp_SecureHashType");
-        }
-        if (fields.containsKey("vnp_SecureHash")) {
-            fields.remove("vnp_SecureHash");
-        }
-        
-        String signValue = hashAllFields(fields);
-        if (signValue.equals(vnp_SecureHash)) {
-             String transactionRef = request.getParameter("vnp_TxnRef");
-             Optional<Payment> optionalPayment = paymentRepository.findByTransactionId(transactionRef);
-             if(optionalPayment.isPresent()){
-                 Payment payment = optionalPayment.get();
-                 if(payment.getPaymentStatus() == 1) {
-                     if ("00".equals(request.getParameter("vnp_TransactionStatus"))) {
-                         payment.setPaymentStatus(1);
-                         payment.setPaymentDate(LocalDateTime.now());
-                         updateInvoiceStatus(payment);
-                     } else {
-                         payment.setPaymentStatus(2);
-                     }
-                     paymentRepository.save(payment);
-                 }
-                 return "{\"RspCode\":\"00\",\"Message\":\"Confirm Success\"}";
-             } else {
-                 return "{\"RspCode\":\"01\",\"Message\":\"Order not found\"}";
-             }
-        } else {
-            return "{\"RspCode\":\"97\",\"Message\":\"Invalid Checksum\"}";
-        }
-    }
+//    public String handleIPN(HttpServletRequest request) {
+//        Map<String, String> fields = new HashMap<>();
+//        for (Enumeration<String> params = request.getParameterNames(); params.hasMoreElements();) {
+//            String fieldName = params.nextElement();
+//            String fieldValue = request.getParameter(fieldName);
+//            if ((fieldValue != null) && (fieldValue.length() > 0)) {
+//                fields.put(fieldName, fieldValue);
+//            }
+//        }
+//
+//        String vnp_SecureHash = request.getParameter("vnp_SecureHash");
+//        if (fields.containsKey("vnp_SecureHashType")) {
+//            fields.remove("vnp_SecureHashType");
+//        }
+//        if (fields.containsKey("vnp_SecureHash")) {
+//            fields.remove("vnp_SecureHash");
+//        }
+//
+//        String signValue = hashAllFields(fields);
+//        if (signValue.equals(vnp_SecureHash)) {
+//             String transactionRef = request.getParameter("vnp_TxnRef");
+//             Optional<Payment> optionalPayment = paymentRepository.findByTransactionId(transactionRef);
+//             if(optionalPayment.isPresent()){
+//                 Payment payment = optionalPayment.get();
+//                 if(payment.getPaymentStatus() == 1) {
+//                     if ("00".equals(request.getParameter("vnp_TransactionStatus"))) {
+//                         payment.setPaymentStatus(1);
+//                         payment.setPaymentDate(LocalDateTime.now());
+//                         updateInvoiceStatus(payment);
+//                     } else {
+//                         payment.setPaymentStatus(2);
+//                     }
+//                     paymentRepository.save(payment);
+//                 }
+//                 return "{\"RspCode\":\"00\",\"Message\":\"Confirm Success\"}";
+//             } else {
+//                 return "{\"RspCode\":\"01\",\"Message\":\"Order not found\"}";
+//             }
+//        } else {
+//            return "{\"RspCode\":\"97\",\"Message\":\"Invalid Checksum\"}";
+//        }
+//    }
 
     private String hashAllFields(Map<String, String> fields) {
         List<String> fieldNames = new ArrayList<>(fields.keySet());
@@ -235,27 +228,27 @@ public class VNPayService {
         return VNPayUtil.hmacSHA512(vnPayConfig.getVnp_HashSecret(), sb.toString());
     }
 
-    private void updateInvoiceStatus(Payment payment){
-        if(payment.getInvoiceType().equals(InvoiceType.UTILITIES_INVOICE)){
-            updateUtilitiesInvoiceStatus(payment);
-        }
-    }
-
-    private void updateUtilitiesInvoiceStatus(Payment payment){
-        UtilitiesInvoice utilitiesInvoice = utilitiesInvoiceRepository.findById(payment.getInvoiceId()).orElse(null);
-
-        if(Objects.isNull(utilitiesInvoice)){
-            throw new RuntimeException("Can't found utilities invoice");
-        }
-
-        if(utilitiesInvoice.getStatus().equals(UtilitiesInvoiceStatus.PAID.getCode())){
-            throw new RuntimeException(UtilitiesInvoiceStatus.PAID.getStatus());
-        }
-
-        utilitiesInvoice.setStatus(UtilitiesInvoiceStatus.PAID.getCode());
-    }
-
-    private void updateServiceInvoiceStatus(Payment payment){
-
-    }
+//    private void updateInvoiceStatus(Payment payment){
+//        if(payment.getInvoiceType().equals(InvoiceType.UTILITIES_INVOICE)){
+//            updateUtilitiesInvoiceStatus(payment);
+//        }
+//    }
+//
+//    private void updateUtilitiesInvoiceStatus(Payment payment){
+//        UtilitiesInvoice utilitiesInvoice = utilitiesInvoiceRepository.findById(payment.getInvoiceId()).orElse(null);
+//
+//        if(Objects.isNull(utilitiesInvoice)){
+//            throw new RuntimeException("Can't found utilities invoice");
+//        }
+//
+//        if(utilitiesInvoice.getStatus().equals(UtilitiesInvoiceStatus.PAID.getCode())){
+//            throw new RuntimeException(UtilitiesInvoiceStatus.PAID.getStatus());
+//        }
+//
+//        utilitiesInvoice.setStatus(UtilitiesInvoiceStatus.PAID.getCode());
+//    }
+//
+//    private void updateServiceInvoiceStatus(Payment payment){
+//
+//    }
 }

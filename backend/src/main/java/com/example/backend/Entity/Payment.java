@@ -22,19 +22,6 @@ public class Payment {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Column(name = "InvoiceId")
-    private Integer invoiceId;
-
-    @Column(name = "InvoiceType", nullable = false, length = 50)
-    @Enumerated(EnumType.STRING)
-    private InvoiceType invoiceType;
-
-    @Column(name = "InvoiceMonth")
-    private Integer invoiceMonth;
-
-    @Column(name = "InvoiceYear")
-    private Integer invoiceYear;
-
     @Column(name = "Amount", nullable = false)
     private BigDecimal amount;
 
