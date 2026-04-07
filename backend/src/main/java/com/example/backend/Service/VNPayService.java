@@ -160,7 +160,7 @@ public class VNPayService {
             if(!Objects.equals(payment.getPaymentStatus(), PaymentStatus.SUCCESS.getCode())){
                 String responseCode = request.getParameter("vnp_ResponseCode");
                 if(responseCode.equals("00")){
-                    updateInvoiceStatus(payment, );
+                    updateInvoiceStatus(payment);
                     return TransactionCode.SUCCESS.getCode();
                 } else{
                     return TransactionCode.FAILED.getCode();
