@@ -82,6 +82,7 @@ export default function BookingForm({ onBookingSuccess }) {
   const [selectedServiceId, setSelectedServiceId] = useState(null);
   const [selectedResourceId, setSelectedResourceId] = useState(null);
   const [activeSlideIndex, setActiveSlideIndex] = useState(0);
+  const [activeResourceSlideIndex, setActiveResourceSlideIndex] = useState(0);
 
   // ── Schedule ──────────────────────────────────────────────────────────────
   const [preferredDate, setPreferredDate] = useState("");
@@ -164,6 +165,28 @@ export default function BookingForm({ onBookingSuccess }) {
     const id = setInterval(() => setActiveSlideIndex((i) => (i + 1) % carouselImages.length), 4000);
     return () => clearInterval(id);
   }, [carouselImages.length]);
+
+  const resourceCarouselImages = useMemo(() => {
+    if (!selectedResource) return [];
+    const seen = new Set();
+    return [...(selectedResource.imageUrls ?? []), selectedResource.imageUrl].filter((img) => {
+      const s = String(img ?? "").trim();
+      if (!s || seen.has(s)) return false;
+      seen.add(s);
+      return true;
+    });
+  }, [selectedResource]);
+
+  useEffect(() => { setActiveResourceSlideIndex(0); }, [selectedResourceId]);
+
+  useEffect(() => {
+    if (resourceCarouselImages.length <= 1) return;
+    const id = setInterval(
+      () => setActiveResourceSlideIndex((i) => (i + 1) % resourceCarouselImages.length),
+      4000
+    );
+    return () => clearInterval(id);
+  }, [resourceCarouselImages.length]);
 
   // ── Auto-scroll ───────────────────────────────────────────────────────────
   const scrollTo = (ref) => {
@@ -503,35 +526,82 @@ export default function BookingForm({ onBookingSuccess }) {
               </div>
 
               {availableResources.length ? (
-                <div className="booking-area-grid">
-                  {availableResources.map((resource) => {
-                    const isSelected = resource.id === selectedResource?.id;
-                    return (
-                      <button
-                        key={resource.id}
-                        type="button"
-                        className={`booking-area-card ${isSelected ? "active" : ""}`}
-                        onClick={() => handleSelectResource(resource.id)}
-                      >
-                        <div className="booking-resource-visual">
-                          {resource.imageUrl && (
-                            <img src={resource.imageUrl} alt={resource.resourceCode || `Resource #${resource.id}`} className="booking-resource-image" />
-                          )}
-                          {isSelected && (
-                            <span className="booking-resource-badge booking-resource-badge--selected">
-                              Selected
-                            </span>
-                          )}
-                          <h4>{resource.resourceCode || `Resource #${resource.id}`}</h4>
+                <>
+                  <div className="booking-area-grid">
+                    {availableResources.map((resource) => {
+                      const isSelected = resource.id === selectedResource?.id;
+                      return (
+                        <button
+                          key={resource.id}
+                          type="button"
+                          className={`booking-area-card ${isSelected ? "active" : ""}`}
+                          onClick={() => handleSelectResource(resource.id)}
+                        >
+                          <div className="booking-resource-visual">
+                            {resource.imageUrl && (
+                              <img src={resource.imageUrl} alt={resource.resourceCode || `Resource #${resource.id}`} className="booking-resource-image" />
+                            )}
+                            {isSelected && (
+                              <span className="booking-resource-badge booking-resource-badge--selected">
+                                Selected
+                              </span>
+                            )}
+                            <h4>{resource.resourceCode || `Resource #${resource.id}`}</h4>
+                          </div>
+                          <div className="booking-area-content">
+                            <h4>{resource.location || "Location pending"}</h4>
+                            <p>Resource ID: {resource.id}. Available for immediate reservation.</p>
+                          </div>
+                        </button>
+                      );
+                    })}
+                  </div>
+
+                  {selectedResource && resourceCarouselImages.length > 0 && (
+                    <div className="booking-service-detail">
+                      <div className="booking-service-detail-image-wrap">
+                        <img
+                          src={resourceCarouselImages[activeResourceSlideIndex]}
+                          alt={selectedResource.resourceCode || `Resource #${selectedResource.id}`}
+                          className="booking-service-detail-image"
+                        />
+                        {resourceCarouselImages.length > 1 && (
+                          <div className="booking-visual-dots">
+                            {resourceCarouselImages.map((_, idx) => (
+                              <button
+                                key={idx}
+                                type="button"
+                                className={`booking-visual-dot ${idx === activeResourceSlideIndex ? "active" : ""}`}
+                                onClick={() => setActiveResourceSlideIndex(idx)}
+                                aria-label={`Resource image ${idx + 1}`}
+                              />
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                      <div className="booking-service-detail-info">
+                        <div className="booking-service-detail-row">
+                          <span className="booking-service-detail-label">Resource</span>
+                          <span className="booking-service-detail-value">
+                            {selectedResource.resourceCode || `Resource #${selectedResource.id}`}
+                          </span>
                         </div>
-                        <div className="booking-area-content">
-                          <h4>{resource.location || "Location pending"}</h4>
-                          <p>Resource ID: {resource.id}. Available for immediate reservation.</p>
+                        <div className="booking-service-detail-row">
+                          <span className="booking-service-detail-label">Location</span>
+                          <span className="booking-service-detail-value">
+                            {selectedResource.location || "Location pending"}
+                          </span>
                         </div>
-                      </button>
-                    );
-                  })}
-                </div>
+                        <div className="booking-service-detail-row">
+                          <span className="booking-service-detail-label">Gallery</span>
+                          <span className="booking-service-detail-value">
+                            {resourceCarouselImages.length} image{resourceCarouselImages.length > 1 ? "s" : ""}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </>
               ) : (
                 <div className="booking-empty-state">No live resources available for this service right now.</div>
               )}

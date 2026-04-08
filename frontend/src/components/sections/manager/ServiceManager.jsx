@@ -20,9 +20,7 @@ import {
   getServiceResources,
   getServices,
   removeServiceBookingVisibility,
-  removeServiceResourceImage,
   setServiceBookingVisibility,
-  setServiceResourceImage,
   updateServiceResource,
   updateService,
   uploadServiceImage,
@@ -564,7 +562,6 @@ const ServiceManager = () => {
 
     try {
       await deleteServiceResource(resourceId);
-      removeServiceResourceImage(resourceId);
       toast.success("Service resource deleted successfully.");
       handleResourceReset();
       await loadServices();
@@ -607,21 +604,21 @@ const ServiceManager = () => {
       if (editingResourceId) {
         await updateServiceResource(editingResourceId, payload);
         if (resourceImageFile) {
-          const imageUrl = await uploadServiceResourceImage(
+          await uploadServiceResourceImage(
+            editingResourceId,
             resourceImageFile,
-            `${payload.resourceCode || "resource"}-${Date.now()}`,
+            payload.location || payload.resourceCode || "",
           );
-          setServiceResourceImage(editingResourceId, imageUrl);
         }
         toast.success("Service resource updated successfully.");
       } else {
         const createdResource = await createServiceResource(payload);
         if (resourceImageFile && createdResource?.id) {
-          const imageUrl = await uploadServiceResourceImage(
+          await uploadServiceResourceImage(
+            createdResource.id,
             resourceImageFile,
-            `${payload.resourceCode || "resource"}-${Date.now()}`,
+            payload.location || payload.resourceCode || "",
           );
-          setServiceResourceImage(createdResource.id, imageUrl);
         }
         toast.success("Service resource created successfully.");
       }

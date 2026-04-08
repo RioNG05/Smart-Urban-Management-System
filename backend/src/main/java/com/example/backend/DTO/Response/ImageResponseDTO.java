@@ -14,4 +14,5 @@ public class ImageResponseDTO {
     private String imageUrl;
     private String description;
     private Integer apartmentTypeId;
+    private Integer serviceResourceId;
 }

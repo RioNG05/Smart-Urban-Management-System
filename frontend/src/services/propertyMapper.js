@@ -147,7 +147,7 @@ export const formatPrice = (value) => {
   const numericValue = Number(value);
 
   if (!Number.isFinite(numericValue) || numericValue <= 0) {
-    return "Lien he";
+    return "Contact for price";
   }
 
   return new Intl.NumberFormat("vi-VN", {
@@ -173,54 +173,54 @@ export const getImageByTypeName = (name = "") => {
 
 const normalizeFurniture = (furniture) => {
   if (furniture === 1 || furniture === true) {
-    return "Co noi that co ban";
+    return "Basic furnished";
   }
 
   if (furniture === 0 || furniture === false) {
-    return "Ban giao tho";
+    return "Unfurnished";
   }
 
-  return "Dang cap nhat";
+  return "Updating";
 };
 
 const normalizeStatus = (status) => {
   if (status === 1) {
-    return "Da co chu";
+    return "Occupied";
   }
 
   if (status === 0) {
-    return "Dang mo ban";
+    return "Now Selling";
   }
 
-  return "Dang cap nhat";
+  return "Updating";
 };
 
 const formatPostedDate = (createdAt) => {
   if (!createdAt) {
-    return "Dang cap nhat";
+    return "Updating";
   }
 
   const parsedDate = new Date(createdAt);
 
   if (Number.isNaN(parsedDate.getTime())) {
-    return "Dang cap nhat";
+    return "Updating";
   }
 
-  return new Intl.DateTimeFormat("vi-VN").format(parsedDate);
+  return new Intl.DateTimeFormat("en-GB").format(parsedDate);
 };
 
 const buildLocationLabel = (roomNumber, floorNumber) => {
   const parts = [];
 
   if (roomNumber !== undefined && roomNumber !== null) {
-    parts.push(`Phong ${roomNumber}`);
+    parts.push(`Room ${roomNumber}`);
   }
 
   if (floorNumber !== undefined && floorNumber !== null) {
-    parts.push(`Tang ${floorNumber}`);
+    parts.push(`Floor ${floorNumber}`);
   }
 
-  return parts.length ? parts.join(", ") : "Dang cap nhat";
+  return parts.length ? parts.join(", ") : "Updating";
 };
 
 export const mapApartmentTypeToCard = (
@@ -233,7 +233,7 @@ export const mapApartmentTypeToCard = (
   return {
     id: apartmentType.id,
     name: apartmentType.name || "Apartment type",
-    description: apartmentType.overview || "Thong tin dang duoc cap nhat.",
+    description: apartmentType.overview || "Details are being updated.",
     image: pickFirstValidImage(images, fallbackImage),
     images: images.length ? images : [fallbackImage],
     bedrooms: apartmentType.numberOfBedroom ?? 0,
@@ -256,7 +256,7 @@ export const mapApartmentToProperty = (
   const pricePerSquareMeter =
     displayPrice && area > 0 ? Math.round(Number(displayPrice) / area) : null;
   const title =
-    apartmentType.name || `Can ho ${apartment.roomNumber ?? apartment.id}`;
+    apartmentType.name || `Apartment ${apartment.roomNumber ?? apartment.id}`;
   const apartmentImages = getApartmentTypeImages(
     apartmentType,
     apartmentTypeImageMap,
@@ -272,7 +272,7 @@ export const mapApartmentToProperty = (
   return {
     id: apartment.id,
     apartmentTypeId: apartment.apartmentTypeId ?? apartment.apartmentType?.id ?? null,
-    apartmentTypeName: apartmentType.name || "Dang cap nhat",
+    apartmentTypeName: apartmentType.name || "Updating",
     title,
     location: locationLabel,
     fullLocation,
@@ -290,12 +290,12 @@ export const mapApartmentToProperty = (
     isAvailable: apartment.status === 0,
     sortPrice: Number(displayPrice ?? 0),
     roomNumber: apartment.roomNumber ?? apartment.id,
-    floorNumber: apartment.floorNumber ?? "Dang cap nhat",
-    direction: apartment.direction || "Dang cap nhat",
+    floorNumber: apartment.floorNumber ?? "Updating",
+    direction: apartment.direction || "Updating",
     propertyType: "Apartment",
-    overview: apartmentType.overview || "Dang cap nhat",
+    overview: apartmentType.overview || "Updating",
     furniture: normalizeFurniture(apartmentType.furniture),
-    legalStatus: "Dang cap nhat",
+    legalStatus: "Updating",
     pricePerSquareMeter: formatPrice(pricePerSquareMeter),
     postedDate: formatPostedDate(apartmentType.createdAt),
     hasMapLocation: true,
