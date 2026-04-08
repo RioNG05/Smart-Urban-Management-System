@@ -1,6 +1,8 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { FaChevronDown, FaChevronUp, FaCheckSquare, FaRegSquare, FaBolt, FaTint, FaBuilding, FaFileInvoiceDollar } from "react-icons/fa";
 import { motion, AnimatePresence } from "framer-motion";
+import { toast } from "react-toastify";
+import api from "../../../services/api";
 
 export default function BillingPayableBreakdown({
   totals = { electricity: 0, water: 0, management: 0, service: 0, total: 0 },
@@ -60,6 +62,57 @@ export default function BillingPayableBreakdown({
       </tr>
     );
   };
+
+  const handlePayment = async (totals) => {
+    try {
+      const invoicesPayload = [];
+      const { month: invoiceMonth, year: invoiceYear } = (() => {
+        if (!monthKey || monthKey === "all") {
+          const d = new Date();
+          return { month: d.getMonth() + 1, year: d.getFullYear() };
+        }
+        const d = new Date(monthKey);
+        return { month: d.getMonth() + 1, year: d.getFullYear() };
+      })();
+
+      const extractInvoices = (rows, type) => {
+        if (!rows) return;
+        rows.forEach(row => {
+          row.billIds?.forEach(idStr => {
+            const match = String(idStr).match(/\d+/);
+            if (match) {
+              const invId = parseInt(match[0], 10);
+              if (!invoicesPayload.some(i => i.invoiceId === invId && i.invoiceType === type)) {
+                invoicesPayload.push({
+                  invoiceId: invId,
+                  invoiceType: type,
+                  invoiceMonth,
+                  invoiceYear
+                });
+              }
+            }
+          });
+        });
+      };
+
+      extractInvoices(pricingRows?.utilities, "UTILITIES_INVOICE");
+      extractInvoices(pricingRows?.services, "SERVICES_INVOICE");
+
+      if (invoicesPayload.length === 0) {
+         toast.warn("Không tìm thấy mã hóa đơn hợp lệ.");
+         return;
+      }
+
+      const res = await api.post("/payment/create", {
+        orderInfo: `Thanh toan phi - ${apartmentLabel}`,
+        invoices: invoicesPayload
+      });
+      window.location.href = res.data.result.paymentUrl;
+    } catch (error) {
+      console.error(error);
+      toast.error("Lỗi khi kết nối tới cổng thanh toán.");
+    }
+  };
   return (
     <section className="billing-panel">
       <div className="billing-panel-header condensed">
@@ -113,15 +166,30 @@ export default function BillingPayableBreakdown({
         <div className="payment-summary-content">
           <span className="total-label">Monthly Gross Total:</span>
           <span className="total-value">
-            {formatCurrency(totals.total)}
+            {formatCurrency(monthKey === "all" ? (totals.unpaidTotal || 0) : totals.total)}
           </span>
         </div>
-        <button 
-          className="pay-selected-btn premium-btn"
-          onClick={() => alert(`Proceeding to pay ${formatCurrency(totals.total)}`)}
-        >
-          Pay Total Bill
-        </button>
+        {!totals.hasInvoices ? null : totals.allPaid ? (
+          <div className="paid-tag" style={{
+            padding: "10px 24px",
+            backgroundColor: "#2e7d32",
+            color: "white",
+            borderRadius: "6px",
+            fontWeight: "600",
+            letterSpacing: "1px",
+            textTransform: "uppercase",
+            boxShadow: "0 4px 10px rgba(46, 125, 50, 0.2)"
+          }}>
+            Paid
+          </div>
+        ) : (
+          <button 
+            className="pay-selected-btn premium-btn"
+            onClick={() => handlePayment(totals)}
+          >
+            Pay Total Bill
+          </button>
+        )}
       </div>
 
       <div className="payable-breakdown-grid">

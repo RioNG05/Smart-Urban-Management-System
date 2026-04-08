@@ -2,6 +2,8 @@ package com.example.backend.Entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.CollectionId;
+
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 

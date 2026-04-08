@@ -41,7 +41,6 @@ public class VisitorLogService {
 
         return visitorLogRepository.save(visitorLog);
     }
-
     public List<VisitorLog> getAllVisitors() {
         return visitorLogRepository.findAll();
     }
