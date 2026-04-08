@@ -1,7 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { FaChevronDown, FaChevronUp, FaCheckSquare, FaRegSquare, FaBolt, FaTint, FaBuilding, FaFileInvoiceDollar } from "react-icons/fa";
 import { motion, AnimatePresence } from "framer-motion";
-import { useLocation, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import api from "../../../services/api";
 
@@ -22,51 +21,6 @@ export default function BillingPayableBreakdown({
 
   const utilitiesRef = useRef(null);
   const servicesRef = useRef(null);
-  const location = useLocation();
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    // Check for payment success toast in session storage after a reload
-    const paymentToast = sessionStorage.getItem("paymentSuccessToast");
-    if (paymentToast === "true") {
-      toast.success("Thanh toán thành công!", {
-        position: "top-right",
-        style: { 
-          marginTop: "80px", 
-          backgroundColor: "#e8f5e9", // Elegant green background
-          color: "#2e7d32",          // Deep green text
-          fontWeight: "600",
-          border: "1px solid #c8e6c9"
-        }
-      });
-      sessionStorage.removeItem("paymentSuccessToast");
-    }
-
-    // Process VNPay return parameters
-    const params = new URLSearchParams(location.search);
-    const vnp_ResponseCode = params.get("vnp_ResponseCode");
-
-    if (vnp_ResponseCode) {
-      const verifyPayment = async () => {
-        try {
-          const res = await api.get(`/payment/vnpay_return${window.location.search}`);
-          if (res.data.status === 1) {
-            // Set flag and reload to fetch updated bills
-            sessionStorage.setItem("paymentSuccessToast", "true");
-            window.location.href = window.location.pathname; 
-          } else {
-            toast.error("Thanh toán thất bại hoặc có lỗi xảy ra.");
-            navigate(location.pathname, { replace: true });
-          }
-        } catch (err) {
-          console.error("Lỗi xác minh thanh toán", err);
-          toast.error("Có lỗi xảy ra khi xác thực giao dịch.");
-          navigate(location.pathname, { replace: true });
-        }
-      };
-      verifyPayment();
-    }
-  }, [location, navigate]);
 
   const toggleSection = (section) => {
     const isExpanding = !expanded[section];
@@ -212,7 +166,7 @@ export default function BillingPayableBreakdown({
         <div className="payment-summary-content">
           <span className="total-label">Monthly Gross Total:</span>
           <span className="total-value">
-            {formatCurrency(totals.total)}
+            {formatCurrency(monthKey === "all" ? (totals.unpaidTotal || 0) : totals.total)}
           </span>
         </div>
         {!totals.hasInvoices ? null : totals.allPaid ? (

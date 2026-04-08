@@ -1,5 +1,5 @@
-import { useEffect, useMemo, useState } from "react";
-import { Link } from "react-router-dom";
+import { useEffect, useMemo, useState, useRef } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { motion, AnimatePresence } from "framer-motion";
 import api from "../services/api";
@@ -70,12 +70,78 @@ export default function BillingPage() {
   });
   const [selectedIds, setSelectedIds] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
   
   // Service-specific filters
   const [serviceMonthKey, setServiceMonthKey] = useState("all");
   const [serviceFilterName, setServiceFilterName] = useState("all");
   const [serviceStatusFilter, setServiceStatusFilter] = useState("all");
   const [bookingStatusFilter, setBookingStatusFilter] = useState("all");
+
+  const location = useLocation();
+  const navigate = useNavigate();
+  const isVerifying = useRef(false);
+
+  useEffect(() => {
+    // Check for payment success toast in session storage after a reload
+    const paymentToast = sessionStorage.getItem("paymentSuccessToast");
+    if (paymentToast === "true") {
+      toast.success("Thanh toán thành công!", {
+        position: "top-right",
+        style: { 
+          marginTop: "80px", 
+          backgroundColor: "#e8f5e9", // Elegant green background
+          color: "#2e7d32",          // Deep green text
+          fontWeight: "600",
+          border: "1px solid #c8e6c9"
+        }
+      });
+      sessionStorage.removeItem("paymentSuccessToast");
+    }
+
+    // Process VNPay return parameters
+    const params = new URLSearchParams(location.search);
+    const vnp_ResponseCode = params.get("vnp_ResponseCode");
+
+    if (vnp_ResponseCode && !isVerifying.current) {
+      isVerifying.current = true;
+      const verifyPayment = async () => {
+        try {
+          const res = await api.get(`/payment/vnpay_return${window.location.search}`);
+          if (res.data.code === 0 || res.data.code === 4) {
+            if (res.data.code === 0) {
+              toast.success("Thanh toán thành công!", {
+                position: "top-right",
+                autoClose: 5000,
+                style: { 
+                  marginTop: "80px", 
+                  backgroundColor: "#e8f5e9", // Elegant green background
+                  color: "#2e7d32",          // Deep green text
+                  fontWeight: "600",
+                  border: "1px solid #c8e6c9"
+                }
+              });
+            }
+            // Clean URL query without reloading the page
+            navigate(location.pathname, { replace: true });
+            // Refresh bills data
+            setRefreshTrigger(prev => prev + 1);
+          } else {
+            toast.error("Thanh toán thất bại hoặc có lỗi xảy ra.");
+            navigate(location.pathname, { replace: true });
+          }
+        } catch (err) {
+          console.error("Lỗi xác minh thanh toán", err);
+          toast.error("Có lỗi xảy ra khi xác thực giao dịch.");
+          navigate(location.pathname, { replace: true });
+        } finally {
+          // Release lock after a short delay in case of component remount
+          setTimeout(() => { isVerifying.current = false; }, 1000);
+        }
+      };
+      verifyPayment();
+    }
+  }, [location, navigate]);
 
   const onToggleBill = (billId, categories) => {
     setSelectedIds((prev) => {
@@ -233,7 +299,7 @@ export default function BillingPage() {
 
     loadAccountServices();
     return () => { active = false; };
-  }, [accountId]);
+  }, [accountId, refreshTrigger]);
 
   /* Load All Bookable Services list (for Unit Rates Table) */
   useEffect(() => {
@@ -293,7 +359,7 @@ export default function BillingPage() {
 
     loadApartmentUtilities();
     return () => { active = false; };
-  }, [accountId, selection.id]);
+  }, [accountId, selection.id, refreshTrigger]);
 
   // Sequential consumption history synthesis
   const utilityIndicesMap = (utilityBills, type) => {
@@ -461,8 +527,7 @@ export default function BillingPage() {
   const payableBreakdown = useMemo(() => {
     return filteredBills.reduce(
       (acc, bill) => {
-        // Do not skip paid bills so they still appear in Breakdown
-        // Filter by selection context
+        let invoiceAmt = 0;
         if (selection.type === "apartment" && bill.source === "utility") {
           const eAmt = Number(bill.utilityDetails?.electricity?.amount ?? 0);
           const wAmt = Number(bill.utilityDetails?.water?.amount ?? 0);
@@ -471,21 +536,24 @@ export default function BillingPage() {
           acc.electricity += eAmt;
           acc.water += wAmt;
           acc.management += mAmt;
-          acc.total += (eAmt + wAmt + mAmt);
+          invoiceAmt = (eAmt + wAmt + mAmt);
+          acc.total += invoiceAmt;
           acc.hasInvoices = true;
         } else if (selection.type === "service" && bill.source === "service") {
-          acc.service += Number(bill.amount ?? 0);
-          acc.total += Number(bill.amount ?? 0);
+          invoiceAmt = Number(bill.amount ?? 0);
+          acc.service += invoiceAmt;
+          acc.total += invoiceAmt;
           acc.hasInvoices = true;
         }
 
         if (bill.statusKey !== "paid") {
            acc.allPaid = false;
+           acc.unpaidTotal += invoiceAmt;
         }
 
         return acc;
       },
-      { electricity: 0, water: 0, management: 0, service: 0, total: 0, allPaid: true, hasInvoices: false }
+      { electricity: 0, water: 0, management: 0, service: 0, total: 0, unpaidTotal: 0, allPaid: true, hasInvoices: false }
     );
   }, [filteredBills, selection]);
 
@@ -513,7 +581,7 @@ export default function BillingPage() {
                 ? synthesized.electricity.prev
                 : Math.min(acc.electricity.prev, synthesized.electricity.prev);
               acc.electricity.curr = Math.max(acc.electricity.curr, synthesized.electricity.curr);
-              if (!acc.electricity.billIds.includes(bill.id)) acc.electricity.billIds.push(bill.id);
+              if (!acc.electricity.billIds.includes(bill.id) && bill.statusKey !== "paid") acc.electricity.billIds.push(bill.id);
             }
 
             if (wat) {
@@ -524,12 +592,12 @@ export default function BillingPage() {
                 ? synthesized.water.prev
                 : Math.min(acc.water.prev, synthesized.water.prev);
               acc.water.curr = Math.max(acc.water.curr, synthesized.water.curr);
-              if (!acc.water.billIds.includes(bill.id)) acc.water.billIds.push(bill.id);
+              if (!acc.water.billIds.includes(bill.id) && bill.statusKey !== "paid") acc.water.billIds.push(bill.id);
             }
 
           if (Number(bill.managementFee ?? 0) > 0) {
             acc.management.amount += Number(bill.managementFee ?? 0);
-            if (!acc.management.billIds.includes(bill.id)) acc.management.billIds.push(bill.id);
+            if (!acc.management.billIds.includes(bill.id) && bill.statusKey !== "paid") acc.management.billIds.push(bill.id);
           }
 
           return acc;
