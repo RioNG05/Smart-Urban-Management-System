@@ -269,7 +269,17 @@ export default function BillingPage() {
 
         if (!active) return;
 
-        const serviceInvoices = serviceInvoiceResponse?.items || [];
+        const allServiceInvoices = serviceInvoiceResponse?.items || serviceInvoiceResponse || [];
+        
+        // Filter Service Invoices to only include those belonging to the current user
+        const serviceInvoices = allServiceInvoices.filter(inv => {
+          const booking = inv.bookingService;
+          if (!booking) return false;
+          
+          const bookingAccountId = booking.account?.id || booking.accountId || booking.account;
+          return String(bookingAccountId) === String(accountId);
+        });
+
         const builtServiceBills = [
           ...serviceInvoices.map(inv => buildServiceBillFromBooking(inv.bookingService, inv)),
           ...bookings
