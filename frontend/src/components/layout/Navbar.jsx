@@ -10,7 +10,10 @@ import {
   markAllNotificationsAsRead,
   markNotificationAsRead,
 } from "../../services/notificationService";
-import { canAccessAdminSection, getDefaultAdminPath } from "../../admin/adminAccess";
+import {
+  canAccessAdminSection,
+  getDefaultAdminPath,
+} from "../../admin/adminAccess";
 import logoImg from "../../assets/logo.jpg";
 
 export default function Navbar({ solid = false }) {
@@ -391,7 +394,7 @@ export default function Navbar({ solid = false }) {
 
           <button
             className="nav-btn"
-            onClick={() => handleNavigation("/projects")}
+            onClick={() => handleNavigation("/market")}
           >
             Explore
           </button>

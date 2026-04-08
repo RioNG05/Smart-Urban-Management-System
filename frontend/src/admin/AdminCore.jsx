@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Outlet, NavLink, useOutletContext, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../components/sections/auth/AuthContext';
+import { getMyAccount } from '../services/profileService';
 import {
     getNotificationsByRole,
     markNotificationAsRead,
@@ -191,9 +192,9 @@ const AdminSidebar = ({ isOpen, setIsOpen, upcomingCount }) => {
 };
 
 export const AdminLayout = () => {
-    const { logout, role } = useAuth();
+    const { logout, role, user, isAuthenticated } = useAuth();
     const navigate = useNavigate();
-    const [adminName, setAdminName] = useState('');
+    const [adminAccount, setAdminAccount] = useState(user || null);
     const [isOpen, setIsOpen] = useState(true);
     const [showIdCard, setShowIdCard] = useState(false);
     const [openNotifications, setOpenNotifications] = useState(false);
@@ -203,8 +204,38 @@ export const AdminLayout = () => {
     const [upcomingCount, setUpcomingCount] = useState(0);
 
     useEffect(() => {
-        setAdminName('Super Admin');
-    }, []);
+        setAdminAccount(user || null);
+    }, [user]);
+
+    useEffect(() => {
+        if (!isAuthenticated) {
+            setAdminAccount(null);
+            return;
+        }
+
+        if (user?.id && user?.username) {
+            return;
+        }
+
+        let active = true;
+
+        const loadMyAccount = async () => {
+            try {
+                const account = await getMyAccount();
+                if (active) {
+                    setAdminAccount(account);
+                }
+            } catch (error) {
+                console.error('Failed to load admin account', error);
+            }
+        };
+
+        loadMyAccount();
+
+        return () => {
+            active = false;
+        };
+    }, [isAuthenticated, user]);
 
     useEffect(() => {
         if (role !== 'MANAGER') {
@@ -299,18 +330,21 @@ export const AdminLayout = () => {
         });
     };
 
+    const adminDisplayName = adminAccount?.username || user?.username || 'Admin';
+    const adminEmail = adminAccount?.email || user?.email || 'No email';
+    const adminRole = adminAccount?.role?.roleName || user?.role?.roleName || role || 'MANAGER';
+    const adminInitials = adminDisplayName
+        .split(' ')
+        .filter(Boolean)
+        .slice(0, 2)
+        .map((part) => part[0]?.toUpperCase() || '')
+        .join('') || 'AD';
+
     return (
         <div className="staff-wrapper">
             <AdminSidebar isOpen={isOpen} setIsOpen={setIsOpen} upcomingCount={upcomingCount} />
             <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
-                <header className="staff-topbar" style={{ justifyContent: 'space-between' }}>
-                    <nav className="staff-main-nav" style={{ marginRight: 0, alignItems: 'center' }}>
-                        <a href="/admin" className="active">Admin</a>
-                        <a href="/staff/apartment">Staff Apartment</a>
-                        <a href="/staff/service">Staff Service</a>
-                        <a href="/staff/security">Staff Security</a>
-                    </nav>
-
+                <header className="staff-topbar admin-topbar-clean">
                     <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
                         <div style={{ position: 'relative' }}>
                             <button
@@ -462,13 +496,13 @@ export const AdminLayout = () => {
                             {showIdCard && (
                                 <div className="staff-id-card">
                                     <div className="id-card-header">
-                                        <div className="staff-avatar-circle" style={{ background: '#0f172a' }}>SA</div>
-                                        <h3 style={{ margin: 0 }}>{adminName}</h3>
-                                        <p style={{ fontSize: '12px', color: '#64748b' }}>System Administrator</p>
+                                        <div className="staff-avatar-circle" style={{ background: '#0f172a' }}>{adminInitials}</div>
+                                        <h3 style={{ margin: 0 }}>{adminDisplayName}</h3>
+                                        <p style={{ fontSize: '12px', color: '#64748b' }}>{adminEmail}</p>
                                     </div>
                                     <div style={{ fontSize: '13px' }}>
-                                        <p><strong>Role:</strong> Super Admin</p>
-                                        <p><strong>Department:</strong> System Management</p>
+                                        <p><strong>Role:</strong> {adminRole}</p>
+                                        {adminAccount?.id && <p><strong>Account ID:</strong> {adminAccount.id}</p>}
                                     </div>
                                     <div className="logout-btn-wrapper">
                                         <button className="btn-logout-account" onClick={() => logout()}>

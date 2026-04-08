@@ -3,15 +3,15 @@ const ProductMeta = ({ property }) => {
     <div className="product-meta">
       <div className="meta-price-section">
         <div className="meta-price">{property.buyPrice}</div>
-        <div className="meta-price-per">Gia ban</div>
+        <div className="meta-price-per">Sale Price</div>
 
         <div className="meta-price" style={{ fontSize: "1.5rem", marginTop: "12px" }}>
           {property.rentPrice}
         </div>
         <div className="meta-price-per">
-          {property.rentPrice === "Lien he"
-            ? "Gia thue dang cap nhat"
-            : "Gia thue"}
+          {property.rentPrice === "Contact for price"
+            ? "Rental price updating"
+            : "Rental Price"}
         </div>
       </div>
 
@@ -19,8 +19,8 @@ const ProductMeta = ({ property }) => {
         <div className="meta-item">
           <span className="meta-label">Sale Price / m2</span>
           <strong className="meta-value">
-            {property.pricePerSquareMeter === "Lien he"
-              ? "Dang cap nhat"
+            {property.pricePerSquareMeter === "Contact for price"
+              ? "Updating"
               : property.pricePerSquareMeter}
           </strong>
         </div>
