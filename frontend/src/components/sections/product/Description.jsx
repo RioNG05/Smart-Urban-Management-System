@@ -4,13 +4,13 @@ const Description = ({ property }) => {
   const [expanded, setExpanded] = useState(false);
 
   const sections = [
-    property.overview !== "Dang cap nhat" ? property.overview : null,
-    `So phong: ${property.roomNumber}`,
-    `Tang: ${property.floorNumber}`,
-    `Dien tich: ${property.area} m2`,
-    `${property.bedrooms} phong ngu va ${property.bathrooms} phong tam`,
-    `Huong can ho: ${property.direction}`,
-    `Noi that: ${property.furniture}`,
+    property.overview !== "Updating" ? property.overview : null,
+    `Room number: ${property.roomNumber}`,
+    `Floor: ${property.floorNumber}`,
+    `Area: ${property.area} m2`,
+    `${property.bedrooms} bedrooms and ${property.bathrooms} bathrooms`,
+    `Direction: ${property.direction}`,
+    `Interior status: ${property.furniture}`,
   ].filter(Boolean);
 
   const content = sections.join("\n\n");

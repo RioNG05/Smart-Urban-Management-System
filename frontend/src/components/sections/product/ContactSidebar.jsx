@@ -1,22 +1,26 @@
+import { Link } from "react-router-dom";
+
 const ContactSidebar = ({ property }) => {
   return (
     <div className="contact-sidebar">
       <div className="agent-details">
         <div className="agent-name">Product Consultation</div>
         <div className="agent-status">{property.title}</div>
-        <div className="agent-status">Phong {property.roomNumber}</div>
+        <div className="agent-status">Room {property.roomNumber}</div>
       </div>
 
-      <button className="btn-call">Goi dien</button>
+      <Link to="/contact" className="btn-call">
+        Contact Consultant
+      </Link>
 
-      <button className="btn-message">Nhan tin</button>
+      <Link to="/market" className="btn-message">
+        View More Listings
+      </Link>
 
       <div className="quick-contact">
-        <input
-          type="text"
-          placeholder={`Nhan tu van cho phong ${property.roomNumber}`}
-        />
-        <button className="btn-submit">Gui lien he</button>
+        <Link to="/services" className="btn-submit">
+          Explore Services
+        </Link>
       </div>
     </div>
   );

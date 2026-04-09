@@ -235,16 +235,7 @@ const ApartmentTypeManager = () => {
         </div>
       </div>
 
-      {/* TOP ACTION BAR: ONLY CREATE NOW */}
-      <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', marginBottom: '25px' }}>
-        <button
-          className="admin-btn-add"
-          style={{ height: '48px', padding: '0 30px', borderRadius: '14px', fontWeight: 800, fontSize: '14px', display: 'flex', alignItems: 'center', gap: '10px' }}
-          onClick={() => setShowModal(true)}
-        >
-          <FaLayerGroup /> CREATE APARTMENT TYPE
-        </button>
-      </div>
+
 
       {/* FILTER BAR SECTION */}
       <div style={{
@@ -385,15 +376,24 @@ const ApartmentTypeManager = () => {
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px' }}>
           <h3 style={{ margin: 0, fontWeight: 900, color: '#0f172a' }}>Apartment Type Catalog</h3>
 
-          {/* SEARCH BOX RELOCATED HERE & NARROWED */}
-          <div className="account-search-field" style={{ height: '50px', width: '500px' }}>
-            <input
-              type="text"
-              placeholder="Search types by name..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              style={{ height: '40px', fontSize: '13px', borderRadius: '12px' }}
-            />
+          <div style={{ display: 'flex', gap: '15px', alignItems: 'center' }}>
+            {/* SEARCH BOX RELOCATED HERE & NARROWED */}
+            <div className="account-search-field" style={{ height: '50px', width: '400px' }}>
+              <input
+                type="text"
+                placeholder="Search types by name..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                style={{ height: '40px', fontSize: '13px', borderRadius: '12px' }}
+              />
+            </div>
+            <button
+              className="admin-btn-add"
+              style={{ height: '50px', padding: '0 25px', borderRadius: '14px', fontWeight: 800, fontSize: '14px', display: 'flex', alignItems: 'center', gap: '8px' }}
+              onClick={() => setShowModal(true)}
+            >
+              <FaLayerGroup /> CREATE
+            </button>
           </div>
         </div>
 

@@ -79,6 +79,23 @@ const resolveImageUrl = (...values) =>
     (value) => typeof value === "string" && value.trim().length > 0
   ) || null;
 
+const firstImageFromSource = (value) => {
+  if (Array.isArray(value)) {
+    return value.find(
+      (item) => typeof item === "string" && item.trim().length > 0
+    ) || null;
+  }
+
+  if (typeof value === "string") {
+    return value
+      .split(",")
+      .map((item) => item.trim())
+      .find(Boolean) || null;
+  }
+
+  return null;
+};
+
 const collectImageUrls = (...sources) => {
   const urls = sources.flatMap((source) => {
     if (!source) return [];
@@ -278,6 +295,7 @@ export const normalizeServiceResource = (item) => ({
   serviceName: item?.service?.serviceName || item?.serviceName || "",
   imageUrl: resolveImageUrl(
     storedImage,
+    firstImageFromSource(item?.imageUrls),
     item?.imageUrl,
     item?.image,
     item?.thumbnailUrl,
@@ -306,12 +324,56 @@ export const normalizeServiceResource = (item) => ({
   })(),
 });
 
-export const getServiceResources = async () => {
+export const getServiceResourceImages = async () => {
   const res = await requestWithAuthFallback({
     method: "get",
-    url: "/service-resource",
+    url: "/images/service-resource",
   });
-  return toArray(getPayload(res.data)).map(normalizeServiceResource);
+
+  return toArray(res.data).map((item) => ({
+    id: item?.id ?? null,
+    serviceResourceId: item?.serviceResourceId ?? null,
+    imageUrl: String(item?.imageUrl ?? "").trim(),
+    description: item?.description ?? null,
+  })).filter((item) => item.serviceResourceId != null && item.imageUrl);
+};
+
+export const getServiceResources = async () => {
+  const [resourceRes, imageItems] = await Promise.all([
+    requestWithAuthFallback({
+      method: "get",
+      url: "/service-resource",
+    }),
+    getServiceResourceImages().catch(() => []),
+  ]);
+
+  const imagesByResourceId = imageItems.reduce((map, item) => {
+    const key = String(item.serviceResourceId);
+    if (!map.has(key)) {
+      map.set(key, []);
+    }
+
+    map.get(key).push(item.imageUrl);
+    return map;
+  }, new Map());
+
+  return toArray(getPayload(resourceRes.data)).map((item) =>
+    normalizeServiceResource({
+      ...item,
+      imageUrls: collectImageUrls(
+        imagesByResourceId.get(String(item?.id)) ?? [],
+        item?.imageUrls,
+        item?.images,
+        item?.gallery,
+        item?.galleryImages,
+        item?.imageUrl,
+      ),
+      imageUrl: resolveImageUrl(
+        item?.imageUrl,
+        firstImageFromSource(imagesByResourceId.get(String(item?.id)) ?? []),
+      ),
+    })
+  );
 };
 
 const buildServiceResourcePayload = (payload = {}) => ({
@@ -351,21 +413,26 @@ export const deleteServiceResource = async (id) => {
 };
 
 export const uploadServiceResourceImage = async (
+  resourceId,
   file,
-  name = "service-resource-image",
+  description = "",
 ) => {
   const formData = new FormData();
+  formData.append("serviceResourceId", resourceId);
   formData.append("file", file);
-  formData.append("name", name);
+  if (description) {
+    formData.append("description", description);
+  }
 
-  const res = await api.post("/image/upload", formData, {
+  const res = await api.post("/images/service-resource", formData, {
     headers: {
       "Content-Type": "multipart/form-data",
     },
-    skipAuth: true,
   });
 
-  return getPayload(res.data)?.url || "";
+  return typeof res.data === "string"
+    ? res.data
+    : getPayload(res.data)?.url || "";
 };
 
 export const createBooking = async (payload) => {

@@ -32,6 +32,27 @@ export const getNotificationsByUser = async (userId) => {
   return toArray(getPayload(res.data)).map(normalizeNotification);
 };
 
+export const getNotificationsByRole = async (role) => {
+  if (!role) return [];
+
+  const res = await api.get(`/notifications/role/${role}`);
+  return toArray(getPayload(res.data)).map(normalizeNotification);
+};
+
+export const createNotification = async (payload = {}) => {
+  const res = await api.post("/notifications", {
+    receiverId: payload.receiverId ?? null,
+    targetRole: payload.targetRole ?? null,
+    title: payload.title || "Notification",
+    message: payload.message || "",
+    type: payload.type || "GENERAL",
+    relatedUrl: payload.relatedUrl ?? null,
+  });
+
+  const created = getPayload(res.data);
+  return created ? normalizeNotification(created) : null;
+};
+
 export const getUnreadNotificationCount = async (userId) => {
   if (!userId) return 0;
 

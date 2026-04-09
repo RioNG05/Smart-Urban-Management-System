@@ -1,16 +1,37 @@
 /* Service Hero Section */
 .service-hero {
+  position: relative;
   height: 500px;
-  background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.7)),
-    url("https://khudothithuthiem.vn/wp-content/uploads/2024/02/khu-do-thi-thu-thiem-2.jpg") center/cover no-repeat;
   display: flex;
   align-items: center;
   justify-content: center;
   color: white;
   text-align: center;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.service-hero-image,
+.service-hero-overlay {
+  position: absolute;
+  inset: 0;
+}
+
+.service-hero-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.service-hero-overlay {
+  background:
+    linear-gradient(120deg, rgba(14, 18, 24, 0.72), rgba(14, 18, 24, 0.3)),
+    linear-gradient(180deg, rgba(0, 0, 0, 0.18), rgba(0, 0, 0, 0.62));
 }
 
 .service-hero-content {
+  position: relative;
+  z-index: 1;
   max-width: 800px;
   padding: 0 20px;
 }
@@ -39,6 +60,7 @@
 .service-hero p {
   font-size: 18px;
   color: #ddd;
+  line-height: 1.7;
 }
 
 .service-hero-cta {
@@ -58,6 +80,20 @@
 .service-hero-cta:hover {
   transform: translateY(-2px);
   box-shadow: 0 22px 45px rgba(200, 155, 60, 0.34);
+}
+
+@media (max-width: 640px) {
+  .service-hero {
+    height: 430px;
+  }
+
+  .service-hero h1 {
+    font-size: 34px;
+  }
+
+  .service-hero p {
+    font-size: 16px;
+  }
 }
 
 /* Service Container & Header */

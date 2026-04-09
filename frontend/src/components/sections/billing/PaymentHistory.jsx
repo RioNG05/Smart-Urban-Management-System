@@ -1,9 +1,9 @@
-import { useState, useMemo, Fragment } from "react";
-import { FaChevronDown, FaChevronUp, FaBolt, FaTint, FaBuilding, FaHistory } from "react-icons/fa";
+import { useState, useMemo } from "react";
+import { FaChevronDown, FaChevronUp, FaBolt, FaTint, FaBuilding, FaHistory, FaCheckCircle, FaExclamationTriangle, FaClock } from "react-icons/fa";
 import { AnimatePresence, motion } from "framer-motion";
-import { MONTH_FORMATTER, formatDateTime } from "../../../utils/billingUtils";
+import { MONTH_FORMATTER } from "../../../utils/billingUtils";
 
-export default function PaymentHistory({ payments, formatCurrency, formatDate }) {
+export default function PaymentHistory({ payments, formatCurrency }) {
   const [expandedMonths, setExpandedMonths] = useState({});
 
   const toggleMonth = (month) => {
@@ -23,15 +23,30 @@ export default function PaymentHistory({ payments, formatCurrency, formatDate })
           label: monthLabel,
           items: [],
           total: 0,
+          statusKey: p.statusKey,
+          statusLabel: p.statusLabel,
           sortAt: dateObj.getTime(),
         };
       }
       groups[monthLabel].items.push(p);
       groups[monthLabel].total += Number(p.amount || 0);
+      
+      // If any item in the month is unpaid, mark the whole month as unpaid/pending if needed
+      // But usually month-grouped payments represent a single invoice anyway
+      if (p.statusKey !== 'paid') {
+        groups[monthLabel].statusKey = p.statusKey;
+        groups[monthLabel].statusLabel = p.statusLabel;
+      }
     });
 
     return Object.values(groups).sort((a, b) => b.sortAt - a.sortAt);
   }, [payments]);
+
+  const getStatusIcon = (statusKey) => {
+    if (statusKey === 'paid') return <FaCheckCircle className="status-icon paid" />;
+    if (statusKey === 'overdue') return <FaExclamationTriangle className="status-icon overdue" />;
+    return <FaClock className="status-icon pending" />;
+  };
 
   const renderDetailedRows = (bill) => {
     const rows = [];
@@ -45,14 +60,10 @@ export default function PaymentHistory({ payments, formatCurrency, formatDate })
         rows.push({
           id: `${bill.id}-elec`,
           category: "ELECTRICITY",
-          usageDate: elec.usageDate,
-          paymentDate: bill.paymentDate,
           icon: <FaBolt />,
           iconClass: "electricity",
-          subLabel: "Monthly electric consumption",
-          unitPrice: elec.unitPrice,
+          subLabel: `Prev: ${elec.previousReading?.toLocaleString() ?? 0} kWh | Curr: ${elec.currentReading?.toLocaleString() ?? 0} kWh`,
           unitPriceLabel: `${formatCurrency(elec.unitPrice)}/kWh`,
-          quantity: elec.quantity,
           quantityLabel: `${elec.quantity.toLocaleString()} kWh`,
           amount: elec.amount,
         });
@@ -62,14 +73,10 @@ export default function PaymentHistory({ payments, formatCurrency, formatDate })
         rows.push({
           id: `${bill.id}-water`,
           category: "WATER",
-          usageDate: wat.usageDate,
-          paymentDate: bill.paymentDate,
           icon: <FaTint />,
           iconClass: "water",
-          subLabel: "Monthly water consumption",
-          unitPrice: wat.unitPrice,
+          subLabel: `Prev: ${wat.previousReading?.toLocaleString() ?? 0} m³ | Curr: ${wat.currentReading?.toLocaleString() ?? 0} m³`,
           unitPriceLabel: `${formatCurrency(wat.unitPrice)}/m³`,
-          quantity: wat.quantity,
           quantityLabel: `${wat.quantity.toLocaleString()} m³`,
           amount: wat.amount,
         });
@@ -79,14 +86,10 @@ export default function PaymentHistory({ payments, formatCurrency, formatDate })
         rows.push({
           id: `${bill.id}-mng`,
           category: "MANAGEMENT FEE",
-          usageDate: mng.usageDate,
-          paymentDate: bill.paymentDate,
           icon: <FaBuilding />,
           iconClass: "management",
           subLabel: "Monthly fixed service charge",
-          unitPrice: mng.unitPrice,
-          unitPriceLabel: formatCurrency(mng.unitPrice),
-          quantity: 1,
+          unitPriceLabel: "N/A",
           quantityLabel: "Fixed",
           amount: mng.amount,
         });
@@ -94,16 +97,12 @@ export default function PaymentHistory({ payments, formatCurrency, formatDate })
     } else {
       rows.push({
         id: bill.id,
-        category: bill.name || "SERVICE BOOKING",
-        usageDate: bill.usageDate,
-        paymentDate: bill.paymentDate,
+        category: (bill.name || "SERVICE BOOKING").toUpperCase(),
         icon: <FaHistory />,
         iconClass: "service",
-        subLabel: bill.description || null,
-        unitPrice: bill.unitPrice,
+        subLabel: bill.description || "Personal service request",
         unitPriceLabel: formatCurrency(bill.unitPrice),
-        quantity: bill.quantity || 1,
-        quantityLabel: (bill.quantity || 1).toLocaleString(),
+        quantityLabel: `${(bill.quantity || 1).toLocaleString()} request`,
         amount: bill.amount,
       });
     }
@@ -121,7 +120,6 @@ export default function PaymentHistory({ payments, formatCurrency, formatDate })
             </div>
           </div>
         </td>
-        <td className="history-usage-date">{formatDateTime(row.usageDate)}</td>
         <td className="history-unit-price">{row.unitPriceLabel}</td>
         <td className="history-quantity">{row.quantityLabel}</td>
         <td className="history-amount-cell">{formatCurrency(row.amount)}</td>
@@ -139,14 +137,18 @@ export default function PaymentHistory({ payments, formatCurrency, formatDate })
               onClick={() => toggleMonth(group.label)}
             >
               <div className="month-header-title">
-                <FaHistory style={{ opacity: 0.5 }} />
+                <FaHistory className="history-icon-main" />
                 <span>{group.label}</span>
+                <div className={`status-badge-mini ${group.statusKey}`}>
+                  {getStatusIcon(group.statusKey)}
+                  {group.statusLabel}
+                </div>
               </div>
               <div className="month-header-summary">
-                {!expandedMonths[group.label] && (
-                  <div className="month-total-preview">{formatCurrency(group.total)}</div>
-                )}
-                {expandedMonths[group.label] ? <FaChevronUp /> : <FaChevronDown />}
+                <div className="month-total-preview">{formatCurrency(group.total)}</div>
+                <div className="expand-icon-box">
+                   {expandedMonths[group.label] ? <FaChevronUp /> : <FaChevronDown />}
+                </div>
               </div>
             </div>
 
@@ -159,22 +161,23 @@ export default function PaymentHistory({ payments, formatCurrency, formatDate })
                   transition={{ duration: 0.3, ease: "easeInOut" }}
                   className="history-detail-content"
                 >
-                  <table className="history-detail-table">
-                    <thead>
-                      <tr>
-                        <th>CATEGORY</th>
-                        <th>USAGE DATE</th>
-                        <th>UNIT PRICE</th>
-                        <th>QUANTITY</th>
-                        <th style={{ textAlign: "right" }}>AMOUNT</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {group.items.map((bill) => renderDetailedRows(bill))}
-                    </tbody>
-                  </table>
+                  <div className="history-table-wrapper">
+                    <table className="history-detail-table">
+                      <thead>
+                        <tr>
+                          <th>CATEGORY</th>
+                          <th>UNIT PRICE</th>
+                          <th>USAGE / QUANTITY</th>
+                          <th style={{ textAlign: "right" }}>TOTAL PAYABLE</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {group.items.map((bill) => renderDetailedRows(bill))}
+                      </tbody>
+                    </table>
+                  </div>
                   <div className="history-total-footer">
-                    <span className="total-footer-label">Total Monthly Paid</span>
+                    <span className="total-footer-label">Total Amount</span>
                     <span className="total-footer-value">{formatCurrency(group.total)}</span>
                   </div>
                 </motion.div>
@@ -183,8 +186,8 @@ export default function PaymentHistory({ payments, formatCurrency, formatDate })
           </div>
         ))
       ) : (
-        <div className="billing-empty-info">
-          <p>No payment history recorded.</p>
+        <div className="billing-empty-info" style={{ padding: "60px 0" }}>
+          <p>No historical invoices found before this month.</p>
         </div>
       )}
     </div>

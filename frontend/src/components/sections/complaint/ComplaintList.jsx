@@ -1,259 +1,221 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import axios from "axios";
+import { FaExclamationCircle, FaCheckCircle, FaClock, FaChevronRight, FaFilter } from "react-icons/fa";
 import { motion, AnimatePresence } from "framer-motion";
-import { FaCalendarAlt, FaChevronRight, FaInbox, FaRegCheckCircle, FaClock } from "react-icons/fa";
 import ComplaintDetail from "./ComplaintDetail";
 import { useAuth } from "../auth/AuthContext";
+import { formatDate, formatDateTime } from "../../../utils/billingUtils";
+
+const MONTH_FORMATTER = new Intl.DateTimeFormat("en-US", { month: "short", year: "numeric" });
 
 export default function ComplaintList({ refreshKey = 0 }) {
   const [complaints, setComplaints] = useState([]);
-  const [selected, setSelected] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [replies, setReplies] = useState([]);
+  const [selectedId, setSelectedId] = useState(null);
   const [monthFilter, setMonthFilter] = useState("all");
-  const [yearFilter, setYearFilter] = useState("all");
-  const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 10;
-  
+  const [statusFilter, setStatusFilter] = useState("all");
   const { user } = useAuth();
 
   useEffect(() => {
-    setSelected(null);
+    setSelectedId(null);
   }, [user?.id, refreshKey]);
 
   useEffect(() => {
     if (!user?.id) {
       setComplaints([]);
-      setLoading(false);
+      setReplies([]);
       return;
     }
 
-    setLoading(true);
-    axios.get("http://localhost:8080/api/complaints")
-      .then((res) => {
-        const ownComplaints = res.data.filter((complaint) => {
-          const complaintOwnerId =
-            complaint.madeByUser?.id ??
-            complaint.user?.id ??
-            complaint.userId ??
-            complaint.accountId ??
-            complaint.createdBy?.id;
+    // Fetch both complaints and replies to determine "Replied" status
+    Promise.all([
+      axios.get("http://localhost:8080/api/complaints"),
+      axios.get("http://localhost:8080/api/replies")
+    ]).then(([complaintsRes, repliesRes]) => {
+      const ownComplaints = complaintsRes.data.filter((complaint) => {
+        const complaintOwnerId =
+          complaint.madeByUser?.id ??
+          complaint.user?.id ??
+          complaint.userId ??
+          complaint.accountId ??
+          complaint.createdBy?.id;
 
-          return String(complaintOwnerId) === String(user.id);
-        });
+        return String(complaintOwnerId) === String(user.id);
+      }).sort((a, b) => (b.id || 0) - (a.id || 0));
 
-        // SORT: Newest first
-        const sorted = ownComplaints.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-        setComplaints(sorted);
-      })
-      .catch(err => {
-        console.error("Failed to fetch complaints:", err);
-      })
-      .finally(() => {
-        setLoading(false);
-      });
+      setComplaints(ownComplaints);
+      setReplies(repliesRes.data || []);
+    }).catch(err => {
+      console.error("Failed to fetch complaint data:", err);
+      // Fallback or empty state already handled
+    });
   }, [user?.id, refreshKey]);
 
-  // Handle filter changes - reset to page 1
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [monthFilter, yearFilter]);
-
-  // Derived filtered results
-  const filteredComplaints = complaints.filter(c => {
-    if (!c.createdAt) return true;
-    const date = new Date(c.createdAt);
-    const month = date.getMonth() + 1;
-    const year = date.getFullYear();
-
-    const matchesMonth = monthFilter === "all" || String(month) === String(monthFilter);
-    const matchesYear = yearFilter === "all" || String(year) === String(yearFilter);
-
-    return matchesMonth && matchesYear;
-  });
-
-  // Pagination Logic
-  const totalItems = filteredComplaints.length;
-  const totalPages = Math.ceil(totalItems / itemsPerPage);
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const paginatedComplaints = filteredComplaints.slice(startIndex, startIndex + itemsPerPage);
-
-  // Generate unique years from data for filter
-  const availableYears = [...new Set(complaints.map(c => {
-    if (!c.createdAt) return null;
-    return new Date(c.createdAt).getFullYear();
-  }).filter(y => y !== null))].sort((a, b) => b - a);
-
-  const months = [
-    { value: "1", label: "January" },
-    { value: "2", label: "February" },
-    { value: "3", label: "March" },
-    { value: "4", label: "April" },
-    { value: "5", label: "May" },
-    { value: "6", label: "June" },
-    { value: "7", label: "July" },
-    { value: "8", label: "August" },
-    { value: "9", label: "September" },
-    { value: "10", label: "October" },
-    { value: "11", label: "November" },
-    { value: "12", label: "December" },
-  ];
-
-  const formatDate = (dateString) => {
-    if (!dateString) return "Recently";
-    const date = new Date(dateString);
-    return date.toLocaleDateString('vi-VN', { 
-      day: '2-digit', 
-      month: '2-digit', 
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
+  const monthOptions = useMemo(() => {
+    const options = new Map();
+    complaints.forEach((c) => {
+      if (!c.createdAt) return;
+      const date = new Date(c.createdAt);
+      const label = MONTH_FORMATTER.format(date);
+      if (!options.has(label)) {
+        options.set(label, { value: label, label, sortAt: date.getTime() });
+      }
     });
+    return Array.from(options.values()).sort((a, b) => b.sortAt - a.sortAt);
+  }, [complaints]);
+
+  const filteredComplaints = useMemo(() => {
+    return complaints.filter((c) => {
+      const matchesMonth = monthFilter === "all" || (c.createdAt && MONTH_FORMATTER.format(new Date(c.createdAt)) === monthFilter);
+
+      if (statusFilter === "all") return matchesMonth;
+
+      const hasResponse = replies.some(r => r.complaint?.id === c.id);
+
+      if (statusFilter === "pending") return matchesMonth && !hasResponse;
+      if (statusFilter === "closed") return matchesMonth && hasResponse;
+
+      return matchesMonth;
+    });
+  }, [complaints, replies, monthFilter, statusFilter]);
+
+  const getStatusInfo = (complaintId) => {
+    // A complaint is "Replied" if it has at least one reply in the replies list
+    const hasResponse = replies.some(r => r.complaint?.id === complaintId);
+
+    if (hasResponse) return { label: "Replied", class: "closed", icon: <FaCheckCircle /> };
+    return { label: "Pending", class: "pending", icon: <FaClock /> };
   };
 
-  if (loading && complaints.length === 0) {
-    return (
-      <div className="complaint-list" style={{ textAlign: 'center', padding: '40px' }}>
-        <div className="spinner-border text-primary" role="status">
-          <span className="visually-hidden">Loading...</span>
+  return (
+    <div className="complaint-list-container">
+      <div className="list-filter-header" style={{
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: '24px',
+        paddingBottom: '12px',
+        borderBottom: '1px solid #f1f5f9'
+      }}>
+        <h3 className="refined-section-title" style={{ margin: 0, flex: 1, paddingRight: '32px' }}>
+          YOUR REQUESTS
+        </h3>
+
+        <div style={{ display: 'flex', gap: '32px', alignItems: 'center' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <span style={{ fontSize: '11px', fontWeight: '800', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.05em', whiteSpace: 'nowrap' }}>
+              <FaFilter style={{ marginRight: '6px' }} /> Period
+            </span>
+            <select
+              className="premium-select"
+              value={monthFilter}
+              onChange={(e) => setMonthFilter(e.target.value)}
+              style={{
+                padding: '6px 12px',
+                borderRadius: '8px',
+                border: '1px solid #e2e8f0',
+                fontSize: '13px',
+                fontWeight: '600',
+                backgroundColor: '#f8fafc',
+                color: '#334155',
+                cursor: 'pointer',
+                minWidth: '130px'
+              }}
+            >
+              <option value="all">All Months</option>
+              {monthOptions.map(opt => (
+                <option key={opt.value} value={opt.value}>{opt.label}</option>
+              ))}
+            </select>
+          </div>
+
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <span style={{ fontSize: '11px', fontWeight: '800', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.05em', whiteSpace: 'nowrap' }}>
+              Status
+            </span>
+            <select
+              className="premium-select"
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+              style={{
+                padding: '6px 12px',
+                borderRadius: '8px',
+                border: '1px solid #e2e8f0',
+                fontSize: '13px',
+                fontWeight: '600',
+                backgroundColor: '#f8fafc',
+                color: '#334155',
+                cursor: 'pointer',
+                minWidth: '120px'
+              }}
+            >
+              <option value="all">All Status</option>
+              <option value="pending">Pending</option>
+              <option value="closed">Replied</option>
+            </select>
+          </div>
         </div>
       </div>
-    );
-  }
 
-  return (
-    <div className="complaint-list">
-      {/* Dynamic Filter Bar */}
-      {complaints.length > 0 && (
-        <div className="resident-support-filters">
-          <div className="support-filter-item">
-            <label>Month</label>
-            <select value={monthFilter} onChange={(e) => setMonthFilter(e.target.value)}>
-              <option value="all">All Months</option>
-              {months.map(m => <option key={m.value} value={m.value}>{m.label}</option>)}
-            </select>
+      <div className="complaint-grid" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+        {filteredComplaints.length === 0 ? (
+          <div className="billing-empty">
+            {monthFilter === "all" && statusFilter === "all"
+              ? "No requests found."
+              : "No requests found matching the current filters."}
           </div>
-          <div className="support-filter-item">
-            <label>Year</label>
-            <select value={yearFilter} onChange={(e) => setYearFilter(e.target.value)}>
-              <option value="all">All Years</option>
-              {availableYears.map(y => <option key={y} value={y}>{y}</option>)}
-            </select>
-          </div>
-          {(monthFilter !== "all" || yearFilter !== "all") && (
-            <button className="reset-filter-link" onClick={() => { setMonthFilter("all"); setYearFilter("all"); }}>
-              Reset Filters
-            </button>
-          )}
-        </div>
-      )}
+        ) : (
+          filteredComplaints.map((c) => {
+            const statusInfo = getStatusInfo(c.id);
+            const isSelected = selectedId === c.id;
+            const dateStr = c.createdAt ? formatDateTime(c.createdAt) : "Recently";
 
-      {paginatedComplaints.length === 0 ? (
-        <motion.div 
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="billing-empty-info"
-          style={{ padding: '60px', background: 'white', border: '1px solid #f1f5f9' }}
-        >
-          <FaInbox style={{ fontSize: '48px', color: '#cbd5e1', marginBottom: '16px' }} />
-          <h4 style={{ color: '#1e293b', fontWeight: '700' }}>No Requests Found</h4>
-          <p style={{ color: '#64748b' }}>
-            {complaints.length > 0 ? "Try adjusting your filters to see more results." : "You haven't submitted any support requests yet."}
-          </p>
-        </motion.div>
-      ) : (
-        <>
-          <div className="resident-complaints-wrapper">
-            <AnimatePresence>
-              {paginatedComplaints.map((c, index) => {
-                const matchesSelected = selected && selected.id === c.id;
-                const isReplied = c.replies && c.replies.length > 0;
-                
-                return (
-                  <motion.div
-                    key={c.id}
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: index * 0.05 }}
-                  >
-                    <div 
-                      className={`resident-complaint-card ${matchesSelected ? 'active-selection' : ''}`}
-                      onClick={() => setSelected(matchesSelected ? null : c)}
-                      style={{ 
-                        borderLeft: matchesSelected ? '6px solid var(--primary-color)' : '1px solid #f1f5f9',
-                        background: matchesSelected ? '#fffdf9' : 'white'
-                      }}
-                    >
-                      <div className="resident-complaint-info">
-                        <div className="resident-complaint-preview">
-                          {c.content}
-                        </div>
-                        <div className="resident-complaint-meta">
-                          <span className="resident-complaint-date">
-                            <FaCalendarAlt style={{ fontSize: '12px' }} /> {formatDate(c.createdAt)}
-                          </span>
-                          <span className={`resident-status-pill ${isReplied ? 'resident-status-replied' : 'resident-status-unread'}`}>
-                            {isReplied ? (
-                              <><FaRegCheckCircle /> Replied</>
-                            ) : (
-                              <><FaClock /> Opened</>
-                            )}
-                          </span>
-                        </div>
-                      </div>
-                      <div className="complaint-action-icon">
-                        <FaChevronRight style={{ 
-                          color: matchesSelected ? 'var(--primary-color)' : '#cbd5e1',
-                          transform: matchesSelected ? 'rotate(90deg)' : 'none',
-                          transition: 'transform 0.3s ease'
-                        }} />
-                      </div>
+            return (
+              <div key={c.id} className="complaint-accordion-item">
+                <motion.div
+                  className={`complaint-card ${isSelected ? 'selected' : ''}`}
+                  onClick={() => setSelectedId(isSelected ? null : c.id)}
+                  whileHover={{ x: isSelected ? 0 : 4 }}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  style={{ marginBottom: isSelected ? '0' : '8px' }}
+                >
+                  <div className="complaint-icon-box">
+                    {statusInfo.icon}
+                  </div>
+                  <div className="complaint-card-content">
+                    <div className="complaint-text">{c.content}</div>
+                    <div className="complaint-meta">
+                      <span className={`complaint-status ${statusInfo.class}`}>
+                        {statusInfo.label}
+                      </span>
+                      <span className="complaint-time">{dateStr}</span>
+                      <span className="complaint-id">#{c.id}</span>
                     </div>
-                    
-                    {/* Expanded Detail View */}
-                    <AnimatePresence>
-                      {matchesSelected && (
-                        <motion.div
-                          initial={{ height: 0, opacity: 0 }}
-                          animate={{ height: 'auto', opacity: 1 }}
-                          exit={{ height: 0, opacity: 0 }}
-                          style={{ overflow: 'hidden' }}
-                        >
-                          <ComplaintDetail complaint={c} />
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
-                  </motion.div>
-                );
-              })}
-            </AnimatePresence>
-          </div>
+                  </div>
+                  <div className={`complaint-arrow ${isSelected ? 'rotate' : ''}`}>
+                    <FaChevronRight />
+                  </div>
+                </motion.div>
 
-          {/* Pagination Controls */}
-          {totalPages > 1 && (
-            <div className="support-pagination">
-              <button 
-                className="pagination-btn" 
-                onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
-                disabled={currentPage === 1}
-              >
-                <FaChevronLeft /> Previous
-              </button>
-              
-              <span className="pagination-info">
-                Page <strong>{currentPage}</strong> of <strong>{totalPages}</strong>
-              </span>
-
-              <button 
-                className="pagination-btn" 
-                onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
-                disabled={currentPage === totalPages}
-              >
-                Next <FaChevronRight />
-              </button>
-            </div>
-          )}
-        </>
-      )}
+                <AnimatePresence>
+                  {isSelected && (
+                    <motion.div
+                      initial={{ opacity: 0, height: 0, marginTop: 0 }}
+                      animate={{ opacity: 1, height: "auto", marginTop: -1 }}
+                      exit={{ opacity: 0, height: 0, marginTop: 0 }}
+                      className="conversation-nested-wrapper"
+                      style={{ overflow: 'hidden' }}
+                    >
+                      <ComplaintDetail complaint={c} />
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+            );
+          })
+        )}
+      </div>
     </div>
   );
 }

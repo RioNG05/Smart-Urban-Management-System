@@ -19,6 +19,9 @@ public class ServiceResource {
     @Column(name = "Location", length = 255)
     private String location;
 
+    @Column(name = "ImageUrl", columnDefinition = "NVARCHAR(MAX)")
+    private String imageUrl;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "ServiceId", nullable = false)
     private Services service;

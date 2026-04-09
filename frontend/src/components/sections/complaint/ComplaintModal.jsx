@@ -1,92 +1,99 @@
 import { useState } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
-import { FaTimes, FaPaperPlane } from "react-icons/fa";
-import { useAuth } from "../auth/AuthContext";
+import { createNotification } from "../../../services/notificationService";
 
-export default function ComplaintModal({ open, setOpen, onSuccess }) {
-  const [content, setContent] = useState("");
-  const [loading, setLoading] = useState(false);
-  const { user } = useAuth();
-  const userId = user?.id;
+const [content, setContent] = useState("");
+const [loading, setLoading] = useState(false);
+const { user } = useAuth();
+const userId = user?.id;
 
-  const submitComplaint = async () => {
-    const trimmedContent = content.trim();
+const submitComplaint = async () => {
+  const trimmedContent = content.trim();
 
-    if (!trimmedContent) {
-      toast.warning("Please enter your complaint description");
-      return;
-    }
+  if (!trimmedContent) {
+    toast.warning("Please enter your complaint description");
+    return;
+  }
 
-    if (!userId) {
-      toast.error("User information not found");
-      return;
-    }
+  if (!userId) {
+    toast.error("User information not found");
+    return;
+  }
 
-    setLoading(true);
+  setLoading(true);
+  try {
+    await axios.post("http://localhost:8080/api/complaints", {
+      content: trimmedContent,
+      userId,
+    });
+
     try {
-      await axios.post("http://localhost:8080/api/complaints", {
-        content: trimmedContent,
-        userId,
+      const requesterLabel =
+        user?.fullName || user?.username || user?.email || `account #${userId}`;
+
+      await createNotification({
+        targetRole: "MANAGER",
+        title: "New complaint submitted",
+        message: `${requesterLabel} submitted a new complaint. Open Complaints to review and respond.`,
+        type: "COMPLAINT_REVIEW_REQUIRED",
+        relatedUrl: "/admin/complaints",
       });
-
-      setContent("");
-      setOpen(false);
-      toast.success("Complaint submitted successfully");
-      if (onSuccess) onSuccess();
-    } catch (err) {
-      console.error(err);
-      toast.error("Failed to submit complaint");
-    } finally {
-      setLoading(false);
+    } catch (notificationError) {
+      console.error("Failed to create admin complaint notification", notificationError);
     }
-  };
 
-  if (!open) return null;
+    setContent("");
+    setOpen(false);
+    toast.success("Complaint submitted successfully");
+    if (onSuccess) onSuccess();
+  } catch (err) {
+    console.error(err);
+    toast.error("Failed to submit complaint");
+  } finally {
+    setLoading(false);
+  }
+};
 
-  return (
-    <div className="resident-modal-overlay" onClick={() => setOpen(false)}>
-      <div className="resident-modal-box" onClick={(e) => e.stopPropagation()}>
-        <div className="resident-modal-header">
-          <h3>Report Issue</h3>
-          <button className="resident-modal-close" onClick={() => setOpen(false)}>
-            <FaTimes />
-          </button>
-        </div>
+return (
+  <AnimatePresence>
+    {open && (
+      <div className="premium-modal-overlay">
+        <motion.div
+          className="premium-modal-box"
+          initial={{ opacity: 0, scale: 0.9, y: 20 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          exit={{ opacity: 0, scale: 0.9, y: 20 }}
+        >
+          <div className="modal-header">
+            <h3>Report New Issue</h3>
+            <button className="close-modal-btn" onClick={() => setOpen(false)}>
+              <FaTimes />
+            </button>
+          </div>
 
-        <div className="resident-textarea-wrapper">
-          <textarea
-            className="resident-textarea"
-            placeholder="Please describe the issue in detail (e.g., location, time, nature of problem)..."
-            value={content}
-            onChange={(e) => setContent(e.target.value)}
-            disabled={loading}
-          />
-        </div>
+          <div className="modal-body">
+            <p style={{ marginBottom: '15px', fontSize: '14px', color: '#64748b' }}>
+              Please describe the issue you are experiencing. Our support team will review it as soon as possible.
+            </p>
+            <textarea
+              className="modal-textarea"
+              placeholder="Ex: The hallway light on the 4th floor is flickering..."
+              value={content}
+              onChange={(e) => setContent(e.target.value)}
+            />
+          </div>
 
-        <div className="resident-modal-footer">
-          <button 
-            className="resident-modal-cancel" 
-            onClick={() => setOpen(false)}
-            disabled={loading}
-          >
-            Cancel
-          </button>
-
-          <button 
-            className="resident-report-btn" 
-            onClick={submitComplaint}
-            disabled={loading}
-            style={{ padding: '12px 32px' }}
-          >
-            {loading ? (
-              "Sending..."
-            ) : (
-              <><FaPaperPlane style={{ fontSize: '14px' }} /> Send Report</>
-            )}
-          </button>
-        </div>
+          <div className="modal-footer">
+            <button className="cancel-button" onClick={() => setOpen(false)}>
+              Cancel
+            </button>
+            <button className="submit-button" onClick={submitComplaint}>
+              Submit Request
+            </button>
+          </div>
+        </motion.div>
       </div>
-    </div>
-  );
-}
+    )}
+  </AnimatePresence>
+);

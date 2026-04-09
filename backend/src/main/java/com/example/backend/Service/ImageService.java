@@ -53,24 +53,32 @@ public class ImageService {
     }
     public List<ImageResponseDTO> getAllApartmentImages() {
         return apartmentTypeImageRepository
-                .findAll()
+                .findAllByOrderByApartmentTypeIdAscIdAsc()
                 .stream()
-                .map(img -> new ImageResponseDTO(
-                        img.getId(),
-                        img.getImageUrl(),
-                        null
-                ))
+                .map(img -> ImageResponseDTO.builder()
+                        .id(img.getId())
+                        .imageUrl(img.getImageUrl())
+                        .description(null)
+                        .apartmentTypeId(
+                                img.getApartmentType() != null ? img.getApartmentType().getId() : null
+                        )
+                        .serviceResourceId(null)
+                        .build())
                 .toList();
     }
     public List<ImageResponseDTO> getAllServiceImages() {
         return serviceResourceImageRepository
-                .findAll()
+                .findAllByOrderByServiceResourceIdAscIdAsc()
                 .stream()
-                .map(img -> new ImageResponseDTO(
-                        img.getId(),
-                        img.getImageUrl(),
-                        img.getDescription()
-                ))
+                .map(img -> ImageResponseDTO.builder()
+                        .id(img.getId())
+                        .imageUrl(img.getImageUrl())
+                        .description(img.getDescription())
+                        .apartmentTypeId(null)
+                        .serviceResourceId(
+                                img.getServiceResource() != null ? img.getServiceResource().getId() : null
+                        )
+                        .build())
                 .toList();
     }
     public String updateApartmentImage(Integer imageId, MultipartFile file) {

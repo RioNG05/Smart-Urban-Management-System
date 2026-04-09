@@ -8,9 +8,15 @@ import NewsSection from "../components/sections/NewsSection";
 import ServicesSection from "../components/sections/ServicesSection";
 import ContactSection from "../components/sections/ContactSection";
 import { serviceCatalog } from "../data/serviceCatalog";
-import { getApartmentTypes } from "../services/apartmentService";
+import {
+  getApartmentTypeImages,
+  getApartmentTypes,
+} from "../services/apartmentService";
 import { getNewsList } from "../services/newsService";
-import { getImageByTypeName } from "../services/propertyMapper";
+import {
+  createApartmentTypeImageMap,
+  mapApartmentTypeToCard,
+} from "../services/propertyMapper";
 
 const sortByNewest = (items = [], dateKey) =>
   [...items].sort((a, b) => {
@@ -24,16 +30,6 @@ const sortByNewest = (items = [], dateKey) =>
     return bTime - aTime;
   });
 
-const normalizeApartmentType = (apartmentType = {}) => ({
-  id: apartmentType.id,
-  name: apartmentType.name || "Apartment type",
-  description: apartmentType.overview || "Thong tin dang duoc cap nhat.",
-  image: getImageByTypeName(apartmentType.name),
-  bedrooms: apartmentType.numberOfBedroom ?? 0,
-  bathrooms: apartmentType.numberOfBathroom ?? 0,
-  area: apartmentType.designSqrt ?? null,
-});
-
 export default function Home() {
   const [featuredTypes, setFeaturedTypes] = useState([]);
   const [latestNews, setLatestNews] = useState([]);
@@ -41,15 +37,22 @@ export default function Home() {
   useEffect(() => {
     const fetchHomeData = async () => {
       try {
-        const [apartmentTypes, newsItems] = await Promise.all([
+        const [apartmentTypes, apartmentTypeImages, newsItems] = await Promise.all([
           getApartmentTypes(),
+          getApartmentTypeImages(),
           getNewsList(),
         ]);
+        const apartmentTypeImageMap = createApartmentTypeImageMap(
+          apartmentTypes,
+          apartmentTypeImages,
+        );
 
         setFeaturedTypes(
           sortByNewest(apartmentTypes, "createdAt")
             .slice(0, 3)
-            .map(normalizeApartmentType),
+            .map((apartmentType) =>
+              mapApartmentTypeToCard(apartmentType, apartmentTypeImageMap),
+            ),
         );
         setLatestNews(sortByNewest(newsItems, "lastUpdateRaw").slice(0, 3));
       } catch (error) {

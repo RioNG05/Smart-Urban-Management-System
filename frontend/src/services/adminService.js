@@ -1,8 +1,83 @@
 import api from "./api";
 
-const getPayload = (data) => data?.result ?? data;
+const extractFirstJsonBlock = (text) => {
+  if (typeof text !== "string") return text;
 
-const toArray = (value) => (Array.isArray(value) ? value : []);
+  const source = text.trim().replace(/^\uFEFF/, "");
+  const startChar = source[0];
+
+  if (startChar !== "[" && startChar !== "{") {
+    return text;
+  }
+
+  const closingChar = startChar === "[" ? "]" : "}";
+  let depth = 0;
+  let inString = false;
+  let escaped = false;
+
+  for (let index = 0; index < source.length; index += 1) {
+    const char = source[index];
+
+    if (inString) {
+      if (escaped) {
+        escaped = false;
+      } else if (char === "\\") {
+        escaped = true;
+      } else if (char === "\"") {
+        inString = false;
+      }
+      continue;
+    }
+
+    if (char === "\"") {
+      inString = true;
+      continue;
+    }
+
+    if (char === startChar) {
+      depth += 1;
+      continue;
+    }
+
+    if (char === closingChar) {
+      depth -= 1;
+
+      if (depth === 0) {
+        return source.slice(0, index + 1);
+      }
+    }
+  }
+
+  return source;
+};
+
+const parsePossibleJson = (value) => {
+  if (typeof value !== "string") return value;
+
+  const normalized = value.trim().replace(/^\uFEFF/, "");
+  const candidate = extractFirstJsonBlock(normalized);
+
+  try {
+    return JSON.parse(candidate);
+  } catch {
+    return value;
+  }
+};
+
+const getPayload = (data) => {
+  const normalizedData = parsePossibleJson(data);
+  return normalizedData?.result ?? normalizedData;
+};
+
+const toArray = (value) => {
+  const normalizedValue = parsePossibleJson(value);
+
+  if (Array.isArray(normalizedValue)) return normalizedValue;
+  if (Array.isArray(normalizedValue?.content)) return normalizedValue.content;
+  if (Array.isArray(normalizedValue?.data)) return normalizedValue.data;
+  if (Array.isArray(normalizedValue?.items)) return normalizedValue.items;
+  return [];
+};
 
 const requestWithAuthFallback = async (
   config,
@@ -91,6 +166,25 @@ export const createVisitor = async (payload) => {
   return getPayload(res.data);
 };
 
+export const updateVisitorById = async (visitorId, payload) => {
+  const res = await requestWithAuthFallback({
+    method: "put",
+    url: `/visitors/${visitorId}`,
+    data: payload,
+  });
+
+  return getPayload(res.data);
+};
+
+export const deleteVisitorById = async (visitorId) => {
+  const res = await requestWithAuthFallback({
+    method: "delete",
+    url: `/visitors/${visitorId}`,
+  }, { retryOnBadRequest: false });
+
+  return getPayload(res?.data);
+};
+
 export const getAllStaff = async () => {
   const res = await requestWithAuthFallback({
     method: "get",
@@ -167,4 +261,35 @@ export const getStayHistoryByApartmentId = async (apartmentId) => {
   });
 
   return toArray(getPayload(res.data));
+};
+
+export const getStayHistoryByResidentId = async (residentId) => {
+  if (!residentId) return [];
+
+  const res = await requestWithAuthFallback({
+    method: "get",
+    url: `/stay-at-history/resident/${residentId}`,
+  });
+
+  return toArray(getPayload(res.data));
+};
+
+export const createStayAtHistory = async (payload) => {
+  const res = await requestWithAuthFallback({
+    method: "post",
+    url: "/stay-at-history",
+    data: payload,
+  });
+
+  return getPayload(res.data);
+};
+
+export const updateStayAtHistoryById = async (stayHistoryId, payload) => {
+  const res = await requestWithAuthFallback({
+    method: "put",
+    url: `/stay-at-history/${stayHistoryId}`,
+    data: payload,
+  });
+
+  return getPayload(res.data);
 };
