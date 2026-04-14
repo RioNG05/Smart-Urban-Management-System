@@ -1,6 +1,6 @@
 const categories = [
-  "Market",
-  "Projects",
+  "Security",
+  "Gym",
   "Buying",
   "Selling",
   "Feng Shui",
