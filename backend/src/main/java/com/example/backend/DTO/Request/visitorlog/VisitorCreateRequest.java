@@ -2,7 +2,11 @@ package com.example.backend.DTO.Request.visitorlog;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import lombok.*;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.experimental.FieldDefaults;
 
 @Data
@@ -12,20 +16,20 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class VisitorCreateRequest {
 
-    @NotBlank(message = "Tên khách không được để trống")
-    private String visitorName;
+    @NotBlank(message = "Visitor name must not be blank")
+    String visitorName;
 
-    @NotBlank(message = "CCCD không được để trống")
-    private String identityCard; // 🔥 thêm
+    @NotBlank(message = "Identity card must not be blank")
+    String identityCard;
 
-    @NotBlank(message = "Số điện thoại không được để trống")
-    private String phoneNumber;
+    @NotBlank(message = "Phone number must not be blank")
+    String phoneNumber;
 
-    @NotNull(message = "ApartmentId không được để trống")
-    private Integer apartmentId;
+    @NotNull(message = "ApartmentId must not be null")
+    Integer apartmentId;
 
-    @NotNull(message = "StaffId không được để trống")
-    private Integer staffId;
+    @NotNull(message = "StaffId must not be null")
+    Integer staffId;
 
-    private String note;
+    String note;
 }

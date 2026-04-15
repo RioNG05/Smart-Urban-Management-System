@@ -2,6 +2,8 @@ package com.example.backend.Entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.NotFound;
+import org.hibernate.annotations.NotFoundAction;
 
 import java.time.LocalDateTime;
 
@@ -22,7 +24,7 @@ public class VisitorLog {
     private String visitorName;
 
     @Column(name = "IdentityCard", nullable = false, length = 20)
-    private String identityCard; // 🔥 thêm mới
+    private String identityCard;
 
     @Column(name = "PhoneNumber", nullable = false, length = 20)
     private String phoneNumber;
@@ -33,6 +35,7 @@ public class VisitorLog {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "CreatedByStaffId", nullable = false)
+    @NotFound(action = NotFoundAction.IGNORE)
     private StaffInfo createdByStaff;
 
     @Column(name = "CheckInTime")

@@ -10,6 +10,10 @@ import {
   markAllNotificationsAsRead,
   markNotificationAsRead,
 } from "../../services/notificationService";
+import {
+  canAccessAdminSection,
+  getDefaultAdminPath,
+} from "../../admin/adminAccess";
 import logoImg from "../../assets/logo.jpg";
 
 export default function Navbar({ solid = false }) {
@@ -349,10 +353,10 @@ export default function Navbar({ solid = false }) {
                       )}
                     </div>
 
-                    {role === "MANAGER" && (
+                    {canAccessAdminSection(role, "dashboard") && (
                       <div
                         className="dropdown-item"
-                        onClick={() => navigate("/admin")}
+                        onClick={() => navigate(getDefaultAdminPath(role))}
                       >
                         Dashboard
                       </div>

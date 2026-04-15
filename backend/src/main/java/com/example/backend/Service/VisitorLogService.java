@@ -32,7 +32,7 @@ public class VisitorLogService {
 
         VisitorLog visitorLog = new VisitorLog();
         visitorLog.setVisitorName(request.getVisitorName());
-        visitorLog.setIdentityCard(request.getIdentityCard()); // 🔥 thêm
+        visitorLog.setIdentityCard(request.getIdentityCard());
         visitorLog.setPhoneNumber(request.getPhoneNumber());
         visitorLog.setApartment(apartment);
         visitorLog.setCreatedByStaff(staff);
@@ -54,9 +54,13 @@ public class VisitorLogService {
 
         VisitorLog visitor = visitorLogRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Visitor not found"));
+        Apartment apartment = apartmentRepository.findById(request.getApartmentId())
+                .orElseThrow(() -> new RuntimeException("Apartment not found"));
 
         visitor.setVisitorName(request.getVisitorName());
+        visitor.setIdentityCard(request.getIdentityCard());
         visitor.setPhoneNumber(request.getPhoneNumber());
+        visitor.setApartment(apartment);
         visitor.setNote(request.getNote());
 
         return visitorLogRepository.save(visitor);
