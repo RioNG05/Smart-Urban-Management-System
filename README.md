@@ -1,6 +1,6 @@
 # Smart Urban Management System
 
-This is the Smart Urban System project.
+This is the Smart Urban Management System project.
 
 ## Quick Start
 
