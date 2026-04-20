@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { FaChevronDown, FaChevronUp, FaCheckSquare, FaRegSquare, FaBolt, FaTint, FaBuilding, FaFileInvoiceDollar } from "react-icons/fa";
+import { FaChevronDown, FaChevronUp, FaCheckSquare, FaRegSquare, FaBolt, FaTint, FaBuilding, FaFileInvoiceDollar, FaExclamationTriangle } from "react-icons/fa";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "react-toastify";
 import api from "../../../services/api";
@@ -40,6 +40,24 @@ export default function BillingPayableBreakdown({
   };
 
   const selectedMonthLabel = months.find(m => m.value === monthKey)?.label || "All";
+
+  const isOverdue = (() => {
+    if (!totals.hasInvoices || totals.allPaid) return false;
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    let checkDate = new Date();
+    if (monthKey && monthKey !== "all") {
+      checkDate = new Date(monthKey);
+    }
+
+    const dueDate = new Date(checkDate.getFullYear(), checkDate.getMonth(), 15);
+    dueDate.setHours(23, 59, 59, 999);
+
+    return today > dueDate;
+  })();
+
   const renderRow = (row) => {
     return (
       <tr 
@@ -115,6 +133,30 @@ export default function BillingPayableBreakdown({
   };
   return (
     <section className="billing-panel">
+      {isOverdue && (
+        <div style={{
+          backgroundColor: "#fff0f0",
+          border: "1px solid #ffcdd2",
+          borderLeft: "6px solid #e53935",
+          color: "#b71c1c",
+          padding: "16px 20px",
+          borderRadius: "8px",
+          marginBottom: "20px",
+          display: "flex",
+          alignItems: "center",
+          gap: "12px",
+          boxShadow: "0 2px 8px rgba(229, 57, 53, 0.1)"
+        }}>
+          <FaExclamationTriangle style={{ fontSize: "24px", color: "#e53935", flexShrink: 0 }} />
+          <div>
+            <h4 style={{ margin: "0 0 4px 0", fontSize: "16px", fontWeight: "600", color: "#c62828" }}>Payment Overdue</h4>
+            <p style={{ margin: 0, fontSize: "14px", lineHeight: "1.5" }}>
+              This invoice is past its due date (15th of the month). Please settle your balance immediately to avoid any service disruptions.
+            </p>
+          </div>
+        </div>
+      )}
+
       <div className="billing-panel-header condensed">
         <div className="header-left">
           <h3 className="section-title main-title">Amount To Pay</h3>
