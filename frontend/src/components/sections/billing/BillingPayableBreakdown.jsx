@@ -25,7 +25,7 @@ export default function BillingPayableBreakdown({
   const toggleSection = (section) => {
     const isExpanding = !expanded[section];
     setExpanded((prev) => ({ ...prev, [section]: isExpanding }));
-    
+
     if (isExpanding) {
       setTimeout(() => {
         const ref = section === "utilities" ? utilitiesRef : servicesRef;
@@ -42,7 +42,7 @@ export default function BillingPayableBreakdown({
   const selectedMonthLabel = months.find(m => m.value === monthKey)?.label || "All";
   const renderRow = (row) => {
     return (
-      <tr 
+      <tr
         key={row.id}
         className="utility-detail-row"
       >
@@ -99,18 +99,18 @@ export default function BillingPayableBreakdown({
       extractInvoices(pricingRows?.services, "SERVICES_INVOICE");
 
       if (invoicesPayload.length === 0) {
-         toast.warn("Không tìm thấy mã hóa đơn hợp lệ.");
-         return;
+        toast.warn("No valid invoice code found.");
+        return;
       }
 
       const res = await api.post("/payment/create", {
-        orderInfo: `Thanh toan phi - ${apartmentLabel}`,
+        orderInfo: `Payment fee - ${apartmentLabel}`,
         invoices: invoicesPayload
       });
       window.location.href = res.data.result.paymentUrl;
     } catch (error) {
       console.error(error);
-      toast.error("Lỗi khi kết nối tới cổng thanh toán.");
+      toast.error("Error connecting to payment gateway.");
     }
   };
   return (
@@ -122,32 +122,32 @@ export default function BillingPayableBreakdown({
 
         {months?.length > 0 && (
           <div className="custom-dropdown-container">
-            <div 
+            <div
               className={`custom-dropdown-header ${isOpen ? 'active' : ''}`}
               onClick={() => setIsOpen(!isOpen)}
             >
               <span className="current-selection">{selectedMonthLabel}</span>
               <FaChevronDown className={`arrow-icon ${isOpen ? 'rotate' : ''}`} />
             </div>
-            
+
             <AnimatePresence>
               {isOpen && (
-                <motion.div 
+                <motion.div
                   className="custom-dropdown-menu"
                   initial={{ opacity: 0, y: -10, scale: 0.95 }}
                   animate={{ opacity: 1, y: 5, scale: 1 }}
                   exit={{ opacity: 0, y: -10, scale: 0.95 }}
                   transition={{ duration: 0.2, ease: "easeOut" }}
                 >
-                  <div 
+                  <div
                     className={`dropdown-option ${monthKey === 'all' ? 'selected' : ''}`}
                     onClick={() => { setMonthKey('all'); setIsOpen(false); }}
                   >
                     All
                   </div>
                   {months.map((item) => (
-                    <div 
-                      key={item.value} 
+                    <div
+                      key={item.value}
                       className={`dropdown-option ${monthKey === item.value ? 'selected' : ''}`}
                       onClick={() => { setMonthKey(item.value); setIsOpen(false); }}
                     >
@@ -183,7 +183,7 @@ export default function BillingPayableBreakdown({
             Paid
           </div>
         ) : (
-          <button 
+          <button
             className="pay-selected-btn premium-btn"
             onClick={() => handlePayment(totals)}
           >
@@ -230,9 +230,9 @@ export default function BillingPayableBreakdown({
             {/* MONTHLY UTILITIES SECTION */}
             {pricingRows?.utilities?.length > 0 && (
               <>
-                <tr 
+                <tr
                   ref={utilitiesRef}
-                  className="table-category-header clickable" 
+                  className="table-category-header clickable"
                   onClick={() => toggleSection("utilities")}
                 >
                   <td colSpan="5">
@@ -261,9 +261,9 @@ export default function BillingPayableBreakdown({
             {/* BOOKING SERVICES SECTION */}
             {pricingRows?.services?.length > 0 && (
               <>
-                <tr 
+                <tr
                   ref={servicesRef}
-                  className="table-category-header clickable" 
+                  className="table-category-header clickable"
                   onClick={() => toggleSection("services")}
                 >
                   <td colSpan="5">

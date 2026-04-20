@@ -67,7 +67,7 @@ function AuthForm() {
       if (err.response) {
         toast.error(err.response.data.message || "Login failed");
       } else {
-        toast.error("Không thể kết nối server");
+        toast.error("Unable to connect to server");
       }
     }
   };
@@ -76,7 +76,7 @@ function AuthForm() {
     e.preventDefault();
 
     if (registerData.password !== registerData.confirmPassword) {
-      toast.warning("Password không khớp");
+      toast.warning("Password does not match");
       return;
     }
 
@@ -94,7 +94,7 @@ function AuthForm() {
       if (err.response?.data?.message) {
         toast.error(err.response.data.message);
       } else {
-        toast.error("Register thất bại");
+        toast.error("Register failed");
       }
     }
   };

@@ -71,7 +71,7 @@ export default function BillingPage() {
   const [selectedIds, setSelectedIds] = useState([]);
   const [loading, setLoading] = useState(true);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
-  
+
   // Service-specific filters
   const [serviceMonthKey, setServiceMonthKey] = useState("all");
   const [serviceFilterName, setServiceFilterName] = useState("all");
@@ -86,10 +86,10 @@ export default function BillingPage() {
     // Check for payment success toast in session storage after a reload
     const paymentToast = sessionStorage.getItem("paymentSuccessToast");
     if (paymentToast === "true") {
-      toast.success("Thanh toán thành công!", {
+      toast.success("Payment successful!", {
         position: "top-right",
-        style: { 
-          marginTop: "80px", 
+        style: {
+          marginTop: "80px",
           backgroundColor: "#e8f5e9", // Elegant green background
           color: "#2e7d32",          // Deep green text
           fontWeight: "600",
@@ -110,11 +110,11 @@ export default function BillingPage() {
           const res = await api.get(`/payment/vnpay_return${window.location.search}`);
           if (res.data.code === 0 || res.data.code === 4) {
             if (res.data.code === 0) {
-              toast.success("Thanh toán thành công!", {
+              toast.success("Payment successful!", {
                 position: "top-right",
                 autoClose: 5000,
-                style: { 
-                  marginTop: "80px", 
+                style: {
+                  marginTop: "80px",
                   backgroundColor: "#e8f5e9", // Elegant green background
                   color: "#2e7d32",          // Deep green text
                   fontWeight: "600",
@@ -127,12 +127,12 @@ export default function BillingPage() {
             // Refresh bills data
             setRefreshTrigger(prev => prev + 1);
           } else {
-            toast.error("Thanh toán thất bại hoặc có lỗi xảy ra.");
+            toast.error("Payment failed or an error occurred.");
             navigate(location.pathname, { replace: true });
           }
         } catch (err) {
-          console.error("Lỗi xác minh thanh toán", err);
-          toast.error("Có lỗi xảy ra khi xác thực giao dịch.");
+          console.error("Payment verification error", err);
+          toast.error("An error occurred while validating the transaction.");
           navigate(location.pathname, { replace: true });
         } finally {
           // Release lock after a short delay in case of component remount
@@ -171,11 +171,11 @@ export default function BillingPage() {
     const unpaidIds = payableBills
       .filter(bill => bill.source === "service")
       .map(bill => `${bill.id}:service`);
-    
+
     if (unpaidIds.length === 0) return;
 
     const allCurrentlySelected = unpaidIds.every(id => selectedIds.includes(id));
-    
+
     if (allCurrentlySelected) {
       setSelectedIds(prev => prev.filter(id => !unpaidIds.includes(id)));
     } else {
@@ -226,7 +226,7 @@ export default function BillingPage() {
         const user = await getCurrentUser();
         // Defensive check: Try multiple potential ID fields often returned by /auth/accounts/me
         const actualAccountId = user?.id || user?.accountId || user?.results?.id;
-        
+
         if (actualAccountId) {
           setAccountId(actualAccountId);
         }
@@ -270,12 +270,12 @@ export default function BillingPage() {
         if (!active) return;
 
         const allServiceInvoices = serviceInvoiceResponse?.items || serviceInvoiceResponse || [];
-        
+
         // Filter Service Invoices to only include those belonging to the current user
         const serviceInvoices = allServiceInvoices.filter(inv => {
           const booking = inv.bookingService;
           if (!booking) return false;
-          
+
           const bookingAccountId = booking.account?.id || booking.accountId || booking.account;
           return String(bookingAccountId) === String(accountId);
         });
@@ -472,10 +472,10 @@ export default function BillingPage() {
     serviceBills.forEach((bill) => {
       const dateSource = bill.usageDate || bill.dueDate || bill.bookFrom || bill.createdAt;
       if (!dateSource) return;
-      
+
       const dateObj = new Date(dateSource);
       if (isNaN(dateObj)) return;
-      
+
       const label = MONTH_FORMATTER.format(dateObj);
       if (!optionMap.has(label)) {
         optionMap.set(label, { value: label, label: label, sortAt: dateObj.getTime() });
@@ -498,9 +498,9 @@ export default function BillingPage() {
     if (selection.type === "service") {
       // Apply service-specific filtering (Category + Month)
       return serviceBills.filter((bill) => {
-        const matchesName = serviceFilterName === "all" || 
+        const matchesName = serviceFilterName === "all" ||
           (bill.name === serviceFilterName || bill.title === serviceFilterName);
-        
+
         let matchesMonth = true;
         if (serviceMonthKey !== "all") {
           const dateSource = bill.usageDate || bill.dueDate || bill.bookFrom || bill.createdAt;
@@ -513,7 +513,7 @@ export default function BillingPage() {
 
         const matchesPaymentStatus = serviceStatusFilter === "all" || bill.paymentStatusKey === serviceStatusFilter;
         const matchesBookingStatus = bookingStatusFilter === "all" || bill.bookingStatusKey === bookingStatusFilter;
-        
+
         return matchesName && matchesMonth && matchesPaymentStatus && matchesBookingStatus;
       });
     }
@@ -557,8 +557,8 @@ export default function BillingPage() {
         }
 
         if (bill.statusKey !== "paid") {
-           acc.allPaid = false;
-           acc.unpaidTotal += invoiceAmt;
+          acc.allPaid = false;
+          acc.unpaidTotal += invoiceAmt;
         }
 
         return acc;
@@ -576,34 +576,34 @@ export default function BillingPage() {
         (acc, bill) => {
           if (bill.source !== "utility") return acc;
 
-            const elec = bill.utilityDetails?.electricity;
-            const wat = bill.utilityDetails?.water;
-            const synthesized = synthesizedHistory[bill.id] || { 
-              electricity: { prev: 0, curr: 0 }, 
-              water: { prev: 0, curr: 0 } 
-            };
+          const elec = bill.utilityDetails?.electricity;
+          const wat = bill.utilityDetails?.water;
+          const synthesized = synthesizedHistory[bill.id] || {
+            electricity: { prev: 0, curr: 0 },
+            water: { prev: 0, curr: 0 }
+          };
 
-            if (elec) {
-              acc.electricity.usage += Number(elec.quantity ?? 0);
-              acc.electricity.amount += Number(elec.amount ?? 0);
-              acc.electricity.rate = Number(elec.unitPrice ?? 0) || acc.electricity.rate;
-              acc.electricity.prev = (acc.electricity.prev === null)
-                ? synthesized.electricity.prev
-                : Math.min(acc.electricity.prev, synthesized.electricity.prev);
-              acc.electricity.curr = Math.max(acc.electricity.curr, synthesized.electricity.curr);
-              if (!acc.electricity.billIds.includes(bill.id) && bill.statusKey !== "paid") acc.electricity.billIds.push(bill.id);
-            }
+          if (elec) {
+            acc.electricity.usage += Number(elec.quantity ?? 0);
+            acc.electricity.amount += Number(elec.amount ?? 0);
+            acc.electricity.rate = Number(elec.unitPrice ?? 0) || acc.electricity.rate;
+            acc.electricity.prev = (acc.electricity.prev === null)
+              ? synthesized.electricity.prev
+              : Math.min(acc.electricity.prev, synthesized.electricity.prev);
+            acc.electricity.curr = Math.max(acc.electricity.curr, synthesized.electricity.curr);
+            if (!acc.electricity.billIds.includes(bill.id) && bill.statusKey !== "paid") acc.electricity.billIds.push(bill.id);
+          }
 
-            if (wat) {
-              acc.water.usage += Number(wat.quantity ?? 0);
-              acc.water.amount += Number(wat.amount ?? 0);
-              acc.water.rate = Number(wat.unitPrice ?? 0) || acc.water.rate;
-              acc.water.prev = (acc.water.prev === null)
-                ? synthesized.water.prev
-                : Math.min(acc.water.prev, synthesized.water.prev);
-              acc.water.curr = Math.max(acc.water.curr, synthesized.water.curr);
-              if (!acc.water.billIds.includes(bill.id) && bill.statusKey !== "paid") acc.water.billIds.push(bill.id);
-            }
+          if (wat) {
+            acc.water.usage += Number(wat.quantity ?? 0);
+            acc.water.amount += Number(wat.amount ?? 0);
+            acc.water.rate = Number(wat.unitPrice ?? 0) || acc.water.rate;
+            acc.water.prev = (acc.water.prev === null)
+              ? synthesized.water.prev
+              : Math.min(acc.water.prev, synthesized.water.prev);
+            acc.water.curr = Math.max(acc.water.curr, synthesized.water.curr);
+            if (!acc.water.billIds.includes(bill.id) && bill.statusKey !== "paid") acc.water.billIds.push(bill.id);
+          }
 
           if (Number(bill.managementFee ?? 0) > 0) {
             acc.management.amount += Number(bill.managementFee ?? 0);
@@ -788,7 +788,7 @@ export default function BillingPage() {
     const now = new Date();
     // Start of current month (e.g., April 1st 2026 00:00:00)
     const startOfCurrentMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-    
+
     return enrichedBills.filter(bill => {
       const billDate = bill.dueDate ? new Date(bill.dueDate) : null;
       // Show only invoices strictly before the current month
@@ -865,15 +865,15 @@ export default function BillingPage() {
       const invoicesPayload = selectedIds
         .filter(id => id.endsWith(":service"))
         .map(id => {
-           const match = String(id).match(/\d+/);
-           if (!match) return null;
-           const d = new Date();
-           return {
-             invoiceId: parseInt(match[0], 10),
-             invoiceType: "SERVICES_INVOICE",
-             invoiceMonth: d.getMonth() + 1,
-             invoiceYear: d.getFullYear(),
-           };
+          const match = String(id).match(/\d+/);
+          if (!match) return null;
+          const d = new Date();
+          return {
+            invoiceId: parseInt(match[0], 10),
+            invoiceType: "SERVICES_INVOICE",
+            invoiceMonth: d.getMonth() + 1,
+            invoiceYear: d.getFullYear(),
+          };
         })
         .filter(Boolean);
 
@@ -883,13 +883,13 @@ export default function BillingPage() {
       }
 
       const res = await api.post("/payment/create", {
-        orderInfo: `Thanh toan phi - Service Bookings`,
+        orderInfo: `Fee payment - Service Bookings`,
         invoices: invoicesPayload
       });
       window.location.href = res.data.result.paymentUrl;
     } catch (error) {
       console.error(error);
-      toast.error("Lỗi khi kết nối tới cổng thanh toán.");
+      toast.error("Error connecting to payment gateway.");
     }
   };
 
@@ -934,12 +934,12 @@ export default function BillingPage() {
                   </div>
                   <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', justifyContent: 'center' }}>
                     {selection.type === 'service' && (
-                      <Link 
-                        to="/booking" 
+                      <Link
+                        to="/booking"
                         className="premium-action-btn"
-                        style={{ 
-                          display: 'flex', 
-                          alignItems: 'center', 
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
                           gap: '12px',
                           padding: '12px 28px',
                           borderRadius: '14px',
@@ -966,7 +966,7 @@ export default function BillingPage() {
                         <span>New Booking</span>
                       </Link>
                     )}
-                    
+
                     {selection.type !== 'service' && (
                       <div className="banner-badge">
                         {selection.type === 'support' ? (
@@ -1026,21 +1026,21 @@ export default function BillingPage() {
                   exit={{ opacity: 0, x: 10 }}
                   className="billing-panel"
                 >
-                  <div className="billing-panel-header" style={{ 
-                    marginBottom: "30px", 
-                    paddingBottom: "20px", 
+                  <div className="billing-panel-header" style={{
+                    marginBottom: "30px",
+                    paddingBottom: "20px",
                     borderBottom: "1px solid #f1f5f9",
                     alignItems: "center"
                   }}>
-                      <div style={{ flex: 1 }}>
-                        <h3 className="section-title" style={{ fontSize: "1.5rem", fontWeight: "800", color: "#1e293b", margin: 0 }}>
-                          Service Bookings 
-                        </h3>
-                        <p className="billing-panel-subtitle" style={{ margin: "4px 0 0", color: "#64748b" }}>
-                          Manage your requests and track booking expenditures.
-                        </p>
-                      </div>
-                    
+                    <div style={{ flex: 1 }}>
+                      <h3 className="section-title" style={{ fontSize: "1.5rem", fontWeight: "800", color: "#1e293b", margin: 0 }}>
+                        Service Bookings
+                      </h3>
+                      <p className="billing-panel-subtitle" style={{ margin: "4px 0 0", color: "#64748b" }}>
+                        Manage your requests and track booking expenditures.
+                      </p>
+                    </div>
+
                     {/* Consolidated Filters Row */}
                     <div className="service-filter-actions" style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
                       <div className="filter-group" style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
@@ -1154,7 +1154,7 @@ export default function BillingPage() {
 
                   {/* Payment Action Bar */}
                   {totalSelected > 0 && (
-                    <motion.div 
+                    <motion.div
                       className="modern-payment-summary full-row"
                       initial={{ opacity: 0, scale: 0.98 }}
                       animate={{ opacity: 1, scale: 1 }}
@@ -1166,7 +1166,7 @@ export default function BillingPage() {
                           {formatCurrency(totalSelected)}
                         </span>
                       </div>
-                      <button 
+                      <button
                         className="pay-selected-btn premium-btn"
                         onClick={handleServicePayment}
                       >
@@ -1174,9 +1174,9 @@ export default function BillingPage() {
                       </button>
                     </motion.div>
                   )}
-                  
-                  <ServiceActivity 
-                    bookings={filteredBills} 
+
+                  <ServiceActivity
+                    bookings={filteredBills}
                     selectedIds={selectedIds}
                     onToggleBill={onToggleBill}
                     onToggleAll={onToggleAllBookings}
