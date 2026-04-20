@@ -1,4 +1,7 @@
--- 1. Tạo Database nếu chưa tồn tại
+﻿USE master;
+GO
+
+-- 1. Kiểm tra và xóa Database nếu đã tồn tại
 IF NOT EXISTS (SELECT name FROM sys.databases WHERE name = N'SmartCity_DB')
 BEGIN
     CREATE DATABASE SmartCity_DB;
@@ -3234,4 +3237,4 @@ UPDATE UtilitiesInvoices
 SET Status = 1
 WHERE Status = 0;
 
-  update UtilitiesInvoices set Status = 1 where ApartmentId = 1 and BillingMonth = 3;
+update UtilitiesInvoices set Status = 0 where ApartmentId = 1 and BillingMonth = 3;
