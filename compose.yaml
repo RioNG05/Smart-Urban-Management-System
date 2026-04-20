@@ -31,7 +31,8 @@ services:
     env_file:
       - ./backend/.env
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     restart: unless-stopped
 
   db:
@@ -45,14 +46,20 @@ services:
       - "1434:1433"
     volumes:
       - sql_data:/var/opt/mssql
-      - ./db/SUMS.sql:/init.sql              # 🔥 mount file sql
-      - ./db/init-db.sh:/init-db.sh          # 🔥 script chạy sql
+      - ./db/SUMS.sql:/init.sql              # mount file sql
+      - ./db/init-db.sh:/init-db.sh          # script chạy sql
     command: >
       /bin/bash -c "
       /opt/mssql/bin/sqlservr &
-      /init-db.sh
+      /init-db.sh;
       wait
       "
+    healthcheck:
+      test: ["CMD-SHELL", "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P \"Sums@!2026\" -C -Q \"SET NOCOUNT ON; SELECT DB_ID('SmartCity_DB')\" -h -1 | grep -q '[0-9]'"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 15s
 
   adminer:
     image: adminer
