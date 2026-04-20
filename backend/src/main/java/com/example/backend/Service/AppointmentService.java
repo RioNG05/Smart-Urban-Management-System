@@ -138,7 +138,7 @@ public class AppointmentService {
 
     private void validateTime(java.time.LocalTime start, java.time.LocalTime end) {
         if (start.isAfter(end) || start.equals(end)) {
-            throw new RuntimeException("StartTime phải trước EndTime");
+            throw new RuntimeException("StartTime must be before EndTime");
         }
     }
 
@@ -170,7 +170,7 @@ public class AppointmentService {
         }
 
         if (count > 0) {
-            throw new RuntimeException("Staff đã có lịch trong thời gian này");
+            throw new RuntimeException("Staff already has an appointment during this time");
         }
     }
 }

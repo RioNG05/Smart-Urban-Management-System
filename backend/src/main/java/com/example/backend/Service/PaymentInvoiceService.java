@@ -33,7 +33,7 @@ public class PaymentInvoiceService {
 
     public PaymentInvoice findById(Integer id) {
         return repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy hợp đồng với id: " + id));
+                .orElseThrow(() -> new RuntimeException("Contract not found for id: " + id));
     }
 
     public List<Objects> findAllByInvoiceTypeAndPaymentId(Integer paymentId, InvoiceType invoiceType){

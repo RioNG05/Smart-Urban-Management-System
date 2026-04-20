@@ -27,7 +27,7 @@ public class ResidentService {
 
     public Resident findById(Integer id) {
         return residentRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy thông tin dân cư với id: "+id));
+                .orElseThrow(() -> new RuntimeException("Resident information not found for id: "+id));
     }
 
     public Resident create(ResidentCreateRequest request) {
@@ -78,6 +78,6 @@ public class ResidentService {
     }
 
     public Resident findByAccountId(Integer accountId){
-        return residentRepository.findByAccountId(accountId).orElseThrow(()->new RuntimeException("Không tìm thấy tài khoản người dân"));
+        return residentRepository.findByAccountId(accountId).orElseThrow(()->new RuntimeException("Resident account not found"));
     }
 }

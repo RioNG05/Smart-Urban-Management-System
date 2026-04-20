@@ -45,16 +45,16 @@ public class AuthenticationService {
     }
 
     public AutheticationResponse authenticated(AuthenticationRequest request){
-        var account = accountRepository.findByUsername(request.getUsername()).orElseThrow(() -> new RuntimeException("Tên người dùng hoặc mật khẩu sai"));
+        var account = accountRepository.findByUsername(request.getUsername()).orElseThrow(() -> new RuntimeException("Incorrect username or password"));
 
         if (!account.isEnabled()) {
-            throw new RuntimeException("Tài khoản của bạn đã bị vô hiệu hóa");
+            throw new RuntimeException("Your account is disabled");
         }
 
         PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(10);
         boolean autheticated = passwordEncoder.matches(request.getPassword(), account.getPassword());
 
-//        if(!autheticated) throw new RuntimeException("Không thể xác thực người dùng");
+//        if(!autheticated) throw new RuntimeException("Unable to authenticate user");
             if(!autheticated) {
                 return AutheticationResponse.builder()
                         .authenticated(false)

@@ -43,7 +43,7 @@ public class AccountService {
     public Account create(AccountCreateRequest req) {
         Account account =new Account();
         PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(10);
-        Role role =  roleRepository.findByRoleName(RoleEnum.USER).orElseThrow(() -> new RuntimeException("Không tìm thấy role tên USER"));
+        Role role =  roleRepository.findByRoleName(RoleEnum.USER).orElseThrow(() -> new RuntimeException("USER role not found"));
 
         account.setEmail(req.getEmail());
         account.setUsername(req.getUsername());
@@ -69,7 +69,7 @@ public class AccountService {
             account.setPassword(passwordEncoder.encode(req.getPassword()));
         }
         if (req.getRoleId() != null) {
-            Role role =  roleRepository.findById(req.getRoleId()).orElseThrow(() -> new RuntimeException("Không tìm thấy role tên USER"));
+            Role role =  roleRepository.findById(req.getRoleId()).orElseThrow(() -> new RuntimeException("USER role not found"));
             account.setRole(role);
         }
         if (req.getIsActive() != null) {

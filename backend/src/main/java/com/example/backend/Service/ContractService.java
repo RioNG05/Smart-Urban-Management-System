@@ -36,7 +36,7 @@ public class ContractService {
 
     public Contract findById(Integer id) {
         return repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy hợp đồng với id: " + id));
+                .orElseThrow(() -> new RuntimeException("Contract not found for id: " + id));
     }
 
     public Contract create(ContractCreateRequest request) {

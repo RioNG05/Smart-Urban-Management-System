@@ -13,18 +13,18 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class AccountCreateRequest {
 
-    @NotBlank(message = "Email không được để trống")
+    @NotBlank(message = "Email must not be blank")
     String email;
 
-    @NotBlank(message = "Tên người dùng không được để trống")
-    @Size(min = 6, message = "Tên người dùng phải có ít nhất 6 ký tự")
+    @NotBlank(message = "Username must not be blank")
+    @Size(min = 6, message = "Username must be at least 6 characters")
     String username;
 
-    @NotBlank(message = "Mật khẩu không được để trống")
-    @Size(min = 8, message = "Mật khẩu phải có ít nhất 8 ký tự")
+    @NotBlank(message = "Password must not be blank")
+    @Size(min = 8, message = "Password must be at least 8 characters")
     @Pattern(
             regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&#])\\S+$",
-            message = "Mật khẩu phải chứa ít nhất 1 chữ hoa, 1 chữ thường, 1 chữ số và 1 kí tự đặc biệt. Mật khẩu không được chứa dấu cách"
+            message = "Password must contain at least 1 uppercase letter, 1 lowercase letter, 1 number, and 1 special character. Password cannot contain spaces"
     )
     String password;
     Integer roleId;

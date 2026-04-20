@@ -13,18 +13,18 @@ import java.math.BigDecimal;
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class ServicesCreateRequest {
-    @NotBlank(message = "Không được để trống tên dịch vụ")
+    @NotBlank(message = "Service name must not be blank")
     String serviceName;
-    @NotBlank(message = "Không được để trống mã dịch vụ")
+    @NotBlank(message = "Service code must not be blank")
     String serviceCode;
-    @NotNull(message = "Không được để trống đơn giá")
+    @NotNull(message = "Unit price must not be blank")
     BigDecimal feePerUnit;
-    @NotBlank(message = "Không được để trống đơn vị")
+    @NotBlank(message = "Unit must not be blank")
     String unitType;
-    @NotBlank(message = "Không được để trống miêu tả")
+    @NotBlank(message = "Description must not be blank")
     String description;
-    @NotBlank(message = "Không được để trống url ảnh")
+    @NotBlank(message = "Image url must not be blank")
     String imageUrl;
-    @NotNull(message = "Không được để trống trạng thái")
+    @NotNull(message = "Status must not be blank")
     boolean isBookable;
 }

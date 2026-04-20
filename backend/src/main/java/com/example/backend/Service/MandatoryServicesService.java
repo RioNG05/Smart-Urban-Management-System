@@ -28,7 +28,7 @@ public class MandatoryServicesService {
 
     public MandatoryServices findById(Integer id) {
         return repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy dịch vụ với id: " + id));
+                .orElseThrow(() -> new RuntimeException("Service not found for id: " + id));
     }
 
     public MandatoryServices create(MandatoryServicesCreateRequest request) {

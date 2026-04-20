@@ -14,13 +14,13 @@ import java.time.LocalDateTime;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class IoTSyncLogCreateRequest {
 
-    @NotNull(message = "Không được để trống apartmentId")
+    @NotNull(message = "apartmentId must not be blank")
     Integer apartmentId;
 
-    @NotNull(message = "Không được để trống điện")
+    @NotNull(message = "Electricity must not be blank")
     BigDecimal electricityEndNum;
 
-    @NotNull(message = "Không được để trống nước")
+    @NotNull(message = "Water must not be blank")
     BigDecimal waterEndNum;
 
     LocalDateTime logDate;

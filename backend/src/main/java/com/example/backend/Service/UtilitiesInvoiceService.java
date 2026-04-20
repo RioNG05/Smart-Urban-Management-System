@@ -41,12 +41,12 @@ public class UtilitiesInvoiceService {
     }
 
     public UtilitiesInvoice findById(Integer id) {
-        return repository.findById(id).orElseThrow(() -> new RuntimeException("Không tìm thấy hóa đơn với id: " + id));
+        return repository.findById(id).orElseThrow(() -> new RuntimeException("Invoice not found for id: " + id));
     }
 
     public UtilitiesInvoice create(UICreateRequest req) {
         if(!apartmentService.isOwned(req.getApartmentId())){
-            throw new RuntimeException("Căn hộ chưa được sở hữu");
+            throw new RuntimeException("Apartment is not owned yet");
         }
 
         Apartment apartment = apartmentService.findById(req.getApartmentId());
@@ -72,7 +72,7 @@ public class UtilitiesInvoiceService {
 
     public UtilitiesInvoice update(Integer id, UIUpdateRequest req) {
         if(!apartmentService.isOwned(req.getApartmentId())){
-            throw new RuntimeException("Căn hộ chưa được sở hữu");
+            throw new RuntimeException("Apartment is not owned yet");
         }
 
         UtilitiesInvoice invoice = findById(id);
@@ -111,9 +111,9 @@ public class UtilitiesInvoiceService {
     }
 
     private BigDecimal calculateTotalAmount(Integer apartmentId) {
-        MandatoryServices electricityService = mandatoryServicesRepository.findByServiceCode("ELEC_01").orElseThrow(() -> new RuntimeException("Không thấy dịch vụ điện"));
-        MandatoryServices waterService = mandatoryServicesRepository.findByServiceCode("WAT_01").orElseThrow(() -> new RuntimeException("Không thấy dịch vụ nước"));
-        MandatoryServices monthlyFee = mandatoryServicesRepository.findByServiceCode("MNG_FEE").orElseThrow(() -> new RuntimeException("Không thấy dịch vụ phí hàng tháng"));
+        MandatoryServices electricityService = mandatoryServicesRepository.findByServiceCode("ELEC_01").orElseThrow(() -> new RuntimeException("Electricity service not found"));
+        MandatoryServices waterService = mandatoryServicesRepository.findByServiceCode("WAT_01").orElseThrow(() -> new RuntimeException("Water service not found"));
+        MandatoryServices monthlyFee = mandatoryServicesRepository.findByServiceCode("MNG_FEE").orElseThrow(() -> new RuntimeException("Monthly fee service not found"));
 //
         IoTSyncLog[] listIoT = getLatestIoT(apartmentId);
         IoTSyncLog thisMonth = listIoT[0];
@@ -139,7 +139,7 @@ public class UtilitiesInvoiceService {
     private IoTSyncLog[] getLatestIoT(Integer apartmentId){
         List<IoTSyncLog> listIoT = ioTSyncLogRepository.findAllByApartmentIdOrderByLogDateDesc(apartmentId);
         if(listIoT.size() <2){
-            throw new RuntimeException("Dữ liệu IoT log không đủ");
+            throw new RuntimeException("Insufficient IoT log data");
         }
 
         return new IoTSyncLog[]{listIoT.get(0), listIoT.get(1)};

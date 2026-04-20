@@ -13,13 +13,13 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class ReplyCreateRequest {
 
-    @NotBlank(message = "Nội dung phản hồi không được để trống")
-    @Size(max = 2000, message = "Nội dung không được quá 2000 ký tự")
+    @NotBlank(message = "Reply content must not be blank")
+    @Size(max = 2000, message = "Content must not exceed 2000 characters")
     String content;
 
     Integer complaintId;
 
-    @NotNull(message = "UserId không được để trống")
+    @NotNull(message = "UserId must not be blank")
     Integer userId;
 
 }

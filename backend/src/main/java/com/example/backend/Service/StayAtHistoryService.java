@@ -35,7 +35,7 @@ public class StayAtHistoryService {
 
     public StayAtHistory findById(Integer id) {
         return repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy lịch sử lưu trú với id: " + id));
+                .orElseThrow(() -> new RuntimeException("Stay history not found for id: " + id));
     }
 
     public StayAtHistory create(SAHCreateRequest request) {

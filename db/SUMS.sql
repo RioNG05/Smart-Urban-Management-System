@@ -2934,14 +2934,14 @@ JOIN
     ON Curr.ApartmentId = Prev.ApartmentId;
 GO
 
---3.2.2 -- tháng 2 
+--3.2.2 -- tháng 3 
 -- =============================================
 -- BATCH 3.2: XUẤT HÓA ĐƠN THÁNG 02/2026 (TẠO NGÀY 02/03/2026)
 -- =============================================
 INSERT INTO UtilitiesInvoices (ApartmentId, BillingMonth, BillingYear, TotalElectricUsed, TotalWaterUsed, TotalAmount, Status, CreatedAt)
 SELECT 
     Curr.ApartmentId,
-    2 AS BillingMonth, -- Hóa đơn cho tháng 2
+    3 AS BillingMonth, -- Hóa đơn cho tháng 2
     2026 AS BillingYear,
     (Curr.ElectricityEndNum - Prev.ElectricityEndNum) AS ElecUsed,
     (Curr.WaterEndNum - Prev.WaterEndNum) AS WaterUsed,
@@ -2949,11 +2949,11 @@ SELECT
     ( (Curr.WaterEndNum - Prev.WaterEndNum) * (SELECT BasePrice FROM MandatoryServices WHERE ServiceCode = 'WAT_01') ) +
     ( (SELECT BasePrice FROM MandatoryServices WHERE ServiceCode = 'MNG_FEE') ) AS TotalAmount,
     0 AS Status,
-    DATEFROMPARTS(2026, 3, 2) AS CreatedAt -- Tạo vào mùng 2 tháng 3
+    DATEFROMPARTS(2026, 4, 2) AS CreatedAt -- Tạo vào mùng 2 tháng 3
 FROM 
-    (SELECT * FROM IoT_Sync_Logs WHERE LogDate = '2026-03-01') AS Curr
+    (SELECT * FROM IoT_Sync_Logs WHERE LogDate = '2026-04-01') AS Curr
 JOIN 
-    (SELECT * FROM IoT_Sync_Logs WHERE LogDate = '2026-02-01') AS Prev 
+    (SELECT * FROM IoT_Sync_Logs WHERE LogDate = '2026-03-01') AS Prev 
     ON Curr.ApartmentId = Prev.ApartmentId;
 GO
 
@@ -3242,3 +3242,5 @@ GO
 UPDATE UtilitiesInvoices
 SET Status = 1
 WHERE Status = 0;
+
+  update UtilitiesInvoices set Status = 1 where ApartmentId = 1 and BillingMonth = 3;
