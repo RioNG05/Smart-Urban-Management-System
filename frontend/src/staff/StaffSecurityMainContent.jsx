@@ -436,6 +436,17 @@ const StaffSecurityMainContent = ({ activeTab }) => {
   const handleUpdateVisitor = async () => {
     if (!editingVisitorId) return;
 
+    if (
+      !visitorForm.visitorName ||
+      !visitorForm.identityCard ||
+      !visitorForm.phoneNumber ||
+      !visitorForm.apartmentId
+    ) {
+      setError("Please fill visitor name, identity card, phone number, and apartment.");
+      setSuccess("");
+      return;
+    }
+
     try {
       setIsSubmitting(true);
       setError("");
@@ -735,6 +746,7 @@ const StaffSecurityMainContent = ({ activeTab }) => {
 
               <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '45px', borderTop: '1px solid var(--admin-border-soft)', paddingTop: '30px' }}>
                 <button
+                  type="button"
                   className="admin-btn-add"
                   style={{
                     width: 'auto',
@@ -751,7 +763,7 @@ const StaffSecurityMainContent = ({ activeTab }) => {
                     apartments.length === 0 ||
                     staffMembers.length === 0
                   }
-                  // onClick={editingVisitorId ? handleUpdateVisitor : handleCheckIn}
+                  onClick={editingVisitorId ? handleUpdateVisitor : handleCheckIn}
                 >
                   {isSubmitting
                     ? "PROCESSING..."

@@ -77,9 +77,7 @@ const ServiceResourceModal = ({
           <div>
             <p className="service-resource-modal-kicker">SERVICE RESOURCE</p>
             <h3>{service.title}</h3>
-            <span>
-              Manage resources used on booking for this service.
-            </span>
+            <span>Manage resources used on booking for this service.</span>
           </div>
           <button
             type="button"
@@ -104,7 +102,9 @@ const ServiceResourceModal = ({
                 <input
                   type="text"
                   value={formData.resourceCode}
-                  onChange={(event) => onChange("resourceCode", event.target.value)}
+                  onChange={(event) =>
+                    onChange("resourceCode", event.target.value)
+                  }
                   placeholder="POOL-A1"
                 />
               </div>
@@ -121,11 +121,7 @@ const ServiceResourceModal = ({
 
               <div className="form-group">
                 <label>Resource image</label>
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={onImageChange}
-                />
+                <input type="file" accept="image/*" onChange={onImageChange} />
                 <span className="service-manager-upload-note">
                   Upload an image from your computer for this booking resource.
                 </span>
@@ -140,7 +136,9 @@ const ServiceResourceModal = ({
                 <input
                   type="checkbox"
                   checked={formData.isAvailable}
-                  onChange={(event) => onChange("isAvailable", event.target.checked)}
+                  onChange={(event) =>
+                    onChange("isAvailable", event.target.checked)
+                  }
                 />
                 Available for booking
               </label>
@@ -191,7 +189,9 @@ const ServiceResourceModal = ({
                     {resource.imageUrl ? (
                       <img
                         src={resource.imageUrl}
-                        alt={resource.resourceCode || `Resource #${resource.id}`}
+                        alt={
+                          resource.resourceCode || `Resource #${resource.id}`
+                        }
                         className="service-resource-card-thumb"
                       />
                     ) : null}
@@ -576,16 +576,23 @@ const ServiceManager = () => {
   const handleSubmitResource = async () => {
     if (!activeResourceService?.id) return;
 
-    if (!resourceFormData.resourceCode.trim() || !resourceFormData.location.trim()) {
+    if (
+      !resourceFormData.resourceCode.trim() ||
+      !resourceFormData.location.trim()
+    ) {
       toast.error("Please complete resource code and location.");
       return;
     }
 
-    const normalizedResourceCode = resourceFormData.resourceCode.trim().toLowerCase();
+    const normalizedResourceCode = resourceFormData.resourceCode
+      .trim()
+      .toLowerCase();
     const hasDuplicateResourceCode = activeServiceResources.some(
       (resource) =>
         resource.id !== editingResourceId &&
-        String(resource.resourceCode ?? "").trim().toLowerCase() === normalizedResourceCode,
+        String(resource.resourceCode ?? "")
+          .trim()
+          .toLowerCase() === normalizedResourceCode,
     );
 
     if (hasDuplicateResourceCode) {
@@ -640,7 +647,8 @@ const ServiceManager = () => {
   const activeServiceResources = useMemo(() => {
     if (!activeResourceService?.id) return [];
     return allResources.filter(
-      (resource) => Number(resource.serviceId) === Number(activeResourceService.id),
+      (resource) =>
+        Number(resource.serviceId) === Number(activeResourceService.id),
     );
   }, [activeResourceService, allResources]);
 
@@ -676,7 +684,7 @@ const ServiceManager = () => {
               border: "1px solid rgba(255,255,255,0.1)",
             }}
           >
-            {visibleOnBookingCount}/{services.length} ON BOOKING
+            {visibleOnBookingCount}/{services.length} AVAILABLE
           </div>
           <button
             type="button"
@@ -798,26 +806,27 @@ const ServiceManager = () => {
                 />
               </div>
 
-            <div className="form-group">
-              <label>Service image</label>
-              <input
-                ref={imageInputRef}
-                type="file"
-                accept="image/*"
-                onChange={handleImageFileChange}
-              />
-              <span className="service-manager-upload-note">
-                Choose an image from your computer. The file will be uploaded automatically when you save.
-              </span>
-              {(imagePreviewUrl || formData.imageUrl) ? (
-                <div className="service-manager-image-preview">
-                  <img
-                    src={imagePreviewUrl || formData.imageUrl}
-                    alt={formData.serviceName || "Service preview"}
-                  />
-                </div>
-              ) : null}
-            </div>
+              <div className="form-group">
+                <label>Service image</label>
+                <input
+                  ref={imageInputRef}
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageFileChange}
+                />
+                <span className="service-manager-upload-note">
+                  Choose an image from your computer. The file will be uploaded
+                  automatically when you save.
+                </span>
+                {imagePreviewUrl || formData.imageUrl ? (
+                  <div className="service-manager-image-preview">
+                    <img
+                      src={imagePreviewUrl || formData.imageUrl}
+                      alt={formData.serviceName || "Service preview"}
+                    />
+                  </div>
+                ) : null}
+              </div>
 
               <div className="form-group">
                 <label>Description</label>
