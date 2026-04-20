@@ -2,7 +2,7 @@
 GO
 
 -- 1. Kiểm tra và xóa Database nếu đã tồn tại
-IF EXISTS (SELECT name FROM sys.databases WHERE name = N'SmartCity_DB')
+IF NOT EXISTS (SELECT name FROM sys.databases WHERE name = N'SmartCity_DB')
 BEGIN
     CREATE DATABASE SmartCity_DB;
 END
