@@ -148,12 +148,6 @@ function AuthForm() {
             </span>
           </div>
 
-          <div className="forgot-row">
-            <a href="#" className="forgot-link">
-              Forgot password?
-            </a>
-          </div>
-
           <button type="submit" className="primary-btn">
             Sign In
           </button>
