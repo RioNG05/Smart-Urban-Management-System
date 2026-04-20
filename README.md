@@ -1,4 +1,4 @@
-# Smart Urban System
+# Smart Urban Management System
 
 This is the Smart Urban System project.
 
