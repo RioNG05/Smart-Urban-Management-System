@@ -4,14 +4,8 @@ GO
 -- 1. Kiểm tra và xóa Database nếu đã tồn tại
 IF EXISTS (SELECT name FROM sys.databases WHERE name = N'SmartCity_DB')
 BEGIN
-    -- Force đóng các kết nối đang mở để có thể xóa được DB
-    ALTER DATABASE SmartCity_DB SET SINGLE_USER WITH ROLLBACK IMMEDIATE;
-    DROP DATABASE SmartCity_DB;
+    CREATE DATABASE SmartCity_DB;
 END
-GO
-
--- 2. Tạo Database mới
-CREATE DATABASE SmartCity_DB;
 GO
 
 -- 3. Sử dụng Database vừa tạo

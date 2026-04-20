@@ -41,6 +41,16 @@ public class ContractService {
     }
 
     public Contract create(ContractCreateRequest request) {
+        // --- Conditional Validation ---
+        if ("Rent".equalsIgnoreCase(request.getContractType())) {
+            if (request.getEndDate() == null) {
+                throw new RuntimeException("Expiration date must not be blank for RENTAL contracts.");
+            }
+            if (request.getMonthlyRent() == null) {
+                throw new RuntimeException("Monthly rent must not be blank for RENTAL contracts.");
+            }
+        }
+
         Account account = accountService.findById(request.getAccountId());
         Apartment apartment = apartmentService.findById(request.getApartmentId());
 
