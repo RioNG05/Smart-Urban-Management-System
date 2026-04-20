@@ -2255,7 +2255,7 @@ DECLARE @Images TABLE (Url NVARCHAR(MAX));
 INSERT INTO @Images VALUES 
 ('https://storage.googleapis.com/digital-platform/hinh_anh_can_ho_studio_the_miami_vinhomes_smart_stity_thiet_ke_moi_nhat_so_1_998c066427/hinh_anh_can_ho_studio_the_miami_vinhomes_smart_stity_thiet_ke_moi_nhat_so_1_998c066427.jpg'),
 ('https://cf.bstatic.com/xdata/images/hotel/max1024x768/498841159.jpg?k=70bbfccecd98db25fed4df51fa6ffdce7c6e792c3852ef0f963835188ddd2d55&o=&hp=1'),
-('https://homemaster.com.vn/wp-content/uploads/2021/08/Thiet-ke-noi-that-can-ho-Studio-Vinhome-Smart-City-6.jpg'),
+('https://cafefcdn.com/203337114487263232/2021/7/25/photo-1-1627203504052338040764.jpg'),
 ('https://tse4.mm.bing.net/th/id/OIP.GUbUI0X0fFj8QamlK-CQVgHaFD?rs=1&pid=ImgDetMain&o=7&rm=3'),
 ('https://cdn.fazwaz.com/wbr/RlErQEoYYWbsaVXmgXE37PrVjwM/0x0/gallery/180952/screenshot-2023-01-06-110515.png'),
 ('https://th.bing.com/th/id/R.9e8ed3846b22048aa1e9a9ffd34cda9d?rik=ycyi6kAReBjrTA&riu=http%3a%2f%2fchungcudep.net%2fwp-content%2fuploads%2f2024%2f03%2fanh-thuc-te-can-ho-studio-vinhomes-smart-city-5.jpg&ehk=JMMVbxy9YwdeMfeKxe5MCNtmOBN75Dq0azO1hO8Qtu0%3d&risl=&pid=ImgRaw&r=0');
