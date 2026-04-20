@@ -67,11 +67,7 @@ function AuthForm() {
       if (err.response) {
         toast.error("Login failed. Please check your credentials.");
       } else {
-<<<<<<< HEAD
         toast.error("Cannot connect to server");
-=======
-        toast.error("Unable to connect to server");
->>>>>>> 3602417696da09c236933b2fd2598409c92465e0
       }
     }
   };
@@ -80,11 +76,7 @@ function AuthForm() {
     e.preventDefault();
 
     if (registerData.password !== registerData.confirmPassword) {
-<<<<<<< HEAD
       toast.warning("Passwords do not match");
-=======
-      toast.warning("Password does not match");
->>>>>>> 3602417696da09c236933b2fd2598409c92465e0
       return;
     }
 
@@ -99,17 +91,9 @@ function AuthForm() {
 
       setIsLogin(true);
     } catch (err) {
-<<<<<<< HEAD
       toast.error(
         "Password must contain at least 1 uppercase letter, 1 lowercase letter, 1 number, and 1 special character. Password cannot contain spaces. Password must be at least 8 characters long."
       );
-=======
-      if (err.response?.data?.message) {
-        toast.error(err.response.data.message);
-      } else {
-        toast.error("Register failed");
-      }
->>>>>>> 3602417696da09c236933b2fd2598409c92465e0
     }
   };
   return (

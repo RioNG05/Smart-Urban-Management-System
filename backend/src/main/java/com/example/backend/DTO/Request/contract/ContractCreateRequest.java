@@ -21,9 +21,7 @@ public class ContractCreateRequest {
     String contractType;
     @NotNull(message = "Effective date must not be blank")
     LocalDate startDate;
-    @NotNull(message = "Expiration date must not be blank")
     LocalDate endDate;
-    @NotNull(message = "Rent price must not be blank")
     BigDecimal monthlyRent;
     @NotNull(message = "Creator id must not be blank")
     Integer createdById;

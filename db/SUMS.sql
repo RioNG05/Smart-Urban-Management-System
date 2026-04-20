@@ -1,4 +1,4 @@
-USE master;
+﻿USE master;
 GO
 
 -- 1. Kiểm tra và xóa Database nếu đã tồn tại
@@ -3243,4 +3243,4 @@ UPDATE UtilitiesInvoices
 SET Status = 1
 WHERE Status = 0;
 
-  update UtilitiesInvoices set Status = 1 where ApartmentId = 1 and BillingMonth = 3;
+update UtilitiesInvoices set Status = 0 where ApartmentId = 1 and BillingMonth = 3;
