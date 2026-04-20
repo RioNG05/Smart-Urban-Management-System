@@ -13,14 +13,14 @@ import java.math.BigDecimal;
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class MandatoryServicesCreateRequest {
-    @NotBlank(message = "Không được để trống tên dịch vụ")
+    @NotBlank(message = "Service name must not be blank")
     String serviceName;
-    @NotBlank(message = "Không được để trống mã dịch vụ")
+    @NotBlank(message = "Service code must not be blank")
     String serviceCode;
-    @NotNull(message = "Không được để trống đơn giá")
+    @NotNull(message = "Unit price must not be blank")
     BigDecimal basePrice;
-    @NotBlank(message = "Không được để trống đơn vị")
+    @NotBlank(message = "Unit must not be blank")
     String unitType;
-    @NotBlank(message = "Không được để trống miêu tả")
+    @NotBlank(message = "Description must not be blank")
     String description;
 }

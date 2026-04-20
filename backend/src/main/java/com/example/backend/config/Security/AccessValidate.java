@@ -31,7 +31,7 @@ public class AccessValidate {
     public boolean canViewContract(Integer id, @NonNull Authentication auth){
         Account account = (Account) auth.getPrincipal();
 
-        Contract contract = contractRepository.findById(id).orElseThrow(() -> new RuntimeException("Không tìm thấy hợp đồng với id: " + id));
+        Contract contract = contractRepository.findById(id).orElseThrow(() -> new RuntimeException("Contract not found for id: " + id));
 
         boolean isOwned = contract.getAccount().getId().equals(account.getId());
 
@@ -68,7 +68,7 @@ public class AccessValidate {
      */
     public boolean isAllowed(Integer pathId, Authentication auth){
         if(auth == null || !(auth.getPrincipal() instanceof Account)){
-            throw new RuntimeException("Hệ thống không tìm thấy thông tin tài khoản hoặc bạn chưa đăng nhập");
+            throw new RuntimeException("Account information not found or you are not logged in");
         }
         Account account = (Account) auth.getPrincipal();
         return pathId.equals(account.getId()) || account.getRole().getId() == 1;

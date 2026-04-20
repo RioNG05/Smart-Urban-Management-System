@@ -36,10 +36,20 @@ public class ContractService {
 
     public Contract findById(Integer id) {
         return repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy hợp đồng với id: " + id));
+                .orElseThrow(() -> new RuntimeException("Contract not found for id: " + id));
     }
 
     public Contract create(ContractCreateRequest request) {
+        // --- Conditional Validation ---
+        if ("Rent".equalsIgnoreCase(request.getContractType())) {
+            if (request.getEndDate() == null) {
+                throw new RuntimeException("Expiration date must not be blank for RENTAL contracts.");
+            }
+            if (request.getMonthlyRent() == null) {
+                throw new RuntimeException("Monthly rent must not be blank for RENTAL contracts.");
+            }
+        }
+
         Account account = accountService.findById(request.getAccountId());
         Apartment apartment = apartmentService.findById(request.getApartmentId());
 

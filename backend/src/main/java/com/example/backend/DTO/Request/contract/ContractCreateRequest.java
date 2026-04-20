@@ -13,20 +13,18 @@ import java.time.LocalDate;
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class ContractCreateRequest {
-    @NotNull(message = "Không được để trống id căn hộ")
+    @NotNull(message = "Apartment id must not be blank")
     Integer apartmentId;
-    @NotNull(message = "Không được để trống id tài khoản sở hữu")
+    @NotNull(message = "Owner account id must not be blank")
     Integer accountId;
-    @NotBlank(message = "Không được để trống kiểu hợp đồng")
+    @NotBlank(message = "Contract type must not be blank")
     String contractType;
-    @NotNull(message = "Không được để trống ngày có hiệu lực")
+    @NotNull(message = "Effective date must not be blank")
     LocalDate startDate;
-    @NotNull(message = "Không được để trống ngày hết hiệu lực")
     LocalDate endDate;
-    @NotNull(message = "Không được để trống giá thuê")
     BigDecimal monthlyRent;
-    @NotNull(message = "Không được để trống id người tạo hợp đồng")
+    @NotNull(message = "Creator id must not be blank")
     Integer createdById;
-    @NotNull(message = "Không được để trống tình trạng hợp đồng")
+    @NotNull(message = "Contract status must not be blank")
     Integer status = 1;
 }

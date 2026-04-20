@@ -29,12 +29,12 @@ public class ServiceInvoiceService {
 
     public ServiceInvoice findById(Integer id) {
         return repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy hóa đơn dịch vụ với id: " + id));
+                .orElseThrow(() -> new RuntimeException("Service invoice not found for id: " + id));
     }
 
     public ServiceInvoice create(SICreateRequest request) {
         BookingService bookingService = bookingServiceRepository.findById(request.getBookingServiceId())
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy dịch vụ được đặt với id: " + request.getBookingServiceId()));
+                .orElseThrow(() -> new RuntimeException("Booking service not found for id: " + request.getBookingServiceId()));
 
         ServiceInvoice serviceInvoice = ServiceInvoice.builder()
                 .bookingService(bookingService)
@@ -54,7 +54,7 @@ public class ServiceInvoiceService {
         }
         if(request.getBookingServiceId() != null){
             BookingService bookingService = bookingServiceRepository.findById(request.getBookingServiceId())
-                    .orElseThrow(() -> new RuntimeException("Không tìm thấy dịch vụ được đặt với id: " + request.getBookingServiceId()));
+                    .orElseThrow(() -> new RuntimeException("Booking service not found for id: " + request.getBookingServiceId()));
             serviceInvoice.setBookingService(bookingService);
         }
         if(request.getStatus() != null){

@@ -10,11 +10,11 @@ import lombok.experimental.FieldDefaults;
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class UICreateRequest {
-    @NotNull(message = "Không được để trống id căn hộ")
+    @NotNull(message = "Apartment id must not be blank")
     Integer apartmentId;
-    @NotNull(message = "Không được để trống tháng làm hoá đơn")
+    @NotNull(message = "Billing month must not be blank")
     Integer billingMonth;
-    @NotNull(message = "Không được để trống năm làm hoá đơn")
+    @NotNull(message = "Billing year must not be blank")
     Integer billingYear;
     Integer status = 0;
 }

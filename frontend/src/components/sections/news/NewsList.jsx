@@ -13,11 +13,12 @@ const normalizeKeyword = (value) =>
     .replace(/[\u0300-\u036f]/g, "")
     .trim();
 
-export default function NewsList({ activeTag = "" }) {
+export default function NewsList() {
   const [newsList, setNewsList] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
+  const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
     const fetchNews = async () => {
@@ -38,24 +39,24 @@ export default function NewsList({ activeTag = "" }) {
     fetchNews();
   }, []);
 
-  const normalizedTag = normalizeKeyword(activeTag);
+  const normalizedSearch = normalizeKeyword(searchTerm);
   const filteredNews = useMemo(
     () =>
       newsList.filter((news) => {
-        if (!normalizedTag) return true;
+        if (!normalizedSearch) return true;
 
         const searchableText = normalizeKeyword(
           `${news.title} ${news.desc} ${news.content} ${news.author}`
         );
 
-        return searchableText.includes(normalizedTag);
+        return searchableText.includes(normalizedSearch);
       }),
-    [newsList, normalizedTag]
+    [newsList, normalizedSearch]
   );
 
   useEffect(() => {
     setCurrentPage(1);
-  }, [activeTag]);
+  }, [searchTerm]);
 
   const totalPages = Math.max(1, Math.ceil(filteredNews.length / ITEMS_PER_PAGE));
   const safeCurrentPage = Math.min(currentPage, totalPages);
@@ -71,6 +72,21 @@ export default function NewsList({ activeTag = "" }) {
   return (
     <section className="news-container">
       <div className="news-main">
+        <div className="search-bar mb-4">
+          <div className="input-group">
+            <span className="input-group-text bg-white border-end-0">
+              <i className="bi bi-search text-muted"></i>
+            </span>
+            <input
+              type="text"
+              className="form-control border-start-0 ps-0 shadow-none"
+              placeholder="Search news by title, content, or author..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </div>
+        </div>
+
         {isLoading && (
           <div className="text-center py-5">
             <div className="spinner-border text-primary" role="status">
@@ -94,7 +110,7 @@ export default function NewsList({ activeTag = "" }) {
 
         {!isLoading && !error && newsList.length > 0 && filteredNews.length === 0 && (
           <div className="alert alert-warning" role="alert">
-            No articles matched the tag <strong>#{activeTag}</strong>.
+            No articles matched your search for <strong>"{searchTerm}"</strong>.
           </div>
         )}
 

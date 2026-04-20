@@ -24,7 +24,7 @@ public class ServicesService {
 
     public Services findById(Integer id) {
         return repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy dịch vụ với id: " + id));
+                .orElseThrow(() -> new RuntimeException("Service not found for id: " + id));
     }
 
     public Services create(ServicesCreateRequest request) {

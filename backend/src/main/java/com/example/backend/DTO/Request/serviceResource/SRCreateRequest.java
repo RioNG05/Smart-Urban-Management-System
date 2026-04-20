@@ -14,12 +14,12 @@ import java.math.BigDecimal;
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class SRCreateRequest {
-    @NotBlank(message = "Không được để trống mã tài nguyên")
+    @NotBlank(message = "Resource code must not be blank")
     String resourceCode;
-    @NotBlank(message = "Không được để trống khu vực")
+    @NotBlank(message = "Area must not be blank")
     String location;
-    @NotNull(message = "Không được để trống id dịch vụ")
+    @NotNull(message = "Service id must not be blank")
     Integer serviceId;
-    @NotNull(message = "Không được để trống trạng thái")
+    @NotNull(message = "Status must not be blank")
     Boolean isAvailable;
 }

@@ -65,9 +65,9 @@ function AuthForm() {
       console.log(err);
 
       if (err.response) {
-        toast.error(err.response.data.message || "Login failed");
+        toast.error("Login failed. Please check your credentials.");
       } else {
-        toast.error("Không thể kết nối server");
+        toast.error("Unable to connect to server");
       }
     }
   };
@@ -76,7 +76,7 @@ function AuthForm() {
     e.preventDefault();
 
     if (registerData.password !== registerData.confirmPassword) {
-      toast.warning("Password không khớp");
+      toast.warning("Password does not match");
       return;
     }
 
@@ -87,14 +87,14 @@ function AuthForm() {
         password: registerData.password,
       });
 
-      toast.success(res.data.message || "Account created successfully");
+      toast.success("Account created successfully");
 
       setIsLogin(true);
     } catch (err) {
       if (err.response?.data?.message) {
         toast.error(err.response.data.message);
       } else {
-        toast.error("Register thất bại");
+        toast.error("Register failed");
       }
     }
   };
@@ -148,12 +148,6 @@ function AuthForm() {
             >
               {showPassword ? <LuEyeOff size={20} /> : <LuEye size={20} />}
             </span>
-          </div>
-
-          <div className="forgot-row">
-            <a href="#" className="forgot-link">
-              Forgot password?
-            </a>
           </div>
 
           <button type="submit" className="primary-btn">

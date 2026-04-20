@@ -11,16 +11,16 @@ import lombok.experimental.FieldDefaults;
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class ApartmentCreateRequest {
-    @NotNull(message = "Không được để trống số phòng")
+    @NotNull(message = "Room number must not be blank")
     @Min(value = 1, message = "roomNumber must be bigger than 1")
     Integer roomNumber;
-    @NotNull(message = "Không được để trống số tầng")
+    @NotNull(message = "Floor number must not be blank")
     @Min(value = 1, message = "floorNumber must be bigger than 1")
     Integer floorNumber;
     String direction;
-    @NotNull(message = "Không được để trống tình trạng phòng")
+    @NotNull(message = "Room status must not be blank")
     Integer status;
-    @NotNull(message = "Không được để trống id kiểu căn hộ")
+    @NotNull(message = "Apartment type id must not be blank")
     @Min(value = 1, message = "apartmentType must be bigger than 1")
     Integer apartmentTypeId;
 }

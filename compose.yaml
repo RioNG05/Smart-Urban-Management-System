@@ -1,23 +1,27 @@
+version: '3.8'
+
 services:
   frontend:
     container_name: susm-frontend
     build:
       context: ./frontend
-      dockerfile: dockerfile
+      dockerfile: Dockerfile
     ports:
       - "5173:5173"
     volumes:
       - ./frontend:/app
       - /app/node_modules
     environment:
-      - VITE_API_URL=http://localhost:8080
+      - VITE_API_URL=http://localhost:8080 
+    depends_on:
+      - backend
     restart: unless-stopped
 
   backend:
     container_name: susm-backend
     build:
       context: ./backend
-      dockerfile: dockerfile
+      dockerfile: Dockerfile
     ports:
       - "8080:8080"
     volumes:
@@ -26,7 +30,44 @@ services:
     command: ./mvnw spring-boot:run
     env_file:
       - ./backend/.env
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
+    depends_on:
+      db:
+        condition: service_healthy
     restart: unless-stopped
 
+  db:
+    image: mcr.microsoft.com/mssql/server:2019-latest
+    container_name: susm-sqlserver
+    restart: always
+    environment:
+      SA_PASSWORD: "Sums@!2026"
+      ACCEPT_EULA: "Y"
+    ports:
+      - "1434:1433"
+    volumes:
+      - sql_data:/var/opt/mssql
+      - ./db/SUMS.sql:/init.sql              # mount file sql
+      - ./db/init-db.sh:/init-db.sh          # script chạy sql
+    command: >
+      /bin/bash -c "
+      /opt/mssql/bin/sqlservr &
+      /init-db.sh;
+      wait
+      "
+    healthcheck:
+      test: ["CMD-SHELL", "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P \"Sums@!2026\" -C -Q \"SET NOCOUNT ON; SELECT DB_ID('SmartCity_DB')\" -h -1 | grep -q '[0-9]'"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 15s
+
+  adminer:
+    image: adminer
+    container_name: susm-adminer
+    ports:
+      - "8081:8080"
+    depends_on:
+      - db
+
+volumes:
+  sql_data:

@@ -12,11 +12,11 @@ import java.time.LocalDate;
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class SAHCreateRequest {
-    @NotNull(message = "Không được để trống id cư dân")
+    @NotNull(message = "Resident id must not be blank")
     Integer residentId;
-    @NotNull(message = "Không được để trống id căn hộ")
+    @NotNull(message = "Apartment id must not be blank")
     Integer apartmentId;
-    @NotNull(message = "Không được để trống ngày đi vào")
+    @NotNull(message = "Move-in date must not be blank")
     LocalDate moveIn;
     
     LocalDate moveOut;

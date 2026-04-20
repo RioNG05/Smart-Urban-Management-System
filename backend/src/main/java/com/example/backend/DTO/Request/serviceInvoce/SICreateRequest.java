@@ -12,9 +12,9 @@ import java.time.LocalDateTime;
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class SICreateRequest {
-    @NotBlank(message = "Không được để trống id booking dịch vụ")
+    @NotBlank(message = "Booking service id must not be blank")
     private Integer bookingServiceId;
-    @NotBlank(message = "Không được để trống giá tiền")
+    @NotBlank(message = "Price must not be blank")
     private BigDecimal amount;
     private Integer status = 0;
     private LocalDateTime paymentDate;

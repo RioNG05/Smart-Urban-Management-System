@@ -9,16 +9,16 @@ import java.time.LocalDate;
 @Data
 public class StaffCreateRequest {
 
-    @NotBlank(message = "Tên nhân viên không được để trống")
+    @NotBlank(message = "Staff name must not be blank")
     private String fullName;
 
     private String gender;
 
     private LocalDate dateOfBirth;
 
-    @NotBlank(message = "IdentityId không được để trống")
+    @NotBlank(message = "IdentityId must not be blank")
     private String identityId;
 
-    @NotNull(message = "AccountId không được để trống")
+    @NotNull(message = "AccountId must not be blank")
     private Integer accountId;
 }

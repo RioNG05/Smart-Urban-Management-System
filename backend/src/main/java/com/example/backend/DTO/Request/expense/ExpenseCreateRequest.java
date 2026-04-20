@@ -14,21 +14,21 @@ import java.time.LocalDate;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class ExpenseCreateRequest {
 
-    @NotBlank(message = "Không được để trống tiêu đề")
+    @NotBlank(message = "Title must not be blank")
     String title;
 
     String description;
 
-    @NotNull(message = "Không được để trống apartmentId")
+    @NotNull(message = "apartmentId must not be blank")
     Integer apartmentId;
 
-    @NotNull(message = "Không được để trống createdBy")
+    @NotNull(message = "createdBy must not be blank")
     Integer createdById;
 
-    @NotNull(message = "Không được để trống amount")
+    @NotNull(message = "amount must not be blank")
     BigDecimal amount;
 
-    @NotNull(message = "Không được để trống expenseDate")
+    @NotNull(message = "expenseDate must not be blank")
     LocalDate expenseDate;
 
     Integer status = 0;

@@ -86,7 +86,7 @@ export default function BillingPage() {
     // Check for payment success toast in session storage after a reload
     const paymentToast = sessionStorage.getItem("paymentSuccessToast");
     if (paymentToast === "true") {
-      toast.success("Thanh toán thành công!", {
+      toast.success("Payment successful!", {
         position: "top-right",
         style: {
           marginTop: "80px",
@@ -110,7 +110,7 @@ export default function BillingPage() {
           const res = await api.get(`/payment/vnpay_return${window.location.search}`);
           if (res.data.code === 0 || res.data.code === 4) {
             if (res.data.code === 0) {
-              toast.success("Thanh toán thành công!", {
+              toast.success("Payment successful!", {
                 position: "top-right",
                 autoClose: 5000,
                 style: {
@@ -127,12 +127,12 @@ export default function BillingPage() {
             // Refresh bills data
             setRefreshTrigger(prev => prev + 1);
           } else {
-            toast.error("Thanh toán thất bại hoặc có lỗi xảy ra.");
+            toast.error("Payment failed or an error occurred.");
             navigate(location.pathname, { replace: true });
           }
         } catch (err) {
-          console.error("Lỗi xác minh thanh toán", err);
-          toast.error("Có lỗi xảy ra khi xác thực giao dịch.");
+          console.error("Payment verification error", err);
+          toast.error("An error occurred while validating the transaction.");
           navigate(location.pathname, { replace: true });
         } finally {
           // Release lock after a short delay in case of component remount
@@ -883,13 +883,13 @@ export default function BillingPage() {
       }
 
       const res = await api.post("/payment/create", {
-        orderInfo: `Thanh toan phi - Service Bookings`,
+        orderInfo: `Fee payment - Service Bookings`,
         invoices: invoicesPayload
       });
       window.location.href = res.data.result.paymentUrl;
     } catch (error) {
       console.error(error);
-      toast.error("Lỗi khi kết nối tới cổng thanh toán.");
+      toast.error("Error connecting to payment gateway.");
     }
   };
 

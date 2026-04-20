@@ -1,17 +1,8 @@
-USE master;
-GO
-
--- 1. Kiểm tra và xóa Database nếu đã tồn tại
-IF EXISTS (SELECT name FROM sys.databases WHERE name = N'SmartCity_DB')
+-- 1. Tạo Database nếu chưa tồn tại
+IF NOT EXISTS (SELECT name FROM sys.databases WHERE name = N'SmartCity_DB')
 BEGIN
-    -- Force đóng các kết nối đang mở để có thể xóa được DB
-    ALTER DATABASE SmartCity_DB SET SINGLE_USER WITH ROLLBACK IMMEDIATE;
-    DROP DATABASE SmartCity_DB;
+    CREATE DATABASE SmartCity_DB;
 END
-GO
-
--- 2. Tạo Database mới
-CREATE DATABASE SmartCity_DB;
 GO
 
 -- 3. Sử dụng Database vừa tạo
@@ -2850,7 +2841,9 @@ WITH MonthSeries AS (
     UNION ALL
     SELECT DATEFROMPARTS(2026, 2, 1), 2                             -- Chốt cho tháng 01/2026
     UNION ALL
-    SELECT DATEFROMPARTS(2026, 3, 1), 3                             -- Chốt cho tháng 02/2026
+    SELECT DATEFROMPARTS(2026, 3, 1), 3 
+     UNION ALL
+    SELECT DATEFROMPARTS(2026, 4, 1), 4    -- Chốt cho tháng 02/2026
 )
 -- Add data cho tất cả các căn phòng. - miễn sao phòng đấy đang có người :))) - Mình tạm thời chỉ để mua trước đã cho dễ quản lý. 
 -- 2.2.2 Phóng dữ liệu vào bảng IoT_Sync_Logs cho các căn đã có chủ (Status = 1)
@@ -2929,6 +2922,29 @@ FROM
     (SELECT * FROM IoT_Sync_Logs WHERE LogDate = '2026-03-01') AS Curr
 JOIN 
     (SELECT * FROM IoT_Sync_Logs WHERE LogDate = '2026-02-01') AS Prev 
+    ON Curr.ApartmentId = Prev.ApartmentId;
+GO
+
+--3.2.2 -- tháng 3 
+-- =============================================
+-- BATCH 3.2: XUẤT HÓA ĐƠN THÁNG 02/2026 (TẠO NGÀY 02/03/2026)
+-- =============================================
+INSERT INTO UtilitiesInvoices (ApartmentId, BillingMonth, BillingYear, TotalElectricUsed, TotalWaterUsed, TotalAmount, Status, CreatedAt)
+SELECT 
+    Curr.ApartmentId,
+    3 AS BillingMonth, -- Hóa đơn cho tháng 2
+    2026 AS BillingYear,
+    (Curr.ElectricityEndNum - Prev.ElectricityEndNum) AS ElecUsed,
+    (Curr.WaterEndNum - Prev.WaterEndNum) AS WaterUsed,
+    ( (Curr.ElectricityEndNum - Prev.ElectricityEndNum) * (SELECT BasePrice FROM MandatoryServices WHERE ServiceCode = 'ELEC_01') ) +
+    ( (Curr.WaterEndNum - Prev.WaterEndNum) * (SELECT BasePrice FROM MandatoryServices WHERE ServiceCode = 'WAT_01') ) +
+    ( (SELECT BasePrice FROM MandatoryServices WHERE ServiceCode = 'MNG_FEE') ) AS TotalAmount,
+    0 AS Status,
+    DATEFROMPARTS(2026, 4, 2) AS CreatedAt -- Tạo vào mùng 2 tháng 3
+FROM 
+    (SELECT * FROM IoT_Sync_Logs WHERE LogDate = '2026-04-01') AS Curr
+JOIN 
+    (SELECT * FROM IoT_Sync_Logs WHERE LogDate = '2026-03-01') AS Prev 
     ON Curr.ApartmentId = Prev.ApartmentId;
 GO
 
@@ -3214,6 +3230,8 @@ CREATE TABLE PaymentInvoice (
 );
 GO
 
---UPDATE UtilitiesInvoices
---SET Status = 1
---WHERE Status = 0;
+UPDATE UtilitiesInvoices
+SET Status = 1
+WHERE Status = 0;
+
+  update UtilitiesInvoices set Status = 1 where ApartmentId = 1 and BillingMonth = 3;

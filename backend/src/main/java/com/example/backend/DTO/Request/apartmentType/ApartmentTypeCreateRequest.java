@@ -13,19 +13,19 @@ import java.math.BigDecimal;
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class ApartmentTypeCreateRequest {
-    @NotBlank(message = "Không được để trống tên kiểu phòng")
+    @NotBlank(message = "Room type name must not be blank")
     String name;
-    @NotNull(message = "Không được để trống kích thước")
+    @NotNull(message = "Size must not be blank")
     BigDecimal designSqrt;
-    @NotNull(message = "Không được để trống số phòng ngủ")
+    @NotNull(message = "Number of bedrooms must not be blank")
     Integer numberOfBedroom;            //Defaut: 1
-    @NotNull(message = "Không được để trống số phòng tắm")
+    @NotNull(message = "Number of bathrooms must not be blank")
     Integer numberOfBathroom;           //Defaut: 1
     String overview;
-    @NotNull(message = "Không được để trống giá mua")
+    @NotNull(message = "Purchase price must not be blank")
     BigDecimal commonPriceForBuying;
-    @NotNull(message = "Không được để trống giá thuê")
+    @NotNull(message = "Rent price must not be blank")
     BigDecimal commonPriceForRent;
-    @NotNull(message = "Không được để trống kiểu nội thất")
+    @NotNull(message = "Furniture type must not be blank")
     Integer furnitureTypeId;
 }
