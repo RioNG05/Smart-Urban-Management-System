@@ -45,3 +45,14 @@
 Ensure ports 3000/8080 are free. / Đảm bảo các port 3000/8080 không bị trùng.
 2.  **Rebuild / Cập nhật**: 
 Run **Rebuild** after changing `package.json` or `.env`. / Chạy **Build lại** sau khi thay đổi `package.json` hoặc `.env`.
+
+### Advanced Cleanup / Dọn dẹp nâng cao
+**English:**
+*   **Deep Clean (Removes unused containers, networks, images):** `docker system prune -af`
+*   **Clear Build Cache:** `docker builder prune -af`
+*   **All-in-one cleanup:** `docker system prune -af && docker builder prune -af`
+
+**Tiếng Việt:**
+*   **Dọn dẹp sâu (Xoá các container, mạng, ảnh không dùng):** `docker system prune -af`
+*   **Xoá bộ nhớ đệm Build:** `docker builder prune -af`
+*   **Lệnh dọn dẹp tổng hợp (Chạy gộp):** `docker system prune -af && docker builder prune -af`
